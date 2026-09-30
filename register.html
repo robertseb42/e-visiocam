@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription — E-VISIOCAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { primary: '#e91e63', hover: '#d81b60' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: Inter, sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a0b2e 0%, #2d1547 50%, #0f172a 100%);
+        }
+        .login-card {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .input-field { transition: all 0.2s ease; }
+        .input-field:focus {
+            border-color: #e91e63;
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.1);
+        }
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="h-full min-h-screen gradient-bg flex items-center justify-center p-4">
+
+<div class="w-full max-w-md">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+        <a href="index.html" class="inline-flex items-center gap-3 group">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white shadow-2xl shadow-pink-500/30 group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-video text-2xl"></i>
+            </div>
+        </a>
+        <h1 class="text-3xl font-black text-white mt-4">
+            E-<span class="text-brand-primary">VISIOCAM</span>
+        </h1>
+        <p class="text-slate-400 text-sm mt-1">Créez votre compte gratuit</p>
+    </div>
+
+    <!-- Carte inscription -->
+    <div class="login-card rounded-3xl p-8">
+
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-extrabold text-slate-900">Créer un compte</h2>
+            <p class="text-xs text-slate-500 mt-1">Rejoignez-nous en 30 secondes</p>
+        </div>
+
+        <div id="errorBox" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-start gap-2">
+            <i class="fa-solid fa-circle-exclamation mt-0.5"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <form id="registerForm" class="space-y-4">
+
+            <!-- Username -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Nom d'utilisateur</label>
+                <div class="relative">
+                    <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="username" required minlength="3" maxlength="20"
+                        placeholder="MonPseudo"
+                        class="input-field w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none">
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">3-20 caractères, lettres/chiffres/_ uniquement</p>
+            </div>
+
+            <!-- Email -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Adresse email</label>
+                <div class="relative">
+                    <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="email" id="email" required
+                        placeholder="votre@email.com"
+                        class="input-field w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Mot de passe</label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="password" id="password" required minlength="8"
+                        placeholder="••••••••"
+                        oninput="checkStrength()"
+                        class="input-field w-full pl-10 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none">
+                    <button type="button" onclick="togglePassword('password', this)"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-sm" tabindex="-1">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+                <!-- Barre de force -->
+                <div class="mt-2 flex gap-1">
+                    <div id="bar1" class="strength-bar flex-1 bg-slate-200"></div>
+                    <div id="bar2" class="strength-bar flex-1 bg-slate-200"></div>
+                    <div id="bar3" class="strength-bar flex-1 bg-slate-200"></div>
+                    <div id="bar4" class="strength-bar flex-1 bg-slate-200"></div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">
+                    Min. 8 caractères, 1 majuscule, 1 chiffre
+                </p>
+            </div>
+
+            <!-- Confirm -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Confirmer le mot de passe</label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="password" id="confirm" required
+                        placeholder="••••••••"
+                        class="input-field w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none">
+                </div>
+            </div>
+
+            <!-- CGU -->
+            <div class="flex items-start gap-2 text-xs">
+                <input type="checkbox" id="cgu" required class="mt-0.5 rounded border-slate-300 text-brand-primary focus:ring-brand-primary">
+                <label for="cgu" class="text-slate-600 cursor-pointer leading-relaxed">
+                    J'accepte les <a href="cgu.html" class="text-brand-primary font-bold hover:underline">CGU</a>
+                    et la <a href="confidentialite.html" class="text-brand-primary font-bold hover:underline">politique de confidentialité</a>
+                </label>
+            </div>
+
+            <!-- Âge -->
+            <div class="flex items-start gap-2 text-xs">
+                <input type="checkbox" id="age" required class="mt-0.5 rounded border-slate-300 text-brand-primary focus:ring-brand-primary">
+                <label for="age" class="text-slate-600 cursor-pointer leading-relaxed">
+                    Je certifie avoir <strong>18 ans ou plus</strong>
+                </label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" id="submitBtn"
+                class="w-full py-3.5 bg-gradient-to-r from-brand-primary to-rose-500 hover:from-brand-hover hover:to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/30 text-sm transition-all active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-user-plus"></i>
+                <span id="submitText">Créer mon compte</span>
+                <i id="spinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+            </button>
+        </form>
+
+        <p class="text-center text-xs text-slate-600 mt-6">
+            Déjà un compte ?
+            <a href="login.html" class="text-brand-primary font-bold hover:underline">Se connecter</a>
+        </p>
+    </div>
+
+    <p class="text-center text-xs text-slate-500 mt-6">
+        <a href="index.html" class="hover:text-white transition-colors">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Retour à l'accueil
+        </a>
+    </p>
+</div>
+
+<script src="auth-api.js"></script>
+<script>
+    // ---------- FORCE DU MOT DE PASSE ----------
+    function checkStrength() {
+        const pwd = document.getElementById('password').value;
+        let score = 0;
+        if (pwd.length >= 8) score++;
+        if (/[A-Z]/.test(pwd)) score++;
+        if (/[0-9]/.test(pwd)) score++;
+        if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+        const colors = ['bg-rose-500', 'bg-amber-500', 'bg-yellow-500', 'bg-emerald-500'];
+        for (let i = 1; i <= 4; i++) {
+            const bar = document.getElementById('bar' + i);
+            bar.className = 'strength-bar flex-1 ' + (i <= score ? colors[score - 1] : 'bg-slate-200');
+        }
+    }
+
+    function togglePassword(fieldId, btn) {
+        const field = document.getElementById(fieldId);
+        const icon = btn.querySelector('i');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.className = 'fa-solid fa-eye-slash';
+        } else {
+            field.type = 'password';
+            icon.className = 'fa-solid fa-eye';
+        }
+    }
+
+    function showError(msg) {
+        document.getElementById('errorText').textContent = msg;
+        document.getElementById('errorBox').classList.remove('hidden');
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        document.getElementById('errorBox').classList.add('hidden');
+
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirm = document.getElementById('confirm').value;
+
+        // Vérifications côté client
+        if (password !== confirm) {
+            showError('Les mots de passe ne correspondent pas');
+            return;
+        }
+        if (password.length < 8) {
+            showError('Le mot de passe doit contenir au moins 8 caractères');
+            return;
+        }
+        if (!/[A-Z]/.test(password)) {
+            showError('Le mot de passe doit contenir au moins une majuscule');
+            return;
+        }
+        if (!/[0-9]/.test(password)) {
+            showError('Le mot de passe doit contenir au moins un chiffre');
+            return;
+        }
+
+        // Désactiver le bouton
+        const btn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('submitText');
+        const spinner = document.getElementById('spinner');
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btnText.textContent = 'Création...';
+        spinner.classList.remove('hidden');
+
+        try {
+            const user = await register(username, email, password);
+            showToast(`Bienvenue ${user.username} ! 🎉`, 'success');
+            setTimeout(() => redirectByRole(user), 800);
+        } catch (err) {
+            showError(err.message);
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btnText.textContent = 'Créer mon compte';
+            spinner.classList.add('hidden');
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — E-VISIOCAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js"></script>
+    <script src="nav-auth.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { primary: '#e91e63', hover: '#d81b60' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<script>
+(function() {
+    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+        window.location.href = 'login.html?redirect=dashboard.html';
+        return;
+    }
+    if (!hasRole('model', 'moderator', 'super_admin')) {
+        document.documentElement.innerHTML = '<body style="margin:0;"><div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;font-family:Inter,sans-serif;"><div style="background:white;border-radius:24px;padding:40px;text-align:center;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);"><h1 style="font-size:22px;font-weight:900;color:#0f172a;margin:0 0 8px;">Accès refusé</h1><p style="font-size:13px;color:#64748b;margin:0 0 24px;">Page réservée aux modèles.</p><a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;">Retour</a></div></div></body>';
+        throw new Error('Accès refusé');
+    }
+})();
+</script>
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">Mon <span class="text-brand-primary">Dashboard</span></span>
+        </a>
+        <div class="flex items-center gap-3">
+            <div id="navAuth" class="flex items-center gap-2"></div>
+            <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
+    <div class="mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900">🎥 Bienvenue <span id="welcomeName">...</span></h1>
+            <p class="text-sm text-slate-500 mt-1">Gérez votre activité et vos revenus</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div id="liveStatus" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 text-slate-500">⚫ Hors ligne</div>
+            <button onclick="toggleLive()" class="px-6 py-3 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-xl shadow-lg text-sm flex items-center gap-2">
+                <i class="fa-solid fa-video"></i>
+                <span id="liveBtnText">Démarrer le live</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <p class="text-xs text-slate-500 font-medium">Spectateurs</p>
+            <p class="text-2xl font-black text-slate-900 mt-1" id="statViewers">—</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <p class="text-xs text-slate-500 font-medium">Abonnés</p>
+            <p class="text-2xl font-black text-slate-900 mt-1" id="statFollowers">—</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <p class="text-xs text-slate-500 font-medium">Likes</p>
+            <p class="text-2xl font-black text-slate-900 mt-1" id="statLikes">—</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <p class="text-xs text-slate-500 font-medium">Note</p>
+            <p class="text-2xl font-black text-amber-500 mt-1" id="statRating">—</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-emerald-600 to-teal-500 rounded-2xl p-6 text-white shadow-lg">
+            <p class="text-xs text-emerald-100 font-medium">Revenus totaux</p>
+            <p class="text-4xl font-black mt-1"><span id="statEarnings">—</span> €</p>
+            <p class="text-xs text-emerald-100 mt-3"><i class="fa-solid fa-coins"></i> <span id="statCredits">—</span> crédits</p>
+        </div>
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+            <h3 class="font-bold text-slate-900 text-sm mb-4">📊 Revenus cette semaine</h3>
+            <div class="flex items-end justify-between gap-2 h-32" id="chart"></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <h3 class="font-bold text-slate-900 text-sm mb-4">📅 Sessions récentes</h3>
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-slate-100 text-left text-xs text-slate-500 uppercase font-bold">
+                    <th class="py-3 px-2">Date</th>
+                    <th class="py-3 px-2">Durée</th>
+                    <th class="py-3 px-2">Spectateurs</th>
+                    <th class="py-3 px-2 text-right">Revenus</th>
+                </tr>
+            </thead>
+            <tbody id="sessionsTable">
+                <tr><td colspan="4" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+let currentUser = null;
+let isLive = false;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    currentUser = getCurrentUser();
+    if (currentUser) document.getElementById('welcomeName').innerText = currentUser.username;
+    await loadStats();
+    await loadSessions();
+});
+
+async function loadStats() {
+    try {
+        const data = await apiCall('/model/stats');
+        const s = data.stats;
+        document.getElementById('statViewers').innerText = s.viewers;
+        document.getElementById('statFollowers').innerText = s.followers;
+        document.getElementById('statLikes').innerText = s.likes;
+        document.getElementById('statRating').innerText = s.avgRating + ' ⭐';
+        document.getElementById('statEarnings').innerText = s.totalEarnings.toFixed(2);
+        document.getElementById('statCredits').innerText = s.creditsBalance;
+        isLive = s.liveStatus === 'live';
+        updateLiveUI();
+        renderChart(s.weeklyEarnings);
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+function renderChart(values) {
+    const max = Math.max(...values, 1);
+    const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    document.getElementById('chart').innerHTML = values.map((v, i) => {
+        const height = (v / max) * 100;
+        return '<div class="flex-1 flex flex-col items-center gap-2"><div class="w-full bg-slate-100 rounded-lg relative overflow-hidden" style="height:100%;"><div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-emerald-500 to-teal-400 rounded-lg" style="height:' + height + '%;" title="' + v + '€"></div></div><span class="text-[10px] text-slate-500 font-bold">' + days[i] + '</span></div>';
+    }).join('');
+}
+
+function updateLiveUI() {
+    const status = document.getElementById('liveStatus');
+    const btn = document.getElementById('liveBtn');
+    const btnText = document.getElementById('liveBtnText');
+    if (isLive) {
+        status.className = 'px-4 py-2 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-700';
+        status.innerHTML = '🔴 EN DIRECT';
+        btn.className = 'px-6 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white font-bold rounded-xl shadow-lg text-sm flex items-center gap-2';
+        btnText.innerText = 'Arrêter le live';
+    } else {
+        status.className = 'px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 text-slate-500';
+        status.innerHTML = '⚫ Hors ligne';
+        btn.className = 'px-6 py-3 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-xl shadow-lg text-sm flex items-center gap-2';
+        btnText.innerText = 'Démarrer le live';
+    }
+}
+
+async function toggleLive() {
+    try {
+        const action = isLive ? 'stop' : 'start';
+        const data = await apiCall('/model/toggle-live', { method: 'POST', body: JSON.stringify({ action }) });
+        isLive = data.liveStatus === 'live';
+        updateLiveUI();
+        showToast(isLive ? '🔴 Live démarré !' : '⚫ Live arrêté');
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function loadSessions() {
+    const tbody = document.getElementById('sessionsTable');
+    try {
+        const data = await apiCall('/model/sessions');
+        tbody.innerHTML = data.sessions.map(s => '<tr class="border-b border-slate-50"><td class="py-3 px-2">' + new Date(s.date).toLocaleDateString('fr-FR') + '</td><td class="py-3 px-2 text-slate-500">' + s.duration + ' min</td><td class="py-3 px-2 text-slate-500">' + s.viewers + '</td><td class="py-3 px-2 text-right font-bold text-emerald-600">' + s.earnings.toFixed(2) + ' €</td></tr>').join('');
+    } catch (err) { tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-rose-500">' + err.message + '</td></tr>'; }
+}
+</script>
+</body>
+</html>

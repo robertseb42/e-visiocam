@@ -3,24 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-VISIOCAM - Chat Cam En Direct & Rencontres Live</title>
-    <meta name="description" content="Chat cam en direct, rencontres live, modèles vérifiés. Rejoignez E-VISIOCAM gratuitement.">
+    <title>E-VISIOCAM - Chat Cam En Direct</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="auth-api.js"></script>
+    <script src="nav-auth.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#fdf2f8', 100: '#fce7f3', 500: '#ec4899',
-                            600: '#e11d48', primary: '#e91e63',
-                            hover: '#d81b60', dark: '#881337',
-                        },
+                        brand: { primary: '#e91e63', hover: '#d81b60' },
                         darkpurple: '#1a0b2e',
                         carddark: '#24143a'
                     },
@@ -30,14 +25,13 @@
         }
     </script>
 </head>
-<body class="h-full text-slate-800 flex flex-col font-sans antialiased bg-slate-100 selection:bg-pink-500 selection:text-white">
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
-<!-- ==================== NAVBAR ==================== -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <div class="flex items-center gap-8">
-            <a href="index.html" class="flex items-center gap-2 group">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
                     <i class="fa-solid font-bold text-lg fa-video"></i>
                 </div>
                 <span class="text-2xl font-black tracking-tight text-slate-900">
@@ -57,37 +51,28 @@
         <div class="flex items-center gap-3 sm:gap-5">
             <div class="relative hidden sm:block w-48 md:w-64">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="text" id="searchInput" placeholder="Rechercher un modèle..."
-                    class="w-full pl-9 pr-4 py-2 bg-slate-100 hover:bg-slate-200/70 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
+                <input type="text" placeholder="Rechercher un modèle..."
+                    class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
             </div>
 
-            <button onclick="showToast('Aucune nouvelle notification')" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+            <button onclick="showToast('Aucune nouvelle notification', 'info')" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
                 <i class="fa-regular fa-bell text-lg"></i>
                 <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-primary rounded-full ring-2 ring-white"></span>
             </button>
 
-            <a href="compte.html" class="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors text-sm font-semibold text-slate-700 border border-slate-200/60">
-                <div class="relative">
-                    <div class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-xs font-bold">3</div>
-                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
-                </div>
-                <span class="hidden md:inline">Mon compte</span>
-            </a>
+            <div id="navAuth" class="flex items-center gap-2"></div>
 
-            <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-slate-600 hover:text-slate-900">
+            <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-slate-600">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
         </div>
     </div>
 </header>
 
-<!-- ==================== MAIN CONTAINER ==================== -->
-<div class="max-w-[1700px] w-full mx-auto flex-1 flex p-3 md:p-6 gap-6 overflow-hidden">
-
-    <!-- ========== SIDEBAR ========== -->
-    <aside id="sidebar" class="hidden lg:flex flex-col w-64 shrink-0 gap-6 overflow-y-auto pr-1">
-        <button onclick="openModal('broadcastModal')" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-primary to-rose-500 hover:from-brand-hover hover:to-rose-600 text-white font-bold rounded-2xl shadow-lg shadow-pink-500/25 flex items-center justify-center gap-3 transition-all active:scale-95">
-            <i class="fa-solid fa-broadcast-tower text-lg animate-pulse"></i>
+<div class="max-w-[1700px] w-full mx-auto flex-1 flex p-3 md:p-6 gap-6">
+    <aside id="sidebar" class="hidden lg:flex flex-col w-64 shrink-0 gap-6">
+        <button onclick="openModal('broadcastModal')" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-2xl shadow-lg shadow-pink-500/25 flex items-center justify-center gap-3">
+            <i class="fa-solid fa-broadcast-tower text-lg"></i>
             <span>Diffuser ma webcam</span>
         </button>
 
@@ -95,303 +80,45 @@
             <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-pink-50 text-brand-primary font-semibold">
                 <i class="fa-solid fa-border-all w-5 text-center"></i><span>Toutes les caméras</span>
             </a>
-            <a href="live.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
-                <i class="fa-solid fa-circle text-emerald-500 text-xs w-5 text-center"></i><span>En direct maintenant</span>
+            <a href="live.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
+                <i class="fa-solid fa-circle text-emerald-500 text-xs w-5 text-center"></i><span>En direct</span>
             </a>
-            <a href="modeles.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
-                <i class="fa-solid fa-sparkles w-5 text-center text-amber-500"></i><span>Nouveaux modèles</span>
+            <a href="modeles.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
+                <i class="fa-solid fa-sparkles w-5 text-center text-amber-500"></i><span>Modèles</span>
             </a>
-            <a href="modeles.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
-                <i class="fa-solid fa-fire w-5 text-center text-orange-500"></i><span>Les plus populaires</span>
+            <a href="salons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
+                <i class="fa-solid fa-users w-5 text-center text-blue-500"></i><span>Salons</span>
             </a>
-            <a href="salons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
-                <i class="fa-solid fa-users w-5 text-center text-blue-500"></i><span>Salons publics</span>
-            </a>
-            <a href="salons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
-                <i class="fa-solid fa-lock w-5 text-center text-purple-500"></i><span>Salons privés</span>
-            </a>
-            <div class="my-2 border-t border-slate-100"></div>
-            <a href="messages.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
+            <a href="messages.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
                 <div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-5 text-center"></i><span>Messages</span></div>
                 <span class="bg-brand-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">1</span>
             </a>
-            <a href="compte.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
-                <i class="fa-solid fa-bookmark w-5 text-center"></i><span>Mes favoris</span>
-            </a>
-            <a href="credits.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-brand-primary transition-colors">
+            <a href="credits.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
                 <i class="fa-solid fa-coins w-5 text-center text-amber-500"></i><span>Mes crédits</span>
             </a>
         </nav>
-
-        <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl p-4 border border-pink-200/70 text-center flex flex-col items-center">
-            <h4 class="font-bold text-slate-900 text-base mb-1">Devenez Modèle</h4>
-            <ul class="text-xs text-slate-600 space-y-1 mb-4">
-                <li><i class="fa-solid fa-check text-emerald-500"></i> Gagnez des revenus</li>
-                <li><i class="fa-solid fa-check text-emerald-500"></i> Gestion facile</li>
-                <li><i class="fa-solid fa-check text-emerald-500"></i> Paiements sécurisés</li>
-            </ul>
-            <button onclick="openModal('becomeModelModal')" class="w-full py-2 px-3 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl shadow transition-colors">
-                Commencer maintenant
-            </button>
-        </div>
     </aside>
 
-    <!-- ========== MAIN CONTENT ========== -->
-    <main class="flex-1 overflow-y-auto space-y-6 pr-1">
-
-        <!-- HERO -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            <div class="lg:col-span-8 bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-6 md:p-8 text-white relative overflow-hidden flex flex-col justify-between shadow-xl min-h-[220px]">
-                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="relative z-10 max-w-lg">
-                    <h1 class="text-2xl md:text-4xl font-extrabold uppercase tracking-wide leading-tight">
-                        Chat Cam <br>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-500">En Direct</span>
-                    </h1>
-                    <p class="text-slate-300 text-xs md:text-sm mt-2 font-light">
-                        Des milliers de modèles en ligne pour discuter et faire des rencontres en temps réel.
-                    </p>
-                </div>
-                <div class="relative z-10 mt-6 flex flex-wrap items-center gap-4">
-                    <a href="compte.html" class="px-6 py-3 bg-gradient-to-r from-brand-primary to-rose-500 hover:from-brand-hover hover:to-rose-600 text-white font-bold rounded-xl shadow-lg shadow-pink-500/30 text-sm transition-transform active:scale-95">
-                        Créer un compte gratuit
-                    </a>
-                    <div class="flex items-center gap-4 text-xs text-slate-300">
-                        <span><i class="fa-solid fa-check text-emerald-400"></i> 100% Anonyme</span>
-                        <span><i class="fa-solid fa-check text-emerald-400"></i> Caméras HD</span>
-                        <span><i class="fa-solid fa-check text-emerald-400"></i> Mobile & PC</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-4 flex flex-col gap-3">
-                <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl"><i class="fa-solid fa-shield-halved"></i></div>
-                    <div><h4 class="font-bold text-slate-800 text-sm">Modèles vérifiés</h4><p class="text-xs text-slate-500">Profils authentiques certifiés</p></div>
-                </div>
-                <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl"><i class="fa-solid fa-lock"></i></div>
-                    <div><h4 class="font-bold text-slate-800 text-sm">Chat privé</h4><p class="text-xs text-slate-500">Moments exclusifs & discrets</p></div>
-                </div>
-                <div class="flex-1 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl"><i class="fa-solid fa-credit-card"></i></div>
-                    <div><h4 class="font-bold text-slate-800 text-sm">Paiements sécurisés</h4><p class="text-xs text-slate-500">Transactions 100% sûres</p></div>
-                </div>
-            </div>
+    <main class="flex-1 space-y-6">
+        <div class="bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl">
+            <h1 class="text-4xl font-extrabold uppercase">
+                Chat Cam <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-500">En Direct</span>
+            </h1>
+            <p class="text-slate-300 text-sm mt-2">Des milliers de modèles en ligne pour discuter et faire des rencontres.</p>
+            <a href="register.html" class="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-xl">
+                Créer un compte gratuit
+            </a>
         </div>
 
-        <!-- MODÈLES -->
-        <section class="space-y-4">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 bg-brand-primary rounded-full live-pulse"></span>
-                    <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">En direct maintenant</h2>
-                </div>
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-semibold scrollbar-none">
-                    <button onclick="filterModels('all', this)" class="filter-tab px-3 py-1.5 rounded-full bg-brand-primary text-white transition-all shrink-0">Toutes</button>
-                    <button onclick="filterModels('fr', this)" class="filter-tab px-3 py-1.5 rounded-full bg-white hover:bg-slate-200 text-slate-600 transition-all shrink-0">Françaises</button>
-                    <button onclick="filterModels('int', this)" class="filter-tab px-3 py-1.5 rounded-full bg-white hover:bg-slate-200 text-slate-600 transition-all shrink-0">Internationales</button>
-                    <button onclick="filterModels('amateur', this)" class="filter-tab px-3 py-1.5 rounded-full bg-white hover:bg-slate-200 text-slate-600 transition-all shrink-0">Amateurs</button>
-                    <button onclick="filterModels('couples', this)" class="filter-tab px-3 py-1.5 rounded-full bg-white hover:bg-slate-200 text-slate-600 transition-all shrink-0">Couples</button>
-                    <button onclick="filterModels('new', this)" class="filter-tab px-3 py-1.5 rounded-full bg-white hover:bg-slate-200 text-slate-600 transition-all shrink-0">Nouveaux</button>
-                </div>
-                <a href="live.html" class="text-xs font-bold text-brand-primary hover:underline hidden md:inline-block">Voir tout</a>
-            </div>
-            <div id="modelsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3"></div>
-        </section>
-
-        <!-- LECTEUR + SALONS + CHAT -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-            <!-- Salons -->
-            <div class="lg:col-span-3 bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-extrabold text-slate-900 text-sm">Salons publics</h3>
-                        <a href="salons.html" class="text-xs text-brand-primary font-bold hover:underline">Voir tout</a>
-                    </div>
-                    <div class="space-y-1.5 text-xs font-medium">
-                        <button onclick="switchSalon('Salon Général', this)" class="salon-btn w-full flex items-center justify-between p-2.5 rounded-xl bg-pink-50 border border-pink-200/60 text-brand-primary">
-                            <span class="font-bold">Salon Général</span>
-                            <span class="bg-white/80 px-2 py-0.5 rounded-md font-mono text-[10px] text-pink-700"><i class="fa-solid fa-users text-[9px] mr-1"></i>128</span>
-                        </button>
-                        <button onclick="switchSalon('Salon Français', this)" class="salon-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 border border-transparent transition-colors">
-                            <span>Salon Français</span>
-                            <span class="bg-slate-100 px-2 py-0.5 rounded-md font-mono text-[10px]"><i class="fa-solid fa-users text-[9px] mr-1"></i>86</span>
-                        </button>
-                        <button onclick="switchSalon('Salon International', this)" class="salon-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 border border-transparent transition-colors">
-                            <span>Salon International</span>
-                            <span class="bg-slate-100 px-2 py-0.5 rounded-md font-mono text-[10px]"><i class="fa-solid fa-users text-[9px] mr-1"></i>97</span>
-                        </button>
-                        <button onclick="switchSalon('Salon Couples', this)" class="salon-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 border border-transparent transition-colors">
-                            <span>Salon Couples</span>
-                            <span class="bg-slate-100 px-2 py-0.5 rounded-md font-mono text-[10px]"><i class="fa-solid fa-users text-[9px] mr-1"></i>54</span>
-                        </button>
-                        <button onclick="switchSalon('Salon Amateurs', this)" class="salon-btn w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 border border-transparent transition-colors">
-                            <span>Salon Amateurs</span>
-                            <span class="bg-slate-100 px-2 py-0.5 rounded-md font-mono text-[10px]"><i class="fa-solid fa-users text-[9px] mr-1"></i>63</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 text-center">
-                    <a href="salons.html" class="block w-full py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
-                        <i class="fa-solid fa-plus text-xs mr-1"></i> Créer un salon
-                    </a>
-                </div>
-            </div>
-
-            <!-- Player -->
-            <div id="videoContainer" class="lg:col-span-6 bg-carddark rounded-2xl overflow-hidden relative border border-slate-800 shadow-xl flex flex-col justify-between min-h-[360px]">
-                <div class="p-3 bg-gradient-to-b from-black/80 to-transparent flex items-center justify-between z-10">
-                    <div class="flex items-center gap-2">
-                        <span class="bg-brand-primary text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5">
-                            <span class="w-1.5 h-1.5 bg-white rounded-full live-pulse"></span> EN DIRECT
-                        </span>
-                        <span id="currentSalonTitle" class="text-xs text-slate-300 font-medium">Salon Général</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
-                        <span class="bg-black/40 backdrop-blur px-2 py-1 rounded-md"><i class="fa-solid fa-eye text-emerald-400 mr-1"></i><span id="viewerCount">842</span> spectateurs</span>
-                        <span class="bg-brand-primary/80 text-white font-bold px-2 py-0.5 rounded-md text-[10px]">HD</span>
-                    </div>
-                </div>
-
-                <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-purple-950/60 via-carddark to-purple-950/80">
-                    <div class="relative flex flex-col items-center justify-center text-center">
-                        <div class="relative">
-                            <div class="w-28 h-28 md:w-36 md:h-36 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 p-1 animate-pulse">
-                                <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center overflow-hidden">
-                                    <i class="fa-solid fa-user text-6xl text-slate-700"></i>
-                                </div>
-                            </div>
-                            <span class="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-slate-900"></span>
-                        </div>
-                        <p id="activeModelName" class="text-white font-bold text-lg mt-3">Luna</p>
-                        <p class="text-xs text-slate-400 font-light max-w-xs px-4">Flux vidéo HD crypté &amp; direct temps réel</p>
-                    </div>
-                </div>
-
-                <div id="reactionZone" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
-
-                <div class="p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex items-center justify-between z-10 mt-auto">
-                    <span id="videoModelTag" class="text-white font-bold text-sm drop-shadow">Luna</span>
-                    <div class="flex items-center gap-2">
-                        <button onclick="toggleMic(this)" class="w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center text-xs backdrop-blur" title="Micro">
-                            <i class="fa-solid fa-microphone"></i>
-                        </button>
-                        <button onclick="toggleCam(this)" class="w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center text-xs backdrop-blur" title="Caméra">
-                            <i class="fa-solid fa-video"></i>
-                        </button>
-                        <button onclick="triggerTip()" class="w-9 h-9 rounded-full bg-brand-primary hover:bg-brand-hover text-white flex items-center justify-center text-xs active:scale-95 shadow-md shadow-pink-500/30" title="Cadeau">
-                            <i class="fa-solid fa-gift"></i>
-                        </button>
-                        <button onclick="toggleLike(this)" class="w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-rose-400 flex items-center justify-center text-xs backdrop-blur" title="Favori">
-                            <i class="fa-regular fa-heart"></i>
-                        </button>
-                        <button onclick="toggleFullscreen()" class="w-9 h-9 rounded-full bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center text-xs backdrop-blur" title="Plein écran">
-                            <i class="fa-solid fa-expand"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chat -->
-            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex flex-col h-[380px] overflow-hidden">
-                <div class="flex items-center border-b border-slate-100 bg-slate-50/50 text-xs font-semibold">
-                    <button onclick="switchChatTab('chat', this)" class="chat-tab flex-1 py-2.5 text-center text-brand-primary border-b-2 border-brand-primary bg-white">Chat</button>
-                    <button onclick="switchChatTab('cadeaux', this)" class="chat-tab flex-1 py-2.5 text-center text-slate-500 hover:text-slate-800">Cadeaux</button>
-                    <button onclick="switchChatTab('profil', this)" class="chat-tab flex-1 py-2.5 text-center text-slate-500 hover:text-slate-800">Profil</button>
-                </div>
-
-                <div id="chatMessages" class="flex-1 p-3 overflow-y-auto space-y-2.5 text-xs">
-                    <div class="text-slate-700">
-                        <span class="font-bold text-slate-900">Lucas69</span>
-                        <span class="text-[10px] text-slate-400 ml-1">20:14</span>
-                        <p class="text-slate-600">Bonsoir tout le monde !</p>
-                    </div>
-                    <div class="text-slate-700">
-                        <span class="font-bold text-slate-900">Stef</span>
-                        <span class="text-[10px] text-slate-400 ml-1">20:15</span>
-                        <p class="text-slate-600">Belle ambiance ce soir</p>
-                    </div>
-                    <div class="p-2 bg-pink-50 rounded-xl border border-pink-100">
-                        <span class="font-bold text-brand-primary">Modèle (Luna)</span>
-                        <span class="text-[10px] text-pink-400 ml-1">20:16</span>
-                        <p class="text-slate-700 font-medium">Merci pour votre présence ❤️</p>
-                    </div>
-                </div>
-
-                <form onsubmit="sendChatMessage(event)" class="p-2 border-t border-slate-100 flex items-center gap-1.5 bg-white">
-                    <input type="text" id="chatInput" placeholder="Écrire un message..." maxlength="200"
-                        class="flex-1 px-3 py-2 bg-slate-100 focus:bg-white text-xs rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
-                    <button type="submit" class="w-8 h-8 rounded-full bg-brand-primary hover:bg-brand-hover text-white flex items-center justify-center shrink-0 active:scale-95">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
-                </form>
-            </div>
-        </section>
+        <div class="bg-white rounded-2xl p-6 border border-slate-200">
+            <h2 class="text-xl font-bold mb-4">En direct maintenant</h2>
+            <p class="text-sm text-slate-500">Les modèles en direct s'afficheront ici.</p>
+        </div>
     </main>
 </div>
 
-<!-- ==================== FOOTER ==================== -->
-<footer class="bg-white border-t border-slate-200 py-6 mt-10">
-    <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-        <p>© 2025 E-VISIOCAM. Tous droits réservés.</p>
-        <div class="flex flex-wrap gap-4 justify-center">
-            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
-            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
-            <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
-            <a href="contact.html" class="hover:text-brand-primary">Contact</a>
-        </div>
-    </div>
-</footer>
+<script src="app.js"></script>
 
-<!-- ==================== MODALES ==================== -->
-<div id="signupModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
-        <button onclick="closeModal('signupModal')" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-        <div class="text-center mb-6">
-            <div class="w-12 h-12 rounded-2xl bg-pink-100 text-brand-primary flex items-center justify-center text-xl font-bold mx-auto mb-2">
-                <i class="fa-solid fa-user-plus"></i>
-            </div>
-            <h3 class="text-xl font-extrabold text-slate-900">Créer un compte gratuit</h3>
-            <p class="text-xs text-slate-500 mt-1">Accédez à tous les salons et échangez avec les modèles</p>
-        </div>
-        <form onsubmit="event.preventDefault(); closeModal('signupModal'); showToast('Inscription validée ! Bienvenue sur E-VISIOCAM.');" class="space-y-3">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Nom d'utilisateur</label>
-                <input type="text" required placeholder="Ex: Pseudo123" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Adresse Email</label>
-                <input type="email" required placeholder="votre@email.com" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe</label>
-                <input type="password" required placeholder="••••••••" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-            </div>
-            <button type="submit" class="w-full py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-xs shadow-md shadow-pink-500/20">
-                S'inscrire instantanément
-            </button>
-        </form>
-    </div>
-</div>
-
-<div id="broadcastModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-center">
-        <button onclick="closeModal('broadcastModal')" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-        <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl font-bold mx-auto mb-3 animate-bounce">
-            <i class="fa-solid fa-video"></i>
-        </div>
-        <h3 class="text-xl font-extrabold text-slate-900">Diffuser votre Webcam</h3>
-        <p class="text-xs text-slate-500 mt-2">Autorisez l'accès à votre caméra pour commencer votre propre session en direct.</p>
-        <div class="mt-6 flex gap-2">
-            <button onclick="closeModal('broadcastModal')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Annuler</button>
-            <button onclick="closeModal('broadcastModal'); showToast('Lancement de votre flux webcam live...');" class="flex-1 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-xs">Démarrer le direct</button>
-        </div>
-    </div>
-</div>
-
-<div id="becomeModelModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-center">
-        <button onclick="closeModal('becomeModelModal')" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-        <div class="w-14 h-14 rounded-2xl bg-pink-100 text-brand-primary
+</body>
+</html>

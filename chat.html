@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en direct — E-VISIOCAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="auth-api.js"></script>
+    <script src="nav-auth.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .live-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .message { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .emoji-float {
+            position: fixed;
+            font-size: 2rem;
+            animation: floatUp 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-200px) scale(1.5); }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<script>
+(function() {
+    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+        window.location.href = 'login.html?redirect=chat.html';
+        return;
+    }
+})();
+</script>
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-comments"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">Chat <span class="text-brand-primary">Live</span></span>
+        </a>
+        <div class="flex items-center gap-3">
+            <div id="connectionStatus" class="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700">
+                ⚡ Connexion...
+            </div>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-[1700px] w-full mx-auto flex-1 p-4 flex gap-4 overflow-hidden">
+
+    <aside class="hidden lg:flex flex-col w-64 shrink-0 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-sm mb-3">💬 Salons</h3>
+            <div class="space-y-1 text-xs font-medium">
+                <button onclick="joinSalon('Salon Général', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl bg-pink-50 border border-pink-200/60 text-brand-primary font-bold">
+                    🌍 Salon Général
+                </button>
+                <button onclick="joinSalon('Salon Français', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
+                    🇫🇷 Salon Français
+                </button>
+                <button onclick="joinSalon('Salon International', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
+                    🌐 Salon International
+                </button>
+                <button onclick="joinSalon('Salon Couples', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
+                    💕 Salon Couples
+                </button>
+                <button onclick="joinSalon('Salon Amateurs', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
+                    ✨ Salon Amateurs
+                </button>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex-1 overflow-hidden flex flex-col">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold text-slate-900 text-sm">🟢 En ligne</h3>
+                <span class="text-xs bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full" id="onlineCount">0</span>
+            </div>
+            <div id="onlineUsers" class="space-y-2 overflow-y-auto text-xs">
+                <p class="text-slate-400 text-center py-4">Chargement...</p>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div>
+                <h2 class="font-bold text-slate-900 text-sm" id="currentSalon">🌍 Salon Général</h2>
+                <p class="text-xs text-slate-500">Chat en temps réel</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="sendReaction('❤️')" class="w-9 h-9 rounded-full bg-rose-50 hover:bg-rose-100 flex items-center justify-center" title="J'aime">❤️</button>
+                <button onclick="sendReaction('👏')" class="w-9 h-9 rounded-full bg-amber-50 hover:bg-amber-100 flex items-center justify-center" title="Bravo">👏</button>
+                <button onclick="sendReaction('🔥')" class="w-9 h-9 rounded-full bg-orange-50 hover:bg-orange-100 flex items-center justify-center" title="Feu">🔥</button>
+                <button onclick="sendGift()" class="px-3 h-9 rounded-full bg-brand-primary hover:bg-brand-hover text-white flex items-center gap-1 text-xs font-bold">
+                    <i class="fa-solid fa-gift"></i> Cadeau
+                </button>
+            </div>
+        </div>
+
+        <div id="chatMessages" class="flex-1 p-5 overflow-y-auto space-y-3 bg-slate-50/30">
+            <div class="text-center text-xs text-slate-400 py-4">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement des messages...
+            </div>
+        </div>
+
+        <form id="chatForm" onsubmit="sendMessage(event)" class="p-3 border-t border-slate-100 flex items-center gap-2">
+            <input type="text" id="chatInput" placeholder="Écrire un message..." maxlength="500" autocomplete="off"
+                class="flex-1 px-4 py-3 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
+            <button type="submit" class="w-11 h-11 rounded-full bg-brand-primary hover:bg-brand-hover text-white flex items-center justify-center shrink-0 active:scale-95 shadow-md">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</main>
+
+<script>
+let socket = null;
+let currentSalon = 'Salon Général';
+let currentUser = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    currentUser = getCurrentUser();
+    if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+    initSocket();
+});
+
+function initSocket() {
+    const token = getToken();
+    socket = io({ auth: { token: token } });
+
+    socket.on('connect', () => {
+        const status = document.getElementById('connectionStatus');
+        status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
+        status.innerHTML = '🟢 Connecté';
+    });
+
+    socket.on('chat:history', (messages) => {
+        const container = document.getElementById('chatMessages');
+        container.innerHTML = '';
+        if (messages.length === 0) {
+            container.innerHTML = '<div class="text-center text-xs text-slate-400 py-4">Aucun message. Soyez le premier !</div>';
+            return;
+        }
+        messages.forEach(renderMessage);
+        scrollToBottom();
+    });
+
+    socket.on('chat:message', (msg) => {
+        renderMessage(msg);
+        scrollToBottom();
+    });
+
+    socket.on('users:list', (users) => {
+        document.getElementById('onlineCount').innerText = users.length;
+        document.getElementById('onlineUsers').innerHTML = users.map(u => {
+            const icons = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
+            return '<div class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50">' +
+                '<div class="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[10px] font-bold">' + u.username[0].toUpperCase() + '</div>' +
+                '<span class="font-medium text-slate-700">' + (icons[u.role] || '') + ' ' + u.username + '</span>' +
+            '</div>';
+        }).join('');
+    });
+
+    socket.on('system', (data) => {
+        const container = document.getElementById('chatMessages');
+        const div = document.createElement('div');
+        div.className = 'text-center text-xs text-slate-400 py-2 italic';
+        div.textContent = '— ' + data.text + ' —';
+        container.appendChild(div);
+        scrollToBottom();
+    });
+
+    socket.on('salon:joined', (data) => {
+        document.getElementById('currentSalon').innerText = '💬 ' + data.salon;
+        currentSalon = data.salon;
+    });
+
+    socket.on('reaction', (data) => {
+        showEmojiFloat(data.emoji);
+    });
+
+    socket.on('gift', (data) => {
+        const container = document.getElementById('chatMessages');
+        const div = document.createElement('div');
+        div.className = 'message p-3 bg-gradient-to-r from-pink-50 to-purple-50 border border-pink-200 rounded-xl text-center';
+        div.innerHTML = '<p class="text-sm text-slate-700"><strong>' + data.username + '</strong> a envoyé <span class="text-2xl">' + data.gift + '</span></p>';
+        container.appendChild(div);
+        scrollToBottom();
+    });
+
+    socket.on('connect_error', (err) => {
+        const status = document.getElementById('connectionStatus');
+        status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-rose-100 text-rose-700';
+        status.innerHTML = '❌ ' + err.message;
+    });
+}
+
+function sendMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text || !socket) return;
+    socket.emit('chat:message', { text: text, salon: currentSalon });
+    input.value = '';
+}
+
+function renderMessage(msg) {
+    const container = document.getElementById('chatMessages');
+    const isMe = currentUser && msg.user_id === currentUser.id;
+    const time = new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const icons = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
+    const icon = icons[msg.role] || '';
+    const div = document.createElement('div');
+    div.className = 'message';
+    div.innerHTML = '<div class="' + (isMe ? 'flex justify-end' : '') + '">' +
+        '<div class="' + (isMe ? 'bg-brand-primary text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-md' : 'max-w-md') + '">' +
+            (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><span class="text-xs font-bold text-slate-700">' + icon + ' ' + msg.username + '</span><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
+            '<p class="text-sm ' + (isMe ? '' : 'text-slate-700') + '">' + escapeHtml(msg.text) + '</p>' +
+        '</div>' +
+    '</div>';
+    container.appendChild(div);
+}
+
+function joinSalon(salon, btn) {
+    if (salon === currentSalon) return;
+    document.querySelectorAll('.salon-btn').forEach(b => {
+        b.classList.remove('bg-pink-50', 'border', 'border-pink-200/60', 'text-brand-primary', 'font-bold');
+        b.classList.add('hover:bg-slate-50', 'text-slate-700');
+    });
+    btn.classList.add('bg-pink-50', 'border', 'border-pink-200/60', 'text-brand-primary', 'font-bold');
+    btn.classList.remove('hover:bg-slate-50', 'text-slate-700');
+    if (socket) socket.emit('salon:join', salon);
+}
+
+function sendReaction(emoji) {
+    if (socket) socket.emit('reaction', { emoji: emoji });
+}
+
+function showEmojiFloat(emoji) {
+    const el = document.createElement('div');
+    el.className = 'emoji-float';
+    el.innerText = emoji;
+    el.style.left = (Math.random() * 60 + 20) + '%';
+    el.style.bottom = '100px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
+}
+
+function sendGift() {
+    const gift = prompt('Choisissez un cadeau : 🌹 💎 🏆 🎁', '🌹');
+    if (!gift) return;
+    if (socket) socket.emit('gift', { gift: gift });
+}
+
+function scrollToBottom() {
+    const c = document.getElementById('chatMessages');
+    setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
