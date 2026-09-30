@@ -2,9 +2,7 @@
 // E-VISIOCAM - PONT ENTRE LE FRONT ET LE BACKEND
 // ============================================================
 
-const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:3000/api'
-    : 'https://e-visiocam-api.onrender.com/api';
+const API_URL = 'http://localhost:3000/api';
 
 // ---------- TOKEN ----------
 function saveToken(token) { localStorage.setItem('evisiocam_token', token); }

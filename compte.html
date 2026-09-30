@@ -2,28 +2,53 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon compte — E-VISIOCAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js"></script>
+    <script src="legal-banner.js"></script>
+    <script src="nav-auth.js" defer></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { primary: '#e91e63', hover: '#d81b60' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
+<!-- GUARD : utilisateur connecté obligatoire -->
+<script>
+(function() {
+    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+        window.location.href = 'login.html?redirect=compte.html';
+        return;
+    }
+})();
+</script>
+
+<!-- NAVBAR -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <a href="index.html" class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white"><i class="fa-solid fa-video"></i></div>
-            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-brand-primary flex items-center justify-center text-white">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">Mon <span class="text-brand-primary">Compte</span></span>
         </a>
-        <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
-            <a href="index.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Accueil</a>
-            <a href="live.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">En direct</a>
-            <a href="modeles.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
-            <a href="salons.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
-            <a href="credits.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Crédits</a>
-        </nav>
+        <div class="flex items-center gap-3">
+            <div id="navAuth" class="flex items-center gap-2"></div>
+            <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+            </a>
+        </div>
     </div>
 </header>
 
@@ -31,50 +56,260 @@
     <h1 class="text-3xl font-extrabold text-slate-900 mb-6">👤 Mon compte</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Card profil -->
+
+        <!-- CARTE PROFIL -->
         <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm text-center">
-            <div class="w-24 h-24 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-4xl font-bold mb-3">3</div>
-            <h2 class="text-xl font-bold text-slate-900">Pseudo123</h2>
-            <p class="text-xs text-slate-500">Membre depuis janvier 2025</p>
-            <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
-                <div><p class="text-xl font-black text-brand-primary">7</p><p class="text-[10px] text-slate-500">Favoris</p></div>
-                <div><p class="text-xl font-black text-brand-primary">250</p><p class="text-[10px] text-slate-500">Crédits</p></div>
-                <div><p class="text-xl font-black text-brand-primary">3</p><p class="text-[10px] text-slate-500">Achats</p></div>
+            <div id="avatar" class="w-24 h-24 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-4xl font-bold mb-3">
+                ?
+            </div>
+            <h2 class="text-xl font-bold text-slate-900" id="displayUsername">...</h2>
+            <p class="text-xs text-slate-500" id="displayRole">...</p>
+            <p class="text-xs text-slate-400 mt-1" id="displayJoined">...</p>
+
+            <div class="mt-5 pt-5 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
+                <div>
+                    <p class="text-xl font-black text-brand-primary" id="statFavs">0</p>
+                    <p class="text-[10px] text-slate-500">Favoris</p>
+                </div>
+                <div>
+                    <p class="text-xl font-black text-brand-primary" id="statCredits">0</p>
+                    <p class="text-[10px] text-slate-500">Crédits</p>
+                </div>
+                <div>
+                    <p class="text-xl font-black text-brand-primary" id="statSessions">0</p>
+                    <p class="text-[10px] text-slate-500">Sessions</p>
+                </div>
             </div>
         </div>
 
-        <!-- Paramètres -->
-        <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
-            <h3 class="font-bold text-slate-900 mb-4">Paramètres du compte</h3>
-            <form onsubmit="event.preventDefault(); showToast('Modifications enregistrées !');" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Pseudo</label>
-                    <input type="text" value="Pseudo123" class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
-                    <input type="email" value="mon@email.com" class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Date de naissance</label>
-                    <input type="date" class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Bio</label>
-                    <textarea rows="3" class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary" placeholder="Parlez-nous un peu de vous..."></textarea>
-                </div>
-                <button class="px-6 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm">Enregistrer</button>
-            </form>
+        <!-- PARAMÈTRES -->
+        <div class="lg:col-span-2 space-y-6">
 
-            <div class="mt-6 pt-6 border-t border-slate-100">
-                <h3 class="font-bold text-rose-600 mb-3 text-sm">Zone dangereuse</h3>
-                <button onclick="if(confirm('Supprimer votre compte ? Cette action est irréversible.')) showToast('Demande envoyée');" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl border border-rose-200">
+            <!-- Modifier profil -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-pen text-brand-primary"></i> Modifier mon profil
+                </h3>
+                <form onsubmit="saveProfile(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nom d'utilisateur</label>
+                        <input type="text" id="usernameField" disabled
+                            class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm text-slate-500 cursor-not-allowed">
+                        <p class="text-[10px] text-slate-400 mt-1">Le nom d'utilisateur ne peut pas être modifié</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
+                        <input type="email" id="emailField"
+                            class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Date de naissance</label>
+                        <input type="date" id="birthdateField"
+                            class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Bio</label>
+                        <textarea id="bioField" rows="3" maxlength="300" placeholder="Parlez-nous un peu de vous..."
+                            class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"></textarea>
+                        <p class="text-[10px] text-slate-400 mt-1"><span id="bioCount">0</span>/300 caractères</p>
+                    </div>
+                    <button type="submit" class="px-6 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-save"></i>
+                        <span id="saveBtnText">Enregistrer</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Changer mot de passe -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-amber-500"></i> Changer mon mot de passe
+                </h3>
+                <form onsubmit="changePassword(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe actuel</label>
+                        <input type="password" id="currentPwd" required
+                            class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nouveau mot de passe</label>
+                        <input type="password" id="newPwd" required minlength="8"
+                            class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                        <p class="text-[10px] text-slate-400 mt-1">Min. 8 caractères, 1 majuscule, 1 chiffre</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Confirmer le nouveau mot de passe</label>
+                        <input type="password" id="confirmPwd" required
+                            class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    </div>
+                    <button type="submit" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-lock"></i>
+                        <span id="pwdBtnText">Changer le mot de passe</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Zone dangereuse -->
+            <div class="bg-white rounded-2xl p-6 border-2 border-rose-200 shadow-sm">
+                <h3 class="font-bold text-rose-600 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Zone dangereuse
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">
+                    La suppression du compte est <strong>irréversible</strong>. Toutes vos données seront définitivement effacées.
+                </p>
+                <button onclick="deleteAccount()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-trash"></i>
                     Supprimer mon compte
                 </button>
             </div>
+
         </div>
     </div>
 </main>
+
+<script>
+// ============================================================
+// MON COMPTE - Connecté au backend
+// ============================================================
+
+let currentUser = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    currentUser = getCurrentUser();
+    if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+    await loadProfile();
+});
+
+// ---------- CHARGER LE PROFIL ----------
+async function loadProfile() {
+    try {
+        const data = await apiCall('/users/me');
+        const u = data.user;
+
+        // Mettre à jour le cache local
+        saveUser(u);
+
+        // Affichage carte
+        document.getElementById('avatar').innerText = u.username.charAt(0).toUpperCase();
+        document.getElementById('displayUsername').innerText = u.username;
+
+        const roleLabels = {
+            super_admin: '👑 Super Admin',
+            moderator: '🔵 Modérateur',
+            model: '🟢 Modèle',
+            user: '⚪ Utilisateur'
+        };
+        document.getElementById('displayRole').innerText = roleLabels[u.role] || u.role;
+
+        if (u.created_at) {
+            const date = new Date(u.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
+            document.getElementById('displayJoined').innerText = 'Membre depuis ' + date;
+        }
+
+        // Formulaire
+        document.getElementById('usernameField').value = u.username;
+        document.getElementById('emailField').value = u.email || '';
+        document.getElementById('bioField').value = u.bio || '';
+        if (u.birthdate) document.getElementById('birthdateField').value = u.birthdate;
+        updateBioCount();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ---------- COMPTEUR DE CARACTÈRES BIO ----------
+function updateBioCount() {
+    const bio = document.getElementById('bioField').value;
+    document.getElementById('bioCount').innerText = bio.length;
+}
+document.getElementById('bioField').addEventListener('input', updateBioCount);
+
+// ---------- SAUVEGARDER LE PROFIL ----------
+async function saveProfile(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const btnText = document.getElementById('saveBtnText');
+    btn.disabled = true;
+    btnText.innerText = 'Enregistrement...';
+
+    const email = document.getElementById('emailField').value.trim();
+    const bio = document.getElementById('bioField').value.trim();
+    const birthdate = document.getElementById('birthdateField').value;
+
+    try {
+        const data = await apiCall('/users/me', {
+            method: 'PUT',
+            body: JSON.stringify({ bio, email, birthdate })
+        });
+        saveUser(data.user);
+        showToast('✅ Profil mis à jour !');
+        await loadProfile();
+    } catch (err) {
+        showToast(err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btnText.innerText = 'Enregistrer';
+    }
+}
+
+// ---------- CHANGER LE MOT DE PASSE ----------
+async function changePassword(e) {
+    e.preventDefault();
+    const currentPwd = document.getElementById('currentPwd').value;
+    const newPwd = document.getElementById('newPwd').value;
+    const confirmPwd = document.getElementById('confirmPwd').value;
+
+    if (newPwd !== confirmPwd) {
+        showToast('Les nouveaux mots de passe ne correspondent pas', 'error');
+        return;
+    }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    const btnText = document.getElementById('pwdBtnText');
+    btn.disabled = true;
+    btnText.innerText = 'Modification...';
+
+    try {
+        await apiCall('/users/me/password', {
+            method: 'POST',
+            body: JSON.stringify({ currentPassword: currentPwd, newPassword: newPwd })
+        });
+        showToast('🔑 Mot de passe modifié !');
+        document.getElementById('currentPwd').value = '';
+        document.getElementById('newPwd').value = '';
+        document.getElementById('confirmPwd').value = '';
+    } catch (err) {
+        showToast(err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btnText.innerText = 'Changer le mot de passe';
+    }
+}
+
+// ---------- SUPPRIMER LE COMPTE ----------
+async function deleteAccount() {
+    const pwd = prompt('⚠️ Tapez votre mot de passe pour confirmer la suppression :');
+    if (!pwd) return;
+
+    if (!confirm('DERNIÈRE CHANCE. Supprimer définitivement votre compte ?')) return;
+
+    try {
+        await apiCall('/users/me', {
+            method: 'DELETE',
+            body: JSON.stringify({ password: pwd })
+        });
+        showToast('🗑️ Compte supprimé. Au revoir...', 'warning');
+        clearToken();
+        clearUser();
+        setTimeout(() => window.location.href = 'index.html', 1500);
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+</script>
 
 </body>
 </html>

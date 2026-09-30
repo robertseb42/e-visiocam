@@ -2,20 +2,46 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
-    <title>Crédits — E-VISIOCAM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Crédits — E-VISIOCAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js"></script>
+    <script src="legal-banner.js"></script>
+    <script src="nav-auth.js" defer></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { primary: '#e91e63', hover: '#d81b60' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
+<!-- GUARD -->
+<script>
+(function() {
+    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+        window.location.href = 'login.html?redirect=credits.html';
+        return;
+    }
+})();
+</script>
+
+<!-- NAVBAR -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <a href="index.html" class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white"><i class="fa-solid fa-video"></i></div>
-            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-white">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">Mes <span class="text-brand-primary">Crédits</span></span>
         </a>
         <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
             <a href="index.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Accueil</a>
@@ -25,69 +51,285 @@
             <a href="messages.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Messages</a>
             <a href="credits.html" class="px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">Crédits</a>
         </nav>
-        <a href="compte.html" class="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-slate-100 rounded-full text-sm font-semibold">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-xs font-bold">3</div>
-        </a>
+        <div class="flex items-center gap-3">
+            <div id="navAuth" class="flex items-center gap-2"></div>
+            <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+            </a>
+        </div>
     </div>
 </header>
 
 <main class="max-w-[1200px] w-full mx-auto flex-1 p-6">
-    <div class="text-center mb-8">
-        <h1 class="text-3xl font-extrabold text-slate-900">💰 Mes Crédits</h1>
-        <p class="text-sm text-slate-500 mt-1">Rechargez votre compte pour discuter en privé</p>
-    </div>
 
-    <!-- Balance -->
+    <!-- Notification -->
+    <div id="notification" class="hidden mb-6 p-4 rounded-2xl border flex items-center gap-3"></div>
+
+    <!-- SOLDE -->
     <div class="bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl"></div>
-        <div class="relative z-10">
-            <p class="text-sm text-slate-300">Solde actuel</p>
-            <p class="text-5xl font-black mt-2"><i class="fa-solid fa-coins text-amber-400"></i> 250 <span class="text-lg font-bold text-slate-300">crédits</span></p>
+        <div class="relative z-10 flex justify-between items-center flex-wrap gap-4">
+            <div>
+                <p class="text-sm text-slate-300 font-medium">Solde actuel</p>
+                <p class="text-5xl font-black mt-2">
+                    <i class="fa-solid fa-coins text-amber-400"></i>
+                    <span id="balance">—</span>
+                    <span class="text-lg font-bold text-slate-300">crédits</span>
+                </p>
+            </div>
+            <div class="text-right text-xs text-slate-300 space-y-1">
+                <p>Total acheté : <span id="totalPurchased" class="font-bold text-white">—</span></p>
+                <p>Total dépensé : <span id="totalSpent" class="font-bold text-white">—</span></p>
+            </div>
         </div>
     </div>
 
-    <!-- Packs -->
-    <h2 class="text-xl font-bold text-slate-900 mb-4">Acheter des crédits</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="packs"></div>
+    <!-- INFO STRIPE -->
+    <div id="stripeInfo" class="mb-6"></div>
 
-    <div class="mt-8 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-        <h3 class="font-bold text-slate-900 mb-2"><i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i> Paiement 100% sécurisé</h3>
-        <p class="text-xs text-slate-500">Vos transactions sont protégées par un chiffrement SSL. Nous acceptons : Visa, Mastercard, PayPal, Apple Pay, Google Pay.</p>
+    <!-- PACKS -->
+    <h2 class="text-xl font-bold text-slate-900 mb-4">Acheter des crédits</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="packsGrid">
+        <p class="text-slate-400 text-center col-span-full py-8">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
+        </p>
+    </div>
+
+    <!-- HISTORIQUE -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-sm">📜 Historique des transactions</h3>
+            <button onclick="loadTransactions()" class="text-xs text-brand-primary font-bold hover:underline">
+                <i class="fa-solid fa-refresh"></i> Rafraîchir
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-100 text-left text-xs text-slate-500 uppercase font-bold bg-slate-50/50">
+                        <th class="py-3 px-4">Date</th>
+                        <th class="py-3 px-4">Type</th>
+                        <th class="py-3 px-4">Description</th>
+                        <th class="py-3 px-4 text-right">Montant</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTable">
+                    <tr><td colspan="4" class="py-8 text-center text-slate-400">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- INFO SECURITE -->
+    <div class="mt-6 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+        <h3 class="font-bold text-slate-900 mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-emerald-500"></i>
+            Paiement 100% sécurisé
+        </h3>
+        <p class="text-xs text-slate-500">
+            Vos transactions sont protégées par un chiffrement SSL.
+            Nous acceptons : Visa, Mastercard, PayPal, Apple Pay, Google Pay.
+        </p>
     </div>
 </main>
 
-<footer class="bg-white border-t border-slate-200 py-6 mt-10">
-    <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-        <p>© 2025 E-VISIOCAM.</p>
-        <div class="flex gap-4">
-            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
-            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
-            <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
-        </div>
-    </div>
-</footer>
-
 <script>
-const packs = [
-    { credits: 100, price: "9,99 €", bonus: null, popular: false },
-    { credits: 250, price: "19,99 €", bonus: "+25 bonus", popular: true },
-    { credits: 500, price: "34,99 €", bonus: "+75 bonus", popular: false },
-    { credits: 1000, price: "59,99 €", bonus: "+200 bonus", popular: false },
-];
+// ============================================================
+// PAGE CRÉDITS - Connectée au backend
+// ============================================================
 
-document.getElementById('packs').innerHTML = packs.map(p => `
-    <div class="relative bg-white rounded-2xl p-6 border-2 ${p.popular ? 'border-brand-primary shadow-lg shadow-pink-500/20' : 'border-slate-200'} text-center">
-        ${p.popular ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">POPULAIRE</span>' : ''}
-        <div class="text-amber-400 text-3xl mb-2"><i class="fa-solid fa-coins"></i></div>
-        <p class="text-2xl font-black text-slate-900">${p.credits}</p>
-        <p class="text-xs text-slate-500 mb-1">crédits</p>
-        ${p.bonus ? `<p class="text-xs text-emerald-500 font-bold mb-3">${p.bonus}</p>` : '<p class="text-xs text-transparent mb-3">—</p>'}
-        <p class="text-xl font-bold text-slate-900 mb-4">${p.price}</p>
-        <button onclick="showToast('Redirection vers le paiement sécurisé...');" class="w-full py-2.5 ${p.popular ? 'bg-brand-primary hover:bg-brand-hover text-white' : 'bg-slate-900 hover:bg-slate-800 text-white'} font-bold rounded-xl text-xs">
-            Acheter
-        </button>
-    </div>
-`).join('');
+let currentUser = null;
+let packs = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    currentUser = getCurrentUser();
+    if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Vérifier le retour Stripe
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success')) {
+        const sessionId = params.get('session_id');
+        if (sessionId) {
+            try {
+                const result = await apiCall('/credits/confirm', {
+                    method: 'POST',
+                    body: JSON.stringify({ sessionId: sessionId })
+                });
+                showNotification('✅ Paiement réussi ! Vos crédits ont été ajoutés.', 'success');
+            } catch (err) {
+                showNotification('⚠️ Paiement reçu, mais erreur de confirmation : ' + err.message, 'warning');
+            }
+        } else {
+            showNotification('✅ Paiement réussi !', 'success');
+        }
+        // Nettoyer l'URL
+        window.history.replaceState({}, '', 'credits.html');
+    } else if (params.get('cancelled')) {
+        showNotification('❌ Paiement annulé.', 'warning');
+        window.history.replaceState({}, '', 'credits.html');
+    }
+
+    await Promise.all([loadBalance(), loadPacks(), loadTransactions()]);
+});
+
+// ---------- CHARGER LE SOLDE ----------
+async function loadBalance() {
+    try {
+        const data = await apiCall('/credits/balance');
+        document.getElementById('balance').innerText = data.balance;
+        document.getElementById('totalPurchased').innerText = data.totalPurchased;
+        document.getElementById('totalSpent').innerText = data.totalSpent;
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ---------- CHARGER LES PACKS ----------
+async function loadPacks() {
+    try {
+        const data = await apiCall('/credits/packs');
+        packs = data.packs;
+
+        // Bandeau d'info
+        if (!data.stripeEnabled) {
+            document.getElementById('stripeInfo').innerHTML = `
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+                    <i class="fa-solid fa-flask text-amber-600 text-xl mt-0.5"></i>
+                    <div>
+                        <p class="font-bold text-amber-800 text-sm">Mode simulation</p>
+                        <p class="text-xs text-amber-700 mt-1">
+                            Stripe n'est pas configuré. Les paiements sont simulés (aucun argent réel débité).
+                            Pour activer Stripe, ajoutez vos clés API dans le fichier <code class="bg-amber-100 px-1 rounded">.env</code>.
+                        </p>
+                    </div>
+                </div>
+            `;
+        } else {
+            document.getElementById('stripeInfo').innerHTML = `
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved text-emerald-600 text-xl"></i>
+                    <p class="text-sm text-emerald-800 font-medium">Paiement sécurisé par Stripe</p>
+                </div>
+            `;
+        }
+
+        renderPacks();
+    } catch (err) {
+        document.getElementById('packsGrid').innerHTML =
+            '<p class="text-rose-500 text-center col-span-full py-8">' + err.message + '</p>';
+    }
+}
+
+// ---------- AFFICHER LES PACKS ----------
+function renderPacks() {
+    const popular = 'pack-250';
+    document.getElementById('packsGrid').innerHTML = packs.map(p => {
+        const isPopular = p.id === popular;
+        return `
+            <div class="relative bg-white rounded-2xl p-6 border-2 ${isPopular ? 'border-brand-primary shadow-lg shadow-pink-500/20' : 'border-slate-200'} text-center transition-transform hover:-translate-y-1">
+                ${isPopular ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">POPULAIRE</span>' : ''}
+                <div class="text-amber-400 text-3xl mb-2"><i class="fa-solid fa-coins"></i></div>
+                <p class="text-3xl font-black text-slate-900">${p.credits}</p>
+                <p class="text-xs text-slate-500 mb-2">crédits</p>
+                ${p.bonus > 0
+                    ? '<p class="text-xs text-emerald-500 font-bold mb-3">+' + p.bonus + ' offerts</p>'
+                    : '<p class="text-xs text-transparent mb-3">—</p>'}
+                <p class="text-2xl font-bold text-slate-900 mb-4">${p.priceEuro} €</p>
+                <button onclick="buyPack('${p.id}')"
+                    class="w-full py-3 ${isPopular ? 'bg-brand-primary hover:bg-brand-hover' : 'bg-slate-900 hover:bg-slate-800'} text-white font-bold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-shopping-cart"></i> Acheter
+                </button>
+            </div>
+        `;
+    }).join('');
+}
+
+// ---------- ACHETER UN PACK ----------
+async function buyPack(packId) {
+    try {
+        const data = await apiCall('/credits/checkout', {
+            method: 'POST',
+            body: JSON.stringify({ packId: packId })
+        });
+
+        if (data.simulated) {
+            // Mode simulation
+            showNotification(`✅ ${data.message} +${data.credits} crédits`, 'success');
+            await loadBalance();
+            await loadTransactions();
+        } else if (data.url) {
+            // Rediriger vers Stripe Checkout
+            window.location.href = data.url;
+        }
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ---------- CHARGER L'HISTORIQUE ----------
+async function loadTransactions() {
+    const tbody = document.getElementById('transactionsTable');
+    try {
+        const data = await apiCall('/credits/transactions');
+
+        if (data.transactions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-slate-400 text-sm">Aucune transaction</td></tr>';
+            return;
+        }
+
+        const typeLabels = {
+            purchase: '🛒 Achat',
+            spend: '💸 Dépense',
+            refund: '↩️ Remboursement',
+            bonus: '🎁 Bonus'
+        };
+
+        tbody.innerHTML = data.transactions.map(t => {
+            const isPositive = t.amount > 0;
+            return `
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                    <td class="py-3 px-4 text-xs text-slate-500">${new Date(t.created_at).toLocaleString('fr-FR')}</td>
+                    <td class="py-3 px-4 text-sm font-medium">${typeLabels[t.type] || t.type}</td>
+                    <td class="py-3 px-4 text-xs text-slate-600">${escapeHtml(t.description || '—')}</td>
+                    <td class="py-3 px-4 text-right font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">
+                        ${isPositive ? '+' : ''}${t.amount}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-rose-500">' + err.message + '</td></tr>';
+    }
+}
+
+// ---------- NOTIFICATION ----------
+function showNotification(msg, type) {
+    const el = document.getElementById('notification');
+    const colors = {
+        success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+        warning: 'bg-amber-50 border-amber-200 text-amber-800',
+        error: 'bg-rose-50 border-rose-200 text-rose-800'
+    };
+    el.className = 'mb-6 p-4 rounded-2xl border flex items-center gap-3 ' + (colors[type] || colors.success);
+    el.innerHTML = '<span>' + msg + '</span>';
+    el.classList.remove('hidden');
+
+    setTimeout(() => {
+        el.classList.add('hidden');
+    }, 5000);
+}
+
+// ---------- UTILITAIRE ----------
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 </script>
 
 </body>

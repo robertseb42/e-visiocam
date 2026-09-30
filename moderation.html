@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modération — E-VISIOCAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js"></script>
+    <script src="legal-banner.js"></script>
+    <script src="nav-auth.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { primary: '#e91e63', hover: '#d81b60' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .live-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<!-- GUARD : Modérateur ou Super Admin requis -->
+<script>
+(function() {
+    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+        window.location.href = 'login.html?redirect=moderation.html';
+        return;
+    }
+    if (!hasRole('moderator', 'super_admin')) {
+        document.documentElement.innerHTML = `
+            <head><title>Accès refusé</title></head>
+            <body style="margin:0;">
+                <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;font-family:Inter,sans-serif;">
+                    <div style="background:white;border-radius:24px;padding:40px;text-align:center;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
+                        <div style="width:64px;height:64px;border-radius:20px;background:#dbeafe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">
+                            🔒
+                        </div>
+                        <h1 style="font-size:22px;font-weight:900;color:#0f172a;margin:0 0 8px;">Accès refusé</h1>
+                        <p style="font-size:13px;color:#64748b;margin:0 0 24px;">
+                            Cette page est réservée aux modérateurs et super administrateurs.
+                        </p>
+                        <a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;font-size:13px;">
+                            Retour à l'accueil
+                        </a>
+                    </div>
+                </div>
+            </body>
+        `;
+        throw new Error('Accès refusé');
+    }
+})();
+</script>
+
+<!-- NAVBAR -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-white">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">Modé<span class="text-brand-primary">ration</span></span>
+        </a>
+        <div class="flex items-center gap-3">
+            <div id="navAuth" class="flex items-center gap-2"></div>
+            <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
+    <div class="mb-6">
+        <h1 class="text-3xl font-extrabold text-slate-900">🔵 Espace Modérateur</h1>
+        <p class="text-sm text-slate-500 mt-1">Surveillance des lives et signalements</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Lives actifs</p>
+                    <p class="text-2xl font-black text-emerald-600 mt-1" id="statLive">—</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-video"></i></div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Cams éteintes</p>
+                    <p class="text-2xl font-black text-slate-500 mt-1" id="statOffline">—</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-power-off"></i></div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Signalements</p>
+                    <p class="text-2xl font-black text-amber-600 mt-1" id="statReports">—</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-flag"></i></div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Membres actifs</p>
+                    <p class="text-2xl font-black text-blue-600 mt-1" id="statUsers">—</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-users"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONGLETS -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="flex border-b border-slate-100 overflow-x-auto scrollbar-none">
+            <button onclick="showTab('reports', this)" class="mod-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
+                <i class="fa-solid fa-flag mr-1"></i> Signalements
+            </button>
+            <button onclick="showTab('cams', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-video mr-1"></i> Caméras
+            </button>
+            <button onclick="showTab('users', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-users mr-1"></i> Utilisateurs
+            </button>
+        </div>
+
+        <!-- Onglet Signalements -->
+        <div id="tab-reports" class="tab-content p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-slate-900">🚨 Signalements en attente</h3>
+                <button onclick="loadReports()" class="text-xs text-brand-primary font-bold hover:underline">
+                    <i class="fa-solid fa-refresh"></i> Rafraîchir
+                </button>
+            </div>
+            <div id="reportsList" class="space-y-3">
+                <p class="text-center text-slate-400 py-8 text-sm">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
+                </p>
+            </div>
+        </div>
+
+        <!-- Onglet Caméras -->
+        <div id="tab-cams" class="tab-content p-5 hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-slate-900">🎥 Toutes les caméras</h3>
+                <div class="flex gap-1 text-xs">
+                    <button onclick="filterCams('all', this)" class="cam-filter px-3 py-1.5 rounded-full bg-brand-primary text-white font-bold">Toutes</button>
+                    <button onclick="filterCams('live', this)" class="cam-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">En direct</button>
+                    <button onclick="filterCams('offline', this)" class="cam-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Éteintes</button>
+                </div>
+            </div>
+            <div id="camsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+        </div>
+
+        <!-- Onglet Utilisateurs -->
+        <div id="tab-users" class="tab-content p-5 hidden">
+            <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
+                <input type="text" id="searchUser" placeholder="Rechercher un utilisateur..."
+                    class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
+                <button onclick="loadUsers()" class="text-xs text-brand-primary font-bold hover:underline">
+                    <i class="fa-solid fa-refresh"></i> Rafraîchir
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-100 text-left text-xs text-slate-500 uppercase font-bold">
+                            <th class="py-3 px-2">ID</th>
+                            <th class="py-3 px-2">Utilisateur</th>
+                            <th class="py-3 px-2">Rôle</th>
+                            <th class="py-3 px-2">Statut</th>
+                            <th class="py-3 px-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr><td colspan="5" class="py-8 text-center text-slate-400">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+// ============================================================
+// PANNEAU MODÉRATION - Connecté au backend
+// ============================================================
+
+let currentUser = null;
+let allUsers = [];
+let allCams = [];
+let allReports = [];
+let camsFilter = 'all';
+
+// ---------- INITIALISATION ----------
+document.addEventListener('DOMContentLoaded', async () => {
+    currentUser = getCurrentUser();
+    await Promise.all([
+        loadReports(),
+        loadUsers(),
+        loadCams()
+    ]);
+});
+
+// ============================================================
+// SIGNALEMENTS
+// ============================================================
+async function loadReports() {
+    const list = document.getElementById('reportsList');
+    list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</p>';
+
+    try {
+        const data = await apiCall('/mod/reports');
+        allReports = data.reports || [];
+        document.getElementById('statReports').innerText = allReports.length;
+        renderReports();
+    } catch (err) {
+        list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + err.message + '</p>';
+    }
+}
+
+function renderReports() {
+    const list = document.getElementById('reportsList');
+    if (allReports.length === 0) {
+        list.innerHTML = `
+            <div class="text-center py-12">
+                <div class="text-5xl mb-3">✅</div>
+                <p class="text-sm text-slate-500">Aucun signalement en attente</p>
+                <p class="text-xs text-slate-400 mt-1">Tout est calme pour l'instant !</p>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = allReports.map(r => `
+        <div class="flex items-center justify-between p-4 bg-amber-50 border border-amber-200/60 rounded-xl">
+            <div>
+                <p class="font-bold text-slate-900 text-sm">🚩 ${r.target_name || 'Utilisateur #' + r.target_id}</p>
+                <p class="text-xs text-slate-500 mt-1">
+                    <strong>${r.type}</strong> • Signalé par ${r.reporter_name || 'Anonyme'}
+                </p>
+                ${r.reason ? `<p class="text-xs text-slate-600 mt-1 italic">"${r.reason}"</p>` : ''}
+                <p class="text-[10px] text-slate-400 mt-1">${new Date(r.created_at).toLocaleString('fr-FR')}</p>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+                <button onclick="handleReport(${r.id}, 'warn', ${r.target_id})" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Avertir
+                </button>
+                <button onclick="handleReport(${r.id}, 'mute', ${r.target_id})" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg">
+                    <i class="fa-solid fa-microphone-slash"></i> Mute
+                </button>
+                <button onclick="handleReport(${r.id}, 'ignored', ${r.target_id})" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg">
+                    <i class="fa-solid fa-xmark"></i> Ignorer
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function handleReport(reportId, action, targetId) {
+    try {
+        if (action === 'mute') {
+            const duration = prompt('Durée du mute en secondes (ex: 300) :', '300');
+            if (duration === null) return;
+            await apiCall('/mod/users/' + targetId + '/mute', {
+                method: 'POST',
+                body: JSON.stringify({ duration: parseInt(duration) })
+            });
+            showToast('🔇 Utilisateur muté');
+        } else if (action === 'warn') {
+            await apiCall('/mod/users/' + targetId + '/mute', {
+                method: 'POST',
+                body: JSON.stringify({ duration: 60 })
+            });
+            showToast('⚠️ Avertissement envoyé');
+        }
+
+        // Marquer le signalement comme traité
+        await apiCall('/mod/reports/' + reportId + '/handle', {
+            method: 'POST',
+            body: JSON.stringify({ action: action === 'ignored' ? 'ignored' : 'resolved' })
+        });
+
+        await loadReports();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ============================================================
+// CAMÉRAS
+// ============================================================
+async function loadCams() {
+    // Simulation locale pour l'instant (les vraies cams viendront du backend)
+    allCams = [
+        { id: 1, name: "Luna",    status: "live",    viewers: 1700, gradient: "from-pink-600 to-purple-800" },
+        { id: 2, name: "Chloé",   status: "live",    viewers: 856,  gradient: "from-purple-600 to-indigo-800" },
+        { id: 3, name: "Mia",     status: "live",    viewers: 642,  gradient: "from-rose-600 to-pink-900" },
+        { id: 4, name: "Sofia",   status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
+        { id: 5, name: "Camille", status: "live",    viewers: 499,  gradient: "from-fuchsia-600 to-slate-900" },
+        { id: 6, name: "Eva",     status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
+        { id: 7, name: "Jade",    status: "live",    viewers: 381,  gradient: "from-emerald-600 to-teal-900" },
+        { id: 8, name: "Léa",     status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
+        { id: 9, name: "Nina",    status: "live",    viewers: 298,  gradient: "from-pink-500 to-red-800" },
+        { id: 10, name: "Sarah",  status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
+    ];
+
+    document.getElementById('statLive').innerText = allCams.filter(c => c.status === 'live').length;
+    document.getElementById('statOffline').innerText = allCams.filter(c => c.status === 'offline').length;
+    renderCams();
+}
+
+function renderCams() {
+    const filtered = allCams.filter(c => camsFilter === 'all' || c.status === camsFilter);
+    document.getElementById('camsGrid').innerHTML = filtered.map(c => `
+        <div class="relative bg-gradient-to-br ${c.gradient} rounded-2xl p-3 h-40 flex flex-col justify-between overflow-hidden shadow-md">
+            <div class="flex items-center justify-between z-10">
+                ${c.status === 'live'
+                    ? '<span class="bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 bg-white rounded-full live-pulse"></span>LIVE</span>'
+                    : '<span class="bg-slate-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">OFFLINE</span>'}
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                <i class="fa-solid fa-user-large text-5xl text-white"></i>
+            </div>
+            <div class="z-10 text-white drop-shadow">
+                <p class="font-bold text-xs">${c.name}</p>
+                <p class="text-[10px] opacity-80"><i class="fa-solid fa-eye text-[9px] mr-1"></i>${c.viewers}</p>
+            </div>
+            <div class="absolute top-2 right-2 flex flex-col gap-1 z-20">
+                <button onclick="viewCam(${c.id})" title="Voir la cam" class="w-6 h-6 rounded-md bg-black/50 hover:bg-black/70 text-white text-xs backdrop-blur">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                <button onclick="flagCam(${c.id})" title="Signaler" class="w-6 h-6 rounded-md bg-rose-500/80 hover:bg-rose-500 text-white text-xs backdrop-blur">
+                    <i class="fa-solid fa-flag"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterCams(filter, btn) {
+    camsFilter = filter;
+    document.querySelectorAll('.cam-filter').forEach(b => {
+        b.classList.remove('bg-brand-primary', 'text-white', 'font-bold');
+        b.classList.add('bg-slate-100', 'text-slate-600');
+    });
+    btn.classList.add('bg-brand-primary', 'text-white', 'font-bold');
+    btn.classList.remove('bg-slate-100', 'text-slate-600');
+    renderCams();
+}
+
+function viewCam(id) {
+    const cam = allCams.find(c => c.id === id);
+    showToast(`🔍 Surveillance de ${cam.name} (${cam.status === 'live' ? 'EN DIRECT' : 'éteinte'})`, 'info');
+}
+
+function flagCam(id) {
+    const cam = allCams.find(c => c.id === id);
+    const reason = prompt(`Signaler ${cam.name}. Raison :`);
+    if (reason) {
+        showToast('🚩 Signalement envoyé à l\'admin', 'warning');
+    }
+}
+
+// ============================================================
+// UTILISATEURS
+// ============================================================
+async function loadUsers() {
+    const tbody = document.getElementById('usersTable');
+    try {
+        const data = await apiCall('/mod/users');
+        allUsers = data.users || [];
+        document.getElementById('statUsers').innerText = allUsers.filter(u => u.status === 'active').length;
+        renderUsers();
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-rose-500">' + err.message + '</td></tr>';
+    }
+}
+
+function renderUsers(filter = '') {
+    filter = filter.toLowerCase();
+    const filtered = allUsers.filter(u => u.username.toLowerCase().includes(filter));
+    const tbody = document.getElementById('usersTable');
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400 text-sm">Aucun utilisateur</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(u => {
+        const isBanned = u.status === 'banned';
+        const isMe = currentUser && u.id === currentUser.id;
+        const isSuperAdmin = u.role === 'super_admin';
+        const canAct = !isMe && !isSuperAdmin;
+
+        return `
+            <tr class="border-b border-slate-50 hover:bg-slate-50/50">
+                <td class="py-3 px-2 text-slate-500 font-mono text-xs">#${u.id}</td>
+                <td class="py-3 px-2 font-bold text-slate-900">${u.username} ${isMe ? '<span class="text-[10px] text-brand-primary">(moi)</span>' : ''}</td>
+                <td class="py-3 px-2 text-xs">${u.role}</td>
+                <td class="py-3 px-2">
+                    ${isBanned
+                        ? '<span class="text-rose-600 text-xs font-bold">🔨 Banni</span>'
+                        : '<span class="text-emerald-600 text-xs font-bold">✅ Actif</span>'}
+                </td>
+                <td class="py-3 px-2 text-right">
+                    <div class="flex justify-end gap-1">
+                        ${canAct && !isBanned ? `
+                            <button onclick="handleMute(${u.id})" title="Mute 5 min" class="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs">
+                                <i class="fa-solid fa-microphone-slash"></i>
+                            </button>
+                            <button onclick="handleKick(${u.id})" title="Expulser" class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs">
+                                <i class="fa-solid fa-door-open"></i>
+                            </button>` : '<span class="text-[10px] text-slate-400">—</span>'}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function handleMute(userId) {
+    const duration = prompt('Durée du mute (secondes) :', '300');
+    if (duration === null) return;
+    try {
+        await apiCall('/mod/users/' + userId + '/mute', {
+            method: 'POST',
+            body: JSON.stringify({ duration: parseInt(duration) })
+        });
+        showToast('🔇 Utilisateur muté');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function handleKick(userId) {
+    if (!confirm('Expulser cet utilisateur ?')) return;
+    try {
+        await apiCall('/mod/users/' + userId + '/kick', { method: 'POST' });
+        showToast('👋 Utilisateur expulsé');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.getElementById('tab-' + name).classList.remove('hidden');
+    document.querySelectorAll('.mod-tab').forEach(t => {
+        t.classList.remove('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
+        t.classList.add('text-slate-500', 'font-semibold');
+    });
+    btn.classList.add('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
+    btn.classList.remove('text-slate-500', 'font-semibold');
+}
+
+// ---------- RECHERCHE ----------
+document.addEventListener('DOMContentLoaded', () => {
+    const search = document.getElementById('searchUser');
+    if (search) search.addEventListener('input', e => renderUsers(e.target.value));
+});
+</script>
+
+</body>
+</html>

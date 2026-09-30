@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RGPD — Vos droits — E-VISIOCAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .legal-content h2 { font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.75rem; color: #0f172a; }
+        .legal-content h3 { font-size: 1.05rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #1e293b; }
+        .legal-content p { margin-bottom: 0.75rem; line-height: 1.7; color: #475569; }
+        .legal-content ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; color: #475569; }
+        .legal-content li { margin-bottom: 0.25rem; line-height: 1.6; }
+        .right-card {
+            padding: 1.25rem;
+            border-radius: 1rem;
+            background: #f8fafc;
+            border-left: 4px solid #e91e63;
+            margin-bottom: 1rem;
+        }
+        .right-card h3 { margin-top: 0 !important; color: #0f172a !important; }
+        .right-card .icon { font-size: 1.5rem; margin-right: 0.5rem; }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+        </a>
+        <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+        </a>
+    </div>
+</header>
+
+<main class="max-w-[900px] w-full mx-auto flex-1 p-6">
+    <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm legal-content">
+        <div class="flex items-center gap-3 mb-2">
+            <span class="text-4xl">🛡️</span>
+            <h1 class="text-3xl font-extrabold text-slate-900">RGPD — Vos droits</h1>
+        </div>
+        <p class="text-sm text-slate-500 mb-8">
+            Règlement Général sur la Protection des Données (UE) 2016/679
+        </p>
+
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
+            <p class="text-sm text-blue-900 m-0">
+                <strong>💡 À savoir :</strong> Le RGPD vous donne des droits sur vos données personnelles.
+                E-VISIOCAM s'engage à les respecter et à vous permettre de les exercer facilement.
+            </p>
+        </div>
+
+        <h2>1. Quelles données sont collectées ?</h2>
+        <p>E-VISIOCAM collecte le <strong>minimum de données nécessaires</strong> au fonctionnement du service :</p>
+
+        <table class="w-full border-collapse my-4">
+            <thead>
+                <tr class="bg-slate-50">
+                    <th class="p-3 text-left border-b border-slate-200 text-sm font-bold">Donnée</th>
+                    <th class="p-3 text-left border-b border-slate-200 text-sm font-bold">Finalité</th>
+                    <th class="p-3 text-left border-b border-slate-200 text-sm font-bold">Obligatoire ?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="p-3 border-b border-slate-100 text-sm">Nom d'utilisateur</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Identification</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Oui</td>
+                </tr>
+                <tr>
+                    <td class="p-3 border-b border-slate-100 text-sm">Email</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Communication, récupération de compte</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Oui</td>
+                </tr>
+                <tr>
+                    <td class="p-3 border-b border-slate-100 text-sm">Mot de passe (haché)</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Sécurité du compte</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Oui</td>
+                </tr>
+                <tr>
+                    <td class="p-3 border-b border-slate-100 text-sm">Date de naissance</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Vérification +18 ans</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Oui</td>
+                </tr>
+                <tr>
+                    <td class="p-3 border-b border-slate-100 text-sm">IP, logs de connexion</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Sécurité, lutte contre la fraude</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Oui (légal)</td>
+                </tr>
+                <tr>
+                    <td class="p-3 border-b border-slate-100 text-sm">Bio, préférences</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Personnalisation du profil</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Non</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>2. Vos droits RGPD</h2>
+        <p>Conformément aux articles 15 à 22 du RGPD, vous disposez des droits suivants :</p>
+
+        <div class="right-card">
+            <h3><span class="icon">👁️</span> Droit d'accès (Article 15)</h3>
+            <p>Vous pouvez demander à consulter <strong>toutes les données</strong> que nous avons sur vous. Nous vous répondrons sous 30 jours maximum.</p>
+            <p class="text-xs text-slate-500 m-0">📧 Envoyez un email à <a href="mailto:dpo@e-visiocam.com" class="text-brand-primary underline">dpo@e-visiocam.com</a></p>
+        </div>
+
+        <div class="right-card">
+            <h3><span class="icon">✏️</span> Droit de rectification (Article 16)</h3>
+            <p>Vous pouvez <strong>corriger</strong> toute information inexacte vous concernant (email, bio, etc.).</p>
+            <p class="text-xs text-slate-500 m-0">📧 Ou directement depuis <a href="compte.html" class="text-brand-primary underline">votre compte</a></p>
+        </div>
+
+        <div class="right-card">
+            <h3><span class="icon">🗑️</span> Droit à l'effacement (Article 17)</h3>
+            <p>Vous pouvez demander la <strong>suppression définitive</strong> de votre compte et de toutes vos données.</p>
+            <p class="text-xs text-slate-500 m-0">📧 Ou depuis <a href="compte.html" class="text-brand-primary underline">votre compte → Zone dangereuse</a></p>
+        </div>
+
+        <div class="right-card">
+            <h3><span class="icon">⏸️</span> Droit à la limitation (Article 18)</h3>
+            <p>Vous pouvez demander à <strong>geler le traitement</strong> de vos données sans les supprimer.</p>
+        </div>
+
+        <div class="right-card">
+            <h3><span class="icon">📦</span> Droit à la portabilité (Article 20)</h3>
+            <p>Vous pouvez recevoir vos données dans un <strong>format lisible par machine</strong> (JSON) pour les transférer ailleurs.</p>
+        </div>
+
+        <div class="right-card">
+            <h3><span class="icon">🚫</span> Droit d'opposition (Article 21)</h3>
+            <p>Vous pouvez vous <strong>opposer au traitement</strong> de vos données pour des motifs légitimes.</p>
+        </div>
+
+        <h2>3. Durée de conservation</h2>
+        <ul>
+            <li><strong>Données de compte :</strong> tant que le compte est actif</li>
+            <li><strong>Après suppression :</strong> 30 jours (sauvegardes techniques), puis effacement définitif</li>
+            <li><strong>Logs de connexion :</strong> 12 mois (obligation légale)</li>
+            <li><strong>Logs de paiement :</strong> 10 ans (obligation fiscale)</li>
+        </ul>
+
+        <h2>4. Partage des données</h2>
+        <p>E-VISIOCAM ne vend <strong>JAMAIS</strong> vos données. Elles peuvent être partagées uniquement avec :</p>
+        <ul>
+            <li><strong>Stripe</strong> — pour les paiements (si vous achetez des crédits)</li>
+            <li><strong>Render</strong> — hébergeur du backend</li>
+            <li><strong>GitHub</strong> — hébergeur du frontend</li>
+        </ul>
+        <p>Tous ces prestataires sont conformes au RGPD.</p>
+
+        <h2>5. Sécurité des données</h2>
+        <ul>
+            <li>✅ Mots de passe hachés avec <strong>bcrypt</strong> (impossible à décrypter)</li>
+            <li>✅ Communications chiffrées en <strong>HTTPS</strong></li>
+            <li>✅ Tokens JWT signés cryptographiquement</li>
+            <li>✅ Accès aux données limité au strict nécessaire</li>
+        </ul>
+
+        <h2>6. Réclamation auprès de la CNIL</h2>
+        <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la CNIL :</p>
+        <ul>
+            <li>🌐 <a href="https://www.cnil.fr/fr/plaintes" target="_blank" class="text-brand-primary underline">cnil.fr/fr/plaintes</a></li>
+            <li>📞 01 53 73 22 22</li>
+            <li>📮 CNIL, 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07</li>
+        </ul>
+
+        <h2>7. Délégué à la Protection des Données (DPO)</h2>
+        <p>Pour toute question RGPD :</p>
+        <p><strong>Email :</strong> <a href="mailto:dpo@e-visiocam.com" class="text-brand-primary underline">dpo@e-visiocam.com</a></p>
+        <p><strong>Délai de réponse :</strong> 30 jours maximum (conformément au RGPD)</p>
+
+        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg mt-6">
+            <p class="text-sm text-amber-900 m-0">
+                <strong>⚠️ Important :</strong> Pour exercer vos droits, nous pouvons être amenés à vérifier votre identité
+                (par email de confirmation) afin de protéger votre compte contre toute tentative d'usurpation.
+            </p>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-white border-t border-slate-200 py-6 mt-10">
+    <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+        <p>© 2025 E-VISIOCAM. Tous droits réservés.</p>
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="mentions-legales.html" class="hover:text-brand-primary">Mentions légales</a>
+            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
+            <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
+            <a href="cookies.html" class="hover:text-brand-primary">Cookies</a>
+            <a href="rgpd.html" class="hover:text-brand-primary font-bold">RGPD</a>
+            <a href="contact.html" class="hover:text-brand-primary">Contact</a>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
