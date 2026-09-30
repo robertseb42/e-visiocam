@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Crédits — E-VISIOCAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white"><i class="fa-solid fa-video"></i></div>
+            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
+            <a href="index.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Accueil</a>
+            <a href="live.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">En direct</a>
+            <a href="modeles.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
+            <a href="salons.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
+            <a href="messages.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Messages</a>
+            <a href="credits.html" class="px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">Crédits</a>
+        </nav>
+        <a href="compte.html" class="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-slate-100 rounded-full text-sm font-semibold">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-xs font-bold">3</div>
+        </a>
+    </div>
+</header>
+
+<main class="max-w-[1200px] w-full mx-auto flex-1 p-6">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-extrabold text-slate-900">💰 Mes Crédits</h1>
+        <p class="text-sm text-slate-500 mt-1">Rechargez votre compte pour discuter en privé</p>
+    </div>
+
+    <!-- Balance -->
+    <div class="bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl"></div>
+        <div class="relative z-10">
+            <p class="text-sm text-slate-300">Solde actuel</p>
+            <p class="text-5xl font-black mt-2"><i class="fa-solid fa-coins text-amber-400"></i> 250 <span class="text-lg font-bold text-slate-300">crédits</span></p>
+        </div>
+    </div>
+
+    <!-- Packs -->
+    <h2 class="text-xl font-bold text-slate-900 mb-4">Acheter des crédits</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="packs"></div>
+
+    <div class="mt-8 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+        <h3 class="font-bold text-slate-900 mb-2"><i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i> Paiement 100% sécurisé</h3>
+        <p class="text-xs text-slate-500">Vos transactions sont protégées par un chiffrement SSL. Nous acceptons : Visa, Mastercard, PayPal, Apple Pay, Google Pay.</p>
+    </div>
+</main>
+
+<footer class="bg-white border-t border-slate-200 py-6 mt-10">
+    <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+        <p>© 2025 E-VISIOCAM.</p>
+        <div class="flex gap-4">
+            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
+            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
+            <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+const packs = [
+    { credits: 100, price: "9,99 €", bonus: null, popular: false },
+    { credits: 250, price: "19,99 €", bonus: "+25 bonus", popular: true },
+    { credits: 500, price: "34,99 €", bonus: "+75 bonus", popular: false },
+    { credits: 1000, price: "59,99 €", bonus: "+200 bonus", popular: false },
+];
+
+document.getElementById('packs').innerHTML = packs.map(p => `
+    <div class="relative bg-white rounded-2xl p-6 border-2 ${p.popular ? 'border-brand-primary shadow-lg shadow-pink-500/20' : 'border-slate-200'} text-center">
+        ${p.popular ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">POPULAIRE</span>' : ''}
+        <div class="text-amber-400 text-3xl mb-2"><i class="fa-solid fa-coins"></i></div>
+        <p class="text-2xl font-black text-slate-900">${p.credits}</p>
+        <p class="text-xs text-slate-500 mb-1">crédits</p>
+        ${p.bonus ? `<p class="text-xs text-emerald-500 font-bold mb-3">${p.bonus}</p>` : '<p class="text-xs text-transparent mb-3">—</p>'}
+        <p class="text-xl font-bold text-slate-900 mb-4">${p.price}</p>
+        <button onclick="showToast('Redirection vers le paiement sécurisé...');" class="w-full py-2.5 ${p.popular ? 'bg-brand-primary hover:bg-brand-hover text-white' : 'bg-slate-900 hover:bg-slate-800 text-white'} font-bold rounded-xl text-xs">
+            Acheter
+        </button>
+    </div>
+`).join('');
+</script>
+
+</body>
+</html>

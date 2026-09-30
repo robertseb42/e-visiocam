@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>En Direct — E-VISIOCAM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <span class="text-2xl font-black tracking-tight text-slate-900">
+                E-<span class="text-brand-primary">VISIOCAM</span>
+            </span>
+        </a>
+        <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
+            <a href="index.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Accueil</a>
+            <a href="live.html" class="px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">En direct</a>
+            <a href="modeles.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
+            <a href="salons.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
+            <a href="messages.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Messages</a>
+            <a href="credits.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Crédits</a>
+        </nav>
+        <a href="compte.html" class="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-full text-sm font-semibold">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-xs font-bold">3</div>
+            <span class="hidden md:inline">Mon compte</span>
+        </a>
+    </div>
+</header>
+
+<main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
+    <div class="mb-6">
+        <h1 class="text-3xl font-extrabold text-slate-900">🔴 En direct maintenant</h1>
+        <p class="text-sm text-slate-500 mt-1">Toutes les caméras actives en ce moment</p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" id="liveGrid"></div>
+</main>
+
+<footer class="bg-white border-t border-slate-200 py-6 mt-10">
+    <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+        <p>© 2025 E-VISIOCAM. Tous droits réservés.</p>
+        <div class="flex gap-4">
+            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
+            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
+            <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
+            <a href="contact.html" class="hover:text-brand-primary">Contact</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+const allLives = [
+    { name: "Luna", viewers: "1.7k", gradient: "from-pink-600 to-purple-800", country: "🇫🇷" },
+    { name: "Chloé", viewers: "856", gradient: "from-purple-600 to-indigo-800", country: "🇫🇷" },
+    { name: "Mia", viewers: "642", gradient: "from-rose-600 to-pink-900", country: "🇪🇸" },
+    { name: "Sofia", viewers: "571", gradient: "from-amber-600 to-purple-900", country: "🇮🇹" },
+    { name: "Camille", viewers: "499", gradient: "from-fuchsia-600 to-slate-900", country: "🇫🇷" },
+    { name: "Eva", viewers: "417", gradient: "from-blue-600 to-purple-900", country: "🇩🇪" },
+    { name: "Jade", viewers: "381", gradient: "from-emerald-600 to-teal-900", country: "🇫🇷" },
+    { name: "Léa", viewers: "362", gradient: "from-indigo-600 to-purple-900", country: "🇧🇪" },
+    { name: "Nina", viewers: "298", gradient: "from-pink-500 to-red-800", country: "🇨🇭" },
+    { name: "Sarah", viewers: "274", gradient: "from-violet-600 to-pink-900", country: "🇨🇦" },
+    { name: "Ana", viewers: "211", gradient: "from-cyan-600 to-blue-900", country: "🇵🇹" },
+    { name: "Zoé", viewers: "187", gradient: "from-red-500 to-purple-900", country: "🇫🇷" },
+];
+
+document.getElementById('liveGrid').innerHTML = allLives.map(m => `
+    <a href="index.html" class="group cursor-pointer bg-gradient-to-br ${m.gradient} rounded-2xl p-3 h-44 flex flex-col justify-between relative overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1">
+        <div class="flex items-center justify-between z-10">
+            <span class="bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-white rounded-full live-pulse"></span> LIVE
+            </span>
+            <span class="text-white text-lg drop-shadow">${m.country}</span>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center opacity-30 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-user-large text-6xl text-white"></i>
+        </div>
+        <div class="z-10 flex items-center justify-between text-white drop-shadow">
+            <span class="font-bold text-xs">${m.name}</span>
+            <span class="text-[10px] opacity-90"><i class="fa-solid fa-eye text-[9px] mr-1"></i>${m.viewers}</span>
+        </div>
+    </a>
+`).join('');
+</script>
+
+</body>
+</html>
