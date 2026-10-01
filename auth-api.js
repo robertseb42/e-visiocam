@@ -19,6 +19,17 @@ function getCurrentUser() {
     try { return JSON.parse(raw); } catch (e) { return null; }
 }
 function clearUser() { localStorage.removeItem('evisiocam_user'); }
+// ---------- MENU MOBILE ----------
+function toggleMobileSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    sidebar.classList.toggle('hidden');
+    sidebar.classList.toggle('flex');
+    sidebar.classList.toggle('absolute');
+    sidebar.classList.toggle('z-30');
+    sidebar.classList.toggle('bg-slate-100');
+    sidebar.classList.toggle('p-4');
+}
 
 // ---------- VÉRIFICATIONS ----------
 function isLoggedIn() { return !!getToken() && !!getCurrentUser(); }

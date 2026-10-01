@@ -72,7 +72,8 @@
 
 <div class="max-w-[1700px] w-full mx-auto flex-1 flex p-3 md:p-6 gap-6">
     <aside id="sidebar" class="hidden lg:flex flex-col w-64 shrink-0 gap-6">
-        <button onclick="openModal('broadcastModal')" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-2xl shadow-lg shadow-pink-500/25 flex items-center justify-center gap-3">
+        <!-- ✅ BOUTON CORRIGÉ -->
+        <button onclick="goLive()" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-2xl shadow-lg shadow-pink-500/25 flex items-center justify-center gap-3 hover:opacity-90 transition-all">
             <i class="fa-solid fa-broadcast-tower text-lg"></i>
             <span>Diffuser ma webcam</span>
         </button>
