@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr" class="h-full bg-slate-100">
-head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages — E-VISIOCAM</title>
@@ -75,9 +75,13 @@ head>
         <h1 class="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
             <i class="fa-solid fa-comments text-brand-primary"></i> Messages
         </h1>
+        <button onclick="openNewConvModal()" class="px-4 py-2.5 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-xl shadow-lg shadow-pink-500/25 flex items-center gap-2 hover:opacity-90 transition-all">
+            <i class="fa-solid fa-plus"></i>
+            <span>Nouvelle conversation</span>
+        </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-220px)] min-h-[500px]">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-240px)] min-h-[500px]">
         <!-- LISTE CONVERSATIONS -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
             <div class="p-4 border-b border-slate-100">
@@ -87,17 +91,11 @@ head>
                         class="w-full pl-9 pr-4 py-2 bg-slate-100 text-sm rounded-xl border border-transparent focus:border-brand-primary focus:bg-white focus:outline-none transition-all">
                 </div>
             </div>
-            <div id="conversationsList" class="flex-1 overflow-y-auto">
-                <div class="p-8 text-center text-slate-400 text-sm">
-                    <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2"></i>
-                    <p>Chargement...</p>
-                </div>
-            </div>
+            <div id="conversationsList" class="flex-1 overflow-y-auto"></div>
         </div>
 
         <!-- CHAT -->
         <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-            <!-- HEADER CHAT -->
             <div id="chatHeader" class="p-4 border-b border-slate-100 flex items-center justify-between hidden">
                 <div class="flex items-center gap-3">
                     <div id="chatAvatar" class="w-11 h-11 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg">?</div>
@@ -109,12 +107,16 @@ head>
                         </p>
                     </div>
                 </div>
-                <button onclick="closeConversation()" class="text-slate-400 hover:text-slate-700 p-2">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div class="flex items-center gap-1">
+                    <button onclick="deleteCurrentConversation()" title="Supprimer" class="w-9 h-9 rounded-lg text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button onclick="closeConversation()" class="w-9 h-9 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
-            <!-- MESSAGES -->
             <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
                 <div class="h-full flex items-center justify-center text-center text-slate-400">
                     <div>
@@ -124,7 +126,6 @@ head>
                 </div>
             </div>
 
-            <!-- INPUT -->
             <div id="chatInputWrapper" class="p-3 border-t border-slate-100 hidden">
                 <div class="flex items-center gap-2">
                     <input type="text" id="messageInput" placeholder="Écrire un message..."
@@ -138,6 +139,28 @@ head>
         </div>
     </div>
 </main>
+
+<!-- MODAL : NOUVELLE CONVERSATION -->
+<div id="newConvModal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-lg font-extrabold text-slate-900">Nouvelle conversation</h3>
+            <button onclick="closeNewConvModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="p-5">
+            <div class="relative mb-4">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="userSearchInput" placeholder="Rechercher un pseudo..."
+                    class="w-full pl-9 pr-4 py-3 bg-slate-100 text-sm rounded-xl border border-transparent focus:border-brand-primary focus:bg-white focus:outline-none transition-all">
+            </div>
+            <div id="userSearchResults" class="max-h-80 overflow-y-auto">
+                <p class="text-center text-slate-400 text-sm py-6">Tape au moins 2 lettres pour chercher</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="messages.js"></script>
 </body>
