@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>E-Visiocam – Salon Musique</title>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("evc-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<script>if(/theme=(vip|premium)/.test(location.search))document.documentElement.style.visibility="hidden"</script>
 <link rel="stylesheet" href="room.css">
 </head>
 <body>
 <header>
- <div class="logo"><i></i><span>E-VISIO<b>CAM</b></span></div>
+ <a class="logo" href="index.html" aria-label="Accueil E-Visiocam"><i></i><span>E-VISIO<b>CAM</b></span></a>
  <div class="title"><span id="rt">Salon Musique</span><small><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 7M18 14c2.500.7 3.500 2.500 3.500 6"/></svg><span id="rc">24 connectés</span></small></div>
  <div class="hr">
   <button id="tt" aria-label="Passer en thème clair ou sombre" title="Thème clair / sombre">☀️</button>
   <button class="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4zM10 21h4"/></svg></button>
-  <div class="av on" style="--c:#6b4a3a;width:42px;height:42px">V</div>
+  <a href="compte.html" class="av on" style="--c:#6b4a3a;width:42px;height:42px;text-decoration:none" title="Mon compte" aria-label="Mon compte">V</a>
  </div>
 </header>
 
@@ -78,6 +79,7 @@
 </footer>
 <div class="toast" id="toast"></div>
 
+<script src="salon-access.js"></script>
 <script src="room.js"></script>
 </body>
 </html>

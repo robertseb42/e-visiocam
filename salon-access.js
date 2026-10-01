@@ -9,9 +9,8 @@
    ⚠ Ce fichier n'est qu'un confort d'affichage : la vraie protection doit être faite par le back
      (voir les notes en bas du fichier). */
 const SalonAccess = (() => {
-  const DEMO = true;          // ← passer à false quand le back est prêt
-  const API  = 'https://VOTRE-BACK.exemple.com/api';   // ← adresse de votre back (celle de server.js une fois en ligne)
-  const TOKEN_KEY = 'token';  // ← nom sous lequel auth-api.js garde le jeton de connexion (à vérifier)
+  const DEMO = false;         // false = utilise le vrai back · true = simulation dans le navigateur (test)
+  const API  = 'https://e-visiocam-api.onrender.com/api';   // adresse de votre back sur Render
   const K = { req: 'evc-access', mgr: 'evc-managers', user: 'evc-user' };
   const SUPER = 'Super admin';
   // Comptes de test du mode démo (le premier est un simple membre)
@@ -19,7 +18,21 @@ const SalonAccess = (() => {
 
   const rd = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
   const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-  const tok = () => { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } };
+  // Retrouve le jeton de connexion gardé par le site (on essaie les noms courants, puis tout nom contenant « token »)
+  const tok = () => {
+    try {
+      for (const k of ['token', 'authToken', 'auth_token', 'jwt', 'accessToken', 'evisiocam_token', 'e-visiocam-token']) {
+        const v = localStorage.getItem(k) || sessionStorage.getItem(k);
+        if (v) return v.replace(/^"|"$/g, '');
+      }
+      for (const st of [localStorage, sessionStorage])
+        for (let i = 0; i < st.length; i++) {
+          const k = st.key(i);
+          if (/token|jwt/i.test(k) && st.getItem(k)) return st.getItem(k).replace(/^"|"$/g, '');
+        }
+    } catch (e) {}
+    return null;
+  };
   const api = async (path, opt = {}) => {
     const r = await fetch(API + path, { credentials: 'include', headers: { 'Content-Type': 'application/json', ...(tok() ? { Authorization: 'Bearer ' + tok() } : {}) }, ...opt });
     if (!r.ok) throw new Error(r.status);

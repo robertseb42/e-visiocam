@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Accès aux salons privés — E-VISIOCAM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js"></script>
+    <link rel="stylesheet" href="style.css?v=20261001-3">
+    <script src="salon-access.js"></script>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white"><i class="fa-solid fa-video"></i></div>
+            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+        </a>
+        <div class="flex gap-4 text-sm font-medium">
+            <a href="moderation.html" class="text-slate-600 hover:text-brand-primary">Modération</a>
+            <a href="salons.html" class="text-slate-600 hover:text-brand-primary">Salons</a>
+            <a href="compte.html" class="text-slate-600 hover:text-brand-primary"><i class="fa-solid fa-user mr-1"></i>Mon compte</a>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-[1100px] w-full mx-auto flex-1 p-6">
+    <h1 class="text-3xl font-extrabold text-slate-900">🔒 Accès aux salons privés</h1>
+    <p id="who" class="text-sm text-slate-500 mt-1 mb-6">Acceptez ou refusez les demandes des membres.</p>
+
+    <div id="demo" class="hidden mb-6 p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm flex flex-wrap items-center gap-3">
+        <span class="font-semibold text-amber-800">Mode démo</span>
+        <span class="text-amber-700">Les données restent dans ce navigateur. Vous êtes connecté en tant que :</span>
+        <select id="userSel" class="px-2 py-1 rounded-lg border border-amber-300 bg-white"></select>
+    </div>
+
+    <div id="denied" class="hidden p-6 rounded-2xl bg-white border border-slate-200 text-slate-600">
+        <i class="fa-solid fa-ban text-red-500 mr-2"></i>Cette page est réservée au super administrateur et aux responsables de salon.
+    </div>
+
+    <div id="panel" class="hidden space-y-8">
+        <section id="mgrSec" class="hidden">
+            <h2 class="text-lg font-bold text-slate-800 mb-1">Responsables des salons</h2>
+            <p class="text-xs text-slate-500 mb-3">Un responsable par salon : il reçoit les demandes de ce salon sur son panneau. Vous voyez et validez toutes les demandes.</p>
+            <datalist id="usersList"></datalist>
+            <div id="mgrs" class="space-y-3"></div>
+        </section>
+        <section>
+            <h2 class="text-lg font-bold text-slate-800 mb-3">Demandes en attente <span id="pc" class="text-sm font-normal text-slate-500"></span></h2>
+            <div id="pending" class="space-y-3"></div>
+        </section>
+        <section>
+            <h2 class="text-lg font-bold text-slate-800 mb-3">Historique</h2>
+            <div id="done" class="space-y-2"></div>
+        </section>
+    </div>
+</main>
+
+<script>
+const names = { vip: 'VIP Lounge', premium: 'Salon Premium' };
+const PRIVATE = ['vip', 'premium'];
+const toast = m => (window.showToast ? showToast(m) : alert(m));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const when = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+
+async function render() {
+  const u = await SalonAccess.me();
+  const sup = SalonAccess.isSuper(u), ok = await SalonAccess.canManage();
+  document.getElementById('denied').classList.toggle('hidden', ok);
+  document.getElementById('panel').classList.toggle('hidden', !ok);
+  document.getElementById('who').textContent = sup
+    ? 'Super administrateur : vous voyez toutes les demandes.'
+    : ok ? 'Responsable de : ' + u.manages.map(s => names[s] || s).join(', ') : 'Acceptez ou refusez les demandes des membres.';
+  if (!ok) return;
+
+  // Responsables (super admin uniquement)
+  document.getElementById('mgrSec').classList.toggle('hidden', !sup);
+  if (sup) {
+    const [mg, us] = await Promise.all([SalonAccess.managers(), SalonAccess.users()]);
+    document.getElementById('usersList').innerHTML = us.map(n => `<option value="${esc(n)}">`).join('');
+    document.getElementById('mgrs').innerHTML = PRIVATE.map(s => `
+      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
+        <div class="flex-1 min-w-[160px]">
+          <p class="font-bold text-slate-900">${esc(names[s])}</p>
+          <p class="text-xs text-slate-500">${mg[s] ? 'Responsable : <b>' + esc(mg[s]) + '</b>' : 'Aucun responsable : seules vos décisions comptent'}</p>
+        </div>
+        <input id="m-${s}" list="usersList" value="${esc(mg[s] || '')}" placeholder="Nom du membre" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+        <button onclick="saveMgr('${s}')" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl">Désigner</button>
+        ${mg[s] ? `<button onclick="saveMgr('${s}', true)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl">Retirer</button>` : ''}
+      </div>`).join('');
+  }
+
+  // Demandes
+  let list = [];
+  try { list = await SalonAccess.listRequests(); } catch (e) { toast('Impossible de charger les demandes'); }
+  const pending = list.filter(r => r.status === 'pending');
+  const done = list.filter(r => r.status !== 'pending').reverse();
+
+  document.getElementById('pc').textContent = pending.length ? '(' + pending.length + ')' : '';
+  document.getElementById('pending').innerHTML = pending.length ? pending.map(r => `
+    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
+      <div class="flex-1 min-w-[200px]">
+        <p class="font-bold text-slate-900">${esc(r.user)}</p>
+        <p class="text-xs text-slate-500">demande l'accès à <b>${esc(names[r.slug] || r.slug)}</b> · ${when(r.date)}</p>
+      </div>
+      <button onclick="decide(${r.id},'approved')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-check mr-1"></i>Accepter</button>
+      <button onclick="decide(${r.id},'refused')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-xmark mr-1"></i>Refuser</button>
+    </div>`).join('') : '<p class="text-sm text-slate-500">Aucune demande en attente.</p>';
+
+  document.getElementById('done').innerHTML = done.length ? done.map(r => `
+    <div class="bg-white rounded-xl px-4 py-2 border border-slate-200/80 text-sm flex flex-wrap gap-2 items-center">
+      <b>${esc(r.user)}</b><span class="text-slate-500">· ${esc(names[r.slug] || r.slug)}</span>
+      <span class="ml-auto text-xs font-bold ${r.status === 'approved' ? 'text-green-600' : 'text-red-500'}">${r.status === 'approved' ? 'Accepté' : 'Refusé'}${r.by ? ' par ' + esc(r.by) : ''}</span>
+    </div>`).join('') : '<p class="text-sm text-slate-500">Rien pour le moment.</p>';
+}
+
+async function decide(id, decision) {
+  try { await SalonAccess.decide(id, decision); toast(decision === 'approved' ? 'Accès accordé' : 'Demande refusée'); }
+  catch (e) { toast('Action impossible : vous n\'êtes pas responsable de ce salon'); }
+  render();
+}
+
+async function saveMgr(slug, remove) {
+  const name = remove ? '' : document.getElementById('m-' + slug).value.trim();
+  if (!remove && !name) { toast('Indiquez le nom du responsable'); return; }
+  try { await SalonAccess.setManager(slug, name); toast(remove ? 'Responsable retiré' : name + ' est responsable de ' + names[slug]); }
+  catch (e) { toast('Action réservée au super administrateur'); }
+  render();
+}
+
+if (SalonAccess.DEMO) {
+  const d = document.getElementById('demo'), s = document.getElementById('userSel');
+  s.innerHTML = SalonAccess.DEMO_USERS.map(n => `<option>${n}</option>`).join('');
+  SalonAccess.me().then(u => { s.value = u.name; });
+  d.classList.remove('hidden');
+  s.onchange = () => { SalonAccess.setUser(s.value); render(); };
+}
+render();
+</script>
+</body>
+</html>

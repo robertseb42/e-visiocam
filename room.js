@@ -12,12 +12,16 @@ const rooms=[
  ['VIP Lounge',12,'👑','VIP Lounge'],
  ['Premium',8,'💎','Salon Premium']];
 const slugs=['general','francais','international','couples','amateurs','musique','vip','premium'];
-const privates=['vip','premium']; /* BACK : vérifier ici que l'utilisateur a le droit d'entrer (invitation / abonnement) */
+const privates=['vip','premium']; /* BACK : le serveur doit aussi refuser la connexion si l'accès n'est pas accordé */
 const themeParam=new URLSearchParams(location.search).get('theme');
 let cur=Math.max(0,slugs.indexOf(themeParam));
+/* Salon privé : accès seulement si un modérateur / administrateur l'a accordé */
+if(privates.includes(slugs[cur])){SalonAccess.status(slugs[cur]).then(s=>{if(s==='approved')document.documentElement.style.visibility='';else location.replace('salons.html?acces='+s)})}
 function drawRooms(){$('#rooms').innerHTML=rooms.map((r,i)=>`<button class="room ${i==cur?'act':''}" data-i="${i}"><b class="ic">${r[2]}</b>${r[0]}${privates.includes(slugs[i])?' 🔒':''}<span>${ppl}${r[1]}</span></button>`).join('');
  $('#rt').textContent=rooms[cur][3];document.title='E-Visiocam – '+rooms[cur][3];$('#rc').textContent=rooms[cur][1]+' connectés';$('#mc').textContent=rooms[cur][1]}
-$('#rooms').onclick=e=>{const b=e.target.closest('.room');if(b){cur=+b.dataset.i;drawRooms();history.pushState(null,'','?theme='+slugs[cur]);
+$('#rooms').onclick=async e=>{const b=e.target.closest('.room');if(b){const i=+b.dataset.i;
+ if(privates.includes(slugs[i])&&await SalonAccess.status(slugs[i])!=='approved'){toast('Salon privé : demandez l\'accès depuis la page Salons');return}
+ cur=i;drawRooms();history.pushState(null,'','?theme='+slugs[cur]);
  pub.length=0;pub.push(['Vous','#ffd60a','#ffd60a','Bienvenue dans le salon '+rooms[cur][0]+' !',hm()]);drawPub();
  /* BACK : charger ici les messages et membres du thème → fetch('/api/salons/'+slugs[cur]+'/messages') */}};
 drawRooms();
