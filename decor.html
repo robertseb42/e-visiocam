@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Décor — E-VISIOCAM</title><link rel="stylesheet" href="style.css?v=20261001-decor"><script src="auth-api.js"></script><script src="decor.js" defer></script></head>
+<body class="decor-page">
+<header class="decor-header"><a href="admin.html">← Administration</a><strong>E-<span>VISIOCAM</span></strong><a href="index.html">Voir l’accueil ↗</a></header>
+<main class="decor-main"><p class="decor-eyebrow">PERSONNALISATION</p><h1>Le décor de ton accueil</h1><p class="decor-intro">Change les images de fond. Le titre et le bouton de la bannière restent fixes.</p>
+<p id="decorStatus" role="status" aria-live="polite">Vérification de la session…</p>
+<form id="decorForm" hidden>
+<section class="decor-panel"><div class="decor-heading"><h2>1. Tes images</h2><span>3 images maximum</span></div><p>JPG ou PNG, 2 Mo maximum par image. Format conseillé : 1200 × 400 px, sans texte, avec le sujet à droite.</p><div id="decorCards" class="decor-grid"></div><button type="button" id="addBanner">+ Ajouter une image</button></section>
+<section class="decor-panel"><h2>2. Défilement</h2><label for="decorInterval">Durée par image (secondes)</label><input id="decorInterval" type="number" min="3" max="30" step="1" value="6" required><p>Une seule image : fond fixe. Deux ou trois images : défilement automatique.</p></section>
+<section class="decor-panel"><div class="decor-heading"><h2>3. Aperçu</h2><label><input id="mobilePreview" type="checkbox"> Vue mobile</label></div><div id="decorPreview" class="decor-preview"><img id="previewImage" alt="Aperçu du fond sélectionné" hidden><div class="decor-preview-copy"><strong>CHAT CAM<br><span>EN DIRECT</span></strong><p>Des rencontres et des moments uniques.</p><span class="preview-cta">Créer un compte gratuit</span></div></div></section>
+<div class="decor-save"><button type="submit" id="saveDecor">Enregistrer le décor</button><p>Les modifications seront visibles sur l’accueil après enregistrement et actualisation.</p></div>
+</form></main></body></html>
