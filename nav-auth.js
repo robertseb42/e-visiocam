@@ -3,6 +3,66 @@
 // ============================================================
 
 (function() {
+    // Éviter les doubles initialisations
+    if (window.__navAuthInitialized) return;
+    window.__navAuthInitialized = true;
+
+    // Éviter les doubles écouteurs (bug du menu qui se ferme trop vite)
+    if (!window.__navAuthClickListenerAttached) {
+        document.addEventListener('click', function(e) {
+            const wrapper = document.getElementById('userMenuWrapper');
+            const dropdown = document.getElementById('userMenuDropdown');
+            if (wrapper && dropdown && !wrapper.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+        window.__navAuthClickListenerAttached = true;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // COULEUR D'AVATAR SELON GENRE (PRIORITÉ) PUIS RÔLE
+    // ═══════════════════════════════════════════════════════════
+    function getAvatarGradient(user) {
+        const gender = (user.gender || '').toLowerCase();
+
+        // 🔵 GENRE : Homme
+        if (gender === 'homme' || gender === 'male' || gender === 'h') {
+            return 'from-blue-500 to-cyan-500';
+        }
+        // 🌸 GENRE : Femme
+        if (gender === 'femme' || gender === 'female' || gender === 'f') {
+            return 'from-pink-500 to-rose-500';
+        }
+        // 🟡 GENRE : Autre
+        if (gender === 'autre' || gender === 'other') {
+            return 'from-amber-400 to-yellow-500';
+        }
+
+        // RÔLE (si pas de genre)
+        if (user.role === 'super_admin') return 'from-purple-500 to-pink-600';
+        if (user.role === 'moderator') return 'from-blue-500 to-indigo-600';
+        if (user.role === 'model') return 'from-amber-400 to-orange-500';
+
+        // Défaut
+        return 'from-slate-500 to-slate-700';
+    }
+
+    function getAvatarIcon(user) {
+        const gender = (user.gender || '').toLowerCase();
+
+        // GENRE en priorité
+        if (gender === 'homme' || gender === 'male' || gender === 'h') return '♂';
+        if (gender === 'femme' || gender === 'female' || gender === 'f') return '♀';
+        if (gender === 'autre' || gender === 'other') return '⚧';
+
+        // Rôle sinon
+        if (user.role === 'super_admin') return '👑';
+        if (user.role === 'moderator') return '🛡️';
+        if (user.role === 'model') return '⭐';
+
+        return '';  // Sinon 1ère lettre
+    }
+
     function initNavAuth() {
         const navAuth = document.getElementById('navAuth');
         if (!navAuth) return;
@@ -21,12 +81,15 @@
         const initial = user.username.charAt(0).toUpperCase();
         const roleLabels = { super_admin: '👑', moderator: '🛡️', model: '⭐', user: '' };
         const roleIcon = roleLabels[user.role] || '';
+        const avatarGradient = getAvatarGradient(user);
+        const avatarIcon = getAvatarIcon(user);
+        const avatarDisplay = avatarIcon || initial;
 
         navAuth.innerHTML = `
             <div class="relative" id="userMenuWrapper">
                 <button onclick="toggleUserMenu(event)" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <div class="relative">
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm">${initial}</div>
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${avatarDisplay}</div>
                         <span id="navUnreadBadge" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white"></span>
                     </div>
                     <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${user.username}</span>
@@ -34,9 +97,12 @@
                 </button>
 
                 <div id="userMenuDropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50">
-                    <div class="p-3 border-b border-slate-100">
-                        <p class="text-xs text-slate-500">Connecté en tant que</p>
-                        <p class="text-sm font-bold text-slate-900">${user.username}</p>
+                    <div class="p-3 border-b border-slate-100 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold">${avatarDisplay}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs text-slate-500">Connecté en tant que</p>
+                            <p class="text-sm font-bold text-slate-900 truncate">${user.username}</p>
+                        </div>
                     </div>
                     <div class="p-2">
                         <a href="profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
@@ -50,6 +116,9 @@
                         </a>
                         <a href="credits.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-coins w-4 text-amber-500"></i> Mes crédits
+                        </a>
+                        <a href="compte.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                            <i class="fa-solid fa-gear w-4 text-slate-400"></i> Paramètres
                         </a>
                         ${user.role === 'moderator' || user.role === 'super_admin' ? `
                             <a href="moderation.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
@@ -70,14 +139,6 @@
                 </div>
             </div>
         `;
-
-        document.addEventListener('click', function(e) {
-            const wrapper = document.getElementById('userMenuWrapper');
-            const dropdown = document.getElementById('userMenuDropdown');
-            if (wrapper && dropdown && !wrapper.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
 
         startUnreadWatcher();
     }
@@ -169,4 +230,5 @@
 
     window.refreshUnreadCount = refreshUnreadCount;
     window.updateNavBadge = updateNavBadge;
+    window.getAvatarGradient = getAvatarGradient;
 })();
