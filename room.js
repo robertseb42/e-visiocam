@@ -51,7 +51,10 @@ $('#pf').onsubmit=e=>{e.preventDefault();const v=$('#pi').value.trim();if(!v)ret
 let cam=true,mic=false;
 $('#bc').onclick=()=>{cam=!cam;$('#bc').classList.toggle('y',cam);$('#bc span').textContent=cam?'Caméra active':'Caméra coupée'};
 $('#bm').onclick=()=>{mic=!mic;$('#bm span').textContent=mic?'Micro actif':'Micro coupé';$('#me').classList.toggle('mute',!mic)};
-$('#bs').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='light'?'dark':'light';toast('Thème '+(r.dataset.theme==='light'?'clair':'sombre'))};
+$('#bs').onclick=()=>toast('Réglages bientôt disponibles');
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('evc-theme',t)}catch(e){}$('#tt').textContent=t==='light'?'🌙':'☀️'}
+setTheme(document.documentElement.dataset.theme||'dark');
+$('#tt').onclick=()=>setTheme(document.documentElement.dataset.theme==='light'?'dark':'light');
 $('#bq').onclick=()=>{location.href='salons.html'};
 window.onpopstate=()=>location.reload();
 $('#me').classList.add('mute');
