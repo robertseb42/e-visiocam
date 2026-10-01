@@ -275,7 +275,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // SOCKET
 // ============================================================
 function initSocket() {
-    socket = io({ auth: { token: getToken() } });
+    socket = io('https://e-visiocam-api.onrender.com', { 
+    auth: { token: getToken() } 
+});
 
     socket.on('connect', () => {
         const status = document.getElementById('connectionStatus');
