@@ -80,10 +80,12 @@ function updatePlatter(playing) {
 function updateTonearm(playing) {
     var tonearm = document.getElementById('radioTonearm');
     if (!tonearm) return;
+    // -25° = repos (à l'extérieur du vinyle)
+    // -5°  = lecture (au milieu du vinyle)
     if (playing) {
-        tonearm.style.transform = 'rotate(28deg)';
+        tonearm.style.transform = 'rotate(-5deg)';
     } else {
-        tonearm.style.transform = 'rotate(0deg)';
+        tonearm.style.transform = 'rotate(-25deg)';
     }
 }
 
