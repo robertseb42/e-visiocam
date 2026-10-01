@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function log(msg) {
     const box = document.getElementById('logBox');
     const div = document.createElement('div');
-    div.textContent = `[${new Date().toLocaleTimeString('fr-FR')}] ${msg}`;
+    div.textContent = '[' + new Date().toLocaleTimeString('fr-FR') + '] ' + msg;
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
 }
@@ -228,10 +228,13 @@ function log(msg) {
 // SOCKET
 // ============================================================
 function initSocket() {
-    socket = io('https://e-visiocam-api.onrender.com', { auth: { token: getToken() } });
+    // ⚠️ URL Render explicite
+    socket = io('https://e-visiocam-api.onrender.com', {
+        auth: { token: getToken() }
+    });
 
     socket.on('connect', () => {
-        log('✅ Connecté');
+        log('✅ Connecté au serveur');
         const s = document.getElementById('connectionStatus');
         s.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
         s.innerHTML = '🟢 Connecté';
@@ -244,18 +247,18 @@ function initSocket() {
     });
 
     socket.on('live:started', (data) => {
-        log(`🔴 ${data.broadcasterUsername} est en live`);
+        log('🔴 ' + data.broadcasterUsername + ' est en live');
         refreshStreams();
     });
 
     socket.on('live:stopped', (data) => {
-        log(`⏹️ ${data.broadcasterUsername} a arrêté`);
+        log('⏹️ ' + data.broadcasterUsername + ' a arrêté');
         refreshStreams();
         if (currentStreamId === data.streamId) leaveStream();
     });
 
     socket.on('live:joined', (data) => {
-        log(`👁️ Connecté au live`);
+        log('👁️ Connecté au live');
         document.getElementById('watchingBadge').classList.remove('hidden');
     });
 
@@ -275,7 +278,7 @@ function initSocket() {
 
     // WebRTC receiver (broadcaster)
     socket.on('webrtc:offer', async (data) => {
-        log(`📥 Offre de ${data.viewerUsername}`);
+        log('📥 Offre de ' + data.viewerUsername);
         try {
             peerConnection = new RTCPeerConnection(rtcConfig);
             if (localStream) {
@@ -293,7 +296,7 @@ function initSocket() {
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
             socket.emit('webrtc:answer', { answer, viewerSocketId: data.viewerSocketId });
-            log(`📤 Réponse envoyée à ${data.viewerUsername}`);
+            log('📤 Réponse envoyée');
         } catch (err) { log('❌ WebRTC: ' + err.message); }
     });
 
@@ -331,12 +334,26 @@ async function startCamera() {
         video.srcObject = localStream;
         document.getElementById('localPlaceholder').style.display = 'none';
 
-        // Boutons
-        setBtn('startCamBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
-        setBtn('stopCamBtn', 'enabled', 'bg-rose-500 hover:bg-rose-600 text-white');
-        setBtn('startBroadcastBtn', 'enabled', 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white');
-        setBtn('toggleCameraBtn', 'enabled', 'bg-slate-700 hover:bg-slate-800 text-white');
-        setBtn('toggleMicBtn', 'enabled', 'bg-slate-700 hover:bg-slate-800 text-white');
+        // Activer les boutons
+        const startCam = document.getElementById('startCamBtn');
+        startCam.disabled = true;
+        startCam.className = 'w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2';
+
+        const stopCam = document.getElementById('stopCamBtn');
+        stopCam.disabled = false;
+        stopCam.className = 'w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
+
+        const startBroadcast = document.getElementById('startBroadcastBtn');
+        startBroadcast.disabled = false;
+        startBroadcast.className = 'w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
+
+        const toggleCam = document.getElementById('toggleCameraBtn');
+        toggleCam.disabled = false;
+        toggleCam.className = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
+
+        const toggleMic = document.getElementById('toggleMicBtn');
+        toggleMic.disabled = false;
+        toggleMic.className = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
 
         document.getElementById('camStatusText').textContent = 'Active ✅';
         log('✅ Caméra activée');
@@ -358,11 +375,25 @@ function stopCamera() {
     document.getElementById('stopBroadcastBtn').classList.add('hidden');
     document.getElementById('startBroadcastBtn').classList.remove('hidden');
 
-    setBtn('startCamBtn', 'enabled', 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white');
-    setBtn('stopCamBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
-    setBtn('startBroadcastBtn', 'disabled', 'bg-gradient-to-r from-red-500 to-rose-600 text-white cursor-not-allowed opacity-50');
-    setBtn('toggleCameraBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
-    setBtn('toggleMicBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
+    const startCam = document.getElementById('startCamBtn');
+    startCam.disabled = false;
+    startCam.className = 'w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
+
+    const stopCam = document.getElementById('stopCamBtn');
+    stopCam.disabled = true;
+    stopCam.className = 'w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2';
+
+    const startBroadcast = document.getElementById('startBroadcastBtn');
+    startBroadcast.disabled = true;
+    startBroadcast.className = 'w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-50';
+
+    const toggleCam = document.getElementById('toggleCameraBtn');
+    toggleCam.disabled = true;
+    toggleCam.className = 'py-2 bg-slate-200 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center gap-1';
+
+    const toggleMic = document.getElementById('toggleMicBtn');
+    toggleMic.disabled = true;
+    toggleMic.className = 'py-2 bg-slate-200 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center gap-1';
 
     myCameraOff = false;
     myMicMuted = false;
@@ -370,20 +401,6 @@ function stopCamera() {
     document.getElementById('toggleMicText').textContent = 'Couper micro';
     document.getElementById('camStatusText').textContent = 'Inactif';
     log('⏹️ Caméra arrêtée');
-}
-
-function setBtn(id, state, classes) {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-    if (state === 'enabled') {
-        btn.disabled = false;
-        btn.className = btn.className.replace(/bg-\S+|text-\S+|cursor-not-allowed|opacity-50|hover:\S+/g, '');
-        btn.className += ' ' + classes;
-    } else {
-        btn.disabled = true;
-        btn.className = btn.className.replace(/bg-\S+|text-\S+|cursor-not-allowed|opacity-50|hover:\S+/g, '');
-        btn.className += ' ' + classes;
-    }
 }
 
 // ============================================================
@@ -464,7 +481,7 @@ async function joinStream(streamId, broadcasterUsername) {
     document.getElementById('remoteViewers').textContent = '0';
 
     socket.emit('live:join', { streamId });
-    log(`👁️ Connexion à ${broadcasterUsername}...`);
+    log('👁️ Connexion à ' + broadcasterUsername + '...');
 
     peerConnection = new RTCPeerConnection(rtcConfig);
 
@@ -474,10 +491,8 @@ async function joinStream(streamId, broadcasterUsername) {
         remoteVideo.srcObject = event.streams[0];
         remoteVideo.muted = false;
         remoteVideo.volume = 1.0;
-
         document.getElementById('unmuteBtn').style.display = 'flex';
         updateVolumeUI(false);
-
         remoteVideo.play().catch(err => {
             log('⚠️ Clique pour activer le son');
         });
@@ -485,7 +500,7 @@ async function joinStream(streamId, broadcasterUsername) {
 
     peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-            socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId });
+            socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId: streamId });
         }
     };
 
@@ -495,7 +510,7 @@ async function joinStream(streamId, broadcasterUsername) {
             offerToReceiveAudio: true
         });
         await peerConnection.setLocalDescription(offer);
-        socket.emit('webrtc:offer', { offer, streamId });
+        socket.emit('webrtc:offer', { offer: offer, streamId: streamId });
         log('📤 Offre envoyée');
     } catch (err) { log('❌ ' + err.message); }
 }
@@ -543,7 +558,7 @@ function updateVolumeUI(isMuted) {
 async function refreshStreams() {
     const container = document.getElementById('activeStreams');
     try {
-        const response = await fetch(API_URL + '/streams');
+        const response = await fetch('https://e-visiocam-api.onrender.com/api/streams');
         const data = await response.json();
         const streams = data.streams || [];
         document.getElementById('liveCount').textContent = streams.length;
