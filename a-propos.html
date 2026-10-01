@@ -2,47 +2,212 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>À propos — E-VISIOCAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+            border-left: 4px solid #e91e63;
+            padding-left: 12px;
+        }
+        .legal-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        .legal-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+        .legal-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #475569;
+            list-style: disc;
+        }
+        .legal-content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .legal-content strong { color: #0f172a; }
+        .legal-content a { color: #e91e63; text-decoration: underline; }
+    </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <a href="index.html" class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white"><i class="fa-solid fa-video"></i></div>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
             <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
         </a>
-        <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
-            <a href="index.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Accueil</a>
-            <a href="live.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">En direct</a>
-            <a href="modeles.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
-            <a href="salons.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
-        </nav>
+        <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+        </a>
     </div>
 </header>
 
 <main class="max-w-[900px] w-full mx-auto flex-1 p-6">
     <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm legal-content">
-        <h1 class="text-3xl font-extrabold text-slate-900 mb-4">📖 À propos</h1>
-        <p>E-VISIOCAM est une plateforme de chat cam en direct...</p>
+
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">📖 À propos d'E-VISIOCAM</h1>
+        <p class="text-sm text-slate-500 mb-8">Notre histoire, notre mission, nos valeurs</p>
+
+        <!-- Introduction -->
+        <div class="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 mb-8 border border-pink-200/60">
+            <p class="text-slate-700 leading-relaxed mb-0">
+                <strong>E-VISIOCAM</strong> est une plateforme de chat cam en direct et de rencontres live
+                qui connecte des utilisateurs majeurs avec des modèles vérifiés et une communauté bienveillante.
+                Lancée en 2026, notre mission est d'offrir un espace <strong>sûr, moderne et respectueux</strong>
+                pour des rencontres authentiques.
+            </p>
+        </div>
 
         <h2>Notre mission</h2>
-        <p>...</p>
+        <p>
+            Nous croyons qu'Internet peut être un lieu de rencontres enrichissantes quand il est
+            <strong>bien conçu et bien modéré</strong>. C'est pourquoi nous nous engageons à :
+        </p>
+        <ul>
+            <li>🎯 <strong>Créer un espace sûr</strong> pour les adultes, avec une vérification d'âge stricte</li>
+            <li>🛡️ <strong>Modérer 24/7</strong> pour lutter contre les abus et les contenus illégaux</li>
+            <li>🤝 <strong>Respecter vos données</strong> — nous ne vendons jamais vos informations</li>
+            <li>✨ <strong>Offrir une expérience moderne</strong> avec un design épuré et des fonctionnalités innovantes</li>
+            <li>💼 <strong>Rémunérer équitablement</strong> nos modèles partenaires</li>
+        </ul>
+
+        <h2>Nos valeurs</h2>
+
+        <h3>🔒 Confidentialité</h3>
+        <p>
+            Vos données personnelles ne sont jamais partagées ni vendues. Nous utilisons un chiffrement
+            de bout en bout (HTTPS) et ne conservons que le strict nécessaire.
+            <a href="confidentialite.html">En savoir plus</a>
+        </p>
+
+        <h3>🛡️ Sécurité</h3>
+        <p>
+            Notre équipe de modération est disponible 24/7 pour intervenir rapidement en cas de signalement.
+            Chaque signalement est traité en moins de 48 heures.
+            <a href="contact.html">Signaler un contenu</a>
+        </p>
+
+        <h3>💎 Qualité</h3>
+        <p>
+            Nous vérifions manuellement chaque modèle inscrit sur la plateforme pour garantir
+            l'authenticité des profils et la qualité des lives.
+        </p>
+
+        <h3>🌍 Inclusivité</h3>
+        <p>
+            Notre communauté est ouverte à tous les adultes, sans discrimination de genre,
+            d'orientation sexuelle, d'origine ou de croyance.
+        </p>
+
+        <h2>Nos fonctionnalités</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <div class="text-2xl mb-2">💬</div>
+                <h4 class="font-bold text-slate-900 mb-1">Chat en direct</h4>
+                <p class="text-sm text-slate-600 mb-0">Discutez en temps réel avec des modèles et la communauté</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <div class="text-2xl mb-2">🎁</div>
+                <h4 class="font-bold text-slate-900 mb-1">Cadeaux virtuels</h4>
+                <p class="text-sm text-slate-600 mb-0">Envoyez des cadeaux animés pour soutenir vos modèles préférés</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <div class="text-2xl mb-2">🎥</div>
+                <h4 class="font-bold text-slate-900 mb-1">Lives HD</h4>
+                <p class="text-sm text-slate-600 mb-0">Regardez des lives de haute qualité en toute sécurité</p>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <div class="text-2xl mb-2">🔒</div>
+                <h4 class="font-bold text-slate-900 mb-1">Chat privé</h4>
+                <p class="text-sm text-slate-600 mb-0">Des conversations exclusives avec vos modèles préférés</p>
+            </div>
+        </div>
+
+        <h2>Notre équipe</h2>
+        <p>
+            E-VISIOCAM est développé et maintenu par une <strong>petite équipe passionnée</strong>
+            basée en France.
+        </p>
+        <ul>
+            <li><strong>Développement :</strong> Robert Sébastien</li>
+            <li><strong>Modération :</strong> Équipe dédiée (recrutement en cours)</li>
+            <li><strong>Support :</strong> <a href="mailto:contact@e-visiocam.com">contact@e-visiocam.com</a></li>
+        </ul>
+
+        <h2>Chiffres clés</h2>
+        <div class="grid grid-cols-3 gap-4 my-6 text-center">
+            <div>
+                <div class="text-3xl font-black text-brand-primary">2026</div>
+                <p class="text-xs text-slate-500 mb-0">Année de lancement</p>
+            </div>
+            <div>
+                <div class="text-3xl font-black text-brand-primary">24/7</div>
+                <p class="text-xs text-slate-500 mb-0">Modération continue</p>
+            </div>
+            <div>
+                <div class="text-3xl font-black text-brand-primary">100%</div>
+                <p class="text-xs text-slate-500 mb-0">Sécurisé HTTPS</p>
+            </div>
+        </div>
+
+        <h2>Nous contacter</h2>
+        <p>
+            Une question ? Une suggestion ? Un problème ?
+        </p>
+        <ul>
+            <li>📧 <strong>Contact général :</strong> <a href="mailto:contact@e-visiocam.com">contact@e-visiocam.com</a></li>
+            <li>🚨 <strong>Signalement d'abus :</strong> <a href="mailto:abuse@e-visiocam.com">abuse@e-visiocam.com</a></li>
+            <li>🛡️ <strong>Protection des données (DPO) :</strong> <a href="mailto:dpo@e-visiocam.com">dpo@e-visiocam.com</a></li>
+            <li>🆘 <strong>Signalement contenu illégal :</strong> <a href="https://www.internet-signalement.gouv.fr" target="_blank">PHAROS</a></li>
+        </ul>
+
+        <h2>Mentions légales</h2>
+        <p>
+            Pour plus d'informations sur l'éditeur, l'hébergeur et les mentions obligatoires,
+            consultez notre page <a href="mentions-legales.html">Mentions légales</a>.
+        </p>
+
+        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg mt-8">
+            <p class="text-sm text-amber-900 mb-0">
+                <strong>🔞 Rappel important :</strong> E-VISIOCAM est un site réservé aux
+                <strong>personnes majeures (18 ans ou plus)</strong>. Toute tentative d'accès
+                par un mineur est strictement interdite et constitue une infraction.
+            </p>
+        </div>
+
+        <p class="text-center text-xs text-slate-400 mt-8">
+            Dernière mise à jour : 1er octobre 2026
+        </p>
     </div>
 </main>
 
 <footer class="bg-white border-t border-slate-200 py-6 mt-10">
     <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-        <p>© 2025 E-VISIOCAM.</p>
-        <div class="flex gap-4">
-            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
+        <p>© 2025 E-VISIOCAM. Tous droits réservés.</p>
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="mentions-legales.html" class="hover:text-brand-primary">Mentions légales</a>
             <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
             <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
+            <a href="cookies.html" class="hover:text-brand-primary">Cookies</a>
+            <a href="rgpd.html" class="hover:text-brand-primary">RGPD</a>
             <a href="contact.html" class="hover:text-brand-primary">Contact</a>
         </div>
     </div>
