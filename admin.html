@@ -26,7 +26,6 @@
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
-<!-- GUARD : Vérification d'accès AVANT tout affichage -->
 <script>
 (function() {
     if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
@@ -39,16 +38,10 @@
             <body style="margin:0;">
                 <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;font-family:Inter,sans-serif;">
                     <div style="background:white;border-radius:24px;padding:40px;text-align:center;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
-                        <div style="width:64px;height:64px;border-radius:20px;background:#fee2e2;color:#e11d48;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">
-                            🔒
-                        </div>
+                        <div style="width:64px;height:64px;border-radius:20px;background:#fee2e2;color:#e11d48;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">🔒</div>
                         <h1 style="font-size:22px;font-weight:900;color:#0f172a;margin:0 0 8px;">Accès refusé</h1>
-                        <p style="font-size:13px;color:#64748b;margin:0 0 24px;">
-                            Cette page est réservée aux Super Administrateurs.
-                        </p>
-                        <a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;font-size:13px;">
-                            Retour à l'accueil
-                        </a>
+                        <p style="font-size:13px;color:#64748b;margin:0 0 24px;">Cette page est réservée aux Super Administrateurs.</p>
+                        <a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;font-size:13px;">Retour à l'accueil</a>
                     </div>
                 </div>
             </body>
@@ -58,7 +51,6 @@
 })();
 </script>
 
-<!-- NAVBAR -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <a href="index.html" class="flex items-center gap-2">
@@ -88,7 +80,6 @@
         </div>
     </div>
 
-    <!-- STATS -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
@@ -137,7 +128,6 @@
         </div>
     </div>
 
-    <!-- ONGLETS -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="flex border-b border-slate-100 overflow-x-auto scrollbar-none">
             <button onclick="showTab('users', this)" class="admin-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
@@ -154,7 +144,6 @@
             </button>
         </div>
 
-        <!-- Onglet Utilisateurs -->
         <div id="tab-users" class="tab-content p-5">
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <input type="text" id="searchUser" placeholder="Rechercher..."
@@ -187,7 +176,6 @@
             </div>
         </div>
 
-        <!-- Onglet Modération -->
         <div id="tab-mods" class="tab-content p-5 hidden">
             <h3 class="font-bold text-slate-900 mb-3">🔵 Modérateurs actuels</h3>
             <div id="modsList" class="space-y-2 mb-6"></div>
@@ -200,9 +188,6 @@
             </div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             ONGLET RADIOS (NOUVEAU)
-             ═══════════════════════════════════════════════════════════ -->
         <div id="tab-radios" class="tab-content p-5 hidden">
             <div class="flex items-center justify-between mb-4">
                 <div>
@@ -213,13 +198,11 @@
                     <i class="fa-solid fa-plus"></i> Ajouter une radio
                 </button>
             </div>
-
             <div id="radiosAdminList" class="space-y-3">
                 <p class="text-center text-slate-400 py-8 text-sm">Chargement...</p>
             </div>
         </div>
 
-        <!-- Onglet Logs -->
         <div id="tab-logs" class="tab-content p-5 hidden">
             <div id="logsList" class="space-y-2 max-h-[500px] overflow-y-auto">
                 <p class="text-center text-slate-400 py-8 text-sm">
@@ -230,9 +213,6 @@
     </div>
 </main>
 
-<!-- ═══════════════════════════════════════════════════════════
-     MODAL RADIO (NOUVEAU)
-     ═══════════════════════════════════════════════════════════ -->
 <div id="radioModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         <div class="p-5 border-b border-slate-100 flex items-center justify-between">
@@ -243,7 +223,6 @@
         </div>
         <div class="p-5 overflow-y-auto flex-1">
             <input type="hidden" id="radioId">
-
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Nom de la radio *</label>
@@ -295,13 +274,12 @@
 
 <script>
 // ============================================================
-// PANNEAU ADMIN - Version backend réel
+// PANNEAU ADMIN
 // ============================================================
 
 let allUsers = [];
 let currentUser = null;
 
-// ---------- INITIALISATION ----------
 document.addEventListener('DOMContentLoaded', async () => {
     currentUser = getCurrentUser();
     if (currentUser) {
@@ -311,6 +289,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadLogs();
     await loadRadios();
 });
+
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    var div = document.createElement('div');
+    div.textContent = String(text);
+    return div.innerHTML;
+}
 
 // ---------- CHARGER LES UTILISATEURS ----------
 async function loadUsers() {
@@ -324,7 +309,7 @@ async function loadUsers() {
         renderUsers();
         renderMods();
     } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-rose-500">' + err.message + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-rose-500">' + escapeHtml(err.message) + '</td></tr>';
     }
 }
 
@@ -340,18 +325,15 @@ async function loadLogs() {
         }
         list.innerHTML = logs.map(log => {
             const date = new Date(log.created_at).toLocaleString('fr-FR');
-            return `
-                <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50">
-                    <span class="text-xs font-bold uppercase text-slate-600">${log.type}</span>
-                    <div class="flex-1">
-                        <p class="text-sm text-slate-700">${log.message}</p>
-                        <p class="text-xs text-slate-400 mt-1">${date}</p>
-                    </div>
-                </div>
-            `;
+            return '<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50">' +
+                '<span class="text-xs font-bold uppercase text-slate-600">' + escapeHtml(log.type) + '</span>' +
+                '<div class="flex-1">' +
+                '<p class="text-sm text-slate-700">' + escapeHtml(log.message) + '</p>' +
+                '<p class="text-xs text-slate-400 mt-1">' + date + '</p>' +
+                '</div></div>';
         }).join('');
     } catch (err) {
-        list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + err.message + '</p>';
+        list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + escapeHtml(err.message) + '</p>';
     }
 }
 
@@ -390,123 +372,88 @@ function renderUsers(filter = '') {
         const isMe = currentUser && u.id === currentUser.id;
         const canAct = !isMe;
 
-        return `
-            <tr class="border-b border-slate-50 hover:bg-slate-50/50">
-                <td class="py-3 px-2 text-slate-500 font-mono text-xs">#${u.id}</td>
-                <td class="py-3 px-2 font-bold text-slate-900">
-                    ${u.username} ${isMe ? '<span class="text-[10px] text-brand-primary">(moi)</span>' : ''}
-                </td>
-                <td class="py-3 px-2 text-slate-500 text-xs">${u.email || '—'}</td>
-                <td class="py-3 px-2">${roleBadges[u.role] || u.role}</td>
-                <td class="py-3 px-2">
-                    ${isBanned
-                        ? '<span class="text-rose-600 text-xs font-bold">🔨 Banni</span>'
-                        : '<span class="text-emerald-600 text-xs font-bold">✅ Actif</span>'}
-                </td>
-                <td class="py-3 px-2 text-right">
-                    <div class="flex justify-end gap-1 flex-wrap">
-                        ${canAct && u.role === 'user' ? `
-                            <button onclick="handlePromoteMod(${u.id})" title="Nommer modérateur" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs">
-                                <i class="fa-solid fa-user-shield"></i>
-                            </button>` : ''}
-                        ${canAct && u.role === 'moderator' ? `
-                            <button onclick="handleRevokeMod(${u.id})" title="Révoquer modérateur" class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs">
-                                <i class="fa-solid fa-user-minus"></i>
-                            </button>` : ''}
-                        ${canAct && !isBanned ? `
-                            <button onclick="handleBan(${u.id})" title="Bannir" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs">
-                                <i class="fa-solid fa-ban"></i>
-                            </button>` : ''}
-                        ${canAct && isBanned ? `
-                            <button onclick="handleUnban(${u.id})" title="Débannir" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs">
-                                <i class="fa-solid fa-check"></i>
-                            </button>` : ''}
-                        ${canAct ? `
-                            <button onclick="handleDelete(${u.id})" title="Supprimer" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>` : ''}
-                    </div>
-                </td>
-            </tr>
-        `;
+        let actions = '<div class="flex justify-end gap-1 flex-wrap">';
+        if (canAct && u.role === 'user') {
+            actions += '<button onclick="handlePromoteMod(' + u.id + ')" title="Nommer modérateur" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs"><i class="fa-solid fa-user-shield"></i></button>';
+        }
+        if (canAct && u.role === 'moderator') {
+            actions += '<button onclick="handleRevokeMod(' + u.id + ')" title="Révoquer modérateur" class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs"><i class="fa-solid fa-user-minus"></i></button>';
+        }
+        if (canAct && !isBanned) {
+            actions += '<button onclick="handleBan(' + u.id + ')" title="Bannir" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs"><i class="fa-solid fa-ban"></i></button>';
+        }
+        if (canAct && isBanned) {
+            actions += '<button onclick="handleUnban(' + u.id + ')" title="Débannir" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-check"></i></button>';
+        }
+        if (canAct) {
+            actions += '<button onclick="handleDelete(' + u.id + ')" title="Supprimer" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs"><i class="fa-solid fa-trash"></i></button>';
+        }
+        actions += '</div>';
+
+        return '<tr class="border-b border-slate-50 hover:bg-slate-50/50">' +
+            '<td class="py-3 px-2 text-slate-500 font-mono text-xs">#' + u.id + '</td>' +
+            '<td class="py-3 px-2 font-bold text-slate-900">' + escapeHtml(u.username) + (isMe ? ' <span class="text-[10px] text-brand-primary">(moi)</span>' : '') + '</td>' +
+            '<td class="py-3 px-2 text-slate-500 text-xs">' + escapeHtml(u.email || '—') + '</td>' +
+            '<td class="py-3 px-2">' + (roleBadges[u.role] || escapeHtml(u.role)) + '</td>' +
+            '<td class="py-3 px-2">' + (isBanned ? '<span class="text-rose-600 text-xs font-bold">🔨 Banni</span>' : '<span class="text-emerald-600 text-xs font-bold">✅ Actif</span>') + '</td>' +
+            '<td class="py-3 px-2 text-right">' + actions + '</td>' +
+            '</tr>';
     }).join('');
 
     document.getElementById('userCount').innerText = filtered.length + ' utilisateur(s)';
 }
 
-// ---------- LISTE MODÉRATEURS ----------
 function renderMods() {
     const mods = allUsers.filter(u => u.role === 'moderator' || u.role === 'super_admin');
     document.getElementById('modsList').innerHTML = mods.length === 0
         ? '<p class="text-sm text-slate-400 py-4">Aucun modérateur</p>'
-        : mods.map(u => `
-            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full ${u.role === 'super_admin' ? 'bg-purple-500' : 'bg-blue-500'} text-white flex items-center justify-center font-bold text-sm">
-                        ${u.username[0].toUpperCase()}
-                    </div>
-                    <div>
-                        <p class="font-bold text-slate-900 text-sm">${u.username}</p>
-                        <p class="text-xs text-slate-500">${roleBadges[u.role]}</p>
-                    </div>
-                </div>
-                ${u.role === 'moderator' && currentUser && u.id !== currentUser.id ? `
-                    <button onclick="handleRevokeMod(${u.id})" class="text-xs text-rose-600 hover:text-rose-800 font-bold">
-                        <i class="fa-solid fa-user-minus mr-1"></i>Révoquer
-                    </button>` : ''}
-            </div>
-        `).join('');
+        : mods.map(u => {
+            let html = '<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">';
+            html += '<div class="flex items-center gap-3">';
+            html += '<div class="w-9 h-9 rounded-full ' + (u.role === 'super_admin' ? 'bg-purple-500' : 'bg-blue-500') + ' text-white flex items-center justify-center font-bold text-sm">' + u.username[0].toUpperCase() + '</div>';
+            html += '<div><p class="font-bold text-slate-900 text-sm">' + escapeHtml(u.username) + '</p>';
+            html += '<p class="text-xs text-slate-500">' + (roleBadges[u.role] || u.role) + '</p></div></div>';
+            if (u.role === 'moderator' && currentUser && u.id !== currentUser.id) {
+                html += '<button onclick="handleRevokeMod(' + u.id + ')" class="text-xs text-rose-600 hover:text-rose-800 font-bold"><i class="fa-solid fa-user-minus mr-1"></i>Révoquer</button>';
+            }
+            html += '</div>';
+            return html;
+        }).join('');
 
     const promoteSelect = document.getElementById('promoteModSelect');
     const candidates = allUsers.filter(u => u.role === 'user' && u.status === 'active');
     promoteSelect.innerHTML = '<option value="">-- Choisir un utilisateur --</option>' +
-        candidates.map(u => `<option value="${u.id}">${u.username}</option>`).join('');
+        candidates.map(u => '<option value="' + u.id + '">' + escapeHtml(u.username) + '</option>').join('');
 }
 
-// ---------- ACTIONS (appel API réel) ----------
-async function handlePromoteMod(userId = null) {
+// ---------- ACTIONS ----------
+async function handlePromoteMod(userId) {
     const id = userId || parseInt(document.getElementById('promoteModSelect').value);
     if (!id) return showToast('Choisissez un utilisateur', 'error');
-
     try {
-        await apiCall('/admin/users/' + id + '/role', {
-            method: 'POST',
-            body: JSON.stringify({ role: 'moderator' })
-        });
+        await apiCall('/admin/users/' + id + '/role', { method: 'POST', body: JSON.stringify({ role: 'moderator' }) });
         showToast('🔵 Utilisateur promu modérateur !');
         await loadUsers();
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
 async function handleRevokeMod(userId) {
     if (!confirm('Révoquer ce modérateur ?')) return;
     try {
-        await apiCall('/admin/users/' + userId + '/role', {
-            method: 'POST',
-            body: JSON.stringify({ role: 'user' })
-        });
+        await apiCall('/admin/users/' + userId + '/role', { method: 'POST', body: JSON.stringify({ role: 'user' }) });
         showToast('Modérateur révoqué', 'warning');
         await loadUsers();
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
 async function handleBan(userId) {
     const reason = prompt('Raison du bannissement :');
     if (reason === null) return;
     try {
-        await apiCall('/admin/users/' + userId + '/ban', {
-            method: 'POST',
-            body: JSON.stringify({ reason })
-        });
+        await apiCall('/admin/users/' + userId + '/ban', { method: 'POST', body: JSON.stringify({ reason }) });
         showToast('🔨 Utilisateur banni', 'warning');
         await loadUsers();
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
 async function handleUnban(userId) {
@@ -515,9 +462,7 @@ async function handleUnban(userId) {
         await apiCall('/admin/users/' + userId + '/unban', { method: 'POST' });
         showToast('✅ Utilisateur débanni');
         await loadUsers();
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
 async function handleDelete(userId) {
@@ -526,27 +471,19 @@ async function handleDelete(userId) {
         await apiCall('/admin/users/' + userId, { method: 'DELETE' });
         showToast('🗑️ Compte supprimé', 'warning');
         await loadUsers();
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
 // ═══════════════════════════════════════════════════════════
-// GESTION DES RADIOS (NOUVEAU)
+// RADIOS
 // ═══════════════════════════════════════════════════════════
-function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    var div = document.createElement('div');
-    div.textContent = String(text);
-    return div.innerHTML;
-}
-
 async function loadRadios() {
     try {
         const data = await apiCall('/radios/all');
         const radios = data.radios || [];
         const list = document.getElementById('radiosAdminList');
-        document.getElementById('statRadios').textContent = radios.length;
+        const stat = document.getElementById('statRadios');
+        if (stat) stat.textContent = radios.length;
 
         if (radios.length === 0) {
             list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Aucune radio. Clique sur "Ajouter une radio" !</p>';
@@ -595,9 +532,7 @@ async function editRadio(id) {
         const data = await apiCall('/radios/all');
         const radio = (data.radios || []).find(r => r.id === id);
         if (radio) openRadioModal(radio);
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
 async function saveRadio() {
@@ -612,4 +547,62 @@ async function saveRadio() {
     };
 
     if (!body.name || !body.html_embed) {
-        showToast('Le nom et le code HTML
+        showToast('Le nom et le code HTML sont requis', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('radioSaveBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+
+    try {
+        if (id) {
+            await apiCall('/radios/' + id, { method: 'PUT', body: JSON.stringify(body) });
+            showToast('✅ Radio modifiée');
+        } else {
+            await apiCall('/radios', { method: 'POST', body: JSON.stringify(body) });
+            showToast('✅ Radio ajoutée');
+        }
+        closeRadioModal();
+        loadRadios();
+        loadLogs();
+    } catch (err) {
+        showToast(err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+    }
+}
+
+async function deleteRadio(id, name) {
+    if (!confirm('Supprimer la radio "' + name + '" ?')) return;
+    try {
+        await apiCall('/radios/' + id, { method: 'DELETE' });
+        showToast('🗑️ Radio supprimée');
+        loadRadios();
+        loadLogs();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════
+function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+    document.getElementById('tab-' + name).classList.remove('hidden');
+    document.querySelectorAll('.admin-tab').forEach(t => {
+        t.classList.remove('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
+        t.classList.add('text-slate-500', 'font-semibold');
+    });
+    btn.classList.add('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
+    btn.classList.remove('text-slate-500', 'font-semibold');
+    if (name === 'radios') loadRadios();
+    if (name === 'logs') loadLogs();
+}
+
+// ---------- RECHERCHE ----------
+document.getElementById('searchUser').addEventListener('input', e => renderUsers(e.target.value));
+</script>
+
+</body>
+</html>
