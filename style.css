@@ -86,3 +86,80 @@ html.cam-theme{background:#111113;color-scheme:dark}
 @media(min-width:1024px) and (max-width:1450px){.cam-home .cam-search{display:none}}
 @media(max-width:640px){.cam-home .cam-header>div{gap:8px;padding-left:12px;padding-right:12px}.cam-home .cam-header>div>div{gap:10px}.cam-home .cam-logo+span{font-size:19px}.cam-home .cam-logo{width:30px;height:30px}.cam-home .cam-layout{gap:16px}.cam-home .cam-live-panel{padding:20px}.cam-home #navAuth{gap:5px;font-size:12px}.cam-home #navAuth a,.cam-home #navAuth button{padding:8px}}
 @media(prefers-reduced-motion:reduce){.cam-home .cam-sidenav a{transition:none}}
+
+/* ==========================================================
+   THÈME GLOBAL E-VISIOCAM
+   S'applique à toutes les pages chargeant ce fichier, sans
+   classe à ajouter. Les composants créés en JS sont inclus.
+   Modifier ces variables pour faire évoluer la palette.
+   ========================================================== */
+:root{--ev-bg:#111113;--ev-panel:#1c1c20;--ev-field:#25252b;--ev-hover:#303037;--ev-border:#3b3b43;--ev-text:#f5f5f7;--ev-muted:#b1b1bd;--ev-yellow:#ffe500;--ev-yellow-hover:#fff04a;--ev-pink:#ff1680}
+html{background:var(--ev-bg);color-scheme:dark}
+body,body.gradient-bg{background:var(--ev-bg);color:var(--ev-text);font-family:Inter,Arial,sans-serif}
+body .bg-white,body .login-card,body .register-card{background:var(--ev-panel);color:var(--ev-text);backdrop-filter:none}
+body .bg-slate-50,body [class~="bg-slate-50/50"],body [class~="bg-slate-50/30"],body .bg-slate-100{background-color:var(--ev-field)}
+body.bg-slate-100{background:var(--ev-bg)}
+body .bg-slate-200{background-color:#37373f}
+body .bg-slate-700,body .bg-slate-800{background-color:#25252b}
+body .bg-slate-900{background-color:#161619}
+body .text-slate-900,body .text-slate-800{color:var(--ev-text)}
+body .text-slate-700,body .text-slate-600{color:#d1d1da}
+body .text-slate-500,body .text-slate-400{color:var(--ev-muted)}
+body .text-slate-300{color:#d1d1da}
+body .border-slate-50,body .border-slate-100,body .border-slate-200,body [class~="border-slate-200/80"],body .border-slate-300{border-color:var(--ev-border)}
+body [class~="divide-slate-100"]>:not([hidden])~:not([hidden]),body [class~="divide-slate-200"]>:not([hidden])~:not([hidden]){border-color:var(--ev-border)}
+body header.bg-white,body footer.bg-white{background:#18181b;border-color:var(--ev-border)}
+body .text-brand-primary,body .text-brand-hover{color:var(--ev-yellow)}
+body .border-brand-primary{border-color:var(--ev-yellow)}
+body .bg-brand-primary,body .bg-brand-hover,body .from-brand-primary{background:var(--ev-yellow);color:#111113;box-shadow:none}
+body .bg-brand-primary .text-white,body .from-brand-primary .text-white{color:#111113}
+body a.bg-brand-primary:hover,body button.bg-brand-primary:hover,body a.from-brand-primary:hover,body button.from-brand-primary:hover{background:var(--ev-yellow-hover)}
+body [class~="hover:bg-brand-hover"]:hover{background:var(--ev-yellow-hover);color:#111113}
+body [class~="hover:text-brand-primary"]:hover{color:var(--ev-yellow)}
+body [class~="hover:bg-slate-50"]:hover,body [class~="hover:bg-slate-100"]:hover,body [class~="hover:bg-white"]:hover{background-color:var(--ev-hover)}
+body [class~="hover:text-slate-700"]:hover,body [class~="hover:text-slate-900"]:hover{color:var(--ev-text)}
+body .bg-pink-50{background-color:#382333}
+body .bg-pink-100{background-color:#49283e}
+body [class~="border-pink-200/60"],body .border-pink-200{border-color:#74465d}
+body [class~="from-pink-50"],body [class~="from-pink-100"]{background:#28222a}
+body [class~="from-purple-900"],body [class~="to-purple-900"],body [class~="to-purple-800"]{background:#232027}
+body .bg-purple-50,body .bg-purple-100{background:#30283c}
+body .text-purple-700{color:#cfb2f5}
+body .border-purple-200{border-color:#5b466f}
+/* Erreurs et états : garder un sens distinct des actions jaunes. */
+body .bg-rose-50,body .bg-rose-100{background:#3a202a}
+body .text-rose-600,body .text-rose-700,body .text-rose-800{color:#ff99b3}
+body .border-rose-200{border-color:#754052}
+body .bg-red-50,body .bg-red-100{background:#3b2025}
+body .text-red-600,body .text-red-700,body .text-red-800{color:#ffaaaa}
+body .border-red-200{border-color:#77404a}
+body .bg-green-50,body .bg-green-100,body .bg-emerald-50,body .bg-emerald-100{background:#18392c}
+body .text-green-600,body .text-green-700,body .text-green-800,body .text-emerald-600,body .text-emerald-700{color:#80e5b3}
+body .border-green-200,body .border-emerald-200{border-color:#376b50}
+body .bg-blue-50,body .bg-blue-100{background:#203249}
+body .text-blue-600,body .text-blue-700,body .text-blue-800{color:#9fcaff}
+body .border-blue-200{border-color:#3d6088}
+body .bg-amber-50,body .bg-amber-100,body .bg-yellow-50,body .bg-yellow-100{background:#3b321c}
+body .text-amber-600,body .text-amber-700,body .text-amber-800,body .text-yellow-700,body .text-yellow-800{color:#ffdc83}
+body .border-amber-200,body .border-yellow-200{border-color:#746139}
+/* Champs de formulaire, y compris connexion et inscription. */
+body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="submit"]):not([type="button"]),body textarea,body select{background-color:var(--ev-field);color:var(--ev-text);border-color:var(--ev-border)}
+body input::placeholder,body textarea::placeholder{color:#a3a3b0;opacity:1}
+body input[type="checkbox"],body input[type="radio"],body input[type="range"]{accent-color:var(--ev-yellow)}
+body .input-field:focus,body [class~="focus:border-brand-primary"]:focus{border-color:var(--ev-yellow);box-shadow:0 0 0 3px #ffe50024}
+body :is(a,button,input,select,textarea):focus-visible{outline:2px solid var(--ev-yellow);outline-offset:3px}
+body option{background:var(--ev-field);color:var(--ev-text)}
+body .login-card,body .register-card{border:1px solid var(--ev-border);box-shadow:0 20px 60px #0005}
+body .legal-content h2,body .legal-content h3{color:var(--ev-text)}
+body .legal-content p,body .legal-content ul,body .legal-content li{color:#c5c5cf}
+body .legal-content a{color:var(--ev-yellow)}
+body [class~="ring-white"]{--tw-ring-color:var(--ev-panel)}
+body [class~="focus:ring-brand-primary"]{--tw-ring-color:var(--ev-yellow)}
+body ::-webkit-scrollbar-track{background:#18181b}
+body ::-webkit-scrollbar-thumb{background:#555560}
+body ::-webkit-scrollbar-thumb:hover{background:var(--ev-pink)}
+/* Identité visuelle des logos et cartes de mise en avant. */
+body header .to-brand-primary,body a[href="index.html"] .to-purple-600{background:var(--ev-yellow);color:#111113;box-shadow:none}
+body :is(button,a).from-pink-500,body :is(button,a).from-pink-600,body :is(button,a).from-purple-600{background:var(--ev-yellow);color:#111113;box-shadow:none}
+body .from-purple-500,body .from-pink-500,body .from-rose-500{--tw-gradient-from:#a71957;--tw-gradient-to:#ff1680}
+body .to-purple-600:not(.from-brand-primary){--tw-gradient-to:#572038}
