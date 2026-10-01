@@ -8,6 +8,7 @@ var currentConversationId = null;
 var currentOtherUser = null;
 var conversations = [];
 var typingTimeout = null;
+var userSearchTimeout = null;
 
 // ============================================================
 // INITIALISATION
@@ -22,13 +23,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initSocket();
     loadConversations();
 
-    // Recherche dans les conversations
     var searchInput = document.getElementById('searchConv');
-    if (searchInput) {
-        searchInput.addEventListener('input', filterConversations);
-    }
+    if (searchInput) searchInput.addEventListener('input', filterConversations);
 
-    // Entrée pour envoyer
     var msgInput = document.getElementById('messageInput');
     if (msgInput) {
         msgInput.addEventListener('keydown', function(e) {
@@ -38,6 +35,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         msgInput.addEventListener('input', notifyTyping);
+    }
+
+    var userSearch = document.getElementById('userSearchInput');
+    if (userSearch) {
+        userSearch.addEventListener('input', function(e) {
+            clearTimeout(userSearchTimeout);
+            var q = e.target.value.trim();
+            if (q.length < 2) {
+                document.getElementById('userSearchResults').innerHTML = '<p class="text-center text-slate-400 text-sm py-6">Tape au moins 2 lettres pour chercher</p>';
+                return;
+            }
+            userSearchTimeout = setTimeout(function() { searchUsers(q); }, 300);
+        });
     }
 });
 
@@ -54,27 +64,21 @@ function initSocket() {
         console.log('✅ Socket connecté');
     });
 
-    // Nouveau message reçu
     socket.on('dm:message', function(data) {
         if (!data || !data.message) return;
 
-        // Si c'est la conversation active, l'ajouter direct
         if (data.conversationId === currentConversationId) {
             appendMessage(data.message);
-            // Marquer comme lu
             socket.emit('dm:read', { conversationId: currentConversationId });
         }
 
-        // Rafraîchir la liste des conversations
         loadConversations();
     });
 
-    // Compteur de non-lus
     socket.on('dm:unread-count', function(data) {
         updateUnreadBadge(data.count);
     });
 
-    // Typing indicator
     socket.on('dm:typing', function(data) {
         if (data.conversationId === currentConversationId) {
             showTypingIndicator(data.username);
@@ -90,14 +94,12 @@ async function loadConversations() {
         const data = await apiCall('/messages/conversations');
         conversations = data.conversations || [];
         renderConversations();
-
-        // Mettre à jour le badge global
         const totalUnread = conversations.reduce(function(sum, c) { return sum + (c.unreadCount || 0); }, 0);
         updateUnreadBadge(totalUnread);
     } catch (err) {
         console.error('Erreur load conversations:', err);
         document.getElementById('conversationsList').innerHTML =
-            '<div class="p-8 text-center text-rose-500 text-sm">' + err.message + '</div>';
+            '<div class="p-8 text-center text-rose-500 text-sm">' + escapeHtml(err.message) + '</div>';
     }
 }
 
@@ -113,7 +115,7 @@ function renderConversations(filter) {
     }
 
     if (filtered.length === 0) {
-        container.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm"><i class="fa-solid fa-inbox text-3xl mb-2"></i><p>Aucune conversation</p></div>';
+        container.innerHTML = '<div class="p-8 text-center text-slate-400 text-sm"><i class="fa-solid fa-inbox text-3xl mb-2"></i><p>' + (filter ? 'Aucun résultat' : 'Aucune conversation') + '</p></div>';
         return;
     }
 
@@ -124,9 +126,9 @@ function renderConversations(filter) {
         var lastMsg = c.lastMessage || 'Nouvelle conversation';
         if (lastMsg.length > 40) lastMsg = lastMsg.substring(0, 40) + '...';
 
-        html += '<div onclick="openConversation(' + c.id + ')" class="conv-item cursor-pointer p-3 border-b border-slate-50 hover:bg-slate-50 transition-all ' + (isActive ? 'active' : '') + '">';
+        html += '<div onclick="openConversation(' + c.id + ')" class="conv-item cursor-pointer p-3 border-b border-slate-50 ' + (isActive ? 'active' : '') + '">';
         html += '<div class="flex items-center gap-3">';
-        html += '<div class="relative">';
+        html += '<div class="relative shrink-0">';
         html += '<div class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold">' + initial + '</div>';
         if (c.unreadCount > 0) {
             html += '<span class="absolute -top-1 -right-1 bg-brand-primary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">' + c.unreadCount + '</span>';
@@ -134,7 +136,7 @@ function renderConversations(filter) {
         html += '</div>';
         html += '<div class="flex-1 min-w-0">';
         html += '<div class="flex justify-between items-baseline">';
-        html += '<p class="font-bold text-slate-900 text-sm truncate">' + (c.otherUser ? c.otherUser.username : 'Inconnu') + '</p>';
+        html += '<p class="font-bold text-slate-900 text-sm truncate">' + escapeHtml(c.otherUser ? c.otherUser.username : 'Inconnu') + '</p>';
         html += '<p class="text-[10px] text-slate-400 shrink-0 ml-2">' + formatTime(c.lastMessageAt) + '</p>';
         html += '</div>';
         html += '<p class="text-xs text-slate-500 truncate">' + escapeHtml(lastMsg) + '</p>';
@@ -150,19 +152,13 @@ function filterConversations(e) {
 }
 
 // ============================================================
-// OUVRIR UNE CONVERSATION
+// OUVRIR / FERMER UNE CONVERSATION
 // ============================================================
 async function openConversation(convId) {
     currentConversationId = convId;
-
-    // Marquer active dans la liste
     renderConversations(document.getElementById('searchConv').value);
-
-    // Afficher le header + input
     document.getElementById('chatHeader').classList.remove('hidden');
     document.getElementById('chatInputWrapper').classList.remove('hidden');
-
-    // Loading
     document.getElementById('messagesContainer').innerHTML =
         '<div class="h-full flex items-center justify-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-3xl"></i></div>';
 
@@ -174,15 +170,11 @@ async function openConversation(convId) {
         document.getElementById('chatAvatar').textContent = data.otherUser.username.charAt(0).toUpperCase();
 
         renderMessages(data.messages);
-
-        // Marquer comme lu via socket
         if (socket) socket.emit('dm:read', { conversationId: convId });
-
-        // Scroll en bas
         scrollToBottom();
     } catch (err) {
         document.getElementById('messagesContainer').innerHTML =
-            '<div class="h-full flex items-center justify-center text-rose-500 text-sm">' + err.message + '</div>';
+            '<div class="h-full flex items-center justify-center text-rose-500 text-sm">' + escapeHtml(err.message) + '</div>';
     }
 }
 
@@ -197,31 +189,40 @@ function closeConversation() {
 }
 
 // ============================================================
+// SUPPRIMER UNE CONVERSATION
+// ============================================================
+async function deleteCurrentConversation() {
+    if (!currentConversationId || !currentOtherUser) return;
+    if (!confirm('Supprimer la conversation avec ' + currentOtherUser.username + ' ?\n\nTous les messages seront effacés.')) return;
+
+    try {
+        await apiCall('/messages/' + currentConversationId, { method: 'DELETE' });
+        closeConversation();
+        await loadConversations();
+        if (typeof showToast === 'function') showToast('Conversation supprimée', 'success');
+    } catch (err) {
+        if (typeof showToast === 'function') showToast('Erreur : ' + err.message, 'error');
+        else alert('Erreur : ' + err.message);
+    }
+}
+
+// ============================================================
 // AFFICHER LES MESSAGES
 // ============================================================
 function renderMessages(messages) {
     var container = document.getElementById('messagesContainer');
-
     if (messages.length === 0) {
         container.innerHTML = '<div class="h-full flex items-center justify-center text-slate-400 text-sm"><p>Aucun message. Commence la conversation !</p></div>';
         return;
     }
-
     var html = '';
-    messages.forEach(function(m) {
-        html += buildMessageHtml(m);
-    });
+    messages.forEach(function(m) { html += buildMessageHtml(m); });
     container.innerHTML = html;
 }
 
 function appendMessage(message) {
     var container = document.getElementById('messagesContainer');
-
-    // Si la conversation était vide
-    if (container.querySelector('.h-full')) {
-        container.innerHTML = '';
-    }
-
+    if (container.querySelector('.h-full')) container.innerHTML = '';
     container.insertAdjacentHTML('beforeend', buildMessageHtml(message));
     scrollToBottom();
 }
@@ -253,14 +254,9 @@ async function sendMessage() {
     input.value = '';
 
     try {
-        // Envoyer via socket (plus rapide, temps réel)
         if (socket) {
-            socket.emit('dm:send', {
-                conversationId: currentConversationId,
-                content: content
-            });
+            socket.emit('dm:send', { conversationId: currentConversationId, content: content });
         } else {
-            // Fallback REST
             await apiCall('/messages/' + currentConversationId, {
                 method: 'POST',
                 body: JSON.stringify({ content: content })
@@ -272,7 +268,7 @@ async function sendMessage() {
 }
 
 // ============================================================
-// TYPING INDICATOR
+// TYPING
 // ============================================================
 function notifyTyping() {
     if (!socket || !currentConversationId) return;
@@ -284,17 +280,77 @@ function notifyTyping() {
 function showTypingIndicator(username) {
     var status = document.getElementById('chatStatus');
     if (!status) return;
-    status.innerHTML = '<span class="w-2 h-2 bg-amber-500 rounded-full inline-block animate-pulse"></span><span class="text-amber-600">' + username + ' écrit...</span>';
+    status.innerHTML = '<span class="w-2 h-2 bg-amber-500 rounded-full inline-block animate-pulse"></span><span class="text-amber-600">' + escapeHtml(username) + ' écrit...</span>';
     setTimeout(function() {
         status.innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full inline-block"></span><span>En ligne</span>';
     }, 2000);
 }
 
 // ============================================================
+// MODAL NOUVELLE CONVERSATION
+// ============================================================
+function openNewConvModal() {
+    document.getElementById('newConvModal').classList.remove('hidden');
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('userSearchResults').innerHTML = '<p class="text-center text-slate-400 text-sm py-6">Tape au moins 2 lettres pour chercher</p>';
+    setTimeout(function() { document.getElementById('userSearchInput').focus(); }, 100);
+}
+
+function closeNewConvModal() {
+    document.getElementById('newConvModal').classList.add('hidden');
+}
+
+async function searchUsers(q) {
+    var results = document.getElementById('userSearchResults');
+    results.innerHTML = '<p class="text-center text-slate-400 text-sm py-6"><i class="fa-solid fa-circle-notch fa-spin"></i></p>';
+
+    try {
+        const data = await apiCall('/messages/search/users?q=' + encodeURIComponent(q));
+        var users = data.users || [];
+
+        if (users.length === 0) {
+            results.innerHTML = '<p class="text-center text-slate-400 text-sm py-6">Aucun utilisateur trouvé</p>';
+            return;
+        }
+
+        var html = '';
+        users.forEach(function(u) {
+            var initial = u.username.charAt(0).toUpperCase();
+            var roleLabel = u.role === 'model' ? '⭐ Modèle' : (u.role === 'super_admin' ? '👑 Admin' : (u.role === 'moderator' ? '🛡️ Modo' : ''));
+            html += '<div onclick="startConversationWith(' + u.id + ')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 cursor-pointer transition-all">';
+            html += '<div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold shrink-0">' + initial + '</div>';
+            html += '<div class="flex-1 min-w-0">';
+            html += '<p class="font-bold text-sm text-slate-900">' + escapeHtml(u.username) + '</p>';
+            if (roleLabel) html += '<p class="text-xs text-slate-500">' + roleLabel + '</p>';
+            html += '</div>';
+            html += '<i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>';
+            html += '</div>';
+        });
+        results.innerHTML = html;
+    } catch (err) {
+        results.innerHTML = '<p class="text-center text-rose-500 text-sm py-6">' + escapeHtml(err.message) + '</p>';
+    }
+}
+
+async function startConversationWith(userId) {
+    try {
+        const data = await apiCall('/messages/start', {
+            method: 'POST',
+            body: JSON.stringify({ userId: userId })
+        });
+        closeNewConvModal();
+        await loadConversations();
+        openConversation(data.conversation.id);
+    } catch (err) {
+        if (typeof showToast === 'function') showToast('Erreur : ' + err.message, 'error');
+        else alert('Erreur : ' + err.message);
+    }
+}
+
+// ============================================================
 // BADGE NON-LUS
 // ============================================================
 function updateUnreadBadge(count) {
-    // Met à jour le badge dans la sidebar (à personnaliser selon ton HTML)
     var badge = document.querySelector('[data-unread-badge]');
     if (badge) {
         if (count > 0) {
