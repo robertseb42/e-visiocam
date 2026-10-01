@@ -72,11 +72,10 @@
 
 <div class="max-w-[1700px] w-full mx-auto flex-1 flex p-3 md:p-6 gap-6">
     <aside id="sidebar" class="hidden lg:flex flex-col w-64 shrink-0 gap-6">
-        <!-- ✅ BOUTON CORRIGÉ -->
         <button onclick="goLive()" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-2xl shadow-lg shadow-pink-500/25 flex items-center justify-center gap-3 hover:opacity-90 transition-all">
-    <i class="fa-solid fa-broadcast-tower text-lg"></i>
-    <span>Diffuser ma webcam</span>
-</button>
+            <i class="fa-solid fa-broadcast-tower text-lg"></i>
+            <span>Diffuser ma webcam</span>
+        </button>
 
         <nav class="bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80 flex flex-col gap-1 text-sm font-medium">
             <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-pink-50 text-brand-primary font-semibold">
@@ -99,6 +98,44 @@
                 <i class="fa-solid fa-coins w-5 text-center text-amber-500"></i><span>Mes crédits</span>
             </a>
         </nav>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             📻 LECTEUR RADIO VINTAGE (au bon endroit : dans la SIDEBAR)
+             ═══════════════════════════════════════════════════════════ -->
+        <div class="bg-gradient-to-br from-amber-900 to-amber-800 rounded-2xl p-4 shadow-xl border-4 border-amber-950" id="radioWidget">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-amber-100 text-xs font-bold tracking-widest uppercase">📻 E-VISIO RADIO</p>
+                <div class="flex gap-1 items-center">
+                    <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+                    <span class="text-amber-200 text-[10px] font-bold">ON AIR</span>
+                </div>
+            </div>
+
+            <div class="bg-black rounded-xl p-2 border-2 border-amber-950 shadow-inner">
+                <div class="aspect-video bg-gradient-to-br from-slate-900 to-black rounded-lg overflow-hidden flex items-center justify-center relative" id="radioFrame">
+                    <p class="text-amber-400 text-xs text-center px-2" id="radioPlaceholder">
+                        📻 Sélectionne une radio
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-3">
+                <div class="flex gap-2">
+                    <button onclick="prevRadio()" class="w-8 h-8 rounded-full bg-amber-950 text-amber-100 flex items-center justify-center hover:bg-black transition-all">
+                        <i class="fa-solid fa-backward-step text-xs"></i>
+                    </button>
+                    <button onclick="nextRadio()" class="w-8 h-8 rounded-full bg-amber-950 text-amber-100 flex items-center justify-center hover:bg-black transition-all">
+                        <i class="fa-solid fa-forward-step text-xs"></i>
+                    </button>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                    <span class="text-amber-200 text-[10px] font-bold" id="radioStatus">Prêt</span>
+                </div>
+            </div>
+
+            <p class="text-amber-100 text-xs text-center mt-2 font-bold truncate" id="radioNowPlaying">—</p>
+        </div>
     </aside>
 
     <main class="flex-1 space-y-6">
@@ -121,6 +158,7 @@
 </div>
 
 <script src="app.js"></script>
+<script src="radio-widget.js"></script>
 
 </body>
 </html>
