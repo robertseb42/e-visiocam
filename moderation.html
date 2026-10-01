@@ -241,7 +241,7 @@ var moderationPeerConnections = {};
 var currentWatchedStream = null;
 
 function initSocket() {
-    socket = io({ auth: { token: getToken() } });
+    socket = io('https://e-visiocam-api.onrender.com', { auth: { token: getToken() } });
     socket.on('connect', function() { console.log('Socket connecte'); });
     socket.on('webrtc:answer', function(data) {
         if (moderationPeerConnections[data.streamId]) {
