@@ -99,49 +99,126 @@
             </a>
         </nav>
 
-        <!-- 📻 LECTEUR RADIO VINTAGE -->
-        <div class="bg-gradient-to-br from-amber-900 to-amber-800 rounded-2xl p-4 shadow-xl border-4 border-amber-950" id="radioWidget">
-            <div class="flex items-center justify-between mb-3">
-                <p class="text-amber-100 text-xs font-bold tracking-widest uppercase">📻 E-VISIO RADIO</p>
+        <!-- ═══════════════════════════════════════════════════════════
+             📻 PLATINE VINYLE TECHNICS SL-1200 MK2
+             ═══════════════════════════════════════════════════════════ -->
+        <div id="radioWidget" class="rounded-2xl p-4 shadow-2xl" style="background: linear-gradient(145deg, #ececec 0%, #c8c8c8 40%, #b0b0b0 100%); border: 2px solid #8a8a8a; box-shadow: 0 10px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6);">
+
+            <!-- Bandeau supérieur style plaque signalétique -->
+            <div class="flex items-center justify-between mb-3 pb-2" style="border-bottom: 1px solid rgba(0,0,0,0.15);">
+                <p class="text-slate-800 text-[10px] font-black tracking-[0.2em] uppercase" style="text-shadow: 0 1px 0 rgba(255,255,255,0.7);">
+                    ⬤ TECHNICS
+                </p>
                 <div class="flex gap-1 items-center">
-                    <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
-                    <span class="text-amber-200 text-[10px] font-bold">ON AIR</span>
+                    <span class="w-1.5 h-1.5 bg-rose-500 rounded-full" style="box-shadow: 0 0 8px #e91e63;"></span>
+                    <span class="text-slate-700 text-[9px] font-bold tracking-wider">SL-1200</span>
                 </div>
             </div>
 
-            <div class="bg-black rounded-xl p-2 border-2 border-amber-950 shadow-inner">
-                <div class="aspect-video bg-gradient-to-br from-slate-900 to-black rounded-lg overflow-hidden flex items-center justify-center relative" id="radioFrame">
-                    <p class="text-amber-400 text-xs text-center px-2" id="radioPlaceholder">
-                        📻 Sélectionne une radio
-                    </p>
+            <!-- PLATEAU + VINYLE -->
+            <div class="relative aspect-square rounded-lg overflow-hidden flex items-center justify-center mb-3"
+                 style="background: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #1a1a1a 60%, #0a0a0a 100%); box-shadow: inset 0 0 30px rgba(0,0,0,0.8), inset 0 2px 4px rgba(0,0,0,0.6);">
+
+                <!-- Anneau strobe extérieur -->
+                <div class="absolute inset-1 rounded-full" style="border: 1px dashed rgba(255,255,255,0.15);"></div>
+
+                <!-- VINYLE -->
+                <div id="radioVinyl" class="relative rounded-full" style="width: 82%; height: 82%; background:
+                    repeating-radial-gradient(circle at 50% 50%,
+                        #0a0a0a 0px, #0a0a0a 2px,
+                        #151515 3px, #151515 4px,
+                        #0a0a0a 5px, #0a0a0a 6px);
+                    box-shadow: 0 0 20px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,0.5);">
+                    <!-- Label central -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center"
+                         style="width: 38%; height: 38%; background: linear-gradient(135deg, #e91e63 0%, #9c27b0 100%); box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                        <i class="fa-solid fa-music text-white/90" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <!-- Trou central -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
+                         style="background: radial-gradient(circle, #888 0%, #444 100%);"></div>
                 </div>
+
+                <!-- BRAS DE LECTURE (tonearm) -->
+                <div id="radioTonearm"
+                     class="absolute top-3 right-5 origin-right transition-transform"
+                     style="width: 45%; height: 3px; background: linear-gradient(90deg, #d0d0d0 0%, #909090 50%, #606060 100%); border-radius: 2px; transform: rotate(0deg); box-shadow: 0 2px 4px rgba(0,0,0,0.5); transition-duration: 1200ms;">
+                    <!-- Contrepoids -->
+                    <div class="absolute -right-3 top-1/2 -translate-y-1/2 rounded-sm" style="width: 12px; height: 12px; background: linear-gradient(145deg, #b0b0b0, #606060);"></div>
+                    <!-- Tête de lecture -->
+                    <div class="absolute -left-2 top-1/2 -translate-y-1/2 rounded-sm" style="width: 8px; height: 10px; background: #2a2a2a; transform: translateY(-50%) rotate(-15deg);"></div>
+                </div>
+
+                <!-- 45 tours adapter (petit point) -->
+                <div class="absolute top-3 left-3 w-3 h-3 rounded-full" style="background: radial-gradient(circle, #666, #333); box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);"></div>
+
+                <!-- Voyant ON AIR -->
+                <div class="absolute bottom-2 right-2 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" style="box-shadow: 0 0 6px #e91e63;"></span>
+                    <span class="text-slate-400 text-[8px] font-bold tracking-wider">ON AIR</span>
+                </div>
+
+                <p class="hidden text-white text-xs" id="radioPlaceholder">📻 Sélectionne une radio</p>
             </div>
 
-            <!-- ✅ CONTRÔLES PLAY/PAUSE/VOLUME (NOUVEAU) -->
-            <div id="radioAudioControls" class="flex items-center gap-2 mt-3" style="display: none;">
-                <button id="radioPlayBtn" onclick="togglePlay()" class="w-10 h-10 rounded-full bg-brand-primary hover:bg-brand-hover text-white flex items-center justify-center shadow-lg">
-                    <i class="fa-solid fa-play"></i>
-                </button>
-                <input type="range" min="0" max="1" step="0.05" value="0.6" oninput="setVolume(this.value)" class="flex-1 accent-brand-primary">
-            </div>
+            <!-- CONTRÔLES -->
+            <div id="radioAudioControls" class="space-y-2" style="display: none;">
 
-            <div class="flex items-center justify-between mt-3">
-                <div class="flex gap-2">
-                    <button onclick="prevRadio()" class="w-8 h-8 rounded-full bg-amber-950 text-amber-100 flex items-center justify-center hover:bg-black transition-all">
-                        <i class="fa-solid fa-backward-step text-xs"></i>
+                <!-- Bouton play + volume -->
+                <div class="flex items-center gap-2">
+                    <button id="radioPlayBtn" onclick="togglePlay()"
+                            class="flex items-center justify-center rounded-md transition-all active:scale-95"
+                            style="width: 44px; height: 44px; background: linear-gradient(180deg, #f5f5f5 0%, #c8c8c8 100%); border: 1px solid #8a8a8a; box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);">
+                        <i class="fa-solid fa-play text-slate-800 text-sm"></i>
                     </button>
-                    <button onclick="nextRadio()" class="w-8 h-8 rounded-full bg-amber-950 text-amber-100 flex items-center justify-center hover:bg-black transition-all">
-                        <i class="fa-solid fa-forward-step text-xs"></i>
-                    </button>
+                    <div class="flex-1">
+                        <input type="range" min="0" max="1" step="0.05" value="0.6" oninput="setVolume(this.value)"
+                               class="w-full accent-brand-primary" style="height: 4px;">
+                    </div>
                 </div>
-                <div class="flex items-center gap-1">
-                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                    <span class="text-amber-200 text-[10px] font-bold" id="radioStatus">Prêt</span>
+
+                <!-- Navigation + Status -->
+                <div class="flex items-center justify-between">
+                    <div class="flex gap-1">
+                        <button onclick="prevRadio()" class="flex items-center justify-center rounded-md transition-all active:scale-95"
+                                style="width: 30px; height: 30px; background: linear-gradient(180deg, #f5f5f5 0%, #c8c8c8 100%); border: 1px solid #8a8a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8);">
+                            <i class="fa-solid fa-backward-step text-slate-700 text-[10px]"></i>
+                        </button>
+                        <button onclick="nextRadio()" class="flex items-center justify-center rounded-md transition-all active:scale-95"
+                                style="width: 30px; height: 30px; background: linear-gradient(180deg, #f5f5f5 0%, #c8c8c8 100%); border: 1px solid #8a8a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8);">
+                            <i class="fa-solid fa-forward-step text-slate-700 text-[10px]"></i>
+                        </button>
+
+                        <!-- Boutons 33/45 -->
+                        <div class="flex items-center rounded-md overflow-hidden" style="background: #1a1a1a; border: 1px solid #000;">
+                            <span class="px-1.5 py-0.5 text-[8px] font-black text-rose-400">33</span>
+                            <span class="px-1.5 py-0.5 text-[8px] font-bold text-slate-500">45</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full" style="box-shadow: 0 0 6px #10b981;"></span>
+                        <span class="text-slate-700 text-[9px] font-bold tracking-wider" id="radioStatus">PRÊT</span>
+                    </div>
+                </div>
+
+                <!-- Affichage digital -->
+                <div class="rounded-md px-2 py-1.5" style="background: #0a0a0a; border: 1px solid #333; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);">
+                    <p class="text-[10px] font-mono font-bold tracking-wider truncate text-center" id="radioNowPlaying"
+                       style="color: #4ade80; text-shadow: 0 0 4px #4ade80;">---</p>
                 </div>
             </div>
-
-            <p class="text-amber-100 text-xs text-center mt-2 font-bold truncate" id="radioNowPlaying">—</p>
         </div>
+
+        <style>
+            @keyframes vinylSpin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            #radioVinyl.spinning {
+                animation: vinylSpin 3s linear infinite;
+            }
+        </style>
     </aside>
 
     <main class="flex-1 space-y-6">
