@@ -45,3 +45,44 @@
 main.flex-1{min-width:0}
 
 @media(prefers-reduced-motion:reduce){.cam-banner-cta{transition:none}}
+
+/* Direction artistique commune à l'accueil : noir, jaune et rose. */
+html.cam-theme{background:#111113;color-scheme:dark}
+.cam-home{--cam-bg:#111113;--cam-panel:#1c1c20;--cam-border:#343439;--cam-yellow:#ffe500;--cam-pink:#ff1680;background:var(--cam-bg);color:#f5f5f6;min-height:100vh}
+.cam-home .cam-header{background:#18181b;border-color:var(--cam-border);box-shadow:0 4px 20px #0003}
+.cam-home .cam-logo{background:var(--cam-yellow);color:#111113;border:1px solid #fff14f;border-radius:11px;box-shadow:none}
+.cam-home .text-slate-900,.cam-home .text-slate-800{color:#f5f5f6}
+.cam-home .text-slate-600{color:#ceced4}
+.cam-home .text-slate-500,.cam-home .text-slate-400{color:#a6a6b1}
+.cam-home .text-brand-primary{color:var(--cam-yellow)}
+.cam-home .border-brand-primary{border-color:var(--cam-yellow)}
+.cam-home .cam-topnav a{padding-top:22px;padding-bottom:20px}
+.cam-home .cam-topnav a:hover{color:var(--cam-yellow)}
+.cam-home .cam-search input{background:#25252a;color:#f5f5f6;border:1px solid #3a3a42;border-radius:10px}
+.cam-home .cam-search input::placeholder{color:#a6a6b1}
+.cam-home .cam-search input:focus{background:#2b2b30;border-color:var(--cam-yellow)}
+.cam-home header button:hover{background:#2b2b30;color:var(--cam-yellow)}
+.cam-home header button .bg-brand-primary{background:var(--cam-pink);--tw-ring-color:#18181b}
+.cam-home .cam-go-live{background:var(--cam-yellow);background-image:none;color:#111113;border:1px solid #fff14f;border-radius:12px;box-shadow:0 4px 16px #0003;font-size:13px}
+.cam-home .cam-go-live:hover{background:#fff04a;opacity:1}
+.cam-home .cam-sidenav,.cam-home .cam-live-panel{background:var(--cam-panel);border:1px solid var(--cam-border);border-radius:16px;box-shadow:0 8px 24px #0002}
+.cam-home .cam-sidenav a{min-height:46px;border:1px solid transparent;border-radius:10px;transition:background .15s,color .15s}
+.cam-home .cam-sidenav a[href="index.html"]{background:#ffe500;color:#111113;border-color:#fff14f}
+.cam-home .cam-sidenav a:not([href="index.html"]):hover{background:#2c2c32;color:#fff}
+.cam-home .cam-sidenav a:not([href="index.html"]) i{color:var(--cam-pink)}
+.cam-home .cam-sidenav a[href="credits.html"] i{color:var(--cam-yellow)}
+.cam-home .cam-sidenav .bg-brand-primary{background:var(--cam-pink);color:#fff}
+.cam-home .cam-live-panel h2{display:flex;align-items:center;gap:10px;color:#f5f5f6;font-size:19px;letter-spacing:-.3px}
+.cam-home .cam-live-panel h2:before{content:"";display:block;width:9px;height:9px;border-radius:50%;background:var(--cam-pink);flex:none}
+.cam-home .cam-live-panel p{color:#acacb7}
+.cam-home .cam-banner{border-color:#3c3038;box-shadow:0 10px 30px #0003;border-radius:16px}
+.cam-home #navAuth a,.cam-home #navAuth button{border-radius:10px}
+.cam-home #navAuth .bg-white{background:#25252a;color:#f5f5f6;border-color:#3a3a42}
+.cam-home #navAuth .bg-brand-primary,.cam-home #navAuth a[href*="register"]{background:var(--cam-yellow);background-image:none;color:#111113;border-color:var(--cam-yellow)}
+.cam-home :is(a,button,input):focus-visible{outline:2px solid var(--cam-yellow);outline-offset:4px}
+.cam-home ::-webkit-scrollbar-track{background:#18181b}
+.cam-home ::-webkit-scrollbar-thumb{background:#53535d}
+.cam-home ::-webkit-scrollbar-thumb:hover{background:#ff1680}
+@media(min-width:1024px) and (max-width:1450px){.cam-home .cam-search{display:none}}
+@media(max-width:640px){.cam-home .cam-header>div{gap:8px;padding-left:12px;padding-right:12px}.cam-home .cam-header>div>div{gap:10px}.cam-home .cam-logo+span{font-size:19px}.cam-home .cam-logo{width:30px;height:30px}.cam-home .cam-layout{gap:16px}.cam-home .cam-live-panel{padding:20px}.cam-home #navAuth{gap:5px;font-size:12px}.cam-home #navAuth a,.cam-home #navAuth button{padding:8px}}
+@media(prefers-reduced-motion:reduce){.cam-home .cam-sidenav a{transition:none}}
