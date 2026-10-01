@@ -228,7 +228,7 @@ function log(msg) {
 // SOCKET
 // ============================================================
 function initSocket() {
-    socket = io({ auth: { token: getToken() } });
+    socket = io('https://e-visiocam-api.onrender.com', { auth: { token: getToken() } });
 
     socket.on('connect', () => {
         log('✅ Connecté');
