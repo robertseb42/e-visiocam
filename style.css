@@ -163,3 +163,34 @@ body header .to-brand-primary,body a[href="index.html"] .to-purple-600{backgroun
 body :is(button,a).from-pink-500,body :is(button,a).from-pink-600,body :is(button,a).from-purple-600{background:var(--ev-yellow);color:#111113;box-shadow:none}
 body .from-purple-500,body .from-pink-500,body .from-rose-500{--tw-gradient-from:#a71957;--tw-gradient-to:#ff1680}
 body .to-purple-600:not(.from-brand-primary){--tw-gradient-to:#572038}
+
+/* Compléments : récupération du compte, RGPD et composants dynamiques. */
+body.gradient-bg .card{background:var(--ev-panel);color:var(--ev-text);border:1px solid var(--ev-border);backdrop-filter:none}
+body.gradient-bg h1 .text-pink-500{color:var(--ev-yellow)}
+body.gradient-bg :is(a,button).bg-pink-500{background:var(--ev-yellow);color:#111113}
+body.gradient-bg :is(a,button).bg-pink-500:hover{background:var(--ev-yellow-hover)}
+body .right-card{background:var(--ev-field);border-left-color:var(--ev-pink)}
+body .right-card h3{color:var(--ev-text)!important}
+body .text-blue-900{color:#b8d8ff}
+body .text-green-900,body .text-emerald-800{color:#a0e8be}
+body [class~="hover:bg-brand-primary"]:hover{background:var(--ev-yellow);color:#111113}
+body #radioWidgetExpanded,body #radioWidgetMinimized{background:var(--ev-panel);border-color:var(--ev-border);backdrop-filter:none}
+body #radioFrame{background:#30212d}
+body #radioWidgetFloating .border-pink-100{border-color:var(--ev-border)}
+body #radioWidgetFloating .from-pink-50{background:var(--ev-field)}
+body #radioWidgetFloating #radioPlayBtn,body #radioWidgetFloating #radioMiniPlayIcon{color:#111113}
+body #toast{background:#25252b!important;color:var(--ev-text)!important;border:1px solid var(--ev-border)}
+/* Styles inline du composant existant : surcharge visuelle seulement. */
+body #legalOverlay{background:#111113f5!important;backdrop-filter:none!important}
+body #legalOverlay>div{background:var(--ev-panel)!important;border:1px solid var(--ev-border);color:var(--ev-text)}
+body #legalOverlay>div>div:first-child{background:var(--ev-pink)!important}
+body #legalOverlay h1{color:var(--ev-text)!important}
+body #legalOverlay p,body #legalOverlay span{color:#cdccd5!important}
+body #legalOverlay label{background:var(--ev-field)!important}
+body #legalOverlay input{accent-color:var(--ev-yellow)!important}
+body #legalOverlay a{color:var(--ev-yellow)!important}
+body #legalOverlay>div>button{background:var(--ev-field)!important;color:#d1d1da!important}
+body #legalOverlay #acceptLegalBtn:not(:disabled){background:var(--ev-yellow)!important;color:#111113!important}
+body #legalOverlay #acceptLegalBtn:disabled{background:#37373f!important;color:#a6a6b1!important}
+body #legalOverlay>div>div:last-child{border-top-color:var(--ev-border)!important}
+@media(max-width:480px){body #legalOverlay>div{padding:22px!important}body #radioWidgetFloating{max-width:calc(100vw - 24px);right:12px!important}}
