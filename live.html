@@ -164,13 +164,19 @@
 var socket = null;
 var currentUser = null;
 var localStream = null;
-var peerConnection = null;
 var currentStreamId = null;
 var isBroadcasting = false;
 var currentBroadcastStreamId = null;
 var remoteAudioMuted = false;
 var myCameraOff = false;
 var myMicMuted = false;
+
+// ⚠️ GESTION MULTI-CONNEXIONS : un objet indexé par viewerSocketId
+// { viewerSocketId: RTCPeerConnection }
+var peerConnections = {};
+
+// Pour le viewer (quand JE regarde un live) : une seule connexion
+var viewerPeerConnection = null;
 
 // ⚠️ rtcConfig GLOBAL - AVEC TURN CLOUDFLARE PAR DÉFAUT
 var rtcConfig = {
@@ -199,7 +205,6 @@ async function loadTurnCredentials() {
         if (data.iceServers && data.iceServers.length > 0) {
             rtcConfig.iceServers = data.iceServers;
             
-            // Compter les TURN
             var turnCount = 0;
             data.iceServers.forEach(function(s) {
                 if (typeof s.urls === 'string' && s.urls.indexOf('turn') !== -1) turnCount++;
@@ -232,13 +237,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     currentUser = getCurrentUser();
     if (!currentUser) { window.location.href = 'login.html'; return; }
     
-    // 1. Charger TURN AVANT tout
     await loadTurnCredentials();
-    
-    // 2. Init socket
     initSocket();
-    
-    // 3. Refresh streams
     setInterval(refreshStreams, 3000);
 });
 
@@ -305,24 +305,30 @@ function initSocket() {
         leaveStream();
     });
 
-    // ⚠️ RECEVEUR (broadcaster) - ORDRE CORRECT
+    // ============================================================
+    // ⚠️ RECEVEUR (broadcaster) - GESTION MULTI-VIEWERS
+    // Chaque viewer a sa propre RTCPeerConnection
+    // ============================================================
     socket.on('webrtc:offer', async function(data) {
-        log('📥 Offre de ' + data.viewerUsername);
+        log('📥 Offre de ' + (data.viewerUsername || data.viewerSocketId));
         try {
-            // 1. Créer peerConnection
-            peerConnection = new RTCPeerConnection(rtcConfig);
-            log('✅ peerConnection créé');
+            // 1. Créer une peerConnection UNIQUE pour ce viewer
+            var pc = new RTCPeerConnection(rtcConfig);
+            peerConnections[data.viewerSocketId] = pc;
+            log('✅ peerConnection créé pour ' + (data.viewerUsername || data.viewerSocketId));
             
-            // 2. Ajouter les tracks
+            // 2. Ajouter les tracks locaux
             if (localStream) {
                 localStream.getTracks().forEach(function(track) {
-                    peerConnection.addTrack(track, localStream);
+                    pc.addTrack(track, localStream);
                 });
-                log('✅ Tracks ajoutés');
+                log('✅ Tracks ajoutés (' + localStream.getTracks().length + ')');
+            } else {
+                log('⚠️ ATTENTION : localStream est null !');
             }
             
             // 3. ICE candidates
-            peerConnection.onicecandidate = function(event) {
+            pc.onicecandidate = function(event) {
                 if (event.candidate) {
                     socket.emit('webrtc:ice-candidate', {
                         candidate: event.candidate,
@@ -331,45 +337,66 @@ function initSocket() {
                 }
             };
             
-            // 4. ⚠️ setRemoteDescription AVANT createAnswer
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+            // 4. Surveiller l'état de connexion
+            pc.onconnectionstatechange = function() {
+                log('🔌 État ' + (data.viewerUsername || data.viewerSocketId) + ' : ' + pc.connectionState);
+                if (pc.connectionState === 'disconnected' || 
+                    pc.connectionState === 'failed' || 
+                    pc.connectionState === 'closed') {
+                    delete peerConnections[data.viewerSocketId];
+                    log('❌ Viewer déconnecté : ' + (data.viewerUsername || data.viewerSocketId));
+                }
+            };
+            
+            // 5. setRemoteDescription AVANT createAnswer
+            await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
             log('✅ setRemoteDescription OK');
             
-            // 5. Créer la réponse
-            var answer = await peerConnection.createAnswer();
+            // 6. Créer la réponse
+            var answer = await pc.createAnswer();
             log('✅ createAnswer OK');
             
-            // 6. setLocalDescription
-            await peerConnection.setLocalDescription(answer);
+            // 7. setLocalDescription
+            await pc.setLocalDescription(answer);
             log('✅ setLocalDescription OK');
             
-            // 7. Envoyer au serveur
+            // 8. Envoyer au serveur
             socket.emit('webrtc:answer', {
                 answer: answer,
                 viewerSocketId: data.viewerSocketId
             });
-            log('📤 Réponse envoyée');
+            log('📤 Réponse envoyée à ' + (data.viewerUsername || data.viewerSocketId));
         } catch (err) {
             log('❌ WebRTC : ' + err.message);
             console.error(err);
+            delete peerConnections[data.viewerSocketId];
         }
     });
 
-    // SENDER (viewer)
+    // ============================================================
+    // SENDER (viewer) - JE regarde un live
+    // ============================================================
     socket.on('webrtc:answer', async function(data) {
         log('📥 Réponse WebRTC');
         try {
-            if (peerConnection) {
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            if (viewerPeerConnection) {
+                await viewerPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                 log('✅ Connexion P2P établie');
+            } else {
+                log('⚠️ Pas de viewerPeerConnection');
             }
         } catch (err) { log('❌ WebRTC : ' + err.message); }
     });
 
     socket.on('webrtc:ice-candidate', async function(data) {
         try {
-            if (peerConnection && data.candidate) {
-                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            // Si c'est pour moi en tant que broadcaster → router vers la bonne PC
+            if (data.fromSocketId && peerConnections[data.fromSocketId]) {
+                await peerConnections[data.fromSocketId].addIceCandidate(new RTCIceCandidate(data.candidate));
+            }
+            // Sinon, c'est pour moi en tant que viewer
+            else if (viewerPeerConnection && data.candidate) {
+                await viewerPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
             }
         } catch (err) {}
     });
@@ -453,6 +480,13 @@ function stopBroadcast() {
     if (!isBroadcasting) return;
     isBroadcasting = false;
     socket.emit('live:stop', { streamId: currentBroadcastStreamId });
+    
+    // Fermer toutes les connexions viewers
+    Object.keys(peerConnections).forEach(function(viewerId) {
+        try { peerConnections[viewerId].close(); } catch(e) {}
+        delete peerConnections[viewerId];
+    });
+    
     document.getElementById('startBroadcastBtn').classList.remove('hidden');
     document.getElementById('stopBroadcastBtn').classList.add('hidden');
     document.getElementById('broadcastBadge').classList.add('hidden');
@@ -482,7 +516,7 @@ function toggleMyMic() {
 }
 
 // ============================================================
-// REJOINDRE UN LIVE
+// REJOINDRE UN LIVE (en tant que viewer)
 // ============================================================
 async function joinStream(streamId, broadcasterUsername) {
     if (currentStreamId) leaveStream();
@@ -496,9 +530,9 @@ async function joinStream(streamId, broadcasterUsername) {
     socket.emit('live:join', { streamId: streamId });
     log('👁️ Connexion à ' + broadcasterUsername + '...');
 
-    peerConnection = new RTCPeerConnection(rtcConfig);
+    viewerPeerConnection = new RTCPeerConnection(rtcConfig);
 
-    peerConnection.ontrack = function(event) {
+    viewerPeerConnection.ontrack = function(event) {
         log('🎥 Flux reçu !');
         var remoteVideo = document.getElementById('remoteVideo');
         remoteVideo.srcObject = event.streams[0];
@@ -511,15 +545,19 @@ async function joinStream(streamId, broadcasterUsername) {
         });
     };
 
-    peerConnection.onicecandidate = function(event) {
+    viewerPeerConnection.onicecandidate = function(event) {
         if (event.candidate) {
             socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId: streamId });
         }
     };
 
+    viewerPeerConnection.onconnectionstatechange = function() {
+        log('🔌 État viewer : ' + viewerPeerConnection.connectionState);
+    };
+
     try {
-        var offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
-        await peerConnection.setLocalDescription(offer);
+        var offer = await viewerPeerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
+        await viewerPeerConnection.setLocalDescription(offer);
         socket.emit('webrtc:offer', { offer: offer, streamId: streamId });
         log('📤 Offre envoyée');
     } catch (err) { log('❌ ' + err.message); }
@@ -534,7 +572,7 @@ function leaveStream() {
     document.getElementById('watchingBadge').classList.add('hidden');
     document.getElementById('unmuteBtn').style.display = 'none';
     remoteAudioMuted = false;
-    if (peerConnection) { peerConnection.close(); peerConnection = null; }
+    if (viewerPeerConnection) { viewerPeerConnection.close(); viewerPeerConnection = null; }
     log('👋 Live quitté');
 }
 
