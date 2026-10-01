@@ -81,18 +81,20 @@
 </footer>
 
 <script>
+// "slug" = identifiant du thème, utilisé dans l'adresse : room.html?theme=<slug>
+// (la même liste de slugs existe dans room.js)
 const publicSalons = [
-    { name: "Salon Général", users: 128, desc: "Le salon principal, toutes discussions bienvenues", icon: "🌍" },
-    { name: "Salon Français", users: 86, desc: "Discussions en français uniquement", icon: "🇫🇷" },
-    { name: "Salon International", users: 97, desc: "English, Español, Deutsch welcome!", icon: "🌐" },
-    { name: "Salon Couples", users: 54, desc: "Espace réservé aux couples", icon: "💕" },
-    { name: "Salon Amateurs", users: 63, desc: "Pour les amateurs et nouveaux venus", icon: "✨" },
-    { name: "Salon Musique", users: 42, desc: "Partagez vos playlists et coups de cœur", icon: "🎵" },
+    { slug: "general",       name: "Salon Général",       users: 128, desc: "Le salon principal, toutes discussions bienvenues", icon: "🌍" },
+    { slug: "francais",      name: "Salon Français",      users: 86,  desc: "Discussions en français uniquement", icon: "🇫🇷" },
+    { slug: "international", name: "Salon International", users: 97,  desc: "English, Español, Deutsch welcome!", icon: "🌐" },
+    { slug: "couples",       name: "Salon Couples",       users: 54,  desc: "Espace réservé aux couples", icon: "💕" },
+    { slug: "amateurs",      name: "Salon Amateurs",      users: 63,  desc: "Pour les amateurs et nouveaux venus", icon: "✨" },
+    { slug: "musique",       name: "Salon Musique",       users: 42,  desc: "Partagez vos playlists et coups de cœur", icon: "🎵" },
 ];
 
 const privateSalons = [
-    { name: "VIP Lounge", users: 12, desc: "Salon privé réservé aux membres VIP", icon: "👑" },
-    { name: "Salon Premium", users: 8, desc: "Accès réservé aux abonnés Premium", icon: "💎" },
+    { slug: "vip",     name: "VIP Lounge",    users: 12, desc: "Salon privé réservé aux membres VIP", icon: "👑" },
+    { slug: "premium", name: "Salon Premium", users: 8,  desc: "Accès réservé aux abonnés Premium", icon: "💎" },
 ];
 
 function renderSalons(items, containerId, isPrivate = false) {
@@ -106,7 +108,7 @@ function renderSalons(items, containerId, isPrivate = false) {
             </div>
             <h3 class="font-bold text-slate-900">${s.name}</h3>
             <p class="text-xs text-slate-500 mt-1 mb-4">${s.desc}</p>
-            <a href="index.html" class="block text-center w-full py-2 ${isPrivate ? 'bg-slate-800 hover:bg-slate-700' : 'bg-brand-primary hover:bg-brand-hover'} text-white text-xs font-bold rounded-xl transition-colors">
+            <a href="room.html?theme=${s.slug}" class="block text-center w-full py-2 ${isPrivate ? 'bg-slate-800 hover:bg-slate-700' : 'bg-brand-primary hover:bg-brand-hover'} text-white text-xs font-bold rounded-xl transition-colors">
                 ${isPrivate ? '<i class="fa-solid fa-lock mr-1"></i>Demander accès' : 'Rejoindre'}
             </a>
         </div>
