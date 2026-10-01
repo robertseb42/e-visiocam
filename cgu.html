@@ -2,47 +2,267 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
-    <title>À propos — E-VISIOCAM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conditions Générales d'Utilisation — E-VISIOCAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+            border-left: 4px solid #e91e63;
+            padding-left: 12px;
+        }
+        .legal-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        .legal-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+        .legal-content ul, .legal-content ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #475569;
+        }
+        .legal-content ul { list-style: disc; }
+        .legal-content ol { list-style: decimal; }
+        .legal-content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .legal-content strong { color: #0f172a; }
+        .legal-content a { color: #e91e63; text-decoration: underline; }
+        .legal-content code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #e11d48;
+            font-size: 0.9em;
+        }
+        .info-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        .danger-box {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+    </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <a href="index.html" class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white"><i class="fa-solid fa-video"></i></div>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
             <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
         </a>
-        <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
-            <a href="index.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Accueil</a>
-            <a href="live.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">En direct</a>
-            <a href="modeles.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
-            <a href="salons.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
-        </nav>
+        <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+        </a>
     </div>
 </header>
 
 <main class="max-w-[900px] w-full mx-auto flex-1 p-6">
     <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm legal-content">
-        <h1 class="text-3xl font-extrabold text-slate-900 mb-4">📖 À propos</h1>
-        <p>E-VISIOCAM est une plateforme de chat cam en direct...</p>
 
-        <h2>Notre mission</h2>
-        <p>...</p>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">📜 Conditions Générales d'Utilisation</h1>
+        <p class="text-sm text-slate-500 mb-8">Dernière mise à jour : 1er octobre 2026</p>
+
+        <div class="info-box">
+            <strong>⚠️ AVERTISSEMENT IMPORTANT</strong><br>
+            E-VISIOCAM est un site <strong>strictement réservé aux personnes majeures (+18 ans)</strong>.
+            En accédant à ce site, vous certifiez avoir au moins 18 ans.
+            Toute fausse déclaration constitue une infraction.
+        </div>
+
+        <h2>Article 1 — Objet</h2>
+        <p>Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») ont pour objet de définir les modalités et conditions d'utilisation du site <strong>E-VISIOCAM</strong> accessible à l'adresse <a href="https://robertseb42.github.io/e-visiocam/" target="_blank">https://robertseb42.github.io/e-visiocam/</a> (ci-après « le Site »).</p>
+        <p>Le Site est une plateforme de chat vidéo en direct et de rencontres permettant à des utilisateurs majeurs d'échanger avec des modèles et d'autres utilisateurs.</p>
+
+        <h2>Article 2 — Éditeur du Site</h2>
+        <p>Le Site est édité par :</p>
+        <ul>
+            <li><strong>Nom :</strong> Robert Sébastien</li>
+            <li><strong>Statut :</strong> Auto-entrepreneur (à confirmer)</li>
+            <li><strong>SIRET :</strong> [SIRET]</li>
+            <li><strong>Adresse :</strong> 6 Rue Plantevin, 42000 Saint-Étienne, France</li>
+            <li><strong>Email :</strong> <a href="mailto:contact@e-visiocam.com">contact@e-visiocam.com</a></li>
+            <li><strong>Directeur de publication :</strong> Robert Sébastien</li>
+        </ul>
+
+        <h2>Article 3 — Hébergement</h2>
+        <p>Le Site est hébergé par :</p>
+        <ul>
+            <li><strong>Frontend :</strong> GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, États-Unis — <a href="https://github.com" target="_blank">github.com</a></li>
+            <li><strong>Backend :</strong> Render Services, Inc., 525 Brannan St, San Francisco, CA 94107, États-Unis — <a href="https://render.com" target="_blank">render.com</a></li>
+        </ul>
+
+        <h2>Article 4 — Conditions d'accès</h2>
+        <h3>4.1 — Public visé</h3>
+        <p>Le Site est <strong>strictement réservé aux personnes majeures</strong> (18 ans ou plus). En accédant au Site, l'Utilisateur certifie :</p>
+        <ul>
+            <li>Être âgé d'au moins 18 ans révolus</li>
+            <li>Avoir la capacité juridique de contracter</li>
+            <li>Consulter le Site volontairement</li>
+            <li>Respecter la législation de son pays de résidence</li>
+        </ul>
+
+        <div class="danger-box">
+            <strong>🚫 Sanction en cas de fausse déclaration :</strong> Toute personne mineure qui tenterait d'accéder au Site verrait son compte immédiatement supprimé, et ses représentants légaux en seraient informés.
+        </div>
+
+        <h3>4.2 — Création de compte</h3>
+        <p>Pour accéder aux fonctionnalités complètes du Site, l'Utilisateur doit créer un compte en fournissant :</p>
+        <ul>
+            <li>Un nom d'utilisateur unique</li>
+            <li>Une adresse email valide</li>
+            <li>Un mot de passe sécurisé</li>
+        </ul>
+        <p>L'Utilisateur s'engage à fournir des informations exactes et à les maintenir à jour.</p>
+
+        <h2>Article 5 — Règles de conduite</h2>
+        <p>L'Utilisateur s'engage à respecter les règles suivantes :</p>
+
+        <h3>5.1 — Interdictions absolues</h3>
+        <ul>
+            <li>❌ Publier du contenu illégal (pédopornographie, violence, incitation à la haine)</li>
+            <li>❌ Usurper l'identité d'un tiers</li>
+            <li>❌ Harceler, menacer ou intimider d'autres utilisateurs</li>
+            <li>❌ Diffuser du spam ou de la publicité non autorisée</li>
+            <li>❌ Utiliser le Site à des fins de prostitution ou d'escroquerie</li>
+            <li>❌ Enregistrer ou diffuser les conversations sans consentement</li>
+            <li>❌ Créer plusieurs comptes pour contourner une sanction</li>
+        </ul>
+
+        <h3>5.2 — Comportements déconseillés</h3>
+        <ul>
+            <li>⚠️ Propos racistes, sexistes, homophobes ou discriminatoires</li>
+            <li>⚠️ Divulgation d'informations personnelles (adresse, téléphone)</li>
+            <li>⚠️ Comportement agressif ou irrespectueux</li>
+        </ul>
+
+        <h2>Article 6 — Sanctions</h2>
+        <p>En cas de non-respect des CGU, l'éditeur se réserve le droit d'appliquer les sanctions suivantes, sans préavis :</p>
+        <ol>
+            <li><strong>Avertissement</strong> — Notification écrite</li>
+            <li><strong>Mute</strong> — Interdiction de parler temporairement (5 min à 24h)</li>
+            <li><strong>Kick</strong> — Expulsion du salon actuel</li>
+            <li><strong>Bannissement temporaire</strong> — Suspension de compte (1 jour à 30 jours)</li>
+            <li><strong>Bannissement définitif</strong> — Suppression définitive du compte</li>
+            <li><strong>Signalement aux autorités</strong> — En cas de contenu illégal</li>
+        </ol>
+
+        <h2>Article 7 — Crédits et paiements</h2>
+        <h3>7.1 — Système de crédits</h3>
+        <p>L'Utilisateur peut acheter des crédits pour accéder à certaines fonctionnalités (cadeaux virtuels, chats privés). Les crédits sont <strong>non remboursables</strong> et <strong>non convertibles en argent réel</strong>.</p>
+
+        <h3>7.2 — Prix</h3>
+        <ul>
+            <li>100 crédits : 9,99 €</li>
+            <li>250 crédits + 25 offerts : 19,99 €</li>
+            <li>500 crédits + 75 offerts : 34,99 €</li>
+            <li>1000 crédits + 200 offerts : 59,99 €</li>
+        </ul>
+
+        <h3>7.3 — Droit de rétractation</h3>
+        <p>Conformément à l'article L.221-28 du Code de la consommation, le droit de rétractation <strong>ne s'applique pas</strong> aux contenus numériques fournis immédiatement après l'achat.</p>
+
+        <h3>7.4 — Paiements sécurisés</h3>
+        <p>Les paiements sont traités par <strong>Stripe</strong>. Aucune donnée bancaire n'est stockée sur nos serveurs.</p>
+
+        <h2>Article 8 — Responsabilité</h2>
+        <p>L'éditeur ne peut être tenu responsable :</p>
+        <ul>
+            <li>Du contenu publié par les Utilisateurs</li>
+            <li>Des rencontres ou échanges entre Utilisateurs</li>
+            <li>Des interruptions de service (maintenance, panne)</li>
+            <li>Des dommages indirects liés à l'utilisation du Site</li>
+        </ul>
+        <p>L'Utilisateur est <strong>seul responsable</strong> de son comportement et du contenu qu'il publie.</p>
+
+        <h2>Article 9 — Modération</h2>
+        <p>Le Site est modéré par une équipe dédiée. Toutefois, l'éditeur ne peut garantir une modération 24/7 en temps réel. Les Utilisateurs sont invités à signaler tout contenu inapproprié via le bouton « Signaler ».</p>
+
+        <h2>Article 10 — Signalement de contenu illégal</h2>
+        <p>Conformément à la loi LCEN du 21 juin 2004, tout contenu illégal peut être signalé :</p>
+        <ul>
+            <li><strong>Plateforme PHAROS :</strong> <a href="https://www.internet-signalement.gouv.fr" target="_blank">internet-signalement.gouv.fr</a></li>
+            <li><strong>Email dédié :</strong> <a href="mailto:abuse@e-visiocam.com">abuse@e-visiocam.com</a></li>
+        </ul>
+        <p>Tout signalement sera traité dans les plus brefs délais (48h maximum).</p>
+
+        <h2>Article 11 — Propriété intellectuelle</h2>
+        <p>Tous les éléments du Site (structure, code, design, logos, textes) sont la propriété exclusive de l'éditeur.</p>
+        <p>Toute reproduction, représentation ou exploitation non autorisée constitue une contrefaçon sanctionnée par les articles L.335-2 et suivants du Code de la propriété intellectuelle.</p>
+
+        <h2>Article 12 — Données personnelles</h2>
+        <p>Le traitement des données personnelles est régi par notre <a href="confidentialite.html">Politique de Confidentialité</a> et notre <a href="rgpd.html">Politique RGPD</a>.</p>
+        <p>Pour toute question : <a href="mailto:dpo@e-visiocam.com">dpo@e-visiocam.com</a></p>
+
+        <h2>Article 13 — Cookies</h2>
+        <p>L'utilisation des cookies est décrite dans notre <a href="cookies.html">Politique de Cookies</a>.</p>
+
+        <h2>Article 14 — Modification des CGU</h2>
+        <p>L'éditeur se réserve le droit de modifier les présentes CGU à tout moment. Les Utilisateurs seront informés par email ou notification sur le Site.</p>
+        <p>L'utilisation continue du Site après modification vaut acceptation des nouvelles CGU.</p>
+
+        <h2>Article 15 — Résiliation</h2>
+        <p>L'Utilisateur peut supprimer son compte à tout moment depuis la page « Mon Compte ». La suppression entraîne la perte définitive des données et crédits associés.</p>
+
+        <h2>Article 16 — Droit applicable et juridiction</h2>
+        <p>Les présentes CGU sont régies par le <strong>droit français</strong>.</p>
+        <p>En cas de litige, les tribunaux français seront seuls compétents. Une solution amiable sera privilégiée avant toute action judiciaire.</p>
+
+        <h2>Article 17 — Contact</h2>
+        <p>Pour toute question concernant les CGU :</p>
+        <ul>
+            <li><strong>Email :</strong> <a href="mailto:contact@e-visiocam.com">contact@e-visiocam.com</a></li>
+            <li><strong>Support :</strong> <a href="contact.html">Page de contact</a></li>
+        </ul>
+
+        <div class="danger-box">
+            <strong>⚠️ AVERTISSEMENT FINAL</strong><br><br>
+            En utilisant E-VISIOCAM, vous reconnaissez avoir lu, compris et accepté les présentes CGU dans leur intégralité.
+            <br><br>
+            <strong>Si vous n'acceptez pas ces conditions, vous devez quitter immédiatement le Site.</strong>
+        </div>
+
+        <p class="text-center text-xs text-slate-400 mt-8">
+            Version 1.0 — 1er octobre 2026
+        </p>
     </div>
 </main>
 
 <footer class="bg-white border-t border-slate-200 py-6 mt-10">
     <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-        <p>© 2025 E-VISIOCAM.</p>
-        <div class="flex gap-4">
-            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
-            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
+        <p>© 2025 E-VISIOCAM. Tous droits réservés.</p>
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="mentions-legales.html" class="hover:text-brand-primary">Mentions légales</a>
+            <a href="cgu.html" class="hover:text-brand-primary font-bold">CGU</a>
             <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
+            <a href="cookies.html" class="hover:text-brand-primary">Cookies</a>
+            <a href="rgpd.html" class="hover:text-brand-primary">RGPD</a>
             <a href="contact.html" class="hover:text-brand-primary">Contact</a>
         </div>
     </div>
