@@ -3,16 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>En Direct — E-VISIOCAM</title>
+    <title>Live Webcam — E-VISIOCAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
     <script src="auth-api.js"></script>
+    <script src="nav-auth.js" defer></script>
     <script src="legal-banner.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .live-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        video { background: #000; }
+    </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<script>
+(function() {
+    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
+        window.location.href = 'login.html?redirect=live.html';
+        return;
+    }
+})();
+</script>
 
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -20,79 +35,544 @@
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
                 <i class="fa-solid fa-video"></i>
             </div>
-            <span class="text-2xl font-black tracking-tight text-slate-900">
-                E-<span class="text-brand-primary">VISIOCAM</span>
-            </span>
+            <span class="text-2xl font-black text-slate-900">Live <span class="text-brand-primary">Webcam</span></span>
         </a>
-        <nav class="hidden lg:flex items-center gap-1 text-sm font-medium">
-            <a href="index.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Accueil</a>
-            <a href="live.html" class="px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">En direct</a>
-            <a href="modeles.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
-            <a href="salons.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
-            <a href="messages.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Messages</a>
-            <a href="credits.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Crédits</a>
-        </nav>
-        <a href="compte.html" class="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-full text-sm font-semibold">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-xs font-bold">3</div>
-            <span class="hidden md:inline">Mon compte</span>
-        </a>
+        <div class="flex items-center gap-3">
+            <div id="connectionStatus" class="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700">
+                ⚡ Connexion...
+            </div>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
     </div>
 </header>
 
 <main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
-    <div class="mb-6">
-        <h1 class="text-3xl font-extrabold text-slate-900">🔴 En direct maintenant</h1>
-        <p class="text-sm text-slate-500 mt-1">Toutes les caméras actives en ce moment</p>
-    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" id="liveGrid"></div>
+        <!-- COLONNE GAUCHE -->
+        <div class="space-y-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                <h2 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    🎥 Ma webcam
+                    <span id="broadcastBadge" class="hidden text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full font-bold live-pulse">
+                        🔴 EN DIRECT
+                    </span>
+                </h2>
+
+                <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden mb-4 relative">
+                    <video id="localVideo" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                    <div id="localPlaceholder" class="absolute inset-0 flex items-center justify-center text-slate-500 text-sm">
+                        <div class="text-center">
+                            <i class="fa-solid fa-video-slash text-4xl mb-2"></i>
+                            <p>Caméra non démarrée</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <button id="startCamBtn" onclick="startCamera()"
+                        class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-video"></i> Démarrer ma caméra
+                    </button>
+                    <button id="startBroadcastBtn" onclick="startBroadcast()" disabled
+                        class="w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-50">
+                        <i class="fa-solid fa-broadcast-tower"></i> Démarrer mon live
+                    </button>
+                    <button id="stopBroadcastBtn" onclick="stopBroadcast()" disabled
+                        class="w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2 hidden">
+                        <i class="fa-solid fa-stop"></i> Arrêter le live
+                    </button>
+                    <button id="stopCamBtn" onclick="stopCamera()" disabled
+                        class="w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-video-slash"></i> Arrêter la caméra
+                    </button>
+                </div>
+
+                <!-- Boutons masquer/afficher -->
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <button id="toggleCameraBtn" onclick="toggleMyCamera()" disabled
+                        class="py-2 bg-slate-200 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-eye"></i>
+                        <span id="toggleCameraText">Masquer cam</span>
+                    </button>
+                    <button id="toggleMicBtn" onclick="toggleMyMic()" disabled
+                        class="py-2 bg-slate-200 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-microphone"></i>
+                        <span id="toggleMicText">Couper micro</span>
+                    </button>
+                </div>
+
+                <div class="mt-3 text-xs text-center text-slate-500">
+                    Status : <span id="camStatusText">Inactif</span>
+                </div>
+            </div>
+
+            <!-- Lives actifs -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                        🔴 Lives actifs
+                        <span id="liveCount" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">0</span>
+                    </h2>
+                    <button onclick="refreshStreams()" class="text-xs text-brand-primary font-bold hover:underline">
+                        <i class="fa-solid fa-refresh"></i>
+                    </button>
+                </div>
+                <div id="activeStreams" class="space-y-2 max-h-[300px] overflow-y-auto">
+                    <p class="text-xs text-slate-400 text-center py-4">Aucun live en cours</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE CENTRALE -->
+        <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                <h2 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    👁️ Regarder un live
+                    <span id="watchingBadge" class="hidden text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold">
+                        CONNECTÉ
+                    </span>
+                </h2>
+
+                <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden mb-4 relative">
+                    <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                    <div id="remotePlaceholder" class="absolute inset-0 flex items-center justify-center text-slate-500 text-sm">
+                        <div class="text-center">
+                            <i class="fa-solid fa-tv text-4xl mb-2"></i>
+                            <p>Sélectionne un live à gauche</p>
+                        </div>
+                    </div>
+
+                    <!-- Bouton son -->
+                    <button id="unmuteBtn" onclick="toggleRemoteAudio()"
+                        class="absolute bottom-3 right-3 bg-black/70 hover:bg-black/90 backdrop-blur text-white px-3 py-2 rounded-full text-xs font-bold flex items-center gap-2 z-10"
+                        style="display: none;">
+                        <i class="fa-solid fa-volume-xmark" id="volumeIcon"></i>
+                        <span id="volumeText">Activer le son</span>
+                    </button>
+                </div>
+
+                <div id="remoteInfo" class="hidden flex items-center justify-between bg-slate-50 rounded-xl p-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold" id="remoteAvatar">?</div>
+                        <div>
+                            <p class="font-bold text-slate-900 text-sm" id="remoteUsername">—</p>
+                            <p class="text-xs text-slate-500"><span id="remoteViewers">0</span> spectateurs</p>
+                        </div>
+                    </div>
+                    <button onclick="leaveStream()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-xs">
+                        <i class="fa-solid fa-xmark"></i> Quitter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Journal -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-bold text-slate-900">📝 Journal des événements</h2>
+                    <button onclick="document.getElementById('logBox').innerHTML = ''; log('Journal nettoyé');"
+                        class="text-xs text-slate-400 hover:text-slate-700 font-bold">
+                        <i class="fa-solid fa-eraser"></i> Effacer
+                    </button>
+                </div>
+                <div id="logBox" class="text-xs font-mono bg-slate-900 text-emerald-400 rounded-xl p-4 h-48 overflow-y-auto space-y-1">
+                    <div>▶️ Prêt à démarrer</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 
-<footer class="bg-white border-t border-slate-200 py-6 mt-10">
-    <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-        <p>© 2025 E-VISIOCAM. Tous droits réservés.</p>
-        <div class="flex gap-4">
-            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
-            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
-            <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
-            <a href="contact.html" class="hover:text-brand-primary">Contact</a>
-        </div>
-    </div>
-</footer>
-
 <script>
-const allLives = [
-    { name: "Luna", viewers: "1.7k", gradient: "from-pink-600 to-purple-800", country: "🇫🇷" },
-    { name: "Chloé", viewers: "856", gradient: "from-purple-600 to-indigo-800", country: "🇫🇷" },
-    { name: "Mia", viewers: "642", gradient: "from-rose-600 to-pink-900", country: "🇪🇸" },
-    { name: "Sofia", viewers: "571", gradient: "from-amber-600 to-purple-900", country: "🇮🇹" },
-    { name: "Camille", viewers: "499", gradient: "from-fuchsia-600 to-slate-900", country: "🇫🇷" },
-    { name: "Eva", viewers: "417", gradient: "from-blue-600 to-purple-900", country: "🇩🇪" },
-    { name: "Jade", viewers: "381", gradient: "from-emerald-600 to-teal-900", country: "🇫🇷" },
-    { name: "Léa", viewers: "362", gradient: "from-indigo-600 to-purple-900", country: "🇧🇪" },
-    { name: "Nina", viewers: "298", gradient: "from-pink-500 to-red-800", country: "🇨🇭" },
-    { name: "Sarah", viewers: "274", gradient: "from-violet-600 to-pink-900", country: "🇨🇦" },
-    { name: "Ana", viewers: "211", gradient: "from-cyan-600 to-blue-900", country: "🇵🇹" },
-    { name: "Zoé", viewers: "187", gradient: "from-red-500 to-purple-900", country: "🇫🇷" },
-];
+// ============================================================
+// VARIABLES
+// ============================================================
+let socket = null;
+let currentUser = null;
+let localStream = null;
+let peerConnection = null;
+let currentStreamId = null;
+let isBroadcasting = false;
+let currentBroadcastStreamId = null;
+let remoteAudioMuted = false;
+let myCameraOff = false;
+let myMicMuted = false;
 
-document.getElementById('liveGrid').innerHTML = allLives.map(m => `
-    <a href="index.html" class="group cursor-pointer bg-gradient-to-br ${m.gradient} rounded-2xl p-3 h-44 flex flex-col justify-between relative overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1">
-        <div class="flex items-center justify-between z-10">
-            <span class="bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                <span class="w-1.5 h-1.5 bg-white rounded-full live-pulse"></span> LIVE
-            </span>
-            <span class="text-white text-lg drop-shadow">${m.country}</span>
-        </div>
-        <div class="absolute inset-0 flex items-center justify-center opacity-30 group-hover:scale-110 transition-transform">
-            <i class="fa-solid fa-user-large text-6xl text-white"></i>
-        </div>
-        <div class="z-10 flex items-center justify-between text-white drop-shadow">
-            <span class="font-bold text-xs">${m.name}</span>
-            <span class="text-[10px] opacity-90"><i class="fa-solid fa-eye text-[9px] mr-1"></i>${m.viewers}</span>
-        </div>
-    </a>
-`).join('');
+const rtcConfig = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
+    ]
+};
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    currentUser = getCurrentUser();
+    if (!currentUser) { window.location.href = 'login.html'; return; }
+    initSocket();
+    setInterval(refreshStreams, 3000);
+});
+
+function log(msg) {
+    const box = document.getElementById('logBox');
+    const div = document.createElement('div');
+    div.textContent = `[${new Date().toLocaleTimeString('fr-FR')}] ${msg}`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+}
+
+// ============================================================
+// SOCKET
+// ============================================================
+function initSocket() {
+    socket = io({ auth: { token: getToken() } });
+
+    socket.on('connect', () => {
+        log('✅ Connecté');
+        const s = document.getElementById('connectionStatus');
+        s.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
+        s.innerHTML = '🟢 Connecté';
+        refreshStreams();
+    });
+
+    socket.on('connect_error', (err) => {
+        log('❌ ' + err.message);
+        document.getElementById('connectionStatus').innerHTML = '❌ Déconnecté';
+    });
+
+    socket.on('live:started', (data) => {
+        log(`🔴 ${data.broadcasterUsername} est en live`);
+        refreshStreams();
+    });
+
+    socket.on('live:stopped', (data) => {
+        log(`⏹️ ${data.broadcasterUsername} a arrêté`);
+        refreshStreams();
+        if (currentStreamId === data.streamId) leaveStream();
+    });
+
+    socket.on('live:joined', (data) => {
+        log(`👁️ Connecté au live`);
+        document.getElementById('watchingBadge').classList.remove('hidden');
+    });
+
+    socket.on('live:viewer-count', (data) => {
+        document.getElementById('remoteViewers').textContent = data.count;
+    });
+
+    socket.on('live:error', (data) => {
+        log('❌ ' + data.message);
+        alert(data.message);
+    });
+
+    socket.on('live:ended', () => {
+        log('🔚 Live terminé');
+        leaveStream();
+    });
+
+    // WebRTC receiver (broadcaster)
+    socket.on('webrtc:offer', async (data) => {
+        log(`📥 Offre de ${data.viewerUsername}`);
+        try {
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            if (localStream) {
+                localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            }
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    socket.emit('webrtc:ice-candidate', {
+                        candidate: event.candidate,
+                        targetSocketId: data.viewerSocketId
+                    });
+                }
+            };
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit('webrtc:answer', { answer, viewerSocketId: data.viewerSocketId });
+            log(`📤 Réponse envoyée à ${data.viewerUsername}`);
+        } catch (err) { log('❌ WebRTC: ' + err.message); }
+    });
+
+    // WebRTC sender (viewer)
+    socket.on('webrtc:answer', async (data) => {
+        log('📥 Réponse WebRTC');
+        try {
+            if (peerConnection) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                log('✅ Connexion P2P établie');
+            }
+        } catch (err) { log('❌ WebRTC: ' + err.message); }
+    });
+
+    socket.on('webrtc:ice-candidate', async (data) => {
+        try {
+            if (peerConnection && data.candidate) {
+                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            }
+        } catch (err) {}
+    });
+}
+
+// ============================================================
+// CAMÉRA
+// ============================================================
+async function startCamera() {
+    try {
+        log('🎥 Demande d\'accès...');
+        localStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 1280, height: 720 },
+            audio: true
+        });
+        const video = document.getElementById('localVideo');
+        video.srcObject = localStream;
+        document.getElementById('localPlaceholder').style.display = 'none';
+
+        // Boutons
+        setBtn('startCamBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
+        setBtn('stopCamBtn', 'enabled', 'bg-rose-500 hover:bg-rose-600 text-white');
+        setBtn('startBroadcastBtn', 'enabled', 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white');
+        setBtn('toggleCameraBtn', 'enabled', 'bg-slate-700 hover:bg-slate-800 text-white');
+        setBtn('toggleMicBtn', 'enabled', 'bg-slate-700 hover:bg-slate-800 text-white');
+
+        document.getElementById('camStatusText').textContent = 'Active ✅';
+        log('✅ Caméra activée');
+    } catch (err) {
+        log('❌ ' + err.message);
+        alert('Impossible d\'accéder à la caméra : ' + err.message);
+    }
+}
+
+function stopCamera() {
+    if (isBroadcasting) stopBroadcast();
+    if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+    }
+    document.getElementById('localVideo').srcObject = null;
+    document.getElementById('localPlaceholder').style.display = 'flex';
+    document.getElementById('broadcastBadge').classList.add('hidden');
+    document.getElementById('stopBroadcastBtn').classList.add('hidden');
+    document.getElementById('startBroadcastBtn').classList.remove('hidden');
+
+    setBtn('startCamBtn', 'enabled', 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white');
+    setBtn('stopCamBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
+    setBtn('startBroadcastBtn', 'disabled', 'bg-gradient-to-r from-red-500 to-rose-600 text-white cursor-not-allowed opacity-50');
+    setBtn('toggleCameraBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
+    setBtn('toggleMicBtn', 'disabled', 'bg-slate-200 text-slate-500 cursor-not-allowed');
+
+    myCameraOff = false;
+    myMicMuted = false;
+    document.getElementById('toggleCameraText').textContent = 'Masquer cam';
+    document.getElementById('toggleMicText').textContent = 'Couper micro';
+    document.getElementById('camStatusText').textContent = 'Inactif';
+    log('⏹️ Caméra arrêtée');
+}
+
+function setBtn(id, state, classes) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    if (state === 'enabled') {
+        btn.disabled = false;
+        btn.className = btn.className.replace(/bg-\S+|text-\S+|cursor-not-allowed|opacity-50|hover:\S+/g, '');
+        btn.className += ' ' + classes;
+    } else {
+        btn.disabled = true;
+        btn.className = btn.className.replace(/bg-\S+|text-\S+|cursor-not-allowed|opacity-50|hover:\S+/g, '');
+        btn.className += ' ' + classes;
+    }
+}
+
+// ============================================================
+// BROADCAST
+// ============================================================
+function startBroadcast() {
+    if (!localStream) { alert('Démarre la caméra d\'abord'); return; }
+    isBroadcasting = true;
+    currentBroadcastStreamId = socket.id;
+    socket.emit('live:start', { streamId: currentBroadcastStreamId });
+    document.getElementById('startBroadcastBtn').classList.add('hidden');
+    const stopBtn = document.getElementById('stopBroadcastBtn');
+    stopBtn.classList.remove('hidden');
+    stopBtn.disabled = false;
+    stopBtn.className = 'w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
+    document.getElementById('broadcastBadge').classList.remove('hidden');
+    log('🔴 En direct !');
+}
+
+function stopBroadcast() {
+    if (!isBroadcasting) return;
+    isBroadcasting = false;
+    socket.emit('live:stop', { streamId: currentBroadcastStreamId });
+    document.getElementById('startBroadcastBtn').classList.remove('hidden');
+    document.getElementById('stopBroadcastBtn').classList.add('hidden');
+    document.getElementById('broadcastBadge').classList.add('hidden');
+    currentBroadcastStreamId = null;
+    log('⏹️ Diffusion arrêtée');
+}
+
+// ============================================================
+// CAMÉRA / MIC ON-OFF
+// ============================================================
+function toggleMyCamera() {
+    if (!localStream || !isBroadcasting) return;
+    myCameraOff = !myCameraOff;
+    localStream.getVideoTracks().forEach(t => { t.enabled = !myCameraOff; });
+    socket.emit('live:camera-toggle', { streamId: currentBroadcastStreamId });
+    const btn = document.getElementById('toggleCameraBtn');
+    const text = document.getElementById('toggleCameraText');
+    if (myCameraOff) {
+        text.textContent = 'Afficher cam';
+        btn.className = 'py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
+    } else {
+        text.textContent = 'Masquer cam';
+        btn.className = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
+    }
+    log(myCameraOff ? '📷 Cam masquée' : '📷 Cam affichée');
+}
+
+function toggleMyMic() {
+    if (!localStream || !isBroadcasting) return;
+    myMicMuted = !myMicMuted;
+    localStream.getAudioTracks().forEach(t => { t.enabled = !myMicMuted; });
+    socket.emit('live:mic-toggle', { streamId: currentBroadcastStreamId });
+    const btn = document.getElementById('toggleMicBtn');
+    const text = document.getElementById('toggleMicText');
+    if (myMicMuted) {
+        text.textContent = 'Activer micro';
+        btn.className = 'py-2 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
+    } else {
+        text.textContent = 'Couper micro';
+        btn.className = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
+    }
+    log(myMicMuted ? '🔇 Micro coupé' : '🎤 Micro activé');
+}
+
+// ============================================================
+// REJOINDRE UN LIVE
+// ============================================================
+async function joinStream(streamId, broadcasterUsername) {
+    if (currentStreamId) leaveStream();
+    currentStreamId = streamId;
+    document.getElementById('remotePlaceholder').style.display = 'none';
+    document.getElementById('remoteInfo').classList.remove('hidden');
+    document.getElementById('remoteAvatar').textContent = broadcasterUsername[0].toUpperCase();
+    document.getElementById('remoteUsername').textContent = broadcasterUsername;
+    document.getElementById('remoteViewers').textContent = '0';
+
+    socket.emit('live:join', { streamId });
+    log(`👁️ Connexion à ${broadcasterUsername}...`);
+
+    peerConnection = new RTCPeerConnection(rtcConfig);
+
+    peerConnection.ontrack = (event) => {
+        log('🎥 Flux reçu !');
+        const remoteVideo = document.getElementById('remoteVideo');
+        remoteVideo.srcObject = event.streams[0];
+        remoteVideo.muted = false;
+        remoteVideo.volume = 1.0;
+
+        document.getElementById('unmuteBtn').style.display = 'flex';
+        updateVolumeUI(false);
+
+        remoteVideo.play().catch(err => {
+            log('⚠️ Clique pour activer le son');
+        });
+    };
+
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId });
+        }
+    };
+
+    try {
+        const offer = await peerConnection.createOffer({
+            offerToReceiveVideo: true,
+            offerToReceiveAudio: true
+        });
+        await peerConnection.setLocalDescription(offer);
+        socket.emit('webrtc:offer', { offer, streamId });
+        log('📤 Offre envoyée');
+    } catch (err) { log('❌ ' + err.message); }
+}
+
+function leaveStream() {
+    if (currentStreamId) socket.emit('live:leave', { streamId: currentStreamId });
+    currentStreamId = null;
+    document.getElementById('remoteVideo').srcObject = null;
+    document.getElementById('remotePlaceholder').style.display = 'flex';
+    document.getElementById('remoteInfo').classList.add('hidden');
+    document.getElementById('watchingBadge').classList.add('hidden');
+    document.getElementById('unmuteBtn').style.display = 'none';
+    remoteAudioMuted = false;
+    if (peerConnection) { peerConnection.close(); peerConnection = null; }
+    log('👋 Live quitté');
+}
+
+// ============================================================
+// CONTRÔLE DU SON
+// ============================================================
+function toggleRemoteAudio() {
+    const video = document.getElementById('remoteVideo');
+    remoteAudioMuted = !remoteAudioMuted;
+    video.muted = remoteAudioMuted;
+    updateVolumeUI(remoteAudioMuted);
+    log(remoteAudioMuted ? '🔇 Son coupé' : '🔊 Son activé');
+}
+
+function updateVolumeUI(isMuted) {
+    const icon = document.getElementById('volumeIcon');
+    const text = document.getElementById('volumeText');
+    if (!icon || !text) return;
+    if (isMuted) {
+        icon.className = 'fa-solid fa-volume-xmark';
+        text.textContent = 'Activer le son';
+    } else {
+        icon.className = 'fa-solid fa-volume-high';
+        text.textContent = 'Couper le son';
+    }
+}
+
+// ============================================================
+// LISTE DES LIVES
+// ============================================================
+async function refreshStreams() {
+    const container = document.getElementById('activeStreams');
+    try {
+        const response = await fetch(API_URL + '/streams');
+        const data = await response.json();
+        const streams = data.streams || [];
+        document.getElementById('liveCount').textContent = streams.length;
+        const others = streams.filter(s => s.streamId !== socket.id);
+        if (others.length === 0) {
+            container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucun live en cours</p>';
+            return;
+        }
+        container.innerHTML = others.map(s => `
+            <button onclick="joinStream('${s.streamId}', '${s.broadcasterUsername}')"
+                class="w-full text-left p-3 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 hover:from-pink-100 hover:to-purple-100 border border-pink-200/60 transition-all">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold">
+                            ${s.broadcasterUsername[0].toUpperCase()}
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-white live-pulse"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-slate-900 text-sm truncate">${s.broadcasterUsername}</p>
+                        <p class="text-xs text-red-500 font-bold">🔴 EN DIRECT • ${s.viewers} 👁️</p>
+                    </div>
+                </div>
+            </button>
+        `).join('');
+    } catch (err) {
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Erreur</p>';
+    }
+}
 </script>
 
 </body>

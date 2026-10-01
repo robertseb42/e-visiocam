@@ -7,32 +7,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
     <script src="auth-api.js"></script>
-    <script src="legal-banner.js"></script>
     <script src="nav-auth.js" defer></script>
+    <script src="legal-banner.js"></script>
     <link rel="stylesheet" href="style.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { primary: '#e91e63', hover: '#d81b60' }
-                    },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
-        @keyframes pulse {
-            0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; }
-        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
-<!-- GUARD : Modérateur ou Super Admin requis -->
 <script>
 (function() {
     if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
@@ -40,38 +26,19 @@
         return;
     }
     if (!hasRole('moderator', 'super_admin')) {
-        document.documentElement.innerHTML = `
-            <head><title>Accès refusé</title></head>
-            <body style="margin:0;">
-                <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;font-family:Inter,sans-serif;">
-                    <div style="background:white;border-radius:24px;padding:40px;text-align:center;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.15);">
-                        <div style="width:64px;height:64px;border-radius:20px;background:#dbeafe;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;">
-                            🔒
-                        </div>
-                        <h1 style="font-size:22px;font-weight:900;color:#0f172a;margin:0 0 8px;">Accès refusé</h1>
-                        <p style="font-size:13px;color:#64748b;margin:0 0 24px;">
-                            Cette page est réservée aux modérateurs et super administrateurs.
-                        </p>
-                        <a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;font-size:13px;">
-                            Retour à l'accueil
-                        </a>
-                    </div>
-                </div>
-            </body>
-        `;
-        throw new Error('Accès refusé');
+        document.documentElement.innerHTML = '<head><title>Acces refuse</title></head><body style="margin:0;"><div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;font-family:Inter,sans-serif;"><div style="background:white;border-radius:24px;padding:40px;text-align:center;max-width:420px;"><h1 style="font-size:22px;font-weight:900;color:#0f172a;">Acces refuse</h1><p style="font-size:13px;color:#64748b;">Reserve aux moderateurs.</p><a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;">Retour</a></div></div></body>';
+        throw new Error('Acces refuse');
     }
 })();
 </script>
 
-<!-- NAVBAR -->
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <a href="index.html" class="flex items-center gap-2">
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-white">
                 <i class="fa-solid fa-user-shield"></i>
             </div>
-            <span class="text-2xl font-black text-slate-900">Modé<span class="text-brand-primary">ration</span></span>
+            <span class="text-2xl font-black text-slate-900">Mode<span class="text-brand-primary">ration</span></span>
         </a>
         <div class="flex items-center gap-3">
             <div id="navAuth" class="flex items-center gap-2"></div>
@@ -84,43 +51,42 @@
 
 <main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
     <div class="mb-6">
-        <h1 class="text-3xl font-extrabold text-slate-900">🔵 Espace Modérateur</h1>
-        <p class="text-sm text-slate-500 mt-1">Surveillance des lives et signalements</p>
+        <h1 class="text-3xl font-extrabold text-slate-900">Espace Moderateur</h1>
+        <p class="text-sm text-slate-500 mt-1">Surveillance, signalements et sanctions</p>
     </div>
 
-    <!-- STATS -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-slate-500 font-medium">Lives actifs</p>
-                    <p class="text-2xl font-black text-emerald-600 mt-1" id="statLive">—</p>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-video"></i></div>
-            </div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-xs text-slate-500 font-medium">Cams éteintes</p>
-                    <p class="text-2xl font-black text-slate-500 mt-1" id="statOffline">—</p>
-                </div>
-                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-power-off"></i></div>
-            </div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
                     <p class="text-xs text-slate-500 font-medium">Signalements</p>
-                    <p class="text-2xl font-black text-amber-600 mt-1" id="statReports">—</p>
+                    <p class="text-2xl font-black text-rose-600 mt-1" id="statPending">—</p>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-flag"></i></div>
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-flag"></i></div>
             </div>
         </div>
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-slate-500 font-medium">Membres actifs</p>
+                    <p class="text-xs text-slate-500 font-medium">Traites</p>
+                    <p class="text-2xl font-black text-emerald-600 mt-1" id="statResolved">—</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Mots interdits</p>
+                    <p class="text-2xl font-black text-amber-600 mt-1" id="statWords">—</p>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-ban"></i></div>
+            </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-500 font-medium">Utilisateurs</p>
                     <p class="text-2xl font-black text-blue-600 mt-1" id="statUsers">—</p>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-users"></i></div>
@@ -128,55 +94,105 @@
         </div>
     </div>
 
-    <!-- ONGLETS -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="flex border-b border-slate-100 overflow-x-auto scrollbar-none">
             <button onclick="showTab('reports', this)" class="mod-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
                 <i class="fa-solid fa-flag mr-1"></i> Signalements
             </button>
-            <button onclick="showTab('cams', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
-                <i class="fa-solid fa-video mr-1"></i> Caméras
+            <button onclick="showTab('surveillance', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-video mr-1"></i> Surveillance Live
+            </button>
+            <button onclick="showTab('words', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-ban mr-1"></i> Mots interdits
             </button>
             <button onclick="showTab('users', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-users mr-1"></i> Utilisateurs
             </button>
+            <button onclick="showTab('viewlogs', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-clipboard-list mr-1"></i> Historique
+            </button>
         </div>
 
-        <!-- Onglet Signalements -->
         <div id="tab-reports" class="tab-content p-5">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-slate-900">🚨 Signalements en attente</h3>
+            <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
+                <div class="flex gap-1 text-xs font-semibold">
+                    <button onclick="filterReports('pending', this)" class="rep-filter px-3 py-1.5 rounded-full bg-rose-500 text-white font-bold">En attente</button>
+                    <button onclick="filterReports('resolved', this)" class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Traites</button>
+                    <button onclick="filterReports('ignored', this)" class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Ignores</button>
+                </div>
                 <button onclick="loadReports()" class="text-xs text-brand-primary font-bold hover:underline">
-                    <i class="fa-solid fa-refresh"></i> Rafraîchir
+                    <i class="fa-solid fa-refresh"></i> Rafraichir
                 </button>
             </div>
             <div id="reportsList" class="space-y-3">
-                <p class="text-center text-slate-400 py-8 text-sm">
+                <p class="text-center text-slate-400 py-8 text-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</p>
+            </div>
+        </div>
+
+        <div id="tab-surveillance" class="tab-content p-5 hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-slate-900">Surveillance des lives</h3>
+                    <p class="text-xs text-slate-500 mt-1">Toutes les consultations sont enregistrees (RGPD).</p>
+                </div>
+                <button onclick="loadAllStreams()" class="text-xs text-brand-primary font-bold hover:underline">
+                    <i class="fa-solid fa-refresh"></i> Rafraichir
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <p class="text-xs text-slate-500">Lives actifs</p>
+                    <p class="text-xl font-black text-red-600" id="modStatLive">—</p>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <p class="text-xs text-slate-500">Spectateurs</p>
+                    <p class="text-xl font-black text-blue-600" id="modStatViewers">—</p>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <p class="text-xs text-slate-500">Cam. masquees</p>
+                    <p class="text-xl font-black text-amber-600" id="modStatHidden">—</p>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <p class="text-xs text-slate-500">Micros coupes</p>
+                    <p class="text-xl font-black text-orange-600" id="modStatMuted">—</p>
+                </div>
+            </div>
+
+            <div id="modStreamsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-center text-slate-400 py-8 col-span-full">
                     <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
                 </p>
             </div>
         </div>
 
-        <!-- Onglet Caméras -->
-        <div id="tab-cams" class="tab-content p-5 hidden">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-slate-900">🎥 Toutes les caméras</h3>
-                <div class="flex gap-1 text-xs">
-                    <button onclick="filterCams('all', this)" class="cam-filter px-3 py-1.5 rounded-full bg-brand-primary text-white font-bold">Toutes</button>
-                    <button onclick="filterCams('live', this)" class="cam-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">En direct</button>
-                    <button onclick="filterCams('offline', this)" class="cam-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Éteintes</button>
-                </div>
+        <div id="tab-words" class="tab-content p-5 hidden">
+            <div class="bg-slate-50 rounded-xl p-4 mb-4">
+                <h3 class="font-bold text-slate-900 text-sm mb-3">Ajouter un mot interdit</h3>
+                <form onsubmit="addWord(event)" class="flex flex-col md:flex-row gap-2">
+                    <input type="text" id="newWord" required placeholder="Mot a interdire"
+                        class="flex-1 px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                    <select id="newWordSeverity" class="px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                        <option value="1">Faible (1)</option>
+                        <option value="2">Moyen (2)</option>
+                        <option value="3">Eleve (3)</option>
+                        <option value="4">Tres eleve (4)</option>
+                        <option value="5">Critique (5)</option>
+                    </select>
+                    <button type="submit" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-xl whitespace-nowrap">
+                        <i class="fa-solid fa-plus mr-1"></i> Ajouter
+                    </button>
+                </form>
             </div>
-            <div id="camsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+            <div id="wordsList" class="grid grid-cols-2 md:grid-cols-4 gap-2"></div>
         </div>
 
-        <!-- Onglet Utilisateurs -->
         <div id="tab-users" class="tab-content p-5 hidden">
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
-                <input type="text" id="searchUser" placeholder="Rechercher un utilisateur..."
+                <input type="text" id="searchUser" placeholder="Rechercher..."
                     class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
                 <button onclick="loadUsers()" class="text-xs text-brand-primary font-bold hover:underline">
-                    <i class="fa-solid fa-refresh"></i> Rafraîchir
+                    <i class="fa-solid fa-refresh"></i> Rafraichir
                 </button>
             </div>
             <div class="overflow-x-auto">
@@ -184,303 +200,482 @@
                     <thead>
                         <tr class="border-b border-slate-100 text-left text-xs text-slate-500 uppercase font-bold">
                             <th class="py-3 px-2">ID</th>
-                            <th class="py-3 px-2">Utilisateur</th>
-                            <th class="py-3 px-2">Rôle</th>
+                            <th class="py-3 px-2">Pseudo</th>
+                            <th class="py-3 px-2">Role</th>
                             <th class="py-3 px-2">Statut</th>
                             <th class="py-3 px-2 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="usersTable">
-                        <tr><td colspan="5" class="py-8 text-center text-slate-400">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
-                        </td></tr>
+                        <tr><td colspan="5" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</td></tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <div id="tab-viewlogs" class="tab-content p-5 hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-slate-900">Historique des surveillances</h3>
+                <button onclick="loadViewLogs()" class="text-xs text-brand-primary font-bold hover:underline">
+                    <i class="fa-solid fa-refresh"></i> Rafraichir
+                </button>
+            </div>
+            <div id="viewLogsList" class="space-y-2 max-h-[500px] overflow-y-auto">
+                <p class="text-center text-slate-400 py-8">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
+                </p>
             </div>
         </div>
     </div>
 </main>
 
 <script>
-// ============================================================
-// PANNEAU MODÉRATION - Connecté au backend
-// ============================================================
+var socket = null;
+var currentUser = null;
+var allReports = [];
+var allUsers = [];
+var allWords = [];
+var reportsFilter = 'pending';
+var moderationStreams = [];
+var moderationPeerConnections = {};
+var currentWatchedStream = null;
 
-let currentUser = null;
-let allUsers = [];
-let allCams = [];
-let allReports = [];
-let camsFilter = 'all';
+function initSocket() {
+    socket = io({ auth: { token: getToken() } });
+    socket.on('connect', function() { console.log('Socket connecte'); });
+    socket.on('webrtc:answer', function(data) {
+        if (moderationPeerConnections[data.streamId]) {
+            moderationPeerConnections[data.streamId].setRemoteDescription(new RTCSessionDescription(data.answer))
+                .then(function() { console.log('Reponse WebRTC OK'); })
+                .catch(function(err) { console.error('Erreur WebRTC:', err); });
+        }
+    });
+    socket.on('webrtc:ice-candidate', function(data) {
+        Object.keys(moderationPeerConnections).forEach(function(streamId) {
+            var pc = moderationPeerConnections[streamId];
+            if (pc && data.candidate) {
+                pc.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(function() {});
+            }
+        });
+    });
+    socket.on('live:stopped', function() { loadAllStreams(); });
+    socket.on('live:started', function() { loadAllStreams(); });
+}
 
-// ---------- INITIALISATION ----------
-document.addEventListener('DOMContentLoaded', async () => {
-    currentUser = getCurrentUser();
-    await Promise.all([
-        loadReports(),
-        loadUsers(),
-        loadCams()
-    ]);
-});
+function loadStats() {
+    return apiCall('/mod/reports/count').then(function(data) {
+        document.getElementById('statPending').innerText = data.pending;
+        document.getElementById('statResolved').innerText = data.resolved;
+    }).catch(function(err) { console.error(err); });
+}
 
-// ============================================================
-// SIGNALEMENTS
-// ============================================================
-async function loadReports() {
-    const list = document.getElementById('reportsList');
-    list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</p>';
-
-    try {
-        const data = await apiCall('/mod/reports');
+function loadReports() {
+    var list = document.getElementById('reportsList');
+    list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Chargement...</p>';
+    return apiCall('/mod/reports?status=' + reportsFilter).then(function(data) {
         allReports = data.reports || [];
-        document.getElementById('statReports').innerText = allReports.length;
         renderReports();
-    } catch (err) {
+    }).catch(function(err) {
         list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + err.message + '</p>';
-    }
+    });
 }
 
 function renderReports() {
-    const list = document.getElementById('reportsList');
+    var list = document.getElementById('reportsList');
     if (allReports.length === 0) {
-        list.innerHTML = `
-            <div class="text-center py-12">
-                <div class="text-5xl mb-3">✅</div>
-                <p class="text-sm text-slate-500">Aucun signalement en attente</p>
-                <p class="text-xs text-slate-400 mt-1">Tout est calme pour l'instant !</p>
-            </div>
-        `;
+        list.innerHTML = '<div class="text-center py-12"><div class="text-5xl mb-3">✅</div><p class="text-sm text-slate-500">Aucun signalement</p></div>';
         return;
     }
-
-    list.innerHTML = allReports.map(r => `
-        <div class="flex items-center justify-between p-4 bg-amber-50 border border-amber-200/60 rounded-xl">
-            <div>
-                <p class="font-bold text-slate-900 text-sm">🚩 ${r.target_name || 'Utilisateur #' + r.target_id}</p>
-                <p class="text-xs text-slate-500 mt-1">
-                    <strong>${r.type}</strong> • Signalé par ${r.reporter_name || 'Anonyme'}
-                </p>
-                ${r.reason ? `<p class="text-xs text-slate-600 mt-1 italic">"${r.reason}"</p>` : ''}
-                <p class="text-[10px] text-slate-400 mt-1">${new Date(r.created_at).toLocaleString('fr-FR')}</p>
-            </div>
-            <div class="flex gap-2 flex-shrink-0">
-                <button onclick="handleReport(${r.id}, 'warn', ${r.target_id})" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Avertir
-                </button>
-                <button onclick="handleReport(${r.id}, 'mute', ${r.target_id})" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg">
-                    <i class="fa-solid fa-microphone-slash"></i> Mute
-                </button>
-                <button onclick="handleReport(${r.id}, 'ignored', ${r.target_id})" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-lg">
-                    <i class="fa-solid fa-xmark"></i> Ignorer
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
-async function handleReport(reportId, action, targetId) {
-    try {
-        if (action === 'mute') {
-            const duration = prompt('Durée du mute en secondes (ex: 300) :', '300');
-            if (duration === null) return;
-            await apiCall('/mod/users/' + targetId + '/mute', {
-                method: 'POST',
-                body: JSON.stringify({ duration: parseInt(duration) })
-            });
-            showToast('🔇 Utilisateur muté');
-        } else if (action === 'warn') {
-            await apiCall('/mod/users/' + targetId + '/mute', {
-                method: 'POST',
-                body: JSON.stringify({ duration: 60 })
-            });
-            showToast('⚠️ Avertissement envoyé');
+    var html = '';
+    allReports.forEach(function(r) {
+        html += '<div class="border-l-4 border-rose-300 bg-white border border-slate-200 rounded-xl p-4">';
+        html += '<div class="flex items-start justify-between gap-4">';
+        html += '<div class="flex-1">';
+        html += '<div class="flex items-center gap-2 mb-1">';
+        if (r.priority >= 4) html += '<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>';
+        html += '<span class="text-xs font-bold text-slate-900">' + (r.target_username || ('Utilisateur #' + r.target_id)) + '</span>';
+        html += '<span class="text-[10px] text-slate-400">' + new Date(r.created_at).toLocaleString('fr-FR') + '</span>';
+        html += '</div>';
+        html += '<p class="text-xs text-slate-600 mb-1"><strong>Raison :</strong> ' + r.reason + '</p>';
+        if (r.description) html += '<p class="text-xs text-slate-500 italic">"' + escapeHtml(r.description) + '"</p>';
+        html += '<p class="text-[10px] text-slate-400 mt-1">Signale par ' + (r.reporter_name || 'Anonyme') + '</p>';
+        html += '</div>';
+        if (r.status === 'pending') {
+            html += '<button onclick="openActionModal(' + r.id + ', ' + (r.target_id || 0) + ', \'' + (r.target_username || '') + '\')" class="px-3 py-1.5 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-lg whitespace-nowrap">Traiter</button>';
+        } else {
+            html += '<span class="text-xs font-bold ' + (r.status === 'resolved' ? 'text-emerald-600' : 'text-slate-500') + '">' + (r.status === 'resolved' ? 'Traite' : 'Ignore') + '</span>';
         }
-
-        // Marquer le signalement comme traité
-        await apiCall('/mod/reports/' + reportId + '/handle', {
-            method: 'POST',
-            body: JSON.stringify({ action: action === 'ignored' ? 'ignored' : 'resolved' })
-        });
-
-        await loadReports();
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+        html += '</div></div>';
+    });
+    list.innerHTML = html;
 }
 
-// ============================================================
-// CAMÉRAS
-// ============================================================
-async function loadCams() {
-    // Simulation locale pour l'instant (les vraies cams viendront du backend)
-    allCams = [
-        { id: 1, name: "Luna",    status: "live",    viewers: 1700, gradient: "from-pink-600 to-purple-800" },
-        { id: 2, name: "Chloé",   status: "live",    viewers: 856,  gradient: "from-purple-600 to-indigo-800" },
-        { id: 3, name: "Mia",     status: "live",    viewers: 642,  gradient: "from-rose-600 to-pink-900" },
-        { id: 4, name: "Sofia",   status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
-        { id: 5, name: "Camille", status: "live",    viewers: 499,  gradient: "from-fuchsia-600 to-slate-900" },
-        { id: 6, name: "Eva",     status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
-        { id: 7, name: "Jade",    status: "live",    viewers: 381,  gradient: "from-emerald-600 to-teal-900" },
-        { id: 8, name: "Léa",     status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
-        { id: 9, name: "Nina",    status: "live",    viewers: 298,  gradient: "from-pink-500 to-red-800" },
-        { id: 10, name: "Sarah",  status: "offline", viewers: 0,    gradient: "from-slate-500 to-slate-700" },
-    ];
-
-    document.getElementById('statLive').innerText = allCams.filter(c => c.status === 'live').length;
-    document.getElementById('statOffline').innerText = allCams.filter(c => c.status === 'offline').length;
-    renderCams();
-}
-
-function renderCams() {
-    const filtered = allCams.filter(c => camsFilter === 'all' || c.status === camsFilter);
-    document.getElementById('camsGrid').innerHTML = filtered.map(c => `
-        <div class="relative bg-gradient-to-br ${c.gradient} rounded-2xl p-3 h-40 flex flex-col justify-between overflow-hidden shadow-md">
-            <div class="flex items-center justify-between z-10">
-                ${c.status === 'live'
-                    ? '<span class="bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><span class="w-1.5 h-1.5 bg-white rounded-full live-pulse"></span>LIVE</span>'
-                    : '<span class="bg-slate-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">OFFLINE</span>'}
-            </div>
-            <div class="absolute inset-0 flex items-center justify-center opacity-30">
-                <i class="fa-solid fa-user-large text-5xl text-white"></i>
-            </div>
-            <div class="z-10 text-white drop-shadow">
-                <p class="font-bold text-xs">${c.name}</p>
-                <p class="text-[10px] opacity-80"><i class="fa-solid fa-eye text-[9px] mr-1"></i>${c.viewers}</p>
-            </div>
-            <div class="absolute top-2 right-2 flex flex-col gap-1 z-20">
-                <button onclick="viewCam(${c.id})" title="Voir la cam" class="w-6 h-6 rounded-md bg-black/50 hover:bg-black/70 text-white text-xs backdrop-blur">
-                    <i class="fa-solid fa-eye"></i>
-                </button>
-                <button onclick="flagCam(${c.id})" title="Signaler" class="w-6 h-6 rounded-md bg-rose-500/80 hover:bg-rose-500 text-white text-xs backdrop-blur">
-                    <i class="fa-solid fa-flag"></i>
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
-function filterCams(filter, btn) {
-    camsFilter = filter;
-    document.querySelectorAll('.cam-filter').forEach(b => {
-        b.classList.remove('bg-brand-primary', 'text-white', 'font-bold');
+function filterReports(status, btn) {
+    reportsFilter = status;
+    document.querySelectorAll('.rep-filter').forEach(function(b) {
+        b.classList.remove('bg-rose-500', 'text-white', 'font-bold');
         b.classList.add('bg-slate-100', 'text-slate-600');
     });
-    btn.classList.add('bg-brand-primary', 'text-white', 'font-bold');
+    btn.classList.add('bg-rose-500', 'text-white', 'font-bold');
     btn.classList.remove('bg-slate-100', 'text-slate-600');
-    renderCams();
+    loadReports();
 }
 
-function viewCam(id) {
-    const cam = allCams.find(c => c.id === id);
-    showToast(`🔍 Surveillance de ${cam.name} (${cam.status === 'live' ? 'EN DIRECT' : 'éteinte'})`, 'info');
+function openActionModal(reportId, targetId, targetName) {
+    var existing = document.getElementById('actionModal');
+    if (existing) existing.remove();
+    var modal = document.createElement('div');
+    modal.id = 'actionModal';
+    modal.className = 'fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+    var html = '<div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">';
+    html += '<h3 class="text-lg font-extrabold text-slate-900 mb-4 text-center">Traiter le signalement</h3>';
+    html += '<p class="text-xs text-slate-500 mb-4 text-center">Contre <strong>' + (targetName || 'Utilisateur #' + targetId) + '</strong></p>';
+    html += '<div class="space-y-2">';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'warn\')" class="w-full p-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-left font-bold text-sm text-amber-900">Avertir</button>';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'mute\')" class="w-full p-3 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-left font-bold text-sm text-orange-900">Mute (5 min)</button>';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'kick\')" class="w-full p-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-left font-bold text-sm text-rose-900">Kick</button>';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'ban\')" class="w-full p-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-left font-bold text-sm text-red-900">Bannir</button>';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'ignore\')" class="w-full p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left font-bold text-sm text-slate-900">Ignorer</button>';
+    html += '</div>';
+    html += '<button onclick="document.getElementById(\'actionModal\').remove()" class="w-full mt-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Annuler</button>';
+    html += '</div>';
+    modal.innerHTML = html;
+    document.body.appendChild(modal);
 }
 
-function flagCam(id) {
-    const cam = allCams.find(c => c.id === id);
-    const reason = prompt(`Signaler ${cam.name}. Raison :`);
-    if (reason) {
-        showToast('🚩 Signalement envoyé à l\'admin', 'warning');
+function applyAction(reportId, targetId, action) {
+    var newStatus = 'resolved';
+    var reason = '';
+    var promise;
+    if (action === 'warn') {
+        reason = prompt('Raison :') || '';
+        if (reason === null) return;
+        promise = apiCall('/mod/users/' + targetId + '/warn', { method: 'POST', body: JSON.stringify({ reason: reason }) });
+    } else if (action === 'mute') {
+        reason = prompt('Raison :') || '';
+        if (reason === null) return;
+        promise = apiCall('/mod/users/' + targetId + '/mute', { method: 'POST', body: JSON.stringify({ duration: 300, reason: reason }) });
+    } else if (action === 'kick') {
+        reason = prompt('Raison :') || '';
+        if (reason === null) return;
+        promise = apiCall('/mod/users/' + targetId + '/kick', { method: 'POST', body: JSON.stringify({ reason: reason }) });
+    } else if (action === 'ban') {
+        if (!confirm('Bannir ?')) return;
+        reason = prompt('Raison :') || '';
+        promise = apiCall('/mod/users/' + targetId + '/ban', { method: 'POST', body: JSON.stringify({ reason: reason }) });
+    } else if (action === 'ignore') {
+        newStatus = 'ignored';
+        promise = Promise.resolve();
     }
+    promise.then(function() {
+        return apiCall('/mod/reports/' + reportId + '/handle', { method: 'POST', body: JSON.stringify({ action: action, newStatus: newStatus }) });
+    }).then(function() {
+        var m = document.getElementById('actionModal');
+        if (m) m.remove();
+        return loadReports();
+    }).then(function() {
+        return loadStats();
+    }).catch(function(err) {
+        showToast(err.message, 'error');
+    });
 }
 
-// ============================================================
-// UTILISATEURS
-// ============================================================
-async function loadUsers() {
-    const tbody = document.getElementById('usersTable');
-    try {
-        const data = await apiCall('/mod/users');
+function loadAllStreams() {
+    return apiCall('/mod/streams/all').then(function(data) {
+        moderationStreams = data.streams || [];
+        renderModerationStreams();
+        updateModerationStats();
+    }).catch(function(err) {
+        document.getElementById('modStreamsGrid').innerHTML = '<p class="text-rose-500 col-span-full text-center py-8">' + err.message + '</p>';
+    });
+}
+
+function updateModerationStats() {
+    document.getElementById('modStatLive').textContent = moderationStreams.length;
+    var viewers = 0;
+    var hidden = 0;
+    var muted = 0;
+    moderationStreams.forEach(function(s) {
+        viewers += (s.viewers || 0);
+        if (s.isCameraOff) hidden++;
+        if (s.isMicMuted) muted++;
+    });
+    document.getElementById('modStatViewers').textContent = viewers;
+    document.getElementById('modStatHidden').textContent = hidden;
+    document.getElementById('modStatMuted').textContent = muted;
+}
+
+function renderModerationStreams() {
+    var grid = document.getElementById('modStreamsGrid');
+    if (moderationStreams.length === 0) {
+        grid.innerHTML = '<p class="text-slate-400 text-center py-8 col-span-full">Aucun live actif</p>';
+        return;
+    }
+    var html = '';
+    moderationStreams.forEach(function(s) {
+        html += '<div class="bg-slate-900 rounded-2xl overflow-hidden shadow-lg">';
+        html += '<div class="relative aspect-video bg-black">';
+        html += '<video id="mod-cam-' + s.streamId + '" autoplay playsinline muted class="w-full h-full object-cover"></video>';
+        if (s.isCameraOff) html += '<div class="absolute inset-0 flex flex-col items-center justify-center text-white bg-slate-900/80"><p class="text-xs">Camera masquee</p></div>';
+        html += '<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">LIVE</div>';
+        html += '<div class="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">' + s.salon + '</div>';
+        html += '<div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">' + s.viewers + ' viewers</div>';
+        html += '</div>';
+        html += '<div class="p-3 bg-slate-800 text-white">';
+        html += '<p class="font-bold text-sm mb-2">' + s.broadcasterUsername + '</p>';
+        html += '<div class="grid grid-cols-3 gap-1.5">';
+        html += '<button onclick="watchStream(\'' + s.streamId + '\')" class="py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg">Voir</button>';
+        html += '<button onclick="forceStopStream(\'' + s.streamId + '\', \'' + s.broadcasterUsername + '\')" class="py-2 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold rounded-lg">Stop</button>';
+        html += '<button onclick="quickBan(\'' + s.broadcasterUsername + '\', ' + s.broadcasterId + ')" class="py-2 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg">Ban</button>';
+        html += '</div></div></div>';
+    });
+    grid.innerHTML = html;
+}
+
+function watchStream(streamId) {
+    var reason = prompt('Raison de la surveillance :', 'Surveillance de routine');
+    if (reason === null) return;
+    apiCall('/mod/streams/' + streamId + '/watch', { method: 'POST', body: JSON.stringify({ reason: reason }) })
+        .then(function(data) { return connectToStream(streamId, data.stream); })
+        .then(function() { showToast('Surveillance de ' + streamId); })
+        .catch(function(err) { showToast(err.message, 'error'); });
+}
+
+function connectToStream(streamId, streamInfo) {
+    if (currentWatchedStream && moderationPeerConnections[currentWatchedStream]) {
+        moderationPeerConnections[currentWatchedStream].close();
+        delete moderationPeerConnections[currentWatchedStream];
+    }
+    currentWatchedStream = streamId;
+    var rtcConfig = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
+        ]
+    };
+    var pc = new RTCPeerConnection(rtcConfig);
+    moderationPeerConnections[streamId] = pc;
+    pc.ontrack = function(event) {
+        var videoEl = document.getElementById('mod-cam-' + streamId);
+        if (videoEl) { videoEl.srcObject = event.streams[0]; videoEl.play().catch(function() {}); }
+    };
+    pc.onicecandidate = function(event) {
+        if (event.candidate && socket) socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId: streamId });
+    };
+    return pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
+        .then(function(offer) { return pc.setLocalDescription(offer).then(function() { return offer; }); })
+        .then(function(offer) { if (socket) socket.emit('webrtc:offer', { offer: offer, streamId: streamId }); });
+}
+
+function forceStopStream(streamId, username) {
+    var reason = prompt('Raison :', 'Violation des CGU');
+    if (reason === null) return;
+    if (!confirm('Arreter le live de ' + username + ' ?')) return;
+    apiCall('/mod/streams/' + streamId + '/stop', { method: 'POST', body: JSON.stringify({ reason: reason }) })
+        .then(function() { showToast('Live arrete', 'warning'); loadAllStreams(); })
+        .catch(function(err) { showToast(err.message, 'error'); });
+}
+
+function quickBan(username, userId) {
+    if (!confirm('Bannir ' + username + ' ?')) return;
+    var reason = prompt('Raison :', 'Violation des CGU');
+    if (reason === null) return;
+    apiCall('/mod/users/' + userId + '/ban', { method: 'POST', body: JSON.stringify({ reason: reason }) })
+        .then(function() { showToast(username + ' banni', 'warning'); loadAllStreams(); })
+        .catch(function(err) { showToast(err.message, 'error'); });
+}
+
+function loadViewLogs() {
+    return apiCall('/mod/view-logs').then(function(data) {
+        var logs = data.logs || [];
+        var list = document.getElementById('viewLogsList');
+        if (logs.length === 0) {
+            list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Aucun historique</p>';
+            return;
+        }
+        var html = '';
+        logs.forEach(function(l) {
+            html += '<div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">';
+            html += '<div class="flex-1"><p class="text-sm text-slate-900"><strong>' + l.moderator_username + '</strong> a surveille <strong>' + (l.target_username || 'N/A') + '</strong></p>';
+            html += '<p class="text-xs text-slate-500 mt-0.5">' + (l.reason || 'Sans raison') + '</p>';
+            html += '<p class="text-[10px] text-slate-400 mt-1">' + new Date(l.created_at).toLocaleString('fr-FR') + '</p></div>';
+            html += '<span class="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-700">' + l.action + '</span>';
+            html += '</div>';
+        });
+        list.innerHTML = html;
+    }).catch(function(err) { showToast(err.message, 'error'); });
+}
+
+function loadWords() {
+    return apiCall('/mod/banned-words').then(function(data) {
+        allWords = data.words || [];
+        document.getElementById('statWords').innerText = allWords.length;
+        renderWords();
+    }).catch(function(err) { console.error(err); });
+}
+
+function renderWords() {
+    var list = document.getElementById('wordsList');
+    var html = '';
+    allWords.forEach(function(w) {
+        html += '<div class="bg-slate-100 text-slate-700 rounded-xl p-3 flex items-center justify-between">';
+         html += '<p class="font-bold text-sm">' + w.word + '</p>';
+        html += '<p class="text-[10px] opacity-70">Severite ' + w.severity + '/5</p></div>';
+        html += '<button onclick="deleteWord(\'' + w.word + '\')" class="w-6 h-6 rounded-lg bg-white hover:bg-slate-200 flex items-center justify-center text-xs">X</button>';
+        html += '</div>';
+    });
+    list.innerHTML = html;
+}
+
+function addWord(e) {
+    e.preventDefault();
+    var word = document.getElementById('newWord').value.trim();
+    var severity = parseInt(document.getElementById('newWordSeverity').value);
+    apiCall('/mod/banned-words', { method: 'POST', body: JSON.stringify({ word: word, severity: severity }) })
+        .then(function() {
+            showToast('Mot ajoute');
+            document.getElementById('newWord').value = '';
+            return loadWords();
+        })
+        .catch(function(err) { showToast(err.message, 'error'); });
+}
+
+function deleteWord(word) {
+    if (!confirm('Supprimer "' + word + '" ?')) return;
+    apiCall('/mod/banned-words/' + encodeURIComponent(word), { method: 'DELETE' })
+        .then(function() {
+            showToast('Mot supprime');
+            return loadWords();
+        })
+        .catch(function(err) { showToast(err.message, 'error'); });
+}
+
+function loadUsers() {
+    return apiCall('/mod/users').then(function(data) {
         allUsers = data.users || [];
-        document.getElementById('statUsers').innerText = allUsers.filter(u => u.status === 'active').length;
+        var activeCount = 0;
+        allUsers.forEach(function(u) { if (u.status === 'active') activeCount++; });
+        document.getElementById('statUsers').innerText = activeCount;
         renderUsers();
-    } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-rose-500">' + err.message + '</td></tr>';
-    }
+    }).catch(function(err) { console.error(err); });
 }
 
-function renderUsers(filter = '') {
-    filter = filter.toLowerCase();
-    const filtered = allUsers.filter(u => u.username.toLowerCase().includes(filter));
-    const tbody = document.getElementById('usersTable');
-
+function renderUsers(filter) {
+    filter = (filter || '').toLowerCase();
+    var filtered = [];
+    allUsers.forEach(function(u) {
+        if (u.username.toLowerCase().indexOf(filter) !== -1) filtered.push(u);
+    });
+    var tbody = document.getElementById('usersTable');
     if (filtered.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400 text-sm">Aucun utilisateur</td></tr>';
         return;
     }
-
-    tbody.innerHTML = filtered.map(u => {
-        const isBanned = u.status === 'banned';
-        const isMe = currentUser && u.id === currentUser.id;
-        const isSuperAdmin = u.role === 'super_admin';
-        const canAct = !isMe && !isSuperAdmin;
-
-        return `
-            <tr class="border-b border-slate-50 hover:bg-slate-50/50">
-                <td class="py-3 px-2 text-slate-500 font-mono text-xs">#${u.id}</td>
-                <td class="py-3 px-2 font-bold text-slate-900">${u.username} ${isMe ? '<span class="text-[10px] text-brand-primary">(moi)</span>' : ''}</td>
-                <td class="py-3 px-2 text-xs">${u.role}</td>
-                <td class="py-3 px-2">
-                    ${isBanned
-                        ? '<span class="text-rose-600 text-xs font-bold">🔨 Banni</span>'
-                        : '<span class="text-emerald-600 text-xs font-bold">✅ Actif</span>'}
-                </td>
-                <td class="py-3 px-2 text-right">
-                    <div class="flex justify-end gap-1">
-                        ${canAct && !isBanned ? `
-                            <button onclick="handleMute(${u.id})" title="Mute 5 min" class="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs">
-                                <i class="fa-solid fa-microphone-slash"></i>
-                            </button>
-                            <button onclick="handleKick(${u.id})" title="Expulser" class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs">
-                                <i class="fa-solid fa-door-open"></i>
-                            </button>` : '<span class="text-[10px] text-slate-400">—</span>'}
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
+    var roleLabels = {
+        super_admin: 'Admin',
+        moderator: 'Modo',
+        model: 'Modele',
+        user: 'User'
+    };
+    var html = '';
+    filtered.forEach(function(u) {
+        var isBanned = u.status === 'banned';
+        var isSuperAdmin = u.role === 'super_admin';
+        var isMe = currentUser && u.id === currentUser.id;
+        var canAct = !isSuperAdmin && !isMe;
+        html += '<tr class="border-b border-slate-50 hover:bg-slate-50/50">';
+        html += '<td class="py-3 px-2 text-slate-500 font-mono text-xs">#' + u.id + '</td>';
+        html += '<td class="py-3 px-2 font-bold text-slate-900">' + u.username + (isMe ? ' (moi)' : '') + '</td>';
+        html += '<td class="py-3 px-2 text-xs">' + (roleLabels[u.role] || u.role) + '</td>';
+        html += '<td class="py-3 px-2">' + (isBanned ? '<span class="text-rose-600 text-xs font-bold">Banni</span>' : '<span class="text-emerald-600 text-xs font-bold">Actif</span>') + '</td>';
+        html += '<td class="py-3 px-2 text-right">';
+        if (canAct) {
+            html += '<button onclick="quickAction(' + u.id + ', \'warn\')" class="px-2 py-1 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg mr-1">Warn</button>';
+            html += '<button onclick="quickAction(' + u.id + ', \'mute\')" class="px-2 py-1 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs rounded-lg mr-1">Mute</button>';
+            html += '<button onclick="quickAction(' + u.id + ', \'kick\')" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Kick</button>';
+            if (!isBanned) html += '<button onclick="quickAction(' + u.id + ', \'ban\')" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs rounded-lg">Ban</button>';
+        } else {
+            html += '<span class="text-[10px] text-slate-400">—</span>';
+        }
+        html += '</td></tr>';
+    });
+    tbody.innerHTML = html;
 }
 
-async function handleMute(userId) {
-    const duration = prompt('Durée du mute (secondes) :', '300');
-    if (duration === null) return;
-    try {
-        await apiCall('/mod/users/' + userId + '/mute', {
-            method: 'POST',
-            body: JSON.stringify({ duration: parseInt(duration) })
-        });
-        showToast('🔇 Utilisateur muté');
-    } catch (err) {
-        showToast(err.message, 'error');
+function quickAction(userId, action) {
+    var promise;
+    if (action === 'warn') {
+        var reason = prompt('Raison :') || '';
+        promise = apiCall('/mod/users/' + userId + '/warn', { method: 'POST', body: JSON.stringify({ reason: reason }) });
+    } else if (action === 'mute') {
+        promise = apiCall('/mod/users/' + userId + '/mute', { method: 'POST', body: JSON.stringify({ duration: 300, reason: '' }) });
+    } else if (action === 'kick') {
+        promise = apiCall('/mod/users/' + userId + '/kick', { method: 'POST', body: JSON.stringify({ reason: '' }) });
+    } else if (action === 'ban') {
+        if (!confirm('Bannir ?')) return;
+        promise = apiCall('/mod/users/' + userId + '/ban', { method: 'POST', body: JSON.stringify({ reason: '' }) });
+    } else {
+        return;
     }
-}
-
-async function handleKick(userId) {
-    if (!confirm('Expulser cet utilisateur ?')) return;
-    try {
-        await apiCall('/mod/users/' + userId + '/kick', { method: 'POST' });
-        showToast('👋 Utilisateur expulsé');
-    } catch (err) {
+    promise.then(function() {
+        showToast('Action effectuee');
+        return loadUsers();
+    }).catch(function(err) {
         showToast(err.message, 'error');
-    }
+    });
 }
 
-// ============================================================
-// TABS
-// ============================================================
 function showTab(name, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-    document.getElementById('tab-' + name).classList.remove('hidden');
-    document.querySelectorAll('.mod-tab').forEach(t => {
+    document.querySelectorAll('.tab-content').forEach(function(t) {
+        t.classList.add('hidden');
+    });
+    var target = document.getElementById('tab-' + name);
+    if (target) target.classList.remove('hidden');
+
+    document.querySelectorAll('.mod-tab').forEach(function(t) {
         t.classList.remove('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
         t.classList.add('text-slate-500', 'font-semibold');
     });
     btn.classList.add('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
     btn.classList.remove('text-slate-500', 'font-semibold');
+
+    if (name === 'surveillance') loadAllStreams();
+    if (name === 'viewlogs') loadViewLogs();
+    if (name === 'reports') loadReports();
+    if (name === 'users') loadUsers();
+    if (name === 'words') loadWords();
 }
 
-// ---------- RECHERCHE ----------
-document.addEventListener('DOMContentLoaded', () => {
-    const search = document.getElementById('searchUser');
-    if (search) search.addEventListener('input', e => renderUsers(e.target.value));
+function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+setInterval(function() {
+    var tab = document.getElementById('tab-surveillance');
+    if (tab && !tab.classList.contains('hidden')) loadAllStreams();
+}, 10000);
+
+document.addEventListener('DOMContentLoaded', function() {
+    currentUser = getCurrentUser();
+    if (!currentUser) { window.location.href = 'login.html'; return; }
+
+    initSocket();
+
+    loadStats();
+    loadReports();
+    loadWords();
+    loadUsers();
+    loadAllStreams();
+    loadViewLogs();
+
+    var s = document.getElementById('searchUser');
+    if (s) {
+        s.addEventListener('input', function(e) {
+            renderUsers(e.target.value);
+        });
+    }
 });
 </script>
 

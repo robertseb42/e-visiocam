@@ -8,9 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
-    <script src="legal-banner.js"></script>
     <script src="auth-api.js"></script>
     <script src="nav-auth.js" defer></script>
+    <script src="legal-banner.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
@@ -36,6 +36,12 @@
             50% { transform: scale(1.2) rotate(10deg); }
             100% { transform: scale(1) rotate(0deg); }
         }
+        .camera-tile video {
+            transition: opacity 0.3s;
+        }
+        .camera-tile.cam-off video {
+            opacity: 0.1;
+        }
     </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -55,7 +61,7 @@
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
                 <i class="fa-solid fa-comments"></i>
             </div>
-            <span class="text-2xl font-black text-slate-900">Chat <span class="text-pink-500">Live</span></span>
+            <span class="text-2xl font-black text-slate-900">Chat <span class="text-brand-primary">Live</span></span>
         </a>
         <div class="flex items-center gap-3">
             <div id="connectionStatus" class="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700">
@@ -66,13 +72,14 @@
     </div>
 </header>
 
-<main class="max-w-[1700px] w-full mx-auto flex-1 p-4 flex gap-4 overflow-hidden">
+<main class="max-w-[1700px] w-full mx-auto flex-1 p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
 
-    <aside class="hidden lg:flex flex-col w-64 shrink-0 gap-4">
+    <!-- SIDEBAR -->
+    <aside class="hidden lg:flex flex-col w-56 shrink-0 gap-4">
         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
             <h3 class="font-bold text-slate-900 text-sm mb-3">💬 Salons</h3>
             <div class="space-y-1 text-xs font-medium">
-                <button onclick="joinSalon('Salon Général', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl bg-pink-50 border border-pink-200/60 text-pink-500 font-bold">
+                <button onclick="joinSalon('Salon Général', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl bg-pink-50 border border-pink-200/60 text-brand-primary font-bold">
                     🌍 Salon Général
                 </button>
                 <button onclick="joinSalon('Salon Français', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
@@ -89,6 +96,7 @@
                 </button>
             </div>
         </div>
+
         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex-1 overflow-hidden flex flex-col">
             <div class="flex items-center justify-between mb-3">
                 <h3 class="font-bold text-slate-900 text-sm">🟢 En ligne</h3>
@@ -100,76 +108,92 @@
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <div>
-                <h2 class="font-bold text-slate-900 text-sm" id="currentSalon">🌍 Salon Général</h2>
-                <p class="text-xs text-slate-500">Chat en temps réel</p>
+    <!-- ZONE PRINCIPALE -->
+    <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+
+        <!-- CAMÉRAS DU SALON -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    🎥 Caméras du salon
+                    <span id="cameraCount" class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">0</span>
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleCameraView()" class="text-xs text-slate-400 hover:text-slate-700" title="Réduire/agrandir">
+                        <i class="fa-solid fa-eye" id="cameraViewIcon"></i>
+                    </button>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="sendReaction('❤️')" class="w-9 h-9 rounded-full bg-rose-50 hover:bg-rose-100 flex items-center justify-center" title="J'aime">❤️</button>
-                <button onclick="sendReaction('👏')" class="w-9 h-9 rounded-full bg-amber-50 hover:bg-amber-100 flex items-center justify-center" title="Bravo">👏</button>
-                <button onclick="sendReaction('🔥')" class="w-9 h-9 rounded-full bg-orange-50 hover:bg-orange-100 flex items-center justify-center" title="Feu">🔥</button>
-                <button onclick="openGiftModal()" class="px-3 h-9 rounded-full bg-pink-500 hover:bg-pink-600 text-white flex items-center gap-1 text-xs font-bold">
-                    <i class="fa-solid fa-gift"></i> Cadeau
-                </button>
-                <button onclick="openReportModal()" class="w-9 h-9 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors" title="Signaler">
-                    <i class="fa-solid fa-flag"></i>
-                </button>
+            <div id="camerasGrid" class="p-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[240px] overflow-y-auto">
+                <p class="text-slate-400 text-center py-6 text-xs col-span-full">
+                    <i class="fa-solid fa-video-slash mr-1"></i> Aucune caméra active dans ce salon
+                </p>
             </div>
         </div>
 
-        <div id="chatMessages" class="flex-1 p-5 overflow-y-auto space-y-3 bg-slate-50/30">
-            <div class="text-center text-xs text-slate-400 py-4">
-                <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement des messages...
+        <!-- CHAT + LISTE -->
+        <div class="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
+
+            <!-- CHAT -->
+            <div class="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden min-h-[400px]">
+                <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div>
+                        <h2 class="font-bold text-slate-900 text-sm" id="currentSalon">🌍 Salon Général</h2>
+                        <p class="text-xs text-slate-500">Chat en temps réel</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="sendReaction('❤️')" class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-sm" title="J'aime">❤️</button>
+                        <button onclick="sendReaction('👏')" class="w-8 h-8 rounded-full bg-amber-50 hover:bg-amber-100 flex items-center justify-center text-sm" title="Bravo">👏</button>
+                        <button onclick="sendReaction('🔥')" class="w-8 h-8 rounded-full bg-orange-50 hover:bg-orange-100 flex items-center justify-center text-sm" title="Feu">🔥</button>
+                        <button onclick="openGiftModal()" class="px-3 h-8 rounded-full bg-brand-primary hover:bg-brand-hover text-white flex items-center gap-1 text-xs font-bold">
+                            <i class="fa-solid fa-gift"></i> Cadeau
+                        </button>
+                        <button onclick="openReportModal()" class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center text-sm" title="Signaler">
+                            <i class="fa-solid fa-flag"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/30">
+                    <div class="text-center text-xs text-slate-400 py-4">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
+                    </div>
+                </div>
+
+                <form id="chatForm" onsubmit="sendMessage(event)" class="p-3 border-t border-slate-100 flex items-center gap-2 bg-white">
+                    <input type="text" id="chatInput" placeholder="Écrire un message..." maxlength="500" autocomplete="off"
+                        class="flex-1 px-4 py-3 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
+                    <button type="submit" class="w-11 h-11 rounded-full bg-brand-primary hover:bg-brand-hover text-white flex items-center justify-center shrink-0 active:scale-95 shadow-md">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
             </div>
         </div>
-
-        <form id="chatForm" onsubmit="sendMessage(event)" class="p-3 border-t border-slate-100 flex items-center gap-2">
-            <input type="text" id="chatInput" placeholder="Écrire un message..." maxlength="500" autocomplete="off"
-                class="flex-1 px-4 py-3 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
-            <button type="submit" class="w-11 h-11 rounded-full bg-pink-500 hover:bg-pink-600 text-white flex items-center justify-center shrink-0 active:scale-95 shadow-md">
-                <i class="fa-solid fa-paper-plane"></i>
-            </button>
-        </form>
     </div>
 </main>
 
 <!-- MODAL CADEAUX -->
 <div id="giftModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-        <button onclick="closeGiftModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-
+        <button onclick="closeGiftModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
         <div class="text-center mb-5">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center text-2xl mx-auto mb-2">
-                <i class="fa-solid fa-gift"></i>
-            </div>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center text-2xl mx-auto mb-2"><i class="fa-solid fa-gift"></i></div>
             <h3 class="text-xl font-extrabold text-slate-900">Envoyer un cadeau</h3>
-            <p class="text-xs text-slate-500 mt-1">
-                Votre solde : <span id="giftBalance" class="font-bold text-pink-500">—</span> crédits
-            </p>
+            <p class="text-xs text-slate-500 mt-1">Votre solde : <span id="giftBalance" class="font-bold text-brand-primary">—</span> crédits</p>
         </div>
-
         <div class="mb-4">
             <label class="block text-xs font-bold text-slate-700 mb-1">Destinataire (optionnel)</label>
-            <input type="text" id="giftReceiver" placeholder="Pseudo du destinataire (vide = tout le salon)"
+            <input type="text" id="giftReceiver" placeholder="Pseudo (vide = tout le salon)"
                 class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
         </div>
-
         <div class="grid grid-cols-3 md:grid-cols-4 gap-3 mb-4" id="giftsGrid">
-            <p class="text-slate-400 text-center col-span-full py-8">
-                <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
-            </p>
+            <p class="text-slate-400 text-center col-span-full py-8"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</p>
         </div>
-
         <div class="mb-4">
             <label class="block text-xs font-bold text-slate-700 mb-1">Message (optionnel)</label>
             <input type="text" id="giftMessage" maxlength="100" placeholder="Un petit mot..."
                 class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
         </div>
-
         <button onclick="confirmSendGift()" id="giftSendBtn" disabled
             class="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold rounded-xl text-sm disabled:opacity-50 disabled:cursor-not-allowed">
             Sélectionnez un cadeau
@@ -180,17 +204,11 @@
 <!-- MODAL SIGNALEMENT -->
 <div id="reportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
-        <button onclick="closeReportModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
+        <button onclick="closeReportModal()" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
         <div class="text-center mb-4">
-            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto mb-2">
-                <i class="fa-solid fa-flag"></i>
-            </div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto mb-2"><i class="fa-solid fa-flag"></i></div>
             <h3 class="text-lg font-extrabold text-slate-900">Signaler un contenu</h3>
-            <p class="text-xs text-slate-500 mt-1">Aidez-nous à garder la communauté saine</p>
         </div>
-
         <form onsubmit="submitReport(event)" class="space-y-3">
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Pseudo à signaler</label>
@@ -206,51 +224,75 @@
                     <option value="violence">⚔️ Violence</option>
                     <option value="harcelement">😠 Harcèlement</option>
                     <option value="contenu_sexuel_non_consenti">🚫 Contenu non consenti</option>
-                    <option value="spam">📢 Spam / Publicité</option>
+                    <option value="spam">📢 Spam</option>
                     <option value="comportement">😤 Comportement inapproprié</option>
                     <option value="autre">❓ Autre</option>
                 </select>
             </div>
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Description (optionnel)</label>
-                <textarea id="reportDescription" rows="3" maxlength="500"
-                    placeholder="Décrivez ce qui s'est passé..."
+                <textarea id="reportDescription" rows="3" maxlength="500" placeholder="Décrivez..."
                     class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none resize-none"></textarea>
             </div>
-            <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs">
-                🚩 Envoyer le signalement
-            </button>
+            <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs">🚩 Envoyer</button>
         </form>
     </div>
 </div>
 
 <script>
+// ============================================================
+// VARIABLES
+// ============================================================
 let socket = null;
 let currentSalon = 'Salon Général';
 let currentUser = null;
 let gifts = [];
 let selectedGift = null;
 let userBalance = 0;
+let salonStreams = [];
+let viewerPeerConnections = {};
+let cameraViewExpanded = true;
+let remoteAudioStates = {};
 
+const rtcConfig = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
+    ]
+};
+
+// ============================================================
+// INIT
+// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     currentUser = getCurrentUser();
-    if (!currentUser) {
-        window.location.href = 'login.html';
-        return;
-    }
+    if (!currentUser) { window.location.href = 'login.html'; return; }
     initSocket();
 });
 
+// ============================================================
+// SOCKET
+// ============================================================
 function initSocket() {
-    const token = getToken();
-    socket = io({ auth: { token: token } });
+    socket = io({ auth: { token: getToken() } });
 
     socket.on('connect', () => {
         const status = document.getElementById('connectionStatus');
         status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
         status.innerHTML = '🟢 Connecté';
+
+        socket.emit('salon:join', currentSalon);
+        refreshSalonStreams();
     });
 
+    socket.on('connect_error', (err) => {
+        const status = document.getElementById('connectionStatus');
+        status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-rose-100 text-rose-700';
+        status.innerHTML = '❌ ' + err.message;
+    });
+
+    // Messages
     socket.on('chat:history', (messages) => {
         const container = document.getElementById('chatMessages');
         container.innerHTML = '';
@@ -267,13 +309,15 @@ function initSocket() {
         scrollToBottom();
     });
 
+    // Utilisateurs en ligne
     socket.on('users:list', (users) => {
         document.getElementById('onlineCount').innerText = users.length;
         document.getElementById('onlineUsers').innerHTML = users.map(u => {
             const icons = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
+            const liveIcon = u.streamId ? ' 🔴' : '';
             return '<div class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50">' +
                 '<div class="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[10px] font-bold">' + u.username[0].toUpperCase() + '</div>' +
-                '<span class="font-medium text-slate-700">' + (icons[u.role] || '') + ' ' + u.username + '</span>' +
+                '<span class="font-medium text-slate-700">' + (icons[u.role] || '') + ' ' + u.username + liveIcon + '</span>' +
             '</div>';
         }).join('');
     });
@@ -292,28 +336,207 @@ function initSocket() {
         currentSalon = data.salon;
     });
 
-    socket.on('reaction', (data) => {
-        showEmojiFloat(data.emoji);
+    // ============================================================
+    // CAMÉRAS DU SALON
+    // ============================================================
+    socket.on('salon:streams-list', (data) => {
+        salonStreams = data.streams || [];
+        renderSalonCameras();
     });
 
+    socket.on('salon:stream-started', () => {
+        setTimeout(refreshSalonStreams, 300);
+    });
+
+    socket.on('salon:stream-stopped', (data) => {
+        if (viewerPeerConnections[data.streamId]) {
+            viewerPeerConnections[data.streamId].close();
+            delete viewerPeerConnections[data.streamId];
+        }
+        setTimeout(refreshSalonStreams, 300);
+    });
+
+    socket.on('salon:stream-updated', () => {
+        setTimeout(refreshSalonStreams, 300);
+    });
+
+    // WebRTC Viewer
+    socket.on('webrtc:answer', async (data) => {
+        if (viewerPeerConnections[data.streamId]) {
+            try {
+                await viewerPeerConnections[data.streamId].setRemoteDescription(
+                    new RTCSessionDescription(data.answer)
+                );
+            } catch (err) { console.error('WebRTC:', err); }
+        }
+    });
+
+    socket.on('webrtc:ice-candidate', async (data) => {
+        for (const [streamId, pc] of Object.entries(viewerPeerConnections)) {
+            if (pc && data.candidate) {
+                try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
+            }
+        }
+    });
+
+    // Réactions
+    socket.on('reaction', (data) => { showEmojiFloat(data.emoji); });
+
+    // Cadeaux
     socket.on('gift', (data) => {
         animateGift(data);
         const container = document.getElementById('chatMessages');
         const div = document.createElement('div');
         div.className = 'message p-3 bg-gradient-to-r ' + (data.color || 'from-pink-50 to-purple-50') + ' rounded-xl text-center';
-        div.innerHTML = '<p class="text-sm text-white font-bold drop-shadow"><strong>' + data.username + '</strong> a envoyé <span class="text-2xl mx-1">' + data.gift + '</span><strong>' + (data.giftName || '') + '</strong>' + (data.receiver ? ' à <strong>' + data.receiver + '</strong>' : '') + '</p>' + (data.message ? '<p class="text-xs text-white/90 italic mt-1">"' + escapeHtml(data.message) + '"</p>' : '');
+        div.innerHTML = '<p class="text-sm text-white font-bold drop-shadow"><strong>' + data.username + '</strong> a envoyé <span class="text-2xl mx-1">' + data.gift + '</span><strong>' + (data.giftName || '') + '</strong>' + (data.receiver ? ' à <strong>' + data.receiver + '</strong>' : '') + '</p>';
         container.appendChild(div);
         scrollToBottom();
     });
+}
 
-    socket.on('connect_error', (err) => {
-        const status = document.getElementById('connectionStatus');
-        status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-rose-100 text-rose-700';
-        status.innerHTML = '❌ ' + err.message;
+// ============================================================
+// CAMÉRAS DU SALON
+// ============================================================
+function refreshSalonStreams() {
+    if (socket) socket.emit('salon:request-streams');
+}
+
+function renderSalonCameras() {
+    const grid = document.getElementById('camerasGrid');
+    const count = document.getElementById('cameraCount');
+    const myId = currentUser ? currentUser.id : 0;
+
+    if (!salonStreams || salonStreams.length === 0) {
+        count.textContent = '0';
+        grid.innerHTML = '<p class="text-slate-400 text-center py-6 text-xs col-span-full"><i class="fa-solid fa-video-slash mr-1"></i> Aucune caméra active dans ce salon</p>';
+        return;
+    }
+
+    count.textContent = salonStreams.length;
+
+    grid.innerHTML = salonStreams.map(s => {
+        const isMe = s.broadcasterId === myId;
+        const isMuted = remoteAudioStates[s.streamId] !== false;
+
+        return `
+            <div class="camera-tile relative bg-slate-900 rounded-xl overflow-hidden aspect-video ${s.isCameraOff ? 'cam-off' : ''}" data-stream-id="${s.streamId}">
+                <video id="cam-${s.streamId}" autoplay playsinline muted class="w-full h-full object-cover"></video>
+
+                ${s.isCameraOff ? `
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-white bg-slate-900/90">
+                        <i class="fa-solid fa-video-slash text-2xl mb-1"></i>
+                        <p class="text-[10px]">Cam masquée</p>
+                    </div>
+                ` : ''}
+
+                <!-- LIVE badge -->
+                <div class="absolute top-1.5 left-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <span class="w-1 h-1 bg-white rounded-full live-pulse"></span> LIVE
+                </div>
+
+                <!-- Son button -->
+                ${!isMe ? `
+                    <button onclick="toggleCameraAudio('${s.streamId}'); event.stopPropagation();"
+                        class="absolute top-1.5 right-1.5 w-6 h-6 rounded bg-black/60 hover:bg-black/80 backdrop-blur text-white text-[10px] flex items-center justify-center"
+                        title="Son">
+                        <i class="fa-solid ${isMuted ? 'fa-volume-xmark' : 'fa-volume-high'}" id="vol-icon-${s.streamId}"></i>
+                    </button>
+                ` : ''}
+
+                <!-- Infos bas -->
+                <div class="absolute bottom-0 left-0 right-0 p-1.5 bg-gradient-to-t from-black/90 to-transparent">
+                    <p class="text-white text-[10px] font-bold truncate">
+                        ${s.broadcasterUsername}${isMe ? ' (moi)' : ''}
+                    </p>
+                    <p class="text-white/70 text-[9px]">${s.viewers} 👁️</p>
+                </div>
+
+                <!-- Micro coupé -->
+                ${s.isMicMuted ? `
+                    <div class="absolute bottom-1.5 right-1.5 bg-orange-500 text-white text-[9px] p-1 rounded">
+                        <i class="fa-solid fa-microphone-slash"></i>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+
+    // Démarrer WebRTC pour chaque stream (sauf le mien)
+    salonStreams.forEach(s => {
+        if (s.broadcasterId !== myId && !viewerPeerConnections[s.streamId]) {
+            startViewingStream(s.streamId);
+        }
     });
 }
 
-// ---------- CHAT ----------
+async function startViewingStream(streamId) {
+    const stream = salonStreams.find(s => s.streamId === streamId);
+    if (!stream) return;
+
+    try {
+        const pc = new RTCPeerConnection(rtcConfig);
+        viewerPeerConnections[streamId] = pc;
+
+        pc.ontrack = (event) => {
+            const videoEl = document.getElementById('cam-' + streamId);
+            if (videoEl) {
+                videoEl.srcObject = event.streams[0];
+                videoEl.play().catch(e => {});
+            }
+        };
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit('webrtc:ice-candidate', {
+                    candidate: event.candidate,
+                    streamId: streamId
+                });
+            }
+        };
+
+        const offer = await pc.createOffer({
+            offerToReceiveVideo: true,
+            offerToReceiveAudio: true
+        });
+        await pc.setLocalDescription(offer);
+        socket.emit('webrtc:offer', { offer: offer, streamId: streamId });
+    } catch (err) {
+        console.error('Erreur WebRTC:', err);
+    }
+}
+
+function toggleCameraAudio(streamId) {
+    const videoEl = document.getElementById('cam-' + streamId);
+    const iconEl = document.getElementById('vol-icon-' + streamId);
+    if (!videoEl) return;
+
+    const currentMuted = remoteAudioStates[streamId] !== false;
+    remoteAudioStates[streamId] = !currentMuted;
+    videoEl.muted = !currentMuted;
+
+    if (iconEl) {
+        iconEl.className = !currentMuted
+            ? 'fa-solid fa-volume-xmark'
+            : 'fa-solid fa-volume-high';
+    }
+}
+
+function toggleCameraView() {
+    cameraViewExpanded = !cameraViewExpanded;
+    const grid = document.getElementById('camerasGrid');
+    const icon = document.getElementById('cameraViewIcon');
+    if (cameraViewExpanded) {
+        grid.classList.remove('hidden');
+        icon.className = 'fa-solid fa-eye';
+    } else {
+        grid.classList.add('hidden');
+        icon.className = 'fa-solid fa-eye-slash';
+    }
+}
+
+// ============================================================
+// CHAT
+// ============================================================
 function sendMessage(e) {
     e.preventDefault();
     const input = document.getElementById('chatInput');
@@ -332,7 +555,7 @@ function renderMessage(msg) {
     const div = document.createElement('div');
     div.className = 'message';
     div.innerHTML = '<div class="' + (isMe ? 'flex justify-end' : '') + '">' +
-        '<div class="' + (isMe ? 'bg-pink-500 text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-md' : 'max-w-md') + '">' +
+        '<div class="' + (isMe ? 'bg-brand-primary text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-md' : 'max-w-md') + '">' +
             (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><span class="text-xs font-bold text-slate-700">' + icon + ' ' + msg.username + '</span><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
             '<p class="text-sm ' + (isMe ? '' : 'text-slate-700') + '">' + escapeHtml(msg.text) + '</p>' +
         '</div>' +
@@ -343,11 +566,20 @@ function renderMessage(msg) {
 function joinSalon(salon, btn) {
     if (salon === currentSalon) return;
     document.querySelectorAll('.salon-btn').forEach(b => {
-        b.classList.remove('bg-pink-50', 'border', 'border-pink-200/60', 'text-pink-500', 'font-bold');
+        b.classList.remove('bg-pink-50', 'border', 'border-pink-200/60', 'text-brand-primary', 'font-bold');
         b.classList.add('hover:bg-slate-50', 'text-slate-700');
     });
-    btn.classList.add('bg-pink-50', 'border', 'border-pink-200/60', 'text-pink-500', 'font-bold');
+    btn.classList.add('bg-pink-50', 'border', 'border-pink-200/60', 'text-brand-primary', 'font-bold');
     btn.classList.remove('hover:bg-slate-50', 'text-slate-700');
+
+    // Fermer les streams de l'ancien salon
+    Object.keys(viewerPeerConnections).forEach(streamId => {
+        viewerPeerConnections[streamId].close();
+        delete viewerPeerConnections[streamId];
+    });
+    salonStreams = [];
+    renderSalonCameras();
+
     if (socket) socket.emit('salon:join', salon);
 }
 
@@ -377,7 +609,7 @@ function escapeHtml(text) {
 }
 
 // ============================================================
-// SYSTÈME DE CADEAUX
+// CADEAUX
 // ============================================================
 async function openGiftModal() {
     document.getElementById('giftModal').classList.remove('hidden');
@@ -409,18 +641,16 @@ async function loadGiftBalance() {
         const data = await apiCall('/credits/balance');
         userBalance = data.balance;
         document.getElementById('giftBalance').innerText = data.balance;
-    } catch (err) {
-        console.error(err);
-    }
+    } catch (err) {}
 }
 
 function renderGifts() {
     document.getElementById('giftsGrid').innerHTML = gifts.map(g => `
         <button onclick="selectGift(${g.id})" id="gift-${g.id}"
             class="gift-item relative p-3 rounded-2xl border-2 border-slate-200 hover:border-brand-primary bg-white transition-all text-center">
-            <div class="text-4xl mb-1">${g.emoji}</div>
+            <div class="text-3xl mb-1">${g.emoji}</div>
             <p class="text-xs font-bold text-slate-800">${g.name}</p>
-            <p class="text-[10px] text-pink-500 font-bold mt-0.5">${g.price} crédits</p>
+            <p class="text-[10px] text-brand-primary font-bold mt-0.5">${g.price} crédits</p>
         </button>
     `).join('');
 }
@@ -443,7 +673,7 @@ function selectGift(giftId) {
 async function confirmSendGift() {
     if (!selectedGift) return;
     if (userBalance < selectedGift.price) {
-        showToast('❌ Crédits insuffisants. Rechargez votre compte.', 'error');
+        showToast('❌ Crédits insuffisants', 'error');
         return;
     }
 
@@ -494,7 +724,7 @@ function animateGift(giftData) {
 }
 
 // ============================================================
-// SYSTÈME DE SIGNALEMENT
+// SIGNALEMENT
 // ============================================================
 function openReportModal() {
     document.getElementById('reportModal').classList.remove('hidden');
@@ -522,7 +752,7 @@ async function submitReport(e) {
                 description: description
             })
         });
-        showToast('✅ Signalement envoyé. Merci !', 'success');
+        showToast('✅ Signalement envoyé', 'success');
         closeReportModal();
         document.getElementById('reportTarget').value = '';
         document.getElementById('reportReason').value = '';
