@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>E-Visiocam – Salon Musique</title>
+<link rel="stylesheet" href="room.css">
+</head>
+<body>
+<header>
+ <div class="logo"><i></i><span>E-VISIO<b>CAM</b></span></div>
+ <div class="title"><span id="rt">Salon Musique</span><small><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 7M18 14c2.500.7 3.500 2.500 3.500 6"/></svg><span id="rc">24 connectés</span></small></div>
+ <div class="hr">
+  <button class="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4zM10 21h4"/></svg></button>
+  <div class="av on" style="--c:#6b4a3a;width:42px;height:42px">V</div>
+ </div>
+</header>
+
+<main>
+ <section class="col">
+  <div class="box">
+   <div class="bh"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/></svg>SALONS</div>
+   <div class="rooms" id="rooms"></div>
+  </div>
+  <div class="box priv">
+   <div class="bh"><svg viewBox="0 0 24 24" style="color:var(--pink)"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8 12h8" stroke="#fff"/></svg><span>PRIVÉ · <span id="pn">Emma</span></span><button class="x" aria-label="Fermer" id="px"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+   <div class="msgs" id="pm">
+    <div style="display:flex;gap:10px;align-items:flex-start"><div class="av" style="--c:#c0675a">E</div><div class="b">Salut ! Tu écoutes quoi ?</div></div>
+    <div class="t" style="margin-left:46px">20:15</div>
+    <div class="b me">Un peu de house ♫</div>
+    <div class="t me">20:16 ✓✓</div>
+   </div>
+   <form class="row" id="pf"><input id="pi" placeholder="Message à Emma…" autocomplete="off"><button class="send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M21 3L3 11l7 3 3 7z"/></svg></button></form>
+  </div>
+ </section>
+
+ <section class="col">
+  <div class="box" style="flex:1">
+   <div class="grid">
+    <div class="cam" style="--g1:#c9a98a;--g2:#4a3a30"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n">Emma <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
+    <div class="cam" style="--g1:#8a9a7a;--g2:#2c3a30"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n">Alex <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
+    <div class="cam" style="--g1:#d4b68a;--g2:#5a4632"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n">Sophie <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
+    <div class="cam" style="--g1:#8e98a8;--g2:#2e3442"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n" id="me">Vous <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
+   </div>
+  </div>
+  <div class="box chat">
+   <div class="bh"><svg viewBox="0 0 24 24"><path d="M4 5h12v9H9l-4 3v-3H4zM18 9h2v8h-1v3l-3-3h-5v-1"/></svg>DISCUSSION PUBLIQUE</div>
+   <div class="pub" id="pub"></div>
+   <form class="row" id="f"><input id="i" placeholder="Écrire dans le salon…" autocomplete="off"><button class="send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M21 3L3 11l7 3 3 7z"/></svg></button></form>
+  </div>
+ </section>
+
+ <section class="col">
+  <div class="box mem">
+   <div class="bh" style="border:0;padding-bottom:0"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/></svg>MEMBRES · <span id="mc">24</span></div>
+   <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Rechercher…"></label>
+   <div class="chips"><button class="chip act" id="c1">Tous</button><button class="chip" id="c2"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg>Avec caméra</button></div>
+   <div class="list" id="list"></div>
+   <div class="menu" id="menu" hidden>
+    <div class="h"><div class="av" id="mav">E</div><span id="mn">Emma</span></div>
+    <button data-a="Profil ouvert"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7" fill="currentColor"/></svg>Voir le profil</button>
+    <button data-a="pm"><svg viewBox="0 0 24 24"><path d="M3 4h18v13H8l-5 4z" fill="currentColor"/></svg>Message privé</button>
+    <button data-a="Caméra affichée"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg>Voir la caméra</button>
+    <button data-a="Membre bloqué"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.600 5.600l12.800 12.800"/></svg>Bloquer</button>
+    <button data-a="Signalement envoyé"><svg viewBox="0 0 24 24" style="color:var(--red)"><path d="M12 3L2 20h20z" fill="currentColor"/><path d="M12 10v4M12 17v.1" stroke="#fff"/></svg>Signaler</button>
+   </div>
+  </div>
+ </section>
+</main>
+
+<footer>
+ <button class="fb y" id="bc"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg><span>Caméra active</span></button>
+ <button class="fb" id="bm"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M3 3l18 18"/></svg><span>Micro coupé</span></button>
+ <button class="fb" id="bs"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span>Réglages</span></button>
+ <button class="fb q" id="bq"><svg viewBox="0 0 24 24"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg><span>Quitter le salon</span></button>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script src="room.js"></script>
+</body>
+</html>
