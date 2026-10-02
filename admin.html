@@ -598,23 +598,47 @@ async function handleDelete(userId) {
 // ═══════════════════════════════════════════════════════════
 // 🔑 RÉINITIALISER LE MOT DE PASSE D'UN COMPTE
 // ═══════════════════════════════════════════════════════════
+// Ouverture / fermeture des fenêtres (admin.html ne charge pas app.js, où elles étaient définies)
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
 let tempPassword = '';
 
 async function handleResetPassword(userId, username) {
     if (!confirm('Réinitialiser le mot de passe de « ' + username + ' » ?\n\n'
         + 'Un mot de passe temporaire va être créé. Le membre devra en choisir un nouveau '
         + 'à sa prochaine connexion, et ses sessions ouvertes seront déconnectées.')) return;
+
+    let data;
     try {
-        const data = await apiCall('/admin/users/' + userId + '/reset-password', { method: 'POST' });
-        tempPassword = data.tempPassword || '';
+        data = await apiCall('/admin/users/' + userId + '/reset-password', { method: 'POST' });
+    } catch (err) {
+        showToast(err.message || 'Réinitialisation impossible', 'error');
+        return;
+    }
+
+    // Le mot de passe est déjà changé côté serveur et n'est affiché qu'une seule fois :
+    // quoi qu'il arrive ensuite, il ne doit jamais être perdu.
+    tempPassword = data.tempPassword || '';
+    try {
         document.getElementById('pwdUser').textContent = data.username || username;
         document.getElementById('pwdValue').textContent = tempPassword;
         openModal('pwdModal');
-        showToast('🔑 Mot de passe réinitialisé');
-        await loadUsers();
-    } catch (err) {
-        showToast(err.message || 'Réinitialisation impossible', 'error');
+    } catch (e) {
+        window.prompt('Mot de passe temporaire de « ' + (data.username || username) + ' » (Ctrl + C pour copier) :', tempPassword);
     }
+    showToast('🔑 Mot de passe réinitialisé');
+    try { await loadUsers(); } catch (e) { /* la liste se mettra à jour au prochain chargement */ }
 }
 
 function copyTempPassword() {
