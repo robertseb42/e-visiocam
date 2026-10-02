@@ -22,29 +22,21 @@
     // ═══════════════════════════════════════════════════════════
     // COULEUR D'AVATAR SELON GENRE (PRIORITÉ) PUIS RÔLE
     // ═══════════════════════════════════════════════════════════
+    // Couleur selon le genre : fille = rose, garçon = bleu, non précisé ou non genré = jaune
+    var GENRE_COULEURS = { femme: '#ec4899', homme: '#3b82f6', autre: '#eab308' };
+    function genreCle(user) {
+        var g = ((user && user.gender) || '').toLowerCase();
+        if (g === 'femme' || g === 'female' || g === 'f') return 'femme';
+        if (g === 'homme' || g === 'male' || g === 'h') return 'homme';
+        return 'autre';   // non précisé, autre, non genré
+    }
+    function genreCouleur(user) { return GENRE_COULEURS[genreCle(user)]; }
+
     function getAvatarGradient(user) {
-        const gender = (user.gender || '').toLowerCase();
-
-        // 🔵 GENRE : Homme
-        if (gender === 'homme' || gender === 'male' || gender === 'h') {
-            return 'from-blue-500 to-cyan-500';
-        }
-        // 🌸 GENRE : Femme
-        if (gender === 'femme' || gender === 'female' || gender === 'f') {
-            return 'from-pink-500 to-rose-500';
-        }
-        // 🟡 GENRE : Autre
-        if (gender === 'autre' || gender === 'other') {
-            return 'from-amber-400 to-yellow-500';
-        }
-
-        // RÔLE (si pas de genre)
-        if (user.role === 'super_admin') return 'from-purple-500 to-pink-600';
-        if (user.role === 'moderator') return 'from-blue-500 to-indigo-600';
-        if (user.role === 'model') return 'from-amber-400 to-orange-500';
-
-        // Défaut
-        return 'from-slate-500 to-slate-700';
+        var k = genreCle(user);
+        if (k === 'femme') return 'from-pink-500 to-rose-500';
+        if (k === 'homme') return 'from-blue-500 to-cyan-500';
+        return 'from-amber-400 to-yellow-500';
     }
 
     function getAvatarIcon(user) {
@@ -105,18 +97,18 @@
                     </div>
                     <div class="p-2">
                         <a href="profile.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
-                            <i class="fa-solid fa-user w-4 text-slate-400"></i> Mon profil
+                            <i class="fa-solid fa-user w-4" style="color:${genreCouleur(user)}"></i> Mon profil
                         </a>
                         <a href="messages.html" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-comments w-4 text-slate-400"></i> Mes messages
+                                <i class="fa-solid fa-comments w-4" style="color:#0ea5e9"></i> Mes messages
                             </div>
                         </a>
                         <a href="credits.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-coins w-4 text-amber-500"></i> Mes crédits
                         </a>
                         <a href="compte.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
-                            <i class="fa-solid fa-gear w-4 text-slate-400"></i> Paramètres
+                            <i class="fa-solid fa-gear w-4" style="color:#8b5cf6"></i> Paramètres
                         </a>
                         ${user.role === 'moderator' || user.role === 'super_admin' ? `
                             <a href="moderation.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">

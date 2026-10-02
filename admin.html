@@ -2,6 +2,7 @@
 <html lang="fr" class="h-full cam-theme">
 <head>
     <meta charset="UTF-8">
+    <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panneau Admin — E-VISIOCAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,7 +24,7 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=20261001-decor">
+    <link rel="stylesheet" href="style.css?v=20261002-theme">
     <script src="maintenance.js" defer></script>
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
@@ -74,7 +75,7 @@
         <i class="fa-solid fa-image mr-1"></i> Décor et bannières
     </a>
     <a id="demandesSalons" href="moderation-salons.html" class="inline-block px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl">
-        <i class="fa-solid fa-lock mr-1"></i> Gestion des salons
+        <i class="fa-solid fa-lock mr-1"></i> Gestion des salons <span class="font-normal opacity-70">(création, logos, VIP)</span>
     </a>
 </div>
 
@@ -170,9 +171,6 @@
             <button onclick="showTab('radios', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-radio mr-1"></i> Radios
             </button>
-            <button onclick="showTab('logos', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
-                <i class="fa-solid fa-image mr-1"></i> Logos des salons
-            </button>
             <button onclick="showTab('logs', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-list mr-1"></i> Logs
             </button>
@@ -238,26 +236,6 @@
             <div id="radiosAdminList" class="space-y-3">
                 <p class="text-center text-slate-400 py-8 text-sm">Chargement...</p>
             </div>
-        </div>
-
-        <div id="tab-logos" class="tab-content p-5 hidden">
-            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 mb-5 text-slate-700">
-                <p class="font-bold text-slate-900 mb-2"><i class="fa-solid fa-circle-info text-amber-500 mr-1"></i> Comment préparer un logo</p>
-                <ul class="grid gap-x-6 gap-y-1 sm:grid-cols-2 text-xs">
-                    <li><b>Taille conseillée :</b> 256 × 256 px (carré)</li>
-                    <li><b>Minimum :</b> 64 × 64 px (en dessous, le logo serait flou)</li>
-                    <li><b>Formats acceptés :</b> PNG (fond transparent conseillé), JPG ou WebP</li>
-                    <li><b>Poids maximum :</b> 2 Mo (l'image est réduite automatiquement)</li>
-                    <li><b>Image non carrée :</b> elle est centrée en entier, sans déformation</li>
-                    <li><b>Où il s'affiche :</b> liste du salon (22 px) et page Salons (40 px)</li>
-                </ul>
-                <p class="text-xs mt-3">
-                    <b>Marche à suivre :</b> « Choisir une image » → vérifiez l'aperçu → « Appliquer ».
-                    Le logo apparaît sur le site dès le rechargement de la page.
-                    « Retirer l'image » remet l'emoji du salon. Pour changer l'emoji, utilisez <a href="moderation-salons.html" class="underline font-semibold">Gestion des salons</a>.
-                </p>
-            </div>
-            <div id="logosList" class="grid gap-3 lg:grid-cols-2"><p class="text-slate-400 text-sm">Chargement...</p></div>
         </div>
 
         <div id="tab-logs" class="tab-content p-5 hidden">
@@ -437,182 +415,6 @@ async function toggleMaintenance() {
         btn.disabled = false;
     }
 }
-
-// ---------- LOGOS DES SALONS (images) ----------
-const LOGO = { px: 256, min: 64, maxBytes: 2 * 1024 * 1024, serveurMaxBytes: 380 * 1024,
-               types: ['image/png', 'image/jpeg', 'image/webp'] };
-const logoEnAttente = {};   // slug -> { data, nom, w, h, cote, octets }
-
-// Côté du carré du logo : 256 px au maximum, sans agrandir une petite image (ce qui la rendrait floue)
-function cotePourImage(w, h) { return Math.min(LOGO.px, Math.max(w, h)); }
-
-// Place l'image ENTIÈRE, centrée, sans la déformer, dans un carré de `cote` px
-function ajusterDansCarre(w, h, cote) {
-    const k = Math.min(cote / w, cote / h);
-    const dw = Math.max(1, Math.round(w * k)), dh = Math.max(1, Math.round(h * k));
-    return { dw: dw, dh: dh, dx: Math.floor((cote - dw) / 2), dy: Math.floor((cote - dh) / 2) };
-}
-
-function octetsDataUrl(data) {
-    const b64 = data.slice(data.indexOf(',') + 1);
-    return Math.floor(b64.length * 3 / 4) - (b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0);
-}
-
-// Vérifie le fichier, le réduit dans un carré et le prépare pour l'envoi
-function preparerImageLogo(file) {
-    return new Promise((resolve, reject) => {
-        if (!LOGO.types.includes(file.type)) return reject(new Error('Format non accepté : utilisez PNG, JPG ou WebP.'));
-        if (file.size > LOGO.maxBytes) {
-            return reject(new Error('Image trop lourde (' + (file.size / 1048576).toFixed(1).replace('.', ',') + ' Mo) : 2 Mo maximum.'));
-        }
-        const url = URL.createObjectURL(file);
-        const img = new Image();
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image illisible ou abîmée.')); };
-        img.onload = () => {
-            URL.revokeObjectURL(url);
-            const w = img.naturalWidth, h = img.naturalHeight;
-            if (w < LOGO.min || h < LOGO.min) {
-                return reject(new Error('Image trop petite (' + w + ' × ' + h + ' px) : ' + LOGO.min + ' × ' + LOGO.min + ' px minimum.'));
-            }
-            const cote = cotePourImage(w, h), p = ajusterDansCarre(w, h, cote);
-            const canvas = document.createElement('canvas');
-            canvas.width = cote; canvas.height = cote;
-            canvas.getContext('2d').drawImage(img, p.dx, p.dy, p.dw, p.dh);
-            // PNG d'abord (garde la transparence) ; si c'est trop lourd (photo), WebP puis JPG
-            for (const essai of [['image/png'], ['image/webp', 0.9], ['image/jpeg', 0.85]]) {
-                const data = canvas.toDataURL(essai[0], essai[1]);
-                if (data.startsWith('data:' + essai[0]) && octetsDataUrl(data) <= LOGO.serveurMaxBytes) {
-                    return resolve({ data: data, nom: file.name, w: w, h: h, cote: cote, octets: octetsDataUrl(data) });
-                }
-            }
-            reject(new Error('Image trop détaillée : essayez une image plus simple ou plus petite.'));
-        };
-        img.src = url;
-    });
-}
-
-const origineApi = () => API_URL.replace(/\/api\/?$/, '');
-// Pour mettre un texte DANS un attribut HTML (escapeHtml ne traite pas les guillemets)
-const escAttr = t => escapeHtml(t).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-const carteLogo = slug => [...document.querySelectorAll('[data-card]')].find(c => c.dataset.card === slug);
-
-function messageLogo(slug, texte, ok) {
-    const c = carteLogo(slug); if (!c) return;
-    const m = c.querySelector('[data-msg]');
-    m.textContent = texte || '';
-    m.className = 'text-xs mt-2 ' + (texte ? (ok ? 'text-emerald-600' : 'text-rose-600') : 'hidden');
-}
-
-function activerAppliquer(slug, actif) {
-    const c = carteLogo(slug); if (!c) return;
-    const b = c.querySelector('[data-act="appliquer"]');
-    b.disabled = !actif;
-    b.className = 'px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl ' +
-        (actif ? 'hover:bg-brand-hover' : 'opacity-50 cursor-not-allowed');
-}
-
-function carteSalonLogo(s) {
-    const actuel = s.logoUrl
-        ? '<img src="' + escAttr(origineApi() + s.logoUrl) + '" alt="" class="w-full h-full object-contain">'
-        : escapeHtml(s.icon || '💬');
-    const badges = (s.isPrivate ? ' <span class="text-[10px] bg-pink-50 text-brand-primary font-bold px-2 py-0.5 rounded-full">🔒 VIP</span>' : '')
-        + (s.isHidden ? ' <span class="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-0.5 rounded-full">🚫 Masqué</span>' : '');
-    const slug = escAttr(s.slug);
-    return '<div class="rounded-2xl border border-slate-200 bg-white p-4" data-card="' + slug + '">'
-      + '<div class="flex items-center gap-3">'
-      +   '<div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center text-3xl overflow-hidden shrink-0">' + actuel + '</div>'
-      +   '<div class="min-w-0 flex-1"><p class="font-bold text-slate-900 truncate">' + escapeHtml(s.name) + badges + '</p>'
-      +   '<p class="text-xs text-slate-500">' + (s.logoUrl ? 'Logo actuel : image' : 'Logo actuel : emoji ' + escapeHtml(s.icon || '💬')) + '</p></div>'
-      + '</div>'
-      + '<div class="mt-3 flex flex-wrap items-center gap-2">'
-      +   '<input type="file" class="hidden" accept="image/png,image/jpeg,image/webp" data-file="' + slug + '">'
-      +   '<button data-act="choisir" data-slug="' + slug + '" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-upload mr-1"></i>Choisir une image</button>'
-      +   '<button data-act="appliquer" data-slug="' + slug + '" disabled class="px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl opacity-50 cursor-not-allowed"><i class="fa-solid fa-check mr-1"></i>Appliquer</button>'
-      +   (s.logoUrl ? '<button data-act="retirer" data-slug="' + slug + '" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl"><i class="fa-solid fa-trash mr-1"></i>Retirer l\'image</button>' : '')
-      + '</div>'
-      + '<div data-apercu class="hidden mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">'
-      +   '<p class="text-[11px] text-slate-500 mb-2" data-info></p>'
-      +   '<div class="flex items-end gap-5">'
-      +     '<figure class="text-center"><img data-p40 alt="" style="width:40px;height:40px;object-fit:contain;border-radius:8px" class="mx-auto"><figcaption class="text-[10px] text-slate-400 mt-1">Page Salons</figcaption></figure>'
-      +     '<figure class="text-center"><img data-p22 alt="" style="width:22px;height:22px;object-fit:contain;border-radius:4px" class="mx-auto"><figcaption class="text-[10px] text-slate-400 mt-1">Liste du salon</figcaption></figure>'
-      +   '</div>'
-      + '</div>'
-      + '<p data-msg class="hidden"></p>'
-      + '</div>';
-}
-
-async function loadSalonLogos() {
-    const zone = document.getElementById('logosList');
-    zone.innerHTML = '<p class="text-slate-400 text-sm">Chargement...</p>';
-    try {
-        const data = await apiCall('/salons/list');
-        const salons = (data && data.salons) || [];
-        zone.innerHTML = salons.length ? salons.map(carteSalonLogo).join('') : '<p class="text-slate-400 text-sm">Aucun salon.</p>';
-        Object.keys(logoEnAttente).forEach(k => delete logoEnAttente[k]);
-    } catch (err) {
-        zone.innerHTML = '<p class="text-rose-600 text-sm">Impossible de charger les salons : ' + escapeHtml(err.message) + '</p>';
-    }
-}
-
-async function choisirLogo(slug, file) {
-    delete logoEnAttente[slug];
-    activerAppliquer(slug, false);
-    const c = carteLogo(slug); if (!c) return;
-    c.querySelector('[data-apercu]').classList.add('hidden');
-    messageLogo(slug, 'Préparation de l\'image...', true);
-    try {
-        const r = await preparerImageLogo(file);
-        logoEnAttente[slug] = r;
-        c.querySelector('[data-p40]').src = r.data;
-        c.querySelector('[data-p22]').src = r.data;
-        c.querySelector('[data-info]').textContent = 'Aperçu : ' + file.name + ' · ' + r.w + ' × ' + r.h + ' px → logo '
-            + r.cote + ' × ' + r.cote + ' px · ' + Math.max(1, Math.round(r.octets / 1024)) + ' Ko. Rien n\'est encore appliqué.';
-        c.querySelector('[data-apercu]').classList.remove('hidden');
-        messageLogo(slug, '');
-        activerAppliquer(slug, true);
-    } catch (err) {
-        messageLogo(slug, err.message, false);
-    }
-}
-
-async function appliquerLogo(slug) {
-    const p = logoEnAttente[slug]; if (!p) return;
-    activerAppliquer(slug, false);
-    messageLogo(slug, 'Envoi en cours...', true);
-    try {
-        await apiCall('/salons/' + encodeURIComponent(slug) + '/logo', { method: 'PUT', body: JSON.stringify({ image: p.data }) });
-        showToast('✅ Logo appliqué : il apparaît sur le site');
-        await loadSalonLogos();
-    } catch (err) {
-        messageLogo(slug, 'Échec : ' + err.message, false);
-        activerAppliquer(slug, true);
-    }
-}
-
-async function retirerLogo(slug) {
-    const c = carteLogo(slug);
-    const nom = c ? c.querySelector('p.font-bold').textContent.trim() : slug;
-    if (!confirm('Retirer l\'image du salon « ' + nom + ' » ?\n\nLe salon reprendra son emoji.')) return;
-    try {
-        await apiCall('/salons/' + encodeURIComponent(slug) + '/logo', { method: 'DELETE' });
-        showToast('Image retirée : le salon reprend son emoji');
-        await loadSalonLogos();
-    } catch (err) { messageLogo(slug, 'Échec : ' + err.message, false); }
-}
-
-document.getElementById('logosList').addEventListener('click', e => {
-    const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
-    const slug = b.dataset.slug, c = carteLogo(slug);
-    if (b.dataset.act === 'choisir' && c) c.querySelector('[data-file]').click();
-    else if (b.dataset.act === 'appliquer') appliquerLogo(slug);
-    else if (b.dataset.act === 'retirer') retirerLogo(slug);
-});
-document.getElementById('logosList').addEventListener('change', e => {
-    const inp = e.target.closest('[data-file]');
-    if (!inp || !inp.files || !inp.files[0]) return;
-    const file = inp.files[0];
-    choisirLogo(inp.dataset.file, file).then(() => { inp.value = ''; });
-});
 
 // ---------- CHARGER LES UTILISATEURS ----------
 async function loadUsers() {
@@ -984,7 +786,6 @@ function showTab(name, btn) {
     btn.classList.remove('text-slate-500', 'font-semibold');
     if (name === 'radios') loadRadios();
     if (name === 'logs') loadLogs();
-    if (name === 'logos') loadSalonLogos();
 }
 
 // ---------- RECHERCHE ----------

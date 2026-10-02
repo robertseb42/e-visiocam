@@ -2,6 +2,7 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
+    <script src="theme.js"></script>
     <title>Gestion des salons — E-VISIOCAM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -9,8 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js"></script>
-    <link rel="stylesheet" href="style.css?v=20261001-decor">
+    <link rel="stylesheet" href="style.css?v=20261002-theme">
     <script src="salon-access.js"></script>
+    <script src="salon-logo.js"></script>
     <script src="maintenance.js" defer></script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -50,7 +52,7 @@
             <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">Salons du site</h2>
-                    <p class="text-xs text-slate-500">Renommez, changez l'icône, passez en VIP ou masquez un salon. Un salon masqué disparaît du site (il reste ici pour le rouvrir).</p>
+                    <p class="text-xs text-slate-500">Créez un salon, renommez-le, changez son emoji ou son logo image, passez-le en VIP ou masquez-le. Un salon masqué disparaît du site (il reste ici pour le rouvrir).</p>
                 </div>
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -58,6 +60,16 @@
                            class="pl-8 pr-3 py-2 bg-slate-100 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none w-full sm:w-64">
                 </div>
             </div>
+            <form id="createSalonForm" class="mb-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+                <p class="text-sm font-bold text-slate-800 mb-1"><i class="fa-solid fa-plus mr-1 text-brand-primary"></i>Créer un salon</p>
+                <p class="text-xs text-slate-500 mb-3">Le salon est créé public. Vous pourrez ensuite le rendre VIP, lui mettre un logo image ou le masquer.</p>
+                <div class="grid gap-2 md:grid-cols-[70px_1fr_1.4fr_auto] items-center">
+                    <input id="new-ic" maxlength="4" placeholder="🙂" aria-label="Emoji du salon" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none text-center">
+                    <input id="new-nm" required minlength="3" maxlength="40" placeholder="Nom du salon (3 caractères minimum)" aria-label="Nom du salon" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                    <input id="new-ds" maxlength="200" placeholder="Description (facultatif)" aria-label="Description" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                    <button type="submit" id="new-btn" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl whitespace-nowrap"><i class="fa-solid fa-plus mr-1"></i>Créer le salon</button>
+                </div>
+            </form>
             <div id="salonsList" class="space-y-3"></div>
         </section>
 
@@ -122,13 +134,43 @@ function ligneSalon(s) {
             <div class="flex flex-wrap gap-1 justify-end">${actions}</div>
         </div>
 
-        <div id="edit-${esc(s.slug)}" class="hidden mt-3 pt-3 border-t border-slate-100 grid gap-2 md:grid-cols-[70px_1fr_1.4fr_auto]">
-            <input id="e-ic-${esc(s.slug)}" maxlength="4" value="${esc(s.icon || '')}" placeholder="🙂" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none text-center">
-            <input id="e-nm-${esc(s.slug)}" maxlength="40" value="${esc(s.name)}" placeholder="Nom du salon" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-            <input id="e-ds-${esc(s.slug)}" maxlength="200" value="${esc(s.description || '')}" placeholder="Description" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-            <div class="flex gap-2">
-                <button onclick="enregistrerSalon('${esc(s.slug)}')" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-check mr-1"></i>Enregistrer</button>
-                <button onclick="fermerEdition('${esc(s.slug)}')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">Annuler</button>
+        <div id="edit-${esc(s.slug)}" class="hidden mt-3 pt-3 border-t border-slate-100">
+            <div class="grid gap-2 md:grid-cols-[70px_1fr_1.4fr_auto]">
+                <input id="e-ic-${esc(s.slug)}" maxlength="4" value="${esc(s.icon || '')}" placeholder="🙂" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none text-center">
+                <input id="e-nm-${esc(s.slug)}" maxlength="40" value="${esc(s.name)}" placeholder="Nom du salon" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                <input id="e-ds-${esc(s.slug)}" maxlength="200" value="${esc(s.description || '')}" placeholder="Description" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                <div class="flex gap-2">
+                    <button onclick="enregistrerSalon('${esc(s.slug)}')" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-check mr-1"></i>Enregistrer</button>
+                    <button onclick="fermerEdition('${esc(s.slug)}')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">Fermer</button>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100" data-logo="${esc(s.slug)}">
+                <p class="text-xs font-bold text-slate-800 mb-1"><i class="fa-solid fa-image mr-1"></i>Logo image du salon <span class="font-normal text-slate-500">(remplace l'emoji)</span></p>
+                <ul class="text-[11px] text-slate-500 mb-3 grid gap-x-6 gap-y-0.5 sm:grid-cols-2">
+                    <li><b>Taille conseillée :</b> 256 × 256 px (carré)</li>
+                    <li><b>Minimum :</b> 64 × 64 px (en dessous, flou)</li>
+                    <li><b>Formats :</b> PNG (fond transparent conseillé), JPG ou WebP</li>
+                    <li><b>Poids :</b> 2 Mo maximum (réduite automatiquement)</li>
+                    <li><b>Image non carrée :</b> centrée en entier, sans déformation</li>
+                    <li><b>Affichage :</b> 22 px dans le salon, 40 px sur la page Salons</li>
+                </ul>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-2xl overflow-hidden shrink-0" title="Logo actuel">${SalonAccess.logoHtml ? SalonAccess.logoHtml(s, 40) : esc(s.icon || '💬')}</div>
+                    <input type="file" class="hidden" accept="image/png,image/jpeg,image/webp" data-file>
+                    <button type="button" data-act="choisir" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-upload mr-1"></i>Choisir une image</button>
+                    <button type="button" data-act="appliquer" disabled class="px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl opacity-50 cursor-not-allowed"><i class="fa-solid fa-check mr-1"></i>Appliquer</button>
+                    ${s.logoUrl ? '<button type="button" data-act="retirer" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl"><i class="fa-solid fa-trash mr-1"></i>Retirer l\'image</button>' : ''}
+                    <span class="text-[11px] text-slate-400">${s.logoUrl ? 'Logo actuel : image' : 'Logo actuel : emoji'}</span>
+                </div>
+                <div data-apercu class="hidden mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
+                    <p class="text-[11px] text-slate-500 mb-2" data-info></p>
+                    <div class="flex items-end gap-5">
+                        <figure class="text-center"><img data-p40 alt="" style="width:40px;height:40px;object-fit:contain;border-radius:8px" class="mx-auto"><figcaption class="text-[10px] text-slate-400 mt-1">Page Salons</figcaption></figure>
+                        <figure class="text-center"><img data-p22 alt="" style="width:22px;height:22px;object-fit:contain;border-radius:4px" class="mx-auto"><figcaption class="text-[10px] text-slate-400 mt-1">Dans le salon</figcaption></figure>
+                    </div>
+                </div>
+                <p data-msg class="hidden"></p>
             </div>
         </div>
     </div>`;
@@ -176,6 +218,122 @@ async function enregistrerSalon(slug) {
         toast(e.message || 'Modification impossible');
     }
 }
+
+// ------------------------------------------------------------------
+// ➕ Créer un salon (super administrateur)
+// ------------------------------------------------------------------
+const formCreation = document.getElementById('createSalonForm');
+if (formCreation) formCreation.onsubmit = async e => {
+    e.preventDefault();
+    const name = document.getElementById('new-nm').value.trim();
+    const icon = document.getElementById('new-ic').value.trim();
+    const description = document.getElementById('new-ds').value.trim();
+    if (name.length < 3) { toast('Nom trop court (3 caractères minimum)'); return; }
+    const bouton = document.getElementById('new-btn');
+    bouton.disabled = true;
+    try {
+        const body = { name, description };
+        if (icon) body.icon = icon;
+        const rep = await apiCall('/salons', { method: 'POST', body: JSON.stringify(body) });
+        formCreation.reset();
+        toast('✅ Salon créé : ' + rep.salon.name);
+        await chargerSalons();
+        rendreListe();
+        ouvrirEdition(rep.salon.slug);   // on peut tout de suite lui mettre un logo
+        const bloc = document.getElementById('bloc-' + rep.salon.slug);
+        if (bloc && bloc.scrollIntoView) bloc.scrollIntoView({ block: 'center' });
+    } catch (err) {
+        toast(err.message || 'Création du salon impossible');
+    } finally {
+        bouton.disabled = false;
+    }
+};
+
+// ------------------------------------------------------------------
+// 🖼️ Logo image d'un salon : choisir → aperçu → Appliquer
+// ------------------------------------------------------------------
+const logoEnAttente = {};   // slug -> { data, w, h, cote, octets, nom }
+const blocLogo = slug => [...document.querySelectorAll('[data-logo]')].find(b => b.dataset.logo === slug);
+
+function messageLogo(slug, texte, ok) {
+    const b = blocLogo(slug); if (!b) return;
+    const m = b.querySelector('[data-msg]');
+    m.textContent = texte || '';
+    m.className = 'text-xs mt-2 ' + (texte ? (ok ? 'text-emerald-600' : 'text-rose-600') : 'hidden');
+}
+function activerAppliquer(slug, actif) {
+    const b = blocLogo(slug); if (!b) return;
+    const bt = b.querySelector('[data-act="appliquer"]');
+    bt.disabled = !actif;
+    bt.className = 'px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl ' + (actif ? 'hover:bg-brand-hover' : 'opacity-50 cursor-not-allowed');
+}
+// Remet la liste à jour avec la réponse du serveur, en gardant le panneau ouvert
+function majSalonApresLogo(slug, rep) {
+    const i = SALONS.findIndex(s => s.slug === slug);
+    if (i >= 0 && rep && rep.salon) SALONS[i] = Object.assign({}, SALONS[i], rep.salon);
+    rendreListe();
+    ouvrirEdition(slug);
+}
+
+async function choisirLogoSalon(slug, file) {
+    delete logoEnAttente[slug];
+    activerAppliquer(slug, false);
+    const b = blocLogo(slug); if (!b) return;
+    b.querySelector('[data-apercu]').classList.add('hidden');
+    messageLogo(slug, 'Préparation de l\'image...', true);
+    try {
+        const r = await SalonLogo.preparerImage(file);
+        r.nom = file.name;
+        logoEnAttente[slug] = r;
+        b.querySelector('[data-p40]').src = r.data;
+        b.querySelector('[data-p22]').src = r.data;
+        b.querySelector('[data-info]').textContent = 'Aperçu : ' + file.name + ' · ' + r.w + ' × ' + r.h + ' px → logo '
+            + r.cote + ' × ' + r.cote + ' px · ' + Math.max(1, Math.round(r.octets / 1024)) + ' Ko. Rien n\'est encore appliqué.';
+        b.querySelector('[data-apercu]').classList.remove('hidden');
+        messageLogo(slug, '');
+        activerAppliquer(slug, true);
+    } catch (err) {
+        messageLogo(slug, err.message, false);
+    }
+}
+
+async function appliquerLogoSalon(slug) {
+    const p = logoEnAttente[slug]; if (!p) return;
+    activerAppliquer(slug, false);
+    messageLogo(slug, 'Envoi en cours...', true);
+    try {
+        const rep = await apiCall('/salons/' + encodeURIComponent(slug) + '/logo', { method: 'PUT', body: JSON.stringify({ image: p.data }) });
+        delete logoEnAttente[slug];
+        toast('✅ Logo appliqué : il apparaît sur le site');
+        majSalonApresLogo(slug, rep);
+    } catch (err) {
+        messageLogo(slug, 'Échec : ' + err.message, false);
+        activerAppliquer(slug, true);
+    }
+}
+
+async function retirerLogoSalon(slug) {
+    if (!confirm('Retirer l\'image du salon « ' + (names[slug] || slug) + ' » ?\n\nLe salon reprendra son emoji.')) return;
+    try {
+        const rep = await apiCall('/salons/' + encodeURIComponent(slug) + '/logo', { method: 'DELETE' });
+        toast('Image retirée : le salon reprend son emoji');
+        majSalonApresLogo(slug, rep);
+    } catch (err) { messageLogo(slug, 'Échec : ' + err.message, false); }
+}
+
+document.getElementById('salonsList').addEventListener('click', e => {
+    const bt = e.target.closest('[data-logo] [data-act]'); if (!bt || bt.disabled) return;
+    const bloc = bt.closest('[data-logo]'), slug = bloc.dataset.logo;
+    if (bt.dataset.act === 'choisir') bloc.querySelector('[data-file]').click();
+    else if (bt.dataset.act === 'appliquer') appliquerLogoSalon(slug);
+    else if (bt.dataset.act === 'retirer') retirerLogoSalon(slug);
+});
+document.getElementById('salonsList').addEventListener('change', e => {
+    const inp = e.target.closest('[data-logo] [data-file]');
+    if (!inp || !inp.files || !inp.files[0]) return;
+    const slug = inp.closest('[data-logo]').dataset.logo, file = inp.files[0];
+    choisirLogoSalon(slug, file).then(() => { inp.value = ''; });
+});
 
 // 🔒 Passer un salon en VIP, ou lui retirer le VIP
 async function setVip(slug, isPrivate) {

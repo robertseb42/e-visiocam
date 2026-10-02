@@ -19,6 +19,14 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;position:relative;flex:none;background:var(--c,#2f7bff)}
 .av.on:after,.av.off:after{content:"";position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:var(--grn);border:2px solid var(--panel)}
 .av.off:after{background:#777}
+.av[data-uid]{cursor:pointer}
+.av .pb{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--pink);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--panel);z-index:1}
+.av .pb.pb-chat{background:var(--yel);color:#111;padding:0;font-size:10px}
+.av.priv-act{box-shadow:0 0 0 2px var(--yel)}
+.av.priv-new{animation:privPulse 1.4s ease-in-out infinite}
+@keyframes privPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,45,120,.65)}50%{box-shadow:0 0 0 7px rgba(255,45,120,0)}}
+@media(prefers-reduced-motion:reduce){.av.priv-new{animation:none;box-shadow:0 0 0 2px var(--pink)}}
+.row input:disabled{opacity:.6;cursor:not-allowed}
 main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(250px,1fr) minmax(0,2fr) minmax(250px,1fr);gap:14px;padding:14px 16px}
 .col{display:flex;flex-direction:column;gap:14px;min-height:0;min-width:0}
 .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:0;overflow:hidden}

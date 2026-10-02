@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>E-Visiocam – Salon</title>
-<script>try{document.documentElement.dataset.theme=localStorage.getItem("evc-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
+<script src="theme.js"></script>
 <!-- Salon privé : plus jamais d'écran noir. La page reste visible ; le cadenas
      et la demande d'accès s'affichent par-dessus (voir room.js). -->
 <script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
@@ -18,7 +18,6 @@
  <a class="logo" href="index.html" aria-label="Accueil E-Visiocam"><i></i><span>E-VISIO<b>CAM</b></span></a>
  <div class="title"><span id="rt">Salon Musique</span><small><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 7M18 14c2.500.7 3.500 2.500 3.500 6"/></svg><span id="rc">24 connectés</span></small></div>
  <div class="hr">
-  <button id="tt" aria-label="Passer en thème clair ou sombre" title="Thème clair / sombre">☀️</button>
   <button class="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4zM10 21h4"/></svg></button>
   <a href="compte.html" class="av on" style="--c:#6b4a3a;width:42px;height:42px;text-decoration:none" title="Mon compte" aria-label="Mon compte">V</a>
  </div>
@@ -31,14 +30,9 @@
    <div class="rooms" id="rooms"></div>
   </div>
   <div class="box priv">
-   <div class="bh"><svg viewBox="0 0 24 24" style="color:var(--pink)"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8 12h8" stroke="#fff"/></svg><span>PRIVÉ · <span id="pn">Emma</span></span><button class="x" aria-label="Fermer" id="px"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-   <div class="msgs" id="pm">
-    <div style="display:flex;gap:10px;align-items:flex-start"><div class="av" style="--c:#c0675a">E</div><div class="b">Salut ! Tu écoutes quoi ?</div></div>
-    <div class="t" style="margin-left:46px">20:15</div>
-    <div class="b me">Un peu de house ♫</div>
-    <div class="t me">20:16 ✓✓</div>
-   </div>
-   <form class="row" id="pf"><input id="pi" placeholder="Message à Emma…" autocomplete="off"><button class="send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M21 3L3 11l7 3 3 7z"/></svg></button></form>
+   <div class="bh"><svg viewBox="0 0 24 24" style="color:var(--pink)"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8 12h8" stroke="#fff"/></svg><span>PRIVÉ · <span id="pn">—</span></span><button class="x" aria-label="Fermer" id="px"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+   <div class="msgs" id="pm"></div>
+   <form class="row" id="pf"><input id="pi" placeholder="Choisissez un membre…" autocomplete="off" disabled><button class="send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M21 3L3 11l7 3 3 7z"/></svg></button></form>
   </div>
  </section>
 

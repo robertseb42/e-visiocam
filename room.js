@@ -50,6 +50,10 @@ async function chargerSalons() {
 }
 let socket = null, user = null, users = [], streams = [], peers = {}, onlyCam = false, target = '';
 const pub = [];   // messages affichés dans la discussion publique
+/* Messages privés : nonLus = id du membre -> nombre de messages non lus de sa part (affiché sur sa pastille) ;
+   actif = la conversation ouverte dans l'encart en bas à gauche. */
+const prive = { nonLus: {}, actif: null };
+let targetId = null;   // id du membre dont le menu est ouvert
 
 const ROLE_COLORS = { super_admin: '#ffd60a', moderator: '#2f7bff', model: '#ff2d78', user: '#8b93a3' };
 const ROLE_ICONS = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
@@ -63,7 +67,14 @@ if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
 user = (typeof getCurrentUser === 'function' ? getCurrentUser() : null);
 if (user && user.username) {
   const av = document.querySelector('header .av');
-  if (av) av.textContent = user.username[0].toUpperCase();
+  if (av) {
+    av.textContent = user.username[0].toUpperCase();
+    // Fille = rose, garçon = bleu, non précisé ou non genré = jaune
+    const g = (user.gender || '').toLowerCase();
+    const couleur = (g === 'femme' || g === 'female' || g === 'f') ? '#ec4899' : (g === 'homme' || g === 'male' || g === 'h') ? '#3b82f6' : '#eab308';
+    av.style.setProperty('--c', couleur);
+    av.style.color = couleur === '#eab308' ? '#111' : '#fff';
+  }
 }
 
 // La page ne doit JAMAIS rester masquée : certaines versions de room.html la
@@ -170,10 +181,15 @@ function drawList() {
   const list = users.filter(u => (u.username || '').toLowerCase().includes(q) && (!onlyCam || u.streamId));
   listEl.innerHTML = list.length
     ? list.map(u => {
-        const n = u.username || '?', c = colOf(u.role);
-        return `<div class="m"><div class="av on" style="--c:${c}">${esc(n[0].toUpperCase())}</div><span>${ROLE_ICONS[u.role] || ''} ${esc(n)}</span>` +
+        const n = u.username || '?', c = colOf(u.role), uid = u.id;
+        const nonLus = Number(prive.nonLus[uid]) || 0;
+        const actif = !!(prive.actif && String(prive.actif.userId) === String(uid));
+        // Indicateur sur le logo de la personne : nombre de messages privés non lus, ou bulle si la conversation est ouverte
+        const pastille = nonLus ? `<span class="pb" aria-label="${nonLus} message${nonLus > 1 ? 's' : ''} privé${nonLus > 1 ? 's' : ''} non lu${nonLus > 1 ? 's' : ''}">${nonLus > 99 ? '99+' : nonLus}</span>`
+          : actif ? '<span class="pb pb-chat" aria-label="Conversation privée ouverte">💬</span>' : '';
+        return `<div class="m"><div class="av on${actif ? ' priv-act' : ''}${nonLus ? ' priv-new' : ''}" data-uid="${esc(uid)}" data-n="${esc(n)}" data-c="${c}" style="--c:${c}" role="button" tabindex="0" title="Écrire en privé à ${esc(n)}">${esc(n[0].toUpperCase())}${pastille}</div><span>${ROLE_ICONS[u.role] || ''} ${esc(n)}</span>` +
           (u.streamId ? camIco : '<span class="cm"></span>') +
-          `<button class="dots" data-n="${esc(n)}" data-c="${c}" data-s="${esc(u.streamId || '')}" aria-label="Options ${esc(n)}">` +
+          `<button class="dots" data-id="${esc(uid)}" data-n="${esc(n)}" data-c="${c}" data-s="${esc(u.streamId || '')}" aria-label="Options ${esc(n)}">` +
           '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg></button></div>';
       }).join('')
     : '<div class="m" style="color:var(--mut);font-weight:500">Personne dans ce salon pour le moment</div>';
@@ -264,22 +280,119 @@ $('#f').onsubmit = e => {
   $('#i').value = '';
 };
 
-/* ---------- conversation privée (renvoi vers la page Messages) ---------- */
+/* ---------- conversation privée (encart en bas à gauche) ---------- */
+// Les messages du serveur ont une date « AAAA-MM-JJ HH:MM:SS » en heure universelle
+function heurePrivee(d) {
+  const t = typeof d === 'string' && !/[TZ]/.test(d) ? d.replace(' ', 'T') + 'Z' : d;
+  return hm(t);
+}
+const lignePrivee = m => ({ id: m.id, me: !!(user && m.sender_id === user.id), text: m.content, time: heurePrivee(m.created_at) });
+
+function dessinerPrive() {
+  const zone = $('#pm'), nom = $('#pn'), champ = $('#pi');
+  if (!zone) return;
+  const a = prive.actif;
+  if (nom) nom.textContent = a ? a.name : '—';
+  if (champ) { champ.disabled = !a; champ.placeholder = a ? 'Message à ' + a.name + '…' : 'Choisissez un membre…'; }
+  if (!a) {
+    zone.innerHTML = '<div style="color:var(--mut);font-size:13px;padding:4px 0">Cliquez sur la photo d\'un membre (à droite) pour lui écrire en privé.</div>';
+    return;
+  }
+  zone.innerHTML = a.messages.length
+    ? a.messages.map(m => m.me
+        ? `<div class="b me">${esc(m.text)}</div><div class="t me">${m.time}</div>`
+        : `<div style="display:flex;gap:10px;align-items:flex-start"><div class="av" style="--c:${a.color}">${esc((a.name[0] || '?').toUpperCase())}</div><div class="b">${esc(m.text)}</div></div><div class="t" style="margin-left:46px">${m.time}</div>`
+      ).join('')
+    : '<div style="color:var(--mut);font-size:13px;padding:4px 0">Aucun message pour le moment : écrivez le premier.</div>';
+  zone.scrollTop = 1e5;
+}
+
+// Nombre de messages non lus, membre par membre (pour les pastilles)
+let chargementNonLus = null;
+function chargerNonLusPrives() {
+  clearTimeout(chargementNonLus);
+  chargementNonLus = setTimeout(async () => {
+    try {
+      const d = await apiCall('/messages/conversations');
+      const n = {};
+      (d.conversations || []).forEach(c => { if (c.otherUser && c.unreadCount) n[c.otherUser.id] = c.unreadCount; });
+      if (prive.actif) delete n[prive.actif.userId];   // celle qui est ouverte est lue
+      prive.nonLus = n;
+      drawList();
+    } catch (e) {}
+  }, 250);
+}
+
+async function ouvrirPrive(userId, name, color) {
+  if (!user || String(userId) === String(user.id)) { toast('Choisissez un autre membre'); return; }
+  try {
+    const st = await apiCall('/messages/start', { method: 'POST', body: JSON.stringify({ userId: Number(userId) }) });
+    const convId = st.conversation.id;
+    const rep = await apiCall('/messages/' + convId);   // l'historique, et la conversation est marquée comme lue
+    prive.actif = { userId: Number(userId), name, color: color || '#8b93a3', convId, messages: (rep.messages || []).map(lignePrivee) };
+    delete prive.nonLus[userId];
+    dessinerPrive(); drawList();
+    const champ = $('#pi'); if (champ) champ.focus();
+    if (socket && socket.connected) socket.emit('dm:read', { conversationId: convId });
+  } catch (e) {
+    toast(e.message || 'Messagerie privée indisponible');
+  }
+}
+
+function fermerPrive() { prive.actif = null; dessinerPrive(); drawList(); }
+
+async function envoyerPrive(e) {
+  e.preventDefault();
+  const a = prive.actif, champ = $('#pi');
+  const texte = ((champ && champ.value) || '').trim();
+  if (!a) { toast('Choisissez d\'abord un membre à droite'); return; }
+  if (!texte) return;
+  champ.value = '';
+  try {
+    if (socket && socket.connected) {
+      socket.emit('dm:send', { conversationId: a.convId, content: texte });   // la réponse arrive par « dm:message »
+    } else {
+      const rep = await apiCall('/messages/' + a.convId, { method: 'POST', body: JSON.stringify({ content: texte }) });
+      if (prive.actif === a && rep.message && !a.messages.some(m => m.id === rep.message.id)) { a.messages.push(lignePrivee(rep.message)); dessinerPrive(); }
+    }
+  } catch (err) {
+    champ.value = texte;
+    toast(err.message || 'Message non envoyé');
+  }
+}
+
+// Un message privé arrive (ou part) : conversation ouverte -> on l'affiche ; sinon pastille sur le logo de la personne
+function traiterMessagePrive(data) {
+  if (!data || !data.message || !user) return;
+  const m = data.message, a = prive.actif, moi = m.sender_id === user.id;
+  if (a && a.convId === data.conversationId) {
+    if (!a.messages.some(x => x.id === m.id)) a.messages.push(lignePrivee(m));
+    dessinerPrive();
+    if (!moi && socket && socket.connected) socket.emit('dm:read', { conversationId: data.conversationId });
+  } else if (!moi) {
+    prive.nonLus[m.sender_id] = (Number(prive.nonLus[m.sender_id]) || 0) + 1;
+    drawList();
+    toast('💬 Message privé de ' + (m.sender_username || 'un membre'));
+  }
+}
+
 /* Tout ce qui suit branche les éléments de la page. Si une ancienne version de
    room.html n'a pas un de ces éléments, on l'ignore au lieu de bloquer l'affichage. */
 try {
-$('#pm').innerHTML = '<div style="color:var(--mut);font-size:13px;padding:4px 0">Les messages privés s\'ouvrent depuis la page <b>Messages</b>.</div>';
-$('#pi').placeholder = 'Ouvrir la page Messages…';
-$('#pf').onsubmit = e => { e.preventDefault(); location.href = 'messages.html'; };
-$('#px').onclick = () => { $('#pn').textContent = '—'; toast('Panneau fermé'); };
+dessinerPrive();
+$('#pf').onsubmit = envoyerPrive;
+$('#px').onclick = fermerPrive;
 
 /* ---------- menu d'un membre ---------- */
 const menu = $('#menu');
 $('#list').onclick = e => {
+  const pastille = e.target.closest('.av[data-uid]');
+  if (pastille) { ouvrirPrive(pastille.dataset.uid, pastille.dataset.n, pastille.dataset.c); return; }
   const d = e.target.closest('.dots');
   if (!d) return;
   const r = d.getBoundingClientRect(), p = menu.parentElement.getBoundingClientRect();
   target = d.dataset.n;
+  targetId = d.dataset.id;
   menu.dataset.stream = d.dataset.s || '';
   $('#mn').textContent = target;
   $('#mav').textContent = (target[0] || '?').toUpperCase();
@@ -294,7 +407,7 @@ menu.onclick = e => {
   if (!b) return;
   menu.hidden = true;
   const a = b.dataset.a;
-  if (a === 'pm') { $('#pn').textContent = target; $('#pi').placeholder = 'Écrire à ' + target + ' (page Messages)…'; $('#pi').focus(); return; }
+  if (a === 'pm') { ouvrirPrive(targetId, target, $('#mav').style.background || '#8b93a3'); return; }
   if (a === 'Caméra affichée') {
     const tile = menu.dataset.stream ? document.getElementById('tile-' + menu.dataset.stream) : null;
     if (tile) { tile.scrollIntoView({ block: 'center' }); tile.style.outline = '2px solid var(--yel)'; setTimeout(() => tile.style.outline = '', 1600); }
@@ -306,14 +419,7 @@ menu.onclick = e => {
   toast(a + ' · ' + target);
 };
 
-/* ---------- thème clair / sombre ---------- */
-function setTheme(t) {
-  document.documentElement.dataset.theme = t;
-  try { localStorage.setItem('evc-theme', t); } catch (e) {}
-  $('#tt').textContent = t === 'light' ? '🌙' : '☀️';
-}
-setTheme(document.documentElement.dataset.theme || 'dark');
-$('#tt').onclick = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+/* Thème clair / sombre : réglé sur l'accueil, appliqué à toute la page par theme.js */
 
 /* ---------- barre du bas ---------- */
 $('#bc').onclick = () => { location.href = 'live.html'; };
@@ -416,13 +522,14 @@ function initSocket() {
   socket.on('connect', () => {
     socket.emit('salon:join', salon);
     socket.emit('salon:request-streams');
+    chargerNonLusPrives();
   });
 
   socket.on('connect_error', err => { toast('Serveur : ' + err.message); });
 
   // 🔔 Messages privés : le serveur envoie le nombre de non lus à chaque connexion du membre
-  socket.on('dm:unread-count', data => majCloche(data && data.count));
-  socket.on('dm:message', () => setTimeout(rafraichirCloche, 500));
+  socket.on('dm:unread-count', data => { majCloche(data && data.count); chargerNonLusPrives(); });
+  socket.on('dm:message', data => { traiterMessagePrive(data); setTimeout(rafraichirCloche, 500); });
 
   socket.on('salon:joined', data => {
     if (data && data.salon) { salon = data.salon; drawRooms(); }

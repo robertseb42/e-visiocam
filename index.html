@@ -2,6 +2,7 @@
 <html lang="fr" class="h-full cam-theme">
 <head>
     <meta charset="UTF-8">
+    <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-VISIOCAM - Chat Cam En Direct</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,7 +29,7 @@
 
 
 
-    <link rel="stylesheet" href="style.css?v=20261001-decor">
+    <link rel="stylesheet" href="style.css?v=20261002-theme">
 
     <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
@@ -79,6 +80,9 @@
                 <input aria-label="Rechercher un modèle" type="text" placeholder="Rechercher un modèle..."
                     class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
             </div>
+
+            <!-- Thème clair / sombre : un seul réglage pour toutes les pages du site -->
+            <button data-theme-toggle type="button" aria-label="Passer en thème clair" title="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none">☀️</button>
 
             <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
                 <i class="fa-regular fa-bell text-lg"></i>

@@ -2,6 +2,7 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
+    <script src="theme.js"></script>
     <title>Salons — E-VISIOCAM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="app.js"></script>
@@ -9,9 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js"></script>
     <script src="legal-banner.js"></script>
+    <script src="nav-auth.js" defer></script>
     <script src="salon-access.js"></script>
 
-    <link rel="stylesheet" href="style.css?v=20261001-3">
+    <link rel="stylesheet" href="style.css?v=20261002-theme">
     <script src="maintenance.js" defer></script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -33,9 +35,13 @@
             <a href="messages.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary">Messages</a>
             <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary">Crédits</a>
         </nav>
-        <a href="compte.html" class="ml-auto flex items-center gap-2 pl-2 pr-4 py-1.5 bg-slate-100 rounded-full text-sm font-semibold">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-xs font-bold">3</div>
-        </a>
+        <div class="ml-auto flex items-center gap-3">
+            <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
     </div>
 </header>
 
@@ -43,15 +49,12 @@
     <div class="mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
             <h1 class="text-3xl font-extrabold text-slate-900">💬 Salons</h1>
-            <p class="text-sm text-slate-500 mt-1">Rejoignez un salon public ou créez le vôtre</p>
+            <p class="text-sm text-slate-500 mt-1">Rejoignez un salon public ou demandez l'accès à un salon privé</p>
         </div>
         <div class="flex items-center gap-3">
             <a id="manageLink" href="moderation-salons.html" class="hidden px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold rounded-xl shadow-md">
                 <i class="fa-solid fa-lock mr-1"></i> Demandes d'accès
             </a>
-            <button onclick="openModal('createSalonModal')" class="px-5 py-2.5 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-xl shadow-md shadow-pink-500/20">
-                <i class="fa-solid fa-plus mr-1"></i> Créer un salon
-            </button>
         </div>
     </div>
 
@@ -61,22 +64,6 @@
     <h2 class="text-lg font-bold text-slate-800 mb-3">🔒 Salons privés <span class="text-xs font-normal text-slate-500">(accès sur invitation)</span></h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="privateSalons"></div>
 </main>
-
-<div id="createSalonModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
-        <button onclick="closeModal('createSalonModal')" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-        <h3 class="text-xl font-extrabold text-slate-900 mb-1">Créer un salon</h3>
-        <p class="text-xs text-slate-500 mb-4">Donnez un nom à votre salon</p>
-        <form id="createSalonForm" class="space-y-3">
-            <input type="text" id="newSalonName" required placeholder="Nom du salon" maxlength="40" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-            <select id="newSalonType" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-                <option>Public</option>
-                <option>Privé</option>
-            </select>
-            <button type="submit" class="w-full py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm">Créer</button>
-        </form>
-    </div>
-</div>
 
 <footer class="bg-white border-t border-slate-200 py-6">
     <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
@@ -164,29 +151,6 @@ async function askAccess(slug) {
     catch (e) { say("Impossible d'envoyer la demande"); }
     refreshAccess();
 }
-
-// ---- Création réelle d'un salon (POST /api/salons) ----
-const formSalon = document.getElementById('createSalonForm');
-if (formSalon) formSalon.onsubmit = async e => {
-    e.preventDefault();
-    const name = document.getElementById('newSalonName').value.trim();
-    const type = document.getElementById('newSalonType').value;
-    if (name.length < 3) { say('Nom trop court (3 caractères minimum)'); return; }
-    if (type === 'Privé') { say('Les salons privés sont créés par l\'administration'); return; }
-    if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
-        say('Connectez-vous pour créer un salon');
-        setTimeout(() => { location.href = 'login.html?redirect=salons.html'; }, 1200);
-        return;
-    }
-    try {
-        const data = await apiCall('/salons', { method: 'POST', body: JSON.stringify({ name }) });
-        closeModal('createSalonModal');
-        say('Salon créé : ' + data.salon.name);
-        setTimeout(() => { location.href = 'room.html?theme=' + encodeURIComponent(data.salon.slug); }, 700);
-    } catch (err) {
-        say(err.message || 'Création du salon impossible');
-    }
-};
 
 loadSalons();
 if (new URLSearchParams(location.search).get('acces')) say('Salon privé : demandez l\'accès, un modérateur doit l\'accepter.');
