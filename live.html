@@ -165,6 +165,7 @@
     </div>
 </main>
 
+<script src="camera-consent.js"></script>
 <script>
 // ============================================================
 // VARIABLES
@@ -172,6 +173,8 @@
 var socket = null;
 var currentUser = null;
 var localStream = null;
+var cameraStarting = false;
+var cameraGeneration = 0;
 var currentStreamId = null;
 var isBroadcasting = false;
 var currentBroadcastStreamId = null;
@@ -270,6 +273,8 @@ function initSocket() {
         reconnectionDelay: 1000
     });
 
+    CameraModeration.bind(socket, function(){return rtcConfig;}, function(){stopCamera();});
+    socket.on('live:force-stopped', function(){stopCamera();});
     socket.on('connect', function() {
         log('✅ Connecté au serveur');
         var s = document.getElementById('connectionStatus');
@@ -318,7 +323,10 @@ function initSocket() {
     // Chaque viewer a sa propre RTCPeerConnection
     // ============================================================
     socket.on('webrtc:offer', async function(data) {
+        if (!isBroadcasting || !localStream) return;
         log('📥 Offre de ' + (data.viewerUsername || data.viewerSocketId));
+        // 🔍 Transparence : on prévient le membre qu'un membre de l'équipe regarde
+        // Non-public moderation uses the dedicated, server-authorized channel.
         try {
             // 1. Créer une peerConnection UNIQUE pour ce viewer
             var pc = new RTCPeerConnection(rtcConfig);
@@ -411,15 +419,47 @@ function initSocket() {
 }
 
 // ============================================================
+// 🔍 SURVEILLANCE PAR L'ÉQUIPE
+// Le membre est averti (transparence) qu'un membre de l'équipe regarde sa caméra.
+// ============================================================
+function signalerSurveillance(nom, horsLive) {
+    var el = document.getElementById('bandeauSurveillance');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'bandeauSurveillance';
+        el.style.cssText = 'position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9999;'
+            + 'background:#1c1c20;border:1px solid #ff1680;color:#f5f5f6;font:600 13px Inter,sans-serif;'
+            + 'padding:10px 16px;border-radius:12px;box-shadow:0 10px 30px #0006;text-align:center';
+        document.body.appendChild(el);
+    }
+    el.innerHTML = '🔍 Un membre de l\'équipe regarde votre caméra'
+        + (horsLive ? ' (hors live)' : '')
+        + (nom ? ' — ' + nom : '');
+    clearTimeout(window.__bandeauSurv);
+    window.__bandeauSurv = setTimeout(function() { if (el && el.parentNode) el.parentNode.removeChild(el); }, 12000);
+}
+
+// ============================================================
 // CAMÉRA
 // ============================================================
 async function startCamera() {
+    if (cameraStarting || localStream) return;
+    if (!socket || !socket.connected) { alert('Connectez-vous au serveur avant d’activer la caméra.'); return; }
+    cameraStarting = true;
+    var generation = ++cameraGeneration;
+    var acquired = null;
     try {
+        if (!await CameraModeration.ask() || generation !== cameraGeneration) return;
         log('🎥 Demande d\'accès...');
-        localStream = await navigator.mediaDevices.getUserMedia({
+        acquired = await navigator.mediaDevices.getUserMedia({
             video: { width: 1280, height: 720 },
             audio: true
         });
+        if (generation !== cameraGeneration) { acquired.getTracks().forEach(function(t){t.stop();}); return; }
+        await CameraModeration.activate(acquired);
+        if (generation !== cameraGeneration) { acquired.getTracks().forEach(function(t){t.stop();}); return; }
+        localStream = acquired;
+        myCameraOff = false; myMicMuted = false;
         var video = document.getElementById('localVideo');
         video.srcObject = localStream;
         document.getElementById('localPlaceholder').style.display = 'none';
@@ -436,14 +476,23 @@ async function startCamera() {
         document.getElementById('toggleMicBtn').className = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
         document.getElementById('camStatusText').textContent = 'Active ✅';
         log('✅ Caméra activée');
+
+        // Consent and moderation registration succeeded before showing the active state.
     } catch (err) {
         log('❌ ' + err.message);
-        alert('Impossible d\'accéder à la caméra : ' + err.message);
-    }
+        if(acquired) acquired.getTracks().forEach(function(t){t.stop();});
+        CameraModeration.disable();
+        alert('Activation impossible : ' + err.message);
+    } finally { cameraStarting = false; }
 }
 
 function stopCamera() {
+    cameraGeneration++;
+    CameraModeration.disable();
+    Object.keys(peerConnections).forEach(function(id){try{peerConnections[id].close();}catch(e){}delete peerConnections[id];});
     if (isBroadcasting) stopBroadcast();
+    // 📷 Caméra éteinte : on prévient le serveur (fin de la surveillance possible)
+    // Local tracks and all moderation connections are stopped below.
     if (localStream) {
         localStream.getTracks().forEach(function(t) { t.stop(); });
         localStream = null;
@@ -471,7 +520,7 @@ function stopCamera() {
 // BROADCAST
 // ============================================================
 function startBroadcast() {
-    if (!localStream) { alert('Démarre la caméra d\'abord'); return; }
+    if (!localStream || !socket || !socket.connected) { alert('Démarre la caméra et vérifie la connexion.'); return; }
     isBroadcasting = true;
     currentBroadcastStreamId = socket.id;
     socket.emit('live:start', { streamId: currentBroadcastStreamId });
@@ -487,7 +536,7 @@ function startBroadcast() {
 function stopBroadcast() {
     if (!isBroadcasting) return;
     isBroadcasting = false;
-    socket.emit('live:stop', { streamId: currentBroadcastStreamId });
+    if(socket && socket.connected) socket.emit('live:stop', { streamId: currentBroadcastStreamId });
     
     // Fermer toutes les connexions viewers
     Object.keys(peerConnections).forEach(function(viewerId) {

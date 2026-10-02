@@ -99,6 +99,7 @@ function initSocket() {
         reconnection: true
     });
 
+    SuperCameraPanel.bind(socket, function(){return rtcConfig;});
     socket.on('connect', function() {
         console.log('Socket modérateur connecté :', socket.id);
     });
@@ -141,6 +142,11 @@ function initSocket() {
     });
 
     socket.on('live:started', function() {
+        loadAllStreams();
+    });
+
+    // 📷 Une caméra vient de s'allumer ou de s'éteindre (même hors live)
+    socket.on('mod:cameras-changees', function() {
         loadAllStreams();
     });
 }
