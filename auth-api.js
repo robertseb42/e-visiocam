@@ -55,6 +55,9 @@ async function apiCall(endpoint, options) {
     };
     const response = await fetch(API_URL + endpoint, Object.assign({}, options, { headers: headers }));
     const data = await response.json();
+    if (response.status === 503 && data && data.maintenance && window.EvcMaintenance) {
+        window.EvcMaintenance.show(data);
+    }
     if (response.status === 401) {
         clearToken(); clearUser();
         throw new Error(data.error || 'Session expirée');

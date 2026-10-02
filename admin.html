@@ -24,6 +24,7 @@
     </script>
 
     <link rel="stylesheet" href="style.css?v=20261001-decor">
+    <script src="maintenance.js" defer></script>
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
 
@@ -86,6 +87,27 @@
         <div class="flex items-center gap-2 text-xs bg-purple-50 text-purple-700 px-3 py-2 rounded-xl border border-purple-200">
             <i class="fa-solid fa-shield-halved"></i>
             <span id="userBadge">Chargement...</span>
+        </div>
+    </div>
+
+    <div id="maintenanceCard" class="mb-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div class="flex items-center gap-3 lg:w-80 shrink-0">
+                <div id="maintIcon" class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                <div>
+                    <p class="font-bold text-slate-900">Mode maintenance
+                        <span id="maintPill" class="ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">…</span>
+                    </p>
+                    <p class="text-xs text-slate-500" id="maintHint">Chargement...</p>
+                </div>
+            </div>
+            <input type="text" id="maintMessage" maxlength="300"
+                placeholder="Message affiché aux visiteurs (ex : Le site revient très vite)"
+                class="flex-1 px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <button id="maintBtn" onclick="toggleMaintenance()" disabled
+                class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-400 whitespace-nowrap">
+                Chargement...
+            </button>
         </div>
     </div>
 
@@ -324,6 +346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (currentUser) {
         document.getElementById('userBadge').innerText = '👑 ' + currentUser.username;
     }
+    loadMaintenance();
     await loadUsers();
     await loadLogs();
     await loadRadios();
@@ -334,6 +357,62 @@ function escapeHtml(text) {
     var div = document.createElement('div');
     div.textContent = String(text);
     return div.innerHTML;
+}
+
+// ---------- MODE MAINTENANCE ----------
+let maintenanceOn = false;
+
+function renderMaintenance(state) {
+    maintenanceOn = !!state.enabled;
+    const pill = document.getElementById('maintPill');
+    const btn = document.getElementById('maintBtn');
+    const icon = document.getElementById('maintIcon');
+    const hint = document.getElementById('maintHint');
+    const input = document.getElementById('maintMessage');
+    if (!pill) return;
+    if (maintenanceOn) {
+        pill.textContent = 'ACTIF';
+        pill.className = 'ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700';
+        icon.className = 'w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center';
+        hint.textContent = 'Les visiteurs voient la page d\'attente. Vous seul avez accès au site.';
+        btn.textContent = 'Réouvrir le site';
+        btn.className = 'px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap';
+    } else {
+        pill.textContent = 'Site ouvert';
+        pill.className = 'ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+        icon.className = 'w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center';
+        hint.textContent = 'Le site est accessible à tous les membres.';
+        btn.textContent = 'Mettre en maintenance';
+        btn.className = 'px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 whitespace-nowrap';
+    }
+    btn.disabled = false;
+    if (state.message && document.activeElement !== input) input.value = state.message;
+}
+
+async function loadMaintenance() {
+    try {
+        renderMaintenance(await apiCall('/maintenance'));
+    } catch (err) {
+        const hint = document.getElementById('maintHint');
+        if (hint) hint.textContent = 'Impossible de lire l\'état : ' + err.message;
+    }
+}
+
+async function toggleMaintenance() {
+    const enabling = !maintenanceOn;
+    if (enabling && !confirm('Mettre le site en maintenance ?\n\nTous les membres seront déconnectés et leurs lives arrêtés. Seul votre compte gardera l\'accès.')) return;
+    const btn = document.getElementById('maintBtn');
+    btn.disabled = true;
+    try {
+        const body = { enabled: enabling };
+        const msg = document.getElementById('maintMessage').value.trim();
+        if (msg) body.message = msg;
+        renderMaintenance(await apiCall('/admin/maintenance', { method: 'PUT', body: JSON.stringify(body) }));
+        if (window.EvcMaintenance) window.EvcMaintenance.refresh();
+    } catch (err) {
+        alert('Échec : ' + err.message);
+        btn.disabled = false;
+    }
 }
 
 // ---------- CHARGER LES UTILISATEURS ----------
