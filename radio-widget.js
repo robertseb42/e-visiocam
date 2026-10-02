@@ -158,7 +158,7 @@ function retenterLecture() {
 async function loadRadios() {
     initAudio();
     try {
-        var res = await fetch('https://e-visiocam-api.onrender.com/api/radios');
+        var res = await fetch('https://api.e-visiocam.com/api/radios');
         var data = await res.json();
         allRadios = data.radios || [];
         console.log('📻 Radios chargées :', allRadios.length);

@@ -242,7 +242,7 @@
 
         if (typeof io !== 'undefined') {
             if (!unreadSocket) {
-                unreadSocket = io('https://e-visiocam-api.onrender.com', {
+                unreadSocket = io('https://api.e-visiocam.com', {
                     auth: { token: getToken() },
                     transports: ['websocket', 'polling']
                 });

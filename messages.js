@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // SOCKET
 // ============================================================
 function initSocket() {
-    socket = io('https://e-visiocam-api.onrender.com', {
+    socket = io('https://api.e-visiocam.com', {
         auth: { token: getToken() },
         transports: ['websocket', 'polling']
     });

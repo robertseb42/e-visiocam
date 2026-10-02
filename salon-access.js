@@ -10,7 +10,7 @@
      (voir les notes en bas du fichier). */
 const SalonAccess = (() => {
   const DEMO = false;         // false = utilise le vrai back · true = simulation dans le navigateur (test)
-  const API  = 'https://e-visiocam-api.onrender.com/api';   // adresse de votre back sur Render
+  const API  = 'https://api.e-visiocam.com/api';   // adresse de votre back sur Render
   const K = { req: 'evc-access', mgr: 'evc-managers', user: 'evc-user' };
   const SUPER = 'Super admin';
   // Comptes de test du mode démo (le premier est un simple membre)

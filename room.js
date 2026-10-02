@@ -327,7 +327,7 @@ $('#bq').onclick = () => { location.href = 'salons.html'; };
 /* ---------- enregistrement de l'entrée (compteur de membres réel) ---------- */
 function recordJoin(slug) {
   try {
-    const base = (typeof API_URL !== 'undefined' ? API_URL : 'https://e-visiocam-api.onrender.com/api');
+    const base = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.e-visiocam.com/api');
     const tk = (typeof getToken === 'function' ? getToken() : null);
     if (!tk) return;
     fetch(base + '/salons/' + encodeURIComponent(slug) + '/join', {
@@ -359,7 +359,7 @@ function initSocket() {
     toast('Connexion au salon indisponible');
     return;
   }
-  socket = io('https://e-visiocam-api.onrender.com', { auth: { token: typeof getToken === 'function' ? getToken() : null } });
+  socket = io('https://api.e-visiocam.com', { auth: { token: typeof getToken === 'function' ? getToken() : null } });
 
   socket.on('connect', () => {
     socket.emit('salon:join', salon);
