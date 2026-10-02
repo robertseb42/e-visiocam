@@ -318,11 +318,63 @@ $('#tt').onclick = () => setTheme(document.documentElement.dataset.theme === 'li
 /* ---------- barre du bas ---------- */
 $('#bc').onclick = () => { location.href = 'live.html'; };
 $('#bm').onclick = () => toast('Le micro se règle pendant la diffusion (En direct)');
-$('#bs').onclick = () => toast('Réglages : bientôt disponibles');
 $('#bq').onclick = () => { location.href = 'salons.html'; };
 } catch (errInteraction) {
   console.error('Salon : un élément de la page est absent —', errInteraction);
 }
+
+/* ---------- 🔔 cloche : nombre de messages non lus ----------
+   La cloche est le seul indicateur : le nombre s'affiche dessus, elle se balance tant qu'il
+   en reste, sonne et joue un carillon à l'arrivée d'un message. Un clic ouvre la messagerie. */
+let majCloche = () => {};
+let rafraichirCloche = () => {};
+(function cloche() {
+  const btn = document.querySelector('header .bell');
+  if (!btn) return;
+  let badge = btn.querySelector('.n');
+  if (!badge) { badge = document.createElement('span'); badge.className = 'n'; btn.appendChild(badge); }
+  let dernier = null, ctxSon = null;
+
+  function carillon() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctxSon = ctxSon || new AC();
+      if (ctxSon.state === 'suspended') ctxSon.resume();
+      const t0 = ctxSon.currentTime;
+      [[988, 0], [1319, 0.13]].forEach(p => {
+        const o = ctxSon.createOscillator(), g = ctxSon.createGain(), t = t0 + p[1];
+        o.type = 'sine'; o.frequency.value = p[0];
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.28, t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+        o.connect(g); g.connect(ctxSon.destination); o.start(t); o.stop(t + 1.2);
+      });
+    } catch (e) {}
+  }
+
+  majCloche = function(count) {
+    count = Number(count) || 0;
+    badge.textContent = count > 99 ? '99+' : String(count);
+    badge.style.display = count > 0 ? 'block' : 'none';
+    btn.classList.toggle('has', count > 0);
+    btn.title = count > 0 ? count + ' message' + (count > 1 ? 's' : '') + ' non lu' + (count > 1 ? 's' : '') : 'Aucun nouveau message';
+    if (dernier !== null && count > dernier) {
+      btn.classList.remove('sonne'); void btn.offsetWidth; btn.classList.add('sonne');
+      setTimeout(() => btn.classList.remove('sonne'), 1000);
+      carillon();
+    }
+    dernier = count;
+  };
+
+  rafraichirCloche = async function() {
+    try { const d = await apiCall('/messages/unread-count'); majCloche(d && d.count); } catch (e) {}
+  };
+
+  btn.onclick = () => { location.href = 'messages.html'; };
+  rafraichirCloche();
+  setInterval(rafraichirCloche, 30000);
+})();
 
 /* ---------- enregistrement de l'entrée (compteur de membres réel) ---------- */
 function recordJoin(slug) {
@@ -367,6 +419,10 @@ function initSocket() {
   });
 
   socket.on('connect_error', err => { toast('Serveur : ' + err.message); });
+
+  // 🔔 Messages privés : le serveur envoie le nombre de non lus à chaque connexion du membre
+  socket.on('dm:unread-count', data => majCloche(data && data.count));
+  socket.on('dm:message', () => setTimeout(rafraichirCloche, 500));
 
   socket.on('salon:joined', data => {
     if (data && data.salon) { salon = data.salon; drawRooms(); }

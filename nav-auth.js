@@ -1,5 +1,5 @@
 // ============================================================
-// NAV-AUTH.JS - Menu utilisateur + Badge messages non lus
+// NAV-AUTH.JS - Menu utilisateur + cloche des messages non lus
 // ============================================================
 
 (function() {
@@ -90,7 +90,6 @@
                 <button onclick="toggleUserMenu(event)" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <div class="relative">
                         <div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${avatarDisplay}</div>
-                        <span id="navUnreadBadge" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white"></span>
                     </div>
                     <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${user.username}</span>
                     <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
@@ -112,7 +111,6 @@
                             <div class="flex items-center gap-3">
                                 <i class="fa-solid fa-comments w-4 text-slate-400"></i> Mes messages
                             </div>
-                            <span id="menuUnreadBadge" class="hidden bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"></span>
                         </a>
                         <a href="credits.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-coins w-4 text-amber-500"></i> Mes crédits
@@ -271,41 +269,9 @@
         } catch (err) {}
     }
 
+    // 🔔 La cloche est le SEUL indicateur de messages non lus : le nombre s'affiche dessus,
+    //    elle se balance tant qu'il en reste, sonne et joue un carillon à l'arrivée d'un message.
     function updateNavBadge(count) {
-        const badge = document.getElementById('navUnreadBadge');
-        const menuBadge = document.getElementById('menuUnreadBadge');
-
-        if (badge) {
-            if (count > 0) {
-                badge.textContent = count > 99 ? '99+' : count;
-                badge.classList.remove('hidden');
-                badge.style.animation = 'none';
-                setTimeout(() => { badge.style.animation = 'badgePop 0.4s ease-in-out'; }, 10);
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        if (menuBadge) {
-            if (count > 0) {
-                menuBadge.textContent = count;
-                menuBadge.classList.remove('hidden');
-            } else {
-                menuBadge.classList.add('hidden');
-            }
-        }
-
-        const sidebarBadge = document.querySelector('[data-unread-badge]');
-        if (sidebarBadge) {
-            if (count > 0) {
-                sidebarBadge.textContent = count;
-                sidebarBadge.style.display = 'inline-block';
-            } else {
-                sidebarBadge.style.display = 'none';
-            }
-        }
-
-        // 🔔 Cloche : point rose, balancier, et carillon à l'arrivée d'un message
         const nouveauMessage = dernierCompteVu !== null && count > dernierCompteVu;
         mettreAJourCloche(count);
         if (nouveauMessage) animerCloche(true);

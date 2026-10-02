@@ -15,7 +15,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:10p
 .title{font-weight:700;font-size:20px;display:flex;gap:18px;align-items:center}
 .title small{font-weight:400;color:var(--mut);font-size:15px;display:flex;gap:6px;align-items:center}
 .hr{display:flex;align-items:center;gap:20px}
-.bell{position:relative}.bell:after{content:"";position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:var(--pink)}
+.bell{position:relative}.bell .n{position:absolute;top:-6px;right:-8px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--pink);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center;display:none}.bell svg{transform-origin:50% 0}.bell.has svg{animation:clocheBalancier 2.6s ease-in-out infinite}.bell.sonne svg{animation:clocheSonne .9s ease-in-out}@keyframes clocheBalancier{0%,60%,100%{transform:rotate(0)}70%{transform:rotate(12deg)}80%{transform:rotate(-10deg)}90%{transform:rotate(6deg)}}@keyframes clocheSonne{0%{transform:rotate(0) scale(1)}20%{transform:rotate(20deg) scale(1.12)}40%{transform:rotate(-18deg) scale(1.12)}60%{transform:rotate(12deg) scale(1.08)}80%{transform:rotate(-8deg)}100%{transform:rotate(0) scale(1)}}
 .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;position:relative;flex:none;background:var(--c,#2f7bff)}
 .av.on:after,.av.off:after{content:"";position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:var(--grn);border:2px solid var(--panel)}
 .av.off:after{background:#777}
