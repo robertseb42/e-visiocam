@@ -11,8 +11,9 @@ const ppl = '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="
 const camIco = '<svg class="cm" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg>';
 const silhouette = '<svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg>';
 
-/* Les huit salons du site (mêmes identifiants que salons.html) */
-const SALONS = [
+/* Liste des salons : repli local, remplacé par la liste réelle du serveur
+   (noms, icônes et caractère VIP réglés dans le panneau super admin). */
+let SALONS = [
   ['general', 'Salon Général', '🌍'],
   ['francais', 'Salon Français', '🇫🇷'],
   ['international', 'Salon International', '🌐'],
@@ -22,14 +23,31 @@ const SALONS = [
   ['vip', 'VIP Lounge', '👑'],
   ['premium', 'Salon Premium', '💎']
 ];
-const PRIVATES = ['vip', 'premium'];
-const SLUGS = SALONS.map(s => s[0]);
-const NAMES = {};
+let PRIVATES = ['vip', 'premium'];
+let SLUGS = SALONS.map(s => s[0]);
+let NAMES = {};
 SALONS.forEach(s => NAMES[s[0]] = s[1]);
 
 let cur = Math.max(0, SLUGS.indexOf(new URLSearchParams(location.search).get('theme')));
 let salon = NAMES[SLUGS[cur]];
+
+/* Récupère la liste réelle : un salon passé VIP dans le panneau est reconnu ici */
+async function chargerSalons() {
+  if (typeof SalonAccess === 'undefined' || !SalonAccess.salons) return;
+  const demande = SLUGS[cur];
+  const liste = await SalonAccess.salons().catch(() => null);
+  if (!liste || !liste.length) return;
+  SALONS = liste.map(s => [s.slug, s.name, s.icon || '💬']);
+  PRIVATES = liste.filter(s => s.isPrivate).map(s => s.slug);
+  SLUGS = SALONS.map(s => s[0]);
+  NAMES = {};
+  SALONS.forEach(s => NAMES[s[0]] = s[1]);
+  const i = SLUGS.indexOf(demande);
+  cur = i >= 0 ? i : 0;
+  salon = NAMES[SLUGS[cur]];
+}
 let socket = null, user = null, users = [], streams = [], peers = {}, onlyCam = false, target = '';
+const pub = [];   // messages affichés dans la discussion publique
 
 const ROLE_COLORS = { super_admin: '#ffd60a', moderator: '#2f7bff', model: '#ff2d78', user: '#8b93a3' };
 const ROLE_ICONS = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
@@ -46,22 +64,84 @@ if (user && user.username) {
   if (av) av.textContent = user.username[0].toUpperCase();
 }
 
-/* ---------- salon privé : accès accordé par un responsable ---------- */
-if (PRIVATES.includes(SLUGS[cur]) && typeof SalonAccess !== 'undefined') {
-  SalonAccess.status(SLUGS[cur]).then(st => {
-    if (st !== 'approved') location.replace('salons.html?acces=' + encodeURIComponent(st));
-  });
+// La page ne doit JAMAIS rester masquée : certaines versions de room.html la
+// cachaient pour les salons privés. On la réaffiche tout de suite, puis par sécurité.
+function afficherLaPage() { try { document.documentElement.style.visibility = ''; } catch (e) {} }
+afficherLaPage();
+setTimeout(afficherLaPage, 1200);
+
+/* ============================================================
+   🔒 SALON PRIVÉ : cadenas + demande d'accès
+   La demande part vers le panneau du super administrateur ET vers
+   les modérateurs, qui peuvent l'accepter ou la refuser.
+   ============================================================ */
+function panneauPrive(slug, statut) {
+  let box = document.getElementById('cadenasSalon');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'cadenasSalon';
+    box.style.cssText = 'position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;'
+      + 'background:rgba(5,6,10,.72);padding:20px';
+    document.body.appendChild(box);
+  }
+  const nom = NAMES[slug] || slug;
+  const explications = {
+    none: "Ce salon est privé. Demandez l'accès : un modérateur ou l'administrateur validera votre demande.",
+    pending: "Votre demande d'accès est en attente de validation.",
+    refused: "Votre demande d'accès a été refusée.",
+    approved: 'Accès accordé, vous pouvez entrer.'
+  };
+  box.innerHTML = `
+    <div style="max-width:420px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5)">
+      <div style="font-size:36px;line-height:1">🔒</div>
+      <h2 style="margin:12px 0 6px;font-size:20px">${esc(nom)}</h2>
+      <p style="color:var(--mut);font-size:14px;margin:0 0 18px">${explications[statut] || explications.none}</p>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        ${statut === 'none' ? '<button id="btnDemandeAcces" style="background:var(--yel);color:#111;border-radius:10px;padding:11px 18px;font-weight:700"><i class="fa-solid fa-key mr-1"></i>Demander l\'accès</button>' : ''}
+        ${statut === 'approved' ? '<button id="btnEntrerSalon" style="background:var(--yel);color:#111;border-radius:10px;padding:11px 18px;font-weight:700">Entrer dans le salon</button>' : ''}
+        <button id="btnFermerCadenas" style="background:var(--card);border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:11px 18px;font-weight:600">Fermer</button>
+      </div>
+      <p style="color:var(--mut);font-size:12px;margin:14px 0 0">Les demandes arrivent dans <b>Admin → Demandes d'accès salons</b> (super administrateur et modérateurs).</p>
+    </div>`;
+
+  const demande = document.getElementById('btnDemandeAcces');
+  if (demande) demande.onclick = async function() {
+    demande.disabled = true;
+    try {
+      await SalonAccess.request(slug);
+      panneauPrive(slug, 'pending');
+      toast('Demande d\'accès envoyée');
+    } catch (e) {
+      demande.disabled = false;
+      toast('Impossible d\'envoyer la demande');
+    }
+  };
+  const entrer = document.getElementById('btnEntrerSalon');
+  if (entrer) entrer.onclick = function() { box.remove(); ouvrirSalon(slug); };
+  document.getElementById('btnFermerCadenas').onclick = function() { box.remove(); };
 }
+
+function ouvrirSalon(slug) {
+  const i = SLUGS.indexOf(slug);
+  if (i < 0) return;
+  cur = i;
+  salon = NAMES[slug];
+  joinSalon();
+}
+
+/* ---------- salon privé demandé à l'ouverture : traité au démarrage ---------- */
 
 /* ---------- liste des salons ---------- */
 function drawRooms() {
-  $('#rooms').innerHTML = SALONS.map((s, i) =>
+  const boite = $('#rooms');
+  if (!boite) return;
+  boite.innerHTML = SALONS.map((s, i) =>
     `<button class="room ${i === cur ? 'act' : ''}" data-i="${i}"><b class="ic">${s[2]}</b>${s[1]}${PRIVATES.includes(s[0]) ? ' 🔒' : ''}</button>`
   ).join('');
-  $('#rt').textContent = salon;
+  const rt = $('#rt'); if (rt) rt.textContent = salon;
   document.title = 'E-Visiocam – ' + salon;
-  $('#rc').textContent = users.length + (users.length > 1 ? ' connectés' : ' connecté');
-  $('#mc').textContent = users.length;
+  const rc = $('#rc'); if (rc) rc.textContent = users.length + (users.length > 1 ? ' connectés' : ' connecté');
+  const mc = $('#mc'); if (mc) mc.textContent = users.length;
 }
 
 $('#rooms').onclick = async e => {
@@ -71,7 +151,8 @@ $('#rooms').onclick = async e => {
   if (i === cur) return;
   if (PRIVATES.includes(SLUGS[i]) && typeof SalonAccess !== 'undefined') {
     const st = await SalonAccess.status(SLUGS[i]);
-    if (st !== 'approved') { toast('Salon privé : demandez l\'accès depuis la page Salons'); return; }
+    // Salon privé : cadenas + demande d'accès au lieu d'un simple refus
+    if (st !== 'approved') { panneauPrive(SLUGS[i], st); return; }
   }
   cur = i;
   salon = NAMES[SLUGS[cur]];
@@ -80,9 +161,12 @@ $('#rooms').onclick = async e => {
 
 /* ---------- membres ---------- */
 function drawList() {
-  const q = ($('#q').value || '').toLowerCase();
+  const listEl = $('#list');
+  if (!listEl) return;
+  const qEl = $('#q');
+  const q = ((qEl && qEl.value) || '').toLowerCase();
   const list = users.filter(u => (u.username || '').toLowerCase().includes(q) && (!onlyCam || u.streamId));
-  $('#list').innerHTML = list.length
+  listEl.innerHTML = list.length
     ? list.map(u => {
         const n = u.username || '?', c = colOf(u.role);
         return `<div class="m"><div class="av on" style="--c:${c}">${esc(n[0].toUpperCase())}</div><span>${ROLE_ICONS[u.role] || ''} ${esc(n)}</span>` +
@@ -99,6 +183,7 @@ $('#c2').onclick = () => { onlyCam = true; $('#c2').classList.add('act'); $('#c1
 /* ---------- caméras du salon ---------- */
 function drawCams() {
   const grid = $('#grid');
+  if (!grid) return;   // ancienne version de room.html : on n'empêche rien d'autre de s'afficher
   if (!streams.length) {
     grid.innerHTML = `<div class="cam" style="--g1:#20242e;--g2:#12151c">${silhouette}<div class="n" style="color:var(--mut)">Aucune caméra active</div></div>`;
     return;
@@ -135,16 +220,17 @@ function viewStream(streamId) {
 }
 
 /* ---------- discussion publique ---------- */
-const pub = [];
 function drawPub() {
-  $('#pub').innerHTML = pub.length
+  const zone = $('#pub');
+  if (!zone) return;
+  zone.innerHTML = pub.length
     ? pub.map(m => m.sys
         ? `<div class="l" style="display:block;color:var(--mut);font-style:italic;font-size:13px">— ${esc(m.text)} —</div>`
         : `<div class="l"><div class="av" style="--c:${m.color};${m.me ? 'color:#111' : ''}">${esc((m.name[0] || '?').toUpperCase())}</div>` +
           `<strong style="color:${m.color}">${esc(m.name)}</strong><span>${esc(m.text)}</span><time>${m.time}</time></div>`
       ).join('')
     : '<div class="l" style="display:block;color:var(--mut);font-size:13px">Aucun message. Soyez le premier !</div>';
-  $('#pub').scrollTop = 1e5;
+  zone.scrollTop = 1e5;
 }
 
 $('#f').onsubmit = e => {
@@ -157,6 +243,9 @@ $('#f').onsubmit = e => {
 };
 
 /* ---------- conversation privée (renvoi vers la page Messages) ---------- */
+/* Tout ce qui suit branche les éléments de la page. Si une ancienne version de
+   room.html n'a pas un de ces éléments, on l'ignore au lieu de bloquer l'affichage. */
+try {
 $('#pm').innerHTML = '<div style="color:var(--mut);font-size:13px;padding:4px 0">Les messages privés s\'ouvrent depuis la page <b>Messages</b>.</div>';
 $('#pi').placeholder = 'Ouvrir la page Messages…';
 $('#pf').onsubmit = e => { e.preventDefault(); location.href = 'messages.html'; };
@@ -209,6 +298,9 @@ $('#bc').onclick = () => { location.href = 'live.html'; };
 $('#bm').onclick = () => toast('Le micro se règle pendant la diffusion (En direct)');
 $('#bs').onclick = () => toast('Réglages : bientôt disponibles');
 $('#bq').onclick = () => { location.href = 'salons.html'; };
+} catch (errInteraction) {
+  console.error('Salon : un élément de la page est absent —', errInteraction);
+}
 
 /* ---------- enregistrement de l'entrée (compteur de membres réel) ---------- */
 function recordJoin(slug) {
@@ -229,7 +321,7 @@ function joinSalon() {
   Object.keys(peers).forEach(id => { try { peers[id].close(); } catch (e) {} delete peers[id]; });
   drawRooms(); drawList(); drawCams(); drawPub();
   recordJoin(SLUGS[cur]);
-  if (window.history && history.replaceState) history.replaceState(null, '', '?theme=' + SLUGS[cur]);
+  try { if (window.history && history.replaceState) history.replaceState(null, '', '?theme=' + SLUGS[cur]); } catch (e) {}
   if (socket) socket.emit('salon:join', salon);
 }
 
@@ -240,6 +332,11 @@ function row(m) {
 }
 
 function initSocket() {
+  if (typeof io === 'undefined') {
+    // socket.io n'a pas pu être chargé (réseau, bloqueur) : la page reste utilisable
+    toast('Connexion au salon indisponible');
+    return;
+  }
   socket = io('https://e-visiocam-api.onrender.com', { auth: { token: typeof getToken === 'function' ? getToken() : null } });
 
   socket.on('connect', () => {
@@ -292,7 +389,34 @@ function initSocket() {
 }
 
 /* ---------- départ ---------- */
-drawRooms(); drawList(); drawCams(); drawPub();
-recordJoin(SLUGS[cur]);
-initSocket();
+(async function demarrer() {
+  await chargerSalons();                 // liste réelle : noms, icônes, salons VIP
+  try {
+    drawRooms(); drawList(); drawCams(); drawPub();
+  } catch (errAffichage) {
+    console.error('Salon : affichage partiel —', errAffichage);
+  }
+  afficherLaPage();
+
+  // Salon privé demandé : cadenas + demande d'accès si l'accès n'est pas accordé
+  if (PRIVATES.includes(SLUGS[cur]) && typeof SalonAccess !== 'undefined') {
+    const slugDemande = SLUGS[cur];
+    try {
+      const st = await SalonAccess.status(slugDemande);
+      if (st !== 'approved') {
+        const general = SLUGS.indexOf('general');
+        cur = general >= 0 ? general : 0;
+        salon = NAMES[SLUGS[cur]];
+        drawRooms(); drawList(); drawCams(); drawPub();
+        try { if (window.history && history.replaceState) history.replaceState(null, '', '?theme=' + SLUGS[cur]); } catch (e) {}
+        panneauPrive(slugDemande, st);
+      }
+    } catch (errPrive) {
+      console.error('Salon privé :', errPrive);
+    }
+  }
+
+  recordJoin(SLUGS[cur]);
+  try { initSocket(); } catch (errSocket) { console.error('Salon : connexion —', errSocket); }
+})();
 window.addEventListener('beforeunload', () => { if (socket) socket.disconnect(); });

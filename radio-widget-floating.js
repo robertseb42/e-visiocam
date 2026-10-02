@@ -168,17 +168,29 @@
     }
 
     // ---------- RÉDUIRE / AGRANDIR ----------
+    // Réduite par défaut : la platine en grand ne masque plus la page.
+    // Le choix est mémorisé pour les pages suivantes.
+    function memoireOuverte(valeur) {
+        try { localStorage.setItem('evcRadioOuvert', valeur ? '1' : '0'); } catch (e) {}
+    }
+
     window.minimizeRadioWidget = function() {
         document.getElementById('radioWidgetExpanded').classList.add('hidden');
         document.getElementById('radioWidgetMinimized').classList.remove('hidden');
         document.getElementById('radioWidgetMinimized').classList.add('flex');
+        memoireOuverte(false);
     };
 
     window.expandRadioWidget = function() {
         document.getElementById('radioWidgetMinimized').classList.add('hidden');
         document.getElementById('radioWidgetMinimized').classList.remove('flex');
         document.getElementById('radioWidgetExpanded').classList.remove('hidden');
+        memoireOuverte(true);
     };
+
+    var ouverte = false;
+    try { ouverte = localStorage.getItem('evcRadioOuvert') === '1'; } catch (e) {}
+    if (ouverte) window.expandRadioWidget(); else window.minimizeRadioWidget();
 
     // Clic sur la version réduite → rouvrir
     document.getElementById('radioWidgetMinimized').onclick = function() {

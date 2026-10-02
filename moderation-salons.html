@@ -39,12 +39,18 @@
     </div>
 
     <div id="denied" class="hidden p-6 rounded-2xl bg-white border border-slate-200 text-slate-600">
-        <i class="fa-solid fa-ban text-red-500 mr-2"></i>Cette page est réservée au super administrateur et aux responsables de salon.
+        <i class="fa-solid fa-ban text-red-500 mr-2"></i>Cette page est réservée au super administrateur, aux modérateurs et aux responsables de salon.
     </div>
 
     <div id="panel" class="hidden space-y-8">
+        <section id="vipSec" class="hidden">
+            <h2 class="text-lg font-bold text-slate-800 mb-1">🔒 Salons VIP (privés)</h2>
+            <p class="text-xs text-slate-500 mb-3">Un salon VIP n'est accessible qu'aux membres dont la demande a été acceptée.
+                Vous pouvez rendre n'importe quel salon VIP, ou lui retirer le VIP pour le rouvrir à tous.</p>
+            <div id="vipList" class="space-y-3"></div>
+        </section>
         <section id="mgrSec" class="hidden">
-            <h2 class="text-lg font-bold text-slate-800 mb-1">Responsables des salons</h2>
+            <h2 class="text-lg font-bold text-slate-800 mb-1">Responsables des salons VIP</h2>
             <p class="text-xs text-slate-500 mb-3">Un responsable par salon : il reçoit les demandes de ce salon sur son panneau. Vous voyez et validez toutes les demandes.</p>
             <datalist id="usersList"></datalist>
             <div id="mgrs" class="space-y-3"></div>
@@ -61,31 +67,61 @@
 </main>
 
 <script>
-const names = { vip: 'VIP Lounge', premium: 'Salon Premium' };
-const PRIVATE = ['vip', 'premium'];
+// Liste réelle des salons (remplie par le serveur) : noms, icônes, VIP ou public
+let SALONS = [];
+let names = {};
+let PRIVATE = [];
 const toast = m => (window.showToast ? showToast(m) : alert(m));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const when = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
 
+async function chargerSalons() {
+  SALONS = await SalonAccess.salons();
+  names = {};
+  SALONS.forEach(s => { names[s.slug] = s.name; });
+  PRIVATE = SALONS.filter(s => s.isPrivate).map(s => s.slug);
+}
+
 async function render() {
   const u = await SalonAccess.me();
-  const sup = SalonAccess.isSuper(u), ok = await SalonAccess.canManage();
+  const sup = SalonAccess.isSuper(u), modo = SalonAccess.isModerator(u), ok = await SalonAccess.canManage();
   document.getElementById('denied').classList.toggle('hidden', ok);
   document.getElementById('panel').classList.toggle('hidden', !ok);
   document.getElementById('who').textContent = sup
     ? 'Super administrateur : vous voyez toutes les demandes.'
-    : ok ? 'Responsable de : ' + u.manages.map(s => names[s] || s).join(', ') : 'Acceptez ou refusez les demandes des membres.';
+    : modo
+      ? 'Modérateur : vous voyez toutes les demandes et pouvez les valider.'
+      : ok ? 'Responsable de : ' + u.manages.map(s => names[s] || s).join(', ') : 'Acceptez ou refusez les demandes des membres.';
   if (!ok) return;
 
-  // Responsables (super admin uniquement)
-  document.getElementById('mgrSec').classList.toggle('hidden', !sup);
+  await chargerSalons();
+
+  // 🔒 Salons VIP : rendre VIP / retirer le VIP (super admin uniquement)
+  document.getElementById('vipSec').classList.toggle('hidden', !sup);
   if (sup) {
+    document.getElementById('vipList').innerHTML = SALONS.length ? SALONS.map(s => `
+      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
+        <div class="flex-1 min-w-[180px]">
+          <p class="font-bold text-slate-900">${s.icon || '💬'} ${esc(s.name)}
+            ${s.isPrivate ? '<span class="ml-1 text-[11px] bg-pink-50 text-brand-primary font-bold px-2 py-0.5 rounded-full">VIP</span>' : ''}
+          </p>
+          <p class="text-xs text-slate-500">${s.members || 0} membre(s) · ${s.isPrivate ? 'accès sur demande validée' : 'ouvert à tous'}</p>
+        </div>
+        ${s.isPrivate
+          ? `<button onclick="setVip('${esc(s.slug)}', false)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-lock-open mr-1"></i>Retirer le VIP</button>`
+          : `<button onclick="setVip('${esc(s.slug)}', true)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-lock mr-1"></i>Rendre VIP</button>`}
+      </div>`).join('') : '<p class="text-sm text-slate-500">Aucun salon pour le moment.</p>';
+  }
+
+  // Responsables des salons VIP (super admin uniquement)
+  document.getElementById('mgrSec').classList.toggle('hidden', !(sup && PRIVATE.length));
+  if (sup && PRIVATE.length) {
     const [mg, us] = await Promise.all([SalonAccess.managers(), SalonAccess.users()]);
     document.getElementById('usersList').innerHTML = us.map(n => `<option value="${esc(n)}">`).join('');
     document.getElementById('mgrs').innerHTML = PRIVATE.map(s => `
       <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
         <div class="flex-1 min-w-[160px]">
-          <p class="font-bold text-slate-900">${esc(names[s])}</p>
+          <p class="font-bold text-slate-900">${esc(names[s] || s)}</p>
           <p class="text-xs text-slate-500">${mg[s] ? 'Responsable : <b>' + esc(mg[s]) + '</b>' : 'Aucun responsable : seules vos décisions comptent'}</p>
         </div>
         <input id="m-${s}" list="usersList" value="${esc(mg[s] || '')}" placeholder="Nom du membre" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
@@ -124,8 +160,23 @@ async function decide(id, decision) {
   render();
 }
 
-async function saveMgr(slug, remove) {
-  const name = remove ? '' : document.getElementById('m-' + slug).value.trim();
+// 🔒 Rendre un salon VIP, ou lui retirer le VIP (super administrateur)
+async function setVip(slug, isPrivate) {
+  const nom = names[slug] || slug;
+  const question = isPrivate
+    ? 'Rendre « ' + nom + ' » VIP ?\n\nLe salon ne sera plus accessible sans demande d\'accès validée.'
+    : 'Retirer le VIP de « ' + nom + ' » ?\n\nLe salon redeviendra ouvert à tous.';
+  if (!confirm(question)) return;
+  try {
+    await SalonAccess.setPrivate(slug, isPrivate);
+    toast(isPrivate ? '🔒 ' + nom + ' est désormais VIP' : '🔓 ' + nom + ' est redevenu public');
+  } catch (e) {
+    toast(e.message || 'Action réservée au super administrateur');
+  }
+  render();
+}
+
+async function saveMgr(slug, remove) {  const name = remove ? '' : document.getElementById('m-' + slug).value.trim();
   if (!remove && !name) { toast('Indiquez le nom du responsable'); return; }
   try { await SalonAccess.setManager(slug, name); toast(remove ? 'Responsable retiré' : name + ' est responsable de ' + names[slug]); }
   catch (e) { toast('Action réservée au super administrateur'); }

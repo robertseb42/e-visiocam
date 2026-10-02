@@ -40,7 +40,7 @@ const SalonAccess = (() => {
   };
 
   // ---- Qui est connecté ?
-  // BACK : GET /api/salons/me → { "name": "Julie", "role": "member" | "superadmin", "manages": ["vip"] }
+  // BACK : GET /api/salons/me → { "name": "Julie", "role": "member" | "moderator" | "superadmin", "manages": ["vip"] }
   const me = async () => {
     if (DEMO) {
       const name = rd(K.user, 'Vous'), mgr = rd(K.mgr, {});
@@ -51,7 +51,10 @@ const SalonAccess = (() => {
   };
   const setUser = n => wr(K.user, n);                       // démo uniquement
   const isSuper = u => u.role === 'superadmin';
-  const canManage = async () => { const u = await me(); return isSuper(u) || (u.manages || []).length > 0; };
+  const isModerator = u => u.role === 'moderator';
+  // Le super admin ET les modérateurs voient et valident toutes les demandes ;
+  // un responsable ne voit que celles de ses salons.
+  const canManage = async () => { const u = await me(); return isSuper(u) || isModerator(u) || (u.manages || []).length > 0; };
 
   // ---- Statut de l'utilisateur pour un salon : 'none' | 'pending' | 'approved' | 'refused'
   // BACK : GET /api/salons/:slug/access → { "status": "approved" }
@@ -101,6 +104,19 @@ const SalonAccess = (() => {
   // BACK : GET /api/salons/managers → { "vip": "Julie", "premium": "Marc" }
   const managers = async () => DEMO ? rd(K.mgr, {}) : api('/salons/managers').catch(() => ({}));
 
+  // ---- Annuaire des salons : noms, icônes, privé (VIP) ou public, membres
+  // BACK : GET /api/salons/list → { salons: [{ slug, name, icon, isPrivate, members }] }
+  const salons = async () => {
+    try { const d = await api('/salons/list'); return (d && d.salons) || []; } catch (e) { return []; }
+  };
+
+  // ---- Passer un salon en VIP, ou lui retirer le VIP (super administrateur)
+  // BACK : PUT /api/salons/:slug/private  body { "isPrivate": true | false }
+  const setPrivate = async (slug, isPrivate) => {
+    if (DEMO) { return { ok: true, salon: { slug, isPrivate: !!isPrivate } }; }
+    return api('/salons/' + slug + '/private', { method: 'PUT', body: JSON.stringify({ isPrivate: !!isPrivate }) });
+  };
+
   // BACK : PUT /api/salons/:slug/manager  body { "user": "Julie" }   (user = null pour retirer)
   const setManager = async (slug, name) => {
     if (!DEMO) { await api('/salons/' + slug + '/manager', { method: 'PUT', body: JSON.stringify({ user: name || null }) }); return; }
@@ -114,7 +130,7 @@ const SalonAccess = (() => {
   // BACK : GET /api/salons/users → ["Julie", "Marc", ...]
   const users = async () => DEMO ? DEMO_USERS.filter(n => n !== SUPER) : api('/salons/users').catch(() => []);
 
-  return { DEMO, DEMO_USERS, me, setUser, canManage, isSuper, status, request, listRequests, decide, managers, setManager, users };
+  return { DEMO, DEMO_USERS, me, setUser, canManage, isSuper, isModerator, status, request, listRequests, decide, managers, setManager, users, salons, setPrivate };
 })();
 
 /* CÔTÉ BACK (obligatoire) :

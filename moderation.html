@@ -47,8 +47,8 @@
                 <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
             </button>
             <div id="navAuth" class="flex items-center gap-2"></div>
-            <a href="moderation-salons.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
-                <i class="fa-solid fa-lock mr-1"></i> Accès salons privés
+            <a id="demandesSalons" data-court="1" href="moderation-salons.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+                <i class="fa-solid fa-lock mr-1"></i> Accès salons
             </a>
             <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
                 <i class="fa-solid fa-arrow-left mr-1"></i> Retour
@@ -268,5 +268,19 @@
 <!-- ✅ LE SCRIPT EST MAINTENANT DANS UN FICHIER SÉPARÉ -->
 <script src="moderation.js"></script>
 
+
+<script>
+// 🔒 Demandes d'accès aux salons privés en attente (super admin et modérateurs)
+(async function(){
+  try {
+    const list = await apiCall("/salons/access-requests");
+    const n = (list || []).filter(function(r){ return r.status === "pending"; }).length;
+    const lien = document.getElementById("demandesSalons");
+    if (!lien) return;
+    lien.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> ' + (lien.dataset.court ? "Accès salons" : "Demandes d\'accès salons")
+      + (n > 0 ? ' <span class="ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">' + n + "</span>" : "");
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>
