@@ -7,10 +7,22 @@
     // Éviter les doubles injections
     if (document.getElementById('radioWidgetFloating')) return;
 
-    // Ne pas injecter si le widget est déjà dans la sidebar
-    if (document.getElementById('radioWidget')) {
-        console.log('📻 Widget radio déjà présent dans la sidebar');
+    // Ne pas injecter si la platine est déjà VISIBLE dans la sidebar.
+    // Si elle existe mais qu'elle est masquée (sidebar cachée sous 1024px), on la
+    // retire du DOM pour éviter des identifiants en double et on prend le relais.
+    var inlineWidget = document.getElementById('radioWidget');
+    if (inlineWidget && inlineWidget.offsetParent !== null) {
+        console.log('📻 Widget radio déjà visible dans la sidebar');
         return;
+    }
+    if (inlineWidget && inlineWidget.parentNode) {
+        console.log('📻 Platine masquée sur cet écran : widget flottant en secours');
+        inlineWidget.parentNode.removeChild(inlineWidget);
+        // Retour à une fenêtre large : on recharge pour retrouver la platine.
+        var mq = window.matchMedia('(min-width: 1024px)');
+        var onBreakpoint = function(e) { if (e.matches) window.location.reload(); };
+        if (mq.addEventListener) mq.addEventListener('change', onBreakpoint);
+        else if (mq.addListener) mq.addListener(onBreakpoint);
     }
 
     // ---------- CRÉER LE WIDGET HTML ----------
