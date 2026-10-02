@@ -41,7 +41,8 @@ function initAudio() {
         isPlaying = true;
         updatePlatter(true);
         updateTonearm(true);
-        updateRadioStatus('LECTURE');
+        // Lecture conservée en sourdine en attendant le premier clic : on le dit clairement
+        updateRadioStatus(audioEl.muted ? 'SON COUPÉ · CLIQUEZ' : 'LECTURE');
         userWantsToPlay = true;
         saveRadioState();
     });
@@ -87,6 +88,59 @@ function updateTonearm(playing) {
     } else {
         tonearm.style.transform = 'rotate(-25deg)';
     }
+}
+
+// ============================================================
+// LA RADIO CONTINUE D'UNE PAGE À L'AUTRE
+// Les navigateurs interdisent de démarrer un son sans action du visiteur.
+// Astuce : le flux reste branché en sourdine sur la nouvelle page, et le son
+// revient instantanément au premier clic / toucher / touche de clavier.
+// ============================================================
+function armResume() {
+    if (window.__radioResumeArmed) return;
+    window.__radioResumeArmed = true;
+    var handler = function() { resumeRadio(); };
+    ['pointerdown', 'touchstart', 'keydown'].forEach(function(ev) {
+        document.addEventListener(ev, handler, { passive: true });
+    });
+}
+
+// Le visiteur vient d'agir : on remet le son
+function resumeRadio() {
+    if (!audioEl || !audioEl.src || !userWantsToPlay) return;
+    audioEl.muted = false;
+    updatePlayBtn(true);
+    var p = audioEl.play();
+    if (p !== undefined) {
+        p.then(function() {
+            updateRadioStatus('LECTURE');
+            updatePlatter(true);
+            updateTonearm(true);
+        }).catch(function() {
+            audioEl.muted = true;
+            audioEl.play().catch(function() {});
+            updateRadioStatus('CLIQUE ▶');
+        });
+    }
+}
+
+// Le flux est relancé en sourdine : prêt à être entendu au premier clic
+function keepPlayingMuted() {
+    if (!audioEl || !audioEl.src) return;
+    audioEl.muted = true;
+    var p = audioEl.play();
+    if (p !== undefined) {
+        p.then(function() {
+            isPlaying = true;
+            updatePlatter(true);
+            updateTonearm(true);
+            updateRadioStatus('SON COUPÉ · CLIQUEZ');
+        }).catch(function() {
+            updateRadioStatus('CLIQUE ▶');
+        });
+    }
+    armResume();
+    updateRadioStatus('SON COUPÉ · CLIQUEZ');
 }
 
 // ---------- CHARGER LES RADIOS ----------
@@ -142,9 +196,12 @@ function playRadio(index, autoPlay) {
             if (playPromise !== undefined) {
                 playPromise.catch(function(err) {
                     console.warn('Autoplay bloqué :', err.message);
-                    updateRadioStatus('CLIQUE ▶');
-                    userWantsToPlay = false;
+                    // On garde l'intention de lecture : le flux repart en sourdine
+                    // et le son revient au premier clic (la radio ne s'arrête plus
+                    // quand on change de page).
+                    userWantsToPlay = true;
                     saveRadioState();
+                    keepPlayingMuted();
                 });
             }
         }
@@ -192,8 +249,16 @@ function updateRadioStatus(text) {
 
 function togglePlay() {
     if (!audioEl || !audioEl.src) return;
+    // Le flux tourne en sourdine après un changement de page : le 1er clic remet le son
+    if (audioEl.muted && !audioEl.paused) {
+        userWantsToPlay = true;
+        resumeRadio();
+        saveRadioState();
+        return;
+    }
     if (audioEl.paused) {
         userWantsToPlay = true;
+        audioEl.muted = false;
         audioEl.play().catch(function(err) {
             updateRadioStatus('ERREUR');
         });
@@ -201,6 +266,7 @@ function togglePlay() {
         userWantsToPlay = false;
         audioEl.pause();
     }
+    saveRadioState();
     updatePlayBtn(!audioEl.paused);
 }
 
@@ -229,8 +295,8 @@ if (document.readyState === 'loading') {
 }
 
 window.addEventListener('beforeunload', function() {
+    // On garde l'état (station, volume, lecture) pour la page suivante
     saveRadioState();
-    if (audioEl) audioEl.pause();
 });
 
 window.playRadio = playRadio;
@@ -239,3 +305,5 @@ window.prevRadio = prevRadio;
 window.loadRadios = loadRadios;
 window.togglePlay = togglePlay;
 window.setVolume = setVolume;
+window.resumeRadio = resumeRadio;
+window.keepPlayingMuted = keepPlayingMuted;

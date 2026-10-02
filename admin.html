@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-slate-100">
+<html lang="fr" class="h-full cam-theme">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,9 +23,9 @@
         }
     </script>
 
-    <link rel="stylesheet" href="style.css?v=20261001-2">
+    <link rel="stylesheet" href="style.css?v=20261001-decor">
 </head>
-<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+<body class="cam-home h-full flex flex-col font-sans">
 
 <script>
 (function() {
@@ -34,21 +34,27 @@
         return;
     }
     if (!hasRole('super_admin')) {
-        document.documentElement.innerHTML = '<head><title>Acces refuse</title></head><body style="margin:0;"><div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;font-family:Inter,sans-serif;"><div style="background:white;border-radius:24px;padding:40px;text-align:center;max-width:420px;"><h1 style="font-size:22px;font-weight:900;color:#0f172a;">Acces refuse</h1><p style="font-size:13px;color:#64748b;">Reserve aux Super Admins.</p><a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;">Retour</a></div></div></body>';
+        document.documentElement.innerHTML = '<head><title>Acces refuse</title></head><body style="margin:0;"><div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#111113;font-family:Inter,sans-serif;"><div style="background:#1c1c20;border:1px solid #343439;border-radius:24px;padding:40px;text-align:center;max-width:420px;"><h1 style="font-size:22px;font-weight:900;color:#f5f5f6;">Acces refuse</h1><p style="font-size:13px;color:#a6a6b1;">Reserve aux Super Admins.</p><a href="index.html" style="display:inline-block;padding:12px 24px;background:#ffe500;color:#111113;font-weight:bold;border-radius:12px;text-decoration:none;">Retour</a></div></div></body>';
         throw new Error('Acces refuse');
     }
 })();
 </script>
 
-<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        <a href="index.html" class="flex items-center gap-2">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-brand-primary flex items-center justify-center text-white">
-                <i class="fa-solid fa-crown"></i>
-            </div>
-            <span class="text-2xl font-black text-slate-900">Admin <span class="text-brand-primary">Panel</span></span>
-        </a>
-        <div class="flex items-center gap-3">
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <!-- Même grille que l'accueil : logo dans la colonne de 256px -->
+    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+        <div class="flex items-center lg:w-64 lg:shrink-0">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <span class="text-2xl font-black text-slate-900">Admin <span class="text-brand-primary">Panel</span></span>
+            </a>
+        </div>
+        <div class="ml-auto flex items-center gap-3">
+            <a href="moderation-salons.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+                <i class="fa-solid fa-lock mr-1"></i> Accès salons
+            </a>
             <div id="navAuth" class="flex items-center gap-2"></div>
             <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
                 <i class="fa-solid fa-arrow-left mr-1"></i> Retour
@@ -56,7 +62,6 @@
         </div>
     </div>
 </header>
-<div class="max-w-[1700px] w-full mx-auto px-6 pt-4"><a href="decor.html" class="inline-block px-5 py-3 bg-brand-primary font-bold rounded-xl">🎨 Décor et bannières</a></div>
 
 <main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
     <div class="mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
@@ -154,7 +159,10 @@
                             <th class="py-3 px-2">Email</th>
                             <th class="py-3 px-2">Rôle</th>
                             <th class="py-3 px-2">Statut</th>
-                            <th class="py-3 px-2 text-right">Actions</th>
+                            <th class="py-3 px-2 text-right" title="Réinitialiser le mot de passe d'un compte">
+                                Actions
+                                <i class="fa-solid fa-key text-brand-primary ml-1" title="Réinitialiser un mot de passe (🔑 sur chaque ligne)"></i>
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="usersTable">
@@ -268,11 +276,32 @@
     </div>
 </div>
 
+<!-- 🔑 Mot de passe réinitialisé : affiché à l'administrateur une seule fois -->
+<div id="pwdModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
+        <button onclick="closeModal('pwdModal')" aria-label="Fermer" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <h3 class="text-xl font-extrabold text-slate-900 mb-1"><i class="fa-solid fa-key text-brand-primary mr-2"></i>Mot de passe réinitialisé</h3>
+        <p class="text-xs text-slate-500 mb-4">
+            Compte : <b id="pwdUser">—</b>. Transmettez ce mot de passe temporaire au membre :
+            à sa prochaine connexion, le site lui demandera d'en choisir un nouveau.
+            Ses sessions ouvertes ont été déconnectées.
+        </p>
+        <div class="rounded-2xl bg-slate-100 border border-slate-200 px-4 py-5 text-center mb-4">
+            <p id="pwdValue" class="font-mono text-2xl font-black text-slate-900 tracking-widest select-all break-all">—</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="copyTempPassword()" class="flex-1 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm">
+                <i class="fa-solid fa-copy mr-1"></i> Copier
+            </button>
+            <button onclick="closeModal('pwdModal')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm">Fermer</button>
+        </div>
+    </div>
+</div>
+
 <script>
 // ============================================================
 // PANNEAU ADMIN
 // ============================================================
-
 let allUsers = [];
 let currentUser = null;
 
@@ -369,6 +398,8 @@ function renderUsers(filter = '') {
         const canAct = !isMe;
 
         let actions = '<div class="flex justify-end gap-1 flex-wrap">';
+        // 🔑 Réinitialisation du mot de passe : possible sur n'importe quel compte
+        actions += '<button onclick="handleResetPassword(' + u.id + ', \'' + escapeHtml(u.username).replace(/'/g, "\\'") + '\')" title="Réinitialiser le mot de passe" class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 text-xs"><i class="fa-solid fa-key"></i></button>';
         if (canAct && u.role === 'user') {
             actions += '<button onclick="handlePromoteMod(' + u.id + ')" title="Nommer modérateur" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs"><i class="fa-solid fa-user-shield"></i></button>';
         }
@@ -391,7 +422,8 @@ function renderUsers(filter = '') {
             '<td class="py-3 px-2 font-bold text-slate-900">' + escapeHtml(u.username) + (isMe ? ' <span class="text-[10px] text-brand-primary">(moi)</span>' : '') + '</td>' +
             '<td class="py-3 px-2 text-slate-500 text-xs">' + escapeHtml(u.email || '—') + '</td>' +
             '<td class="py-3 px-2">' + (roleBadges[u.role] || escapeHtml(u.role)) + '</td>' +
-            '<td class="py-3 px-2">' + (isBanned ? '<span class="text-rose-600 text-xs font-bold">🔨 Banni</span>' : '<span class="text-emerald-600 text-xs font-bold">✅ Actif</span>') + '</td>' +
+            '<td class="py-3 px-2">' + (isBanned ? '<span class="text-rose-600 text-xs font-bold">🔨 Banni</span>' : '<span class="text-emerald-600 text-xs font-bold">✅ Actif</span>') +
+                (Number(u.must_change_password) === 1 ? ' <span class="text-amber-600 text-[10px] font-bold" title="Mot de passe réinitialisé : à changer à la prochaine connexion">🔑 à changer</span>' : '') + '</td>' +
             '<td class="py-3 px-2 text-right">' + actions + '</td>' +
             '</tr>';
     }).join('');
@@ -468,6 +500,45 @@ async function handleDelete(userId) {
         showToast('🗑️ Compte supprimé', 'warning');
         await loadUsers();
     } catch (err) { showToast(err.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 🔑 RÉINITIALISER LE MOT DE PASSE D'UN COMPTE
+// ═══════════════════════════════════════════════════════════
+let tempPassword = '';
+
+async function handleResetPassword(userId, username) {
+    if (!confirm('Réinitialiser le mot de passe de « ' + username + ' » ?\n\n'
+        + 'Un mot de passe temporaire va être créé. Le membre devra en choisir un nouveau '
+        + 'à sa prochaine connexion, et ses sessions ouvertes seront déconnectées.')) return;
+    try {
+        const data = await apiCall('/admin/users/' + userId + '/reset-password', { method: 'POST' });
+        tempPassword = data.tempPassword || '';
+        document.getElementById('pwdUser').textContent = data.username || username;
+        document.getElementById('pwdValue').textContent = tempPassword;
+        openModal('pwdModal');
+        showToast('🔑 Mot de passe réinitialisé');
+        await loadUsers();
+    } catch (err) {
+        showToast(err.message || 'Réinitialisation impossible', 'error');
+    }
+}
+
+function copyTempPassword() {
+    if (!tempPassword) return;
+    const done = () => showToast('📋 Mot de passe copié');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tempPassword).then(done).catch(() => selectionner());
+    } else { selectionner(); }
+
+    function selectionner() {
+        const el = document.getElementById('pwdValue');
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const sel = window.getSelection();
+        sel.removeAllRanges(); sel.addRange(range);
+        showToast('Sélectionnez puis copiez (Ctrl + C)', 'info');
+    }
 }
 
 // ═══════════════════════════════════════════════════════════
