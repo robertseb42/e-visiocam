@@ -165,23 +165,6 @@
         </p>
     </div>
 
-    <!-- Comptes de test -->
-    <div class="mt-6 p-4 bg-white/5 backdrop-blur rounded-2xl border border-white/10">
-        <p class="text-xs text-slate-300 font-bold mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-flask text-brand-primary"></i>
-            Comptes de test
-        </p>
-        <div class="space-y-2">
-            <button onclick="fillLogin('SuperBoss', 'ChangeMoi2025!')" class="w-full text-left px-3 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs text-slate-300 flex items-center justify-between transition-colors">
-                <span>👑 Super Admin</span>
-                <span class="font-mono text-slate-400">SuperBoss</span>
-            </button>
-        </div>
-        <p class="text-[10px] text-slate-500 mt-3 leading-relaxed">
-            ⚠️ Ces comptes sont uniquement pour tester en local. En production, supprimez cette section !
-        </p>
-    </div>
-
     <!-- Retour -->
     <p class="text-center text-xs text-slate-500 mt-6">
         <a href="index.html" class="hover:text-white transition-colors">
@@ -204,12 +187,6 @@
             field.type = 'password';
             icon.className = 'fa-solid fa-eye';
         }
-    }
-
-    // ---------- REMPLIR UN COMPTE DE TEST ----------
-    function fillLogin(username, password) {
-        document.getElementById('username').value = username;
-        document.getElementById('password').value = password;
     }
 
     // ---------- AFFICHER UNE ERREUR ----------
@@ -273,12 +250,27 @@
             }, 800);
 
        } catch (err) {
+    // Remettre le bouton en état pour pouvoir réessayer sans actualiser la page
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btnText.textContent = 'Se connecter';
+    spinner.classList.add('hidden');
+
+    // Erreur réseau (serveur injoignable) : message en français plutôt que "Failed to fetch"
+    if (/failed to fetch|networkerror|load failed/i.test(err.message || '')) {
+        err.message = 'Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.';
+    }
+
     const errorBox = document.getElementById('errorBox');
     const errorText = document.getElementById('errorText');
     const errorIcon = errorBox.querySelector('i');
     
     errorText.textContent = err.message;
     errorBox.classList.remove('hidden');
+    
+    // Remettre le curseur dans le mot de passe, texte sélectionné, pour le retaper
+    const pwd = document.getElementById('password');
+    if (pwd) { pwd.focus(); pwd.select(); }
     
     // Adapter l'icône selon le type d'erreur
     if (err.message.includes('Aucun compte')) {
