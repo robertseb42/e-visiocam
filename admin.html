@@ -73,7 +73,7 @@
         <i class="fa-solid fa-image mr-1"></i> Décor et bannières
     </a>
     <a id="demandesSalons" href="moderation-salons.html" class="inline-block px-5 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl">
-        <i class="fa-solid fa-lock mr-1"></i> Demandes d'accès salons
+        <i class="fa-solid fa-lock mr-1"></i> Gestion des salons
     </a>
 </div>
 
@@ -697,7 +697,7 @@ document.getElementById('searchUser').addEventListener('input', e => renderUsers
     const n = (list || []).filter(function(r){ return r.status === "pending"; }).length;
     const lien = document.getElementById("demandesSalons");
     if (!lien) return;
-    lien.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> ' + (lien.dataset.court ? "Accès salons" : "Demandes d\'accès salons")
+    lien.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> ' + ("Gestion des salons")
       + (n > 0 ? ' <span class="ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">' + n + "</span>" : "");
   } catch (e) {}
 })();

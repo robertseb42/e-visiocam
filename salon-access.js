@@ -117,6 +117,20 @@ const SalonAccess = (() => {
     return api('/salons/' + slug + '/private', { method: 'PUT', body: JSON.stringify({ isPrivate: !!isPrivate }) });
   };
 
+  // ---- Modifier un salon : nom, icône, description (super administrateur)
+  // BACK : PUT /api/salons/:slug  body { "name", "icon", "description" } → { salon }
+  const renommer = async (slug, champs) => {
+    if (DEMO) { return { ok: true, salon: Object.assign({ slug }, champs) }; }
+    return api('/salons/' + slug, { method: 'PUT', body: JSON.stringify(champs || {}) });
+  };
+
+  // ---- Masquer un salon (il disparaît du site) ou le réafficher (super administrateur)
+  // BACK : PUT /api/salons/:slug/visible  body { "visible": true | false }
+  const setVisible = async (slug, visible) => {
+    if (DEMO) { return { ok: true, salon: { slug, isHidden: !visible } }; }
+    return api('/salons/' + slug + '/visible', { method: 'PUT', body: JSON.stringify({ visible: !!visible }) });
+  };
+
   // BACK : PUT /api/salons/:slug/manager  body { "user": "Julie" }   (user = null pour retirer)
   const setManager = async (slug, name) => {
     if (!DEMO) { await api('/salons/' + slug + '/manager', { method: 'PUT', body: JSON.stringify({ user: name || null }) }); return; }
@@ -130,7 +144,7 @@ const SalonAccess = (() => {
   // BACK : GET /api/salons/users → ["Julie", "Marc", ...]
   const users = async () => DEMO ? DEMO_USERS.filter(n => n !== SUPER) : api('/salons/users').catch(() => []);
 
-  return { DEMO, DEMO_USERS, me, setUser, canManage, isSuper, isModerator, status, request, listRequests, decide, managers, setManager, users, salons, setPrivate };
+  return { DEMO, DEMO_USERS, me, setUser, canManage, isSuper, isModerator, status, request, listRequests, decide, managers, setManager, users, salons, setPrivate, renommer, setVisible };
 })();
 
 /* CÔTÉ BACK (obligatoire) :

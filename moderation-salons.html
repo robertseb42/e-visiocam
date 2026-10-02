@@ -2,14 +2,14 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
-    <title>Accès aux salons privés — E-VISIOCAM</title>
+    <title>Gestion des salons — E-VISIOCAM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js"></script>
-    <link rel="stylesheet" href="style.css?v=20261001-3">
+    <link rel="stylesheet" href="style.css?v=20261001-decor">
     <script src="salon-access.js"></script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -29,8 +29,8 @@
 </header>
 
 <main class="max-w-[1100px] w-full mx-auto flex-1 p-6">
-    <h1 class="text-3xl font-extrabold text-slate-900">🔒 Accès aux salons privés</h1>
-    <p id="who" class="text-sm text-slate-500 mt-1 mb-6">Acceptez ou refusez les demandes des membres.</p>
+    <h1 class="text-3xl font-extrabold text-slate-900">🔒 Gestion des salons</h1>
+    <p id="who" class="text-sm text-slate-500 mt-1 mb-6">Salons, VIP, visibilité et demandes d'accès.</p>
 
     <div id="demo" class="hidden mb-6 p-3 rounded-xl bg-amber-50 border border-amber-200 text-sm flex flex-wrap items-center gap-3">
         <span class="font-semibold text-amber-800">Mode démo</span>
@@ -43,18 +43,32 @@
     </div>
 
     <div id="panel" class="hidden space-y-8">
-        <section id="vipSec" class="hidden">
-            <h2 class="text-lg font-bold text-slate-800 mb-1">🔒 Salons VIP (privés)</h2>
-            <p class="text-xs text-slate-500 mb-3">Un salon VIP n'est accessible qu'aux membres dont la demande a été acceptée.
-                Vous pouvez rendre n'importe quel salon VIP, ou lui retirer le VIP pour le rouvrir à tous.</p>
-            <div id="vipList" class="space-y-3"></div>
+
+        <!-- ─── Gestion des salons (super administrateur) ─── -->
+        <section id="salonsSec" class="hidden">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">Salons du site</h2>
+                    <p class="text-xs text-slate-500">Renommez, changez l'icône, passez en VIP ou masquez un salon. Un salon masqué disparaît du site (il reste ici pour le rouvrir).</p>
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input id="q" type="text" placeholder="Rechercher un salon…" autocomplete="off"
+                           class="pl-8 pr-3 py-2 bg-slate-100 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none w-full sm:w-64">
+                </div>
+            </div>
+            <div id="salonsList" class="space-y-3"></div>
         </section>
+
+        <!-- ─── Responsables des salons VIP (super administrateur) ─── -->
         <section id="mgrSec" class="hidden">
             <h2 class="text-lg font-bold text-slate-800 mb-1">Responsables des salons VIP</h2>
             <p class="text-xs text-slate-500 mb-3">Un responsable par salon : il reçoit les demandes de ce salon sur son panneau. Vous voyez et validez toutes les demandes.</p>
             <datalist id="usersList"></datalist>
             <div id="mgrs" class="space-y-3"></div>
         </section>
+
+        <!-- ─── Demandes d'accès ─── -->
         <section>
             <h2 class="text-lg font-bold text-slate-800 mb-3">Demandes en attente <span id="pc" class="text-sm font-normal text-slate-500"></span></h2>
             <div id="pending" class="space-y-3"></div>
@@ -67,128 +81,222 @@
 </main>
 
 <script>
-// Liste réelle des salons (remplie par le serveur) : noms, icônes, VIP ou public
+// ------------------------------------------------------------------
+// GESTION DES SALONS : liste réelle du serveur (noms, icônes, VIP, masqué)
+// ------------------------------------------------------------------
 let SALONS = [];
 let names = {};
 let PRIVATE = [];
+let filtre = '';
+
 const toast = m => (window.showToast ? showToast(m) : alert(m));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const when = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
 
-async function chargerSalons() {
-  SALONS = await SalonAccess.salons();
-  names = {};
-  SALONS.forEach(s => { names[s.slug] = s.name; });
-  PRIVATE = SALONS.filter(s => s.isPrivate).map(s => s.slug);
+function badges(s) {
+    let b = '';
+    if (s.isPrivate) b += '<span class="ml-1 align-middle text-[10px] bg-pink-50 text-brand-primary font-bold px-2 py-0.5 rounded-full">🔒 VIP</span>';
+    if (s.isHidden) b += '<span class="ml-1 align-middle text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-0.5 rounded-full">🚫 MASQUÉ</span>';
+    return b;
 }
 
-async function render() {
-  const u = await SalonAccess.me();
-  const sup = SalonAccess.isSuper(u), modo = SalonAccess.isModerator(u), ok = await SalonAccess.canManage();
-  document.getElementById('denied').classList.toggle('hidden', ok);
-  document.getElementById('panel').classList.toggle('hidden', !ok);
-  document.getElementById('who').textContent = sup
-    ? 'Super administrateur : vous voyez toutes les demandes.'
-    : modo
-      ? 'Modérateur : vous voyez toutes les demandes et pouvez les valider.'
-      : ok ? 'Responsable de : ' + u.manages.map(s => names[s] || s).join(', ') : 'Acceptez ou refusez les demandes des membres.';
-  if (!ok) return;
-
-  await chargerSalons();
-
-  // 🔒 Salons VIP : rendre VIP / retirer le VIP (super admin uniquement)
-  document.getElementById('vipSec').classList.toggle('hidden', !sup);
-  if (sup) {
-    document.getElementById('vipList').innerHTML = SALONS.length ? SALONS.map(s => `
-      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
-        <div class="flex-1 min-w-[180px]">
-          <p class="font-bold text-slate-900">${s.icon || '💬'} ${esc(s.name)}
-            ${s.isPrivate ? '<span class="ml-1 text-[11px] bg-pink-50 text-brand-primary font-bold px-2 py-0.5 rounded-full">VIP</span>' : ''}
-          </p>
-          <p class="text-xs text-slate-500">${s.members || 0} membre(s) · ${s.isPrivate ? 'accès sur demande validée' : 'ouvert à tous'}</p>
-        </div>
+function ligneSalon(s) {
+    const actions = `
+        <button onclick="ouvrirEdition('${esc(s.slug)}')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-pen mr-1"></i>Modifier</button>
         ${s.isPrivate
-          ? `<button onclick="setVip('${esc(s.slug)}', false)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-lock-open mr-1"></i>Retirer le VIP</button>`
-          : `<button onclick="setVip('${esc(s.slug)}', true)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-lock mr-1"></i>Rendre VIP</button>`}
-      </div>`).join('') : '<p class="text-sm text-slate-500">Aucun salon pour le moment.</p>';
-  }
-
-  // Responsables des salons VIP (super admin uniquement)
-  document.getElementById('mgrSec').classList.toggle('hidden', !(sup && PRIVATE.length));
-  if (sup && PRIVATE.length) {
-    const [mg, us] = await Promise.all([SalonAccess.managers(), SalonAccess.users()]);
-    document.getElementById('usersList').innerHTML = us.map(n => `<option value="${esc(n)}">`).join('');
-    document.getElementById('mgrs').innerHTML = PRIVATE.map(s => `
-      <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
-        <div class="flex-1 min-w-[160px]">
-          <p class="font-bold text-slate-900">${esc(names[s] || s)}</p>
-          <p class="text-xs text-slate-500">${mg[s] ? 'Responsable : <b>' + esc(mg[s]) + '</b>' : 'Aucun responsable : seules vos décisions comptent'}</p>
+            ? `<button onclick="setVip('${esc(s.slug)}', false)" class="px-3 py-2 bg-amber-100 text-amber-700 hover:bg-amber-200 text-xs font-bold rounded-xl"><i class="fa-solid fa-lock-open mr-1"></i>Retirer le VIP</button>`
+            : `<button onclick="setVip('${esc(s.slug)}', true)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-lock mr-1"></i>Rendre VIP</button>`}
+        ${s.isHidden
+            ? `<button onclick="setVisible('${esc(s.slug)}', true)" class="px-3 py-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 text-xs font-bold rounded-xl"><i class="fa-solid fa-eye mr-1"></i>Réafficher</button>`
+            : `<button onclick="setVisible('${esc(s.slug)}', false)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-xl"><i class="fa-solid fa-eye-slash mr-1"></i>Masquer</button>`}
+    `;
+    return `
+    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm" id="bloc-${esc(s.slug)}">
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="text-2xl w-9 text-center">${s.icon || '💬'}</div>
+            <div class="flex-1 min-w-[180px]">
+                <p class="font-bold text-slate-900">${esc(s.name)}${badges(s)}</p>
+                <p class="text-xs text-slate-500">${esc(s.description || 'Sans description')} · ${s.members || 0} membre(s)</p>
+            </div>
+            <div class="flex flex-wrap gap-1 justify-end">${actions}</div>
         </div>
-        <input id="m-${s}" list="usersList" value="${esc(mg[s] || '')}" placeholder="Nom du membre" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-        <button onclick="saveMgr('${s}')" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl">Désigner</button>
-        ${mg[s] ? `<button onclick="saveMgr('${s}', true)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl">Retirer</button>` : ''}
-      </div>`).join('');
-  }
 
-  // Demandes
-  let list = [];
-  try { list = await SalonAccess.listRequests(); } catch (e) { toast('Impossible de charger les demandes'); }
-  const pending = list.filter(r => r.status === 'pending');
-  const done = list.filter(r => r.status !== 'pending').reverse();
+        <div id="edit-${esc(s.slug)}" class="hidden mt-3 pt-3 border-t border-slate-100 grid gap-2 md:grid-cols-[70px_1fr_1.4fr_auto]">
+            <input id="e-ic-${esc(s.slug)}" maxlength="4" value="${esc(s.icon || '')}" placeholder="🙂" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none text-center">
+            <input id="e-nm-${esc(s.slug)}" maxlength="40" value="${esc(s.name)}" placeholder="Nom du salon" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+            <input id="e-ds-${esc(s.slug)}" maxlength="200" value="${esc(s.description || '')}" placeholder="Description" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+            <div class="flex gap-2">
+                <button onclick="enregistrerSalon('${esc(s.slug)}')" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-check mr-1"></i>Enregistrer</button>
+                <button onclick="fermerEdition('${esc(s.slug)}')" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">Annuler</button>
+            </div>
+        </div>
+    </div>`;
+}
 
-  document.getElementById('pc').textContent = pending.length ? '(' + pending.length + ')' : '';
-  document.getElementById('pending').innerHTML = pending.length ? pending.map(r => `
-    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
-      <div class="flex-1 min-w-[200px]">
-        <p class="font-bold text-slate-900">${esc(r.user)}</p>
-        <p class="text-xs text-slate-500">demande l'accès à <b>${esc(names[r.slug] || r.slug)}</b> · ${when(r.date)}</p>
-      </div>
-      <button onclick="decide(${r.id},'approved')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-check mr-1"></i>Accepter</button>
-      <button onclick="decide(${r.id},'refused')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-xmark mr-1"></i>Refuser</button>
-    </div>`).join('') : '<p class="text-sm text-slate-500">Aucune demande en attente.</p>';
+function rendreListe() {
+    const zone = document.getElementById('salonsList');
+    const f = filtre.trim().toLowerCase();
+    const liste = f ? SALONS.filter(s => (s.name || '').toLowerCase().includes(f) || (s.slug || '').includes(f)) : SALONS;
+    zone.innerHTML = liste.length
+        ? liste.map(ligneSalon).join('')
+        : '<p class="text-sm text-slate-500">Aucun salon ne correspond à la recherche.</p>';
+}
 
-  document.getElementById('done').innerHTML = done.length ? done.map(r => `
-    <div class="bg-white rounded-xl px-4 py-2 border border-slate-200/80 text-sm flex flex-wrap gap-2 items-center">
-      <b>${esc(r.user)}</b><span class="text-slate-500">· ${esc(names[r.slug] || r.slug)}</span>
-      <span class="ml-auto text-xs font-bold ${r.status === 'approved' ? 'text-green-600' : 'text-red-500'}">${r.status === 'approved' ? 'Accepté' : 'Refusé'}${r.by ? ' par ' + esc(r.by) : ''}</span>
-    </div>`).join('') : '<p class="text-sm text-slate-500">Rien pour le moment.</p>';
+async function chargerSalons() {
+    SALONS = await SalonAccess.salons();
+    names = {};
+    SALONS.forEach(s => { names[s.slug] = s.name; });
+    PRIVATE = SALONS.filter(s => s.isPrivate).map(s => s.slug);
+}
+
+function ouvrirEdition(slug) {
+    const zone = document.getElementById('edit-' + slug);
+    if (zone) { zone.classList.remove('hidden'); const champ = document.getElementById('e-nm-' + slug); if (champ) champ.focus(); }
+}
+function fermerEdition(slug) {
+    const zone = document.getElementById('edit-' + slug);
+    if (zone) zone.classList.add('hidden');
+}
+
+async function enregistrerSalon(slug) {
+    const nom = (document.getElementById('e-nm-' + slug).value || '').trim();
+    const icone = (document.getElementById('e-ic-' + slug).value || '').trim();
+    const desc = (document.getElementById('e-ds-' + slug).value || '').trim();
+    if (nom.length < 3) { toast('Nom trop court (3 caractères minimum)'); return; }
+    try {
+        const rep = await SalonAccess.renommer(slug, { name: nom, icon: icone, description: desc });
+        const maj = (rep && rep.salon) || { slug, name: nom, icon: icone, description: desc };
+        const i = SALONS.findIndex(s => s.slug === slug);
+        if (i >= 0) SALONS[i] = Object.assign({}, SALONS[i], maj);
+        names[slug] = maj.name || nom;
+        rendreListe();
+        toast('✅ Salon enregistré');
+    } catch (e) {
+        toast(e.message || 'Modification impossible');
+    }
+}
+
+// 🔒 Passer un salon en VIP, ou lui retirer le VIP
+async function setVip(slug, isPrivate) {
+    const nom = names[slug] || slug;
+    const question = isPrivate
+        ? 'Rendre « ' + nom + ' » VIP ?\n\nLe salon ne sera plus accessible sans demande d\'accès validée.'
+        : 'Retirer le VIP de « ' + nom + ' » ?\n\nLe salon redeviendra ouvert à tous.';
+    if (!confirm(question)) return;
+    try {
+        await SalonAccess.setPrivate(slug, isPrivate);
+        const i = SALONS.findIndex(s => s.slug === slug);
+        if (i >= 0) SALONS[i].isPrivate = !!isPrivate;
+        PRIVATE = SALONS.filter(s => s.isPrivate).map(s => s.slug);
+        rendreListe();
+        toast(isPrivate ? '🔒 ' + nom + ' est désormais VIP' : '🔓 ' + nom + ' est redevenu public');
+    } catch (e) {
+        toast(e.message || 'Action réservée au super administrateur');
+    }
+    render();
+}
+
+// 🚫 Masquer un salon (il disparaît du site) ou le réafficher
+async function setVisible(slug, visible) {
+    const nom = names[slug] || slug;
+    const question = visible
+        ? 'Réafficher « ' + nom + ' » ?\n\nLe salon redeviendra visible et accessible.'
+        : 'Masquer « ' + nom + ' » ?\n\nLe salon disparaîtra du site et ne sera plus accessible. Vous pourrez le réafficher ici.';
+    if (!confirm(question)) return;
+    try {
+        await SalonAccess.setVisible(slug, visible);
+        const i = SALONS.findIndex(s => s.slug === slug);
+        if (i >= 0) SALONS[i].isHidden = !visible;
+        rendreListe();
+        toast(visible ? '👁️ ' + nom + ' est réaffiché' : '🚫 ' + nom + ' est masqué');
+    } catch (e) {
+        toast(e.message || 'Action réservée au super administrateur');
+    }
+}
+
+// ------------------------------------------------------------------
+async function render() {
+    const u = await SalonAccess.me();
+    const sup = SalonAccess.isSuper(u), modo = SalonAccess.isModerator(u), ok = await SalonAccess.canManage();
+    document.getElementById('denied').classList.toggle('hidden', ok);
+    document.getElementById('panel').classList.toggle('hidden', !ok);
+    document.getElementById('who').textContent = sup
+        ? 'Super administrateur : vous gérez les salons et toutes les demandes.'
+        : modo
+          ? 'Modérateur : vous voyez toutes les demandes et pouvez les valider.'
+          : ok ? 'Responsable de : ' + u.manages.map(s => names[s] || s).join(', ') : 'Acceptez ou refusez les demandes des membres.';
+    if (!ok) return;
+
+    await chargerSalons();
+
+    // Liste des salons + actions (super admin uniquement)
+    document.getElementById('salonsSec').classList.toggle('hidden', !sup);
+    if (sup) rendreListe();
+
+    // Responsables des salons VIP (super admin)
+    document.getElementById('mgrSec').classList.toggle('hidden', !(sup && PRIVATE.length));
+    if (sup && PRIVATE.length) {
+        const [mg, us] = await Promise.all([SalonAccess.managers(), SalonAccess.users()]);
+        document.getElementById('usersList').innerHTML = us.map(n => `<option value="${esc(n)}">`).join('');
+        document.getElementById('mgrs').innerHTML = PRIVATE.map(s => `
+            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
+                <div class="flex-1 min-w-[160px]">
+                    <p class="font-bold text-slate-900">${esc(names[s] || s)}</p>
+                    <p class="text-xs text-slate-500">${mg[s] ? 'Responsable : <b>' + esc(mg[s]) + '</b>' : 'Aucun responsable : seules vos décisions comptent'}</p>
+                </div>
+                <input id="m-${s}" list="usersList" value="${esc(mg[s] || '')}" placeholder="Nom du membre" class="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                <button onclick="saveMgr('${s}')" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl">Désigner</button>
+                ${mg[s] ? `<button onclick="saveMgr('${s}', true)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl">Retirer</button>` : ''}
+            </div>`).join('');
+    }
+
+    // Demandes
+    let list = [];
+    try { list = await SalonAccess.listRequests(); } catch (e) { toast('Impossible de charger les demandes'); }
+    const pending = list.filter(r => r.status === 'pending');
+    const done = list.filter(r => r.status !== 'pending').reverse();
+
+    document.getElementById('pc').textContent = pending.length ? '(' + pending.length + ')' : '';
+    document.getElementById('pending').innerHTML = pending.length ? pending.map(r => `
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-3">
+            <div class="flex-1 min-w-[200px]">
+                <p class="font-bold text-slate-900">${esc(r.user)}</p>
+                <p class="text-xs text-slate-500">demande l'accès à <b>${esc(names[r.slug] || r.slug)}</b> · ${when(r.date)}</p>
+            </div>
+            <button onclick="decide(${r.id},'approved')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl"><i class="fa-solid fa-check mr-1"></i>Accepter</button>
+            <button onclick="decide(${r.id},'refused')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-xmark mr-1"></i>Refuser</button>
+        </div>`).join('') : '<p class="text-sm text-slate-500">Aucune demande en attente.</p>';
+
+    document.getElementById('done').innerHTML = done.length ? done.map(r => `
+        <div class="bg-white rounded-xl px-4 py-2 border border-slate-200/80 text-sm flex flex-wrap gap-2 items-center">
+            <b>${esc(r.user)}</b><span class="text-slate-500">· ${esc(names[r.slug] || r.slug)}</span>
+            <span class="ml-auto text-xs font-bold ${r.status === 'approved' ? 'text-green-600' : 'text-red-500'}">${r.status === 'approved' ? 'Accepté' : 'Refusé'}${r.by ? ' par ' + esc(r.by) : ''}</span>
+        </div>`).join('') : '<p class="text-sm text-slate-500">Rien pour le moment.</p>';
 }
 
 async function decide(id, decision) {
-  try { await SalonAccess.decide(id, decision); toast(decision === 'approved' ? 'Accès accordé' : 'Demande refusée'); }
-  catch (e) { toast('Action impossible : vous n\'êtes pas responsable de ce salon'); }
-  render();
+    try { await SalonAccess.decide(id, decision); toast(decision === 'approved' ? 'Accès accordé' : 'Demande refusée'); }
+    catch (e) { toast('Action impossible : vous n\'êtes pas responsable de ce salon'); }
+    render();
 }
 
-// 🔒 Rendre un salon VIP, ou lui retirer le VIP (super administrateur)
-async function setVip(slug, isPrivate) {
-  const nom = names[slug] || slug;
-  const question = isPrivate
-    ? 'Rendre « ' + nom + ' » VIP ?\n\nLe salon ne sera plus accessible sans demande d\'accès validée.'
-    : 'Retirer le VIP de « ' + nom + ' » ?\n\nLe salon redeviendra ouvert à tous.';
-  if (!confirm(question)) return;
-  try {
-    await SalonAccess.setPrivate(slug, isPrivate);
-    toast(isPrivate ? '🔒 ' + nom + ' est désormais VIP' : '🔓 ' + nom + ' est redevenu public');
-  } catch (e) {
-    toast(e.message || 'Action réservée au super administrateur');
-  }
-  render();
+async function saveMgr(slug, remove) {
+    const name = remove ? '' : document.getElementById('m-' + slug).value.trim();
+    if (!remove && !name) { toast('Indiquez le nom du responsable'); return; }
+    try { await SalonAccess.setManager(slug, name); toast(remove ? 'Responsable retiré' : name + ' est responsable de ' + names[slug]); }
+    catch (e) { toast('Action réservée au super administrateur'); }
+    render();
 }
 
-async function saveMgr(slug, remove) {  const name = remove ? '' : document.getElementById('m-' + slug).value.trim();
-  if (!remove && !name) { toast('Indiquez le nom du responsable'); return; }
-  try { await SalonAccess.setManager(slug, name); toast(remove ? 'Responsable retiré' : name + ' est responsable de ' + names[slug]); }
-  catch (e) { toast('Action réservée au super administrateur'); }
-  render();
-}
+const champRecherche = document.getElementById('q');
+if (champRecherche) champRecherche.oninput = e => { filtre = e.target.value || ''; rendreListe(); };
 
 if (SalonAccess.DEMO) {
-  const d = document.getElementById('demo'), s = document.getElementById('userSel');
-  s.innerHTML = SalonAccess.DEMO_USERS.map(n => `<option>${n}</option>`).join('');
-  SalonAccess.me().then(u => { s.value = u.name; });
-  d.classList.remove('hidden');
-  s.onchange = () => { SalonAccess.setUser(s.value); render(); };
+    const d = document.getElementById('demo'), s = document.getElementById('userSel');
+    s.innerHTML = SalonAccess.DEMO_USERS.map(n => `<option>${n}</option>`).join('');
+    SalonAccess.me().then(u => { s.value = u.name; });
+    d.classList.remove('hidden');
+    s.onchange = () => { SalonAccess.setUser(s.value); render(); };
 }
 render();
 </script>

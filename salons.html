@@ -114,6 +114,7 @@ function renderSalons(items, containerId, isPrivate = false) {
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all">
             <div class="flex items-start justify-between mb-3">
                 <div class="text-3xl">${s.icon || '💬'}</div>
+                ${s.isHidden ? `<span class="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-1 rounded-full" title="Salon masqué (visible par l'équipe uniquement)">🚫 Masqué</span>` : ''}
                 ${typeof s.members === 'number'
                     ? `<span class="text-xs bg-pink-50 text-brand-primary font-bold px-2 py-1 rounded-full" title="Membres">
                            <i class="fa-solid fa-users text-[10px] mr-1"></i>${s.members}
