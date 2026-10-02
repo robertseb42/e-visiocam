@@ -1,64 +1,298 @@
-const $=s=>document.querySelector(s);
-const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('s');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('s'),1800)};
-const note='<svg viewBox="0 0 24 24"><path d="M9 18V6l11-2v12"/><circle cx="6.500" cy="18" r="2.500"/><circle cx="17.500" cy="16" r="2.500"/></svg>';
-const ppl='<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/></svg>';
-const rooms=[
- ['Général',128,'🌍','Salon Général'],
- ['Français',86,'FR','Salon Français'],
- ['International',97,'🌐','Salon International'],
- ['Couples',54,'💕','Salon Couples'],
- ['Amateurs',63,'✨','Salon Amateurs'],
- ['Musique',42,'🎵','Salon Musique'],
- ['VIP Lounge',12,'👑','VIP Lounge'],
- ['Premium',8,'💎','Salon Premium']];
-const slugs=['general','francais','international','couples','amateurs','musique','vip','premium'];
-const privates=['vip','premium']; /* BACK : le serveur doit aussi refuser la connexion si l'accès n'est pas accordé */
-const themeParam=new URLSearchParams(location.search).get('theme');
-let cur=Math.max(0,slugs.indexOf(themeParam));
-/* Salon privé : accès seulement si un modérateur / administrateur l'a accordé */
-if(privates.includes(slugs[cur])){SalonAccess.status(slugs[cur]).then(s=>{if(s==='approved')document.documentElement.style.visibility='';else location.replace('salons.html?acces='+s)})}
-function drawRooms(){$('#rooms').innerHTML=rooms.map((r,i)=>`<button class="room ${i==cur?'act':''}" data-i="${i}"><b class="ic">${r[2]}</b>${r[0]}${privates.includes(slugs[i])?' 🔒':''}<span>${ppl}${r[1]}</span></button>`).join('');
- $('#rt').textContent=rooms[cur][3];document.title='E-Visiocam – '+rooms[cur][3];$('#rc').textContent=rooms[cur][1]+' connectés';$('#mc').textContent=rooms[cur][1]}
-$('#rooms').onclick=async e=>{const b=e.target.closest('.room');if(b){const i=+b.dataset.i;
- if(privates.includes(slugs[i])&&await SalonAccess.status(slugs[i])!=='approved'){toast('Salon privé : demandez l\'accès depuis la page Salons');return}
- cur=i;drawRooms();history.pushState(null,'','?theme='+slugs[cur]);
- pub.length=0;pub.push(['Vous','#ffd60a','#ffd60a','Bienvenue dans le salon '+rooms[cur][0]+' !',hm()]);drawPub();
- /* BACK : charger ici les messages et membres du thème → fetch('/api/salons/'+slugs[cur]+'/messages') */}};
-drawRooms();
+/* ==========================================================
+   E-VISIOCAM — SALON EN DIRECT (room.html?theme=<slug>)
+   Chat public, membres et caméras branchés sur le vrai serveur.
+   Le design vient de la maquette d'origine ; seules les données
+   sont désormais réelles (socket.io + API E-VISIOCAM).
+   ========================================================== */
+const $ = s => document.querySelector(s);
+const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('s'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('s'), 1900); };
+const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ppl = '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/></svg>';
+const camIco = '<svg class="cm" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg>';
+const silhouette = '<svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg>';
 
-const mem=[['Emma','#e0457b',1,1],['Alex','#2f7bff',1,0],['Sophie','#ff2d78',1,0],['Lucas','#2f7bff',0,0],['Camille','#ff2d78',1,1],['Léa','#ff2d78',1,1],['Thomas','#2f7bff',1,1]];
-let onlyCam=false,target='Emma';
-function drawList(){const q=$('#q').value.toLowerCase();
- $('#list').innerHTML=mem.filter(m=>m[0].toLowerCase().includes(q)&&(!onlyCam||m[3])).map(m=>`<div class="m"><div class="av ${m[2]?'on':'off'}" style="--c:${m[1]}">${m[0][0]}</div>${m[0]}${m[3]?'<svg class="cm" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg>':'<span class="cm"></span>'}<button class="dots" data-n="${m[0]}" data-c="${m[1]}" aria-label="Options ${m[0]}"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg></button></div>`).join('')}
-drawList();$('#q').oninput=drawList;
-$('#c1').onclick=()=>{onlyCam=false;$('#c1').classList.add('act');$('#c2').classList.remove('act');drawList()};
-$('#c2').onclick=()=>{onlyCam=true;$('#c2').classList.add('act');$('#c1').classList.remove('act');drawList()};
-const menu=$('#menu');
-$('#list').onclick=e=>{const d=e.target.closest('.dots');if(!d)return;
- const r=d.getBoundingClientRect(),p=menu.parentElement.getBoundingClientRect();
- target=d.dataset.n;$('#mn').textContent=target;$('#mav').textContent=target[0];$('#mav').style.background=d.dataset.c;
- menu.style.top=Math.min(r.top-p.top+10,p.height-menu.offsetHeight-10)+'px';menu.hidden=false;e.stopPropagation()};
-document.addEventListener('click',e=>{if(!menu.contains(e.target))menu.hidden=true});
-menu.onclick=e=>{const b=e.target.closest('button');if(!b)return;menu.hidden=true;
- if(b.dataset.a==='pm'){$('#pn').textContent=target;$('#pi').placeholder='Message à '+target+'…';$('#pm').innerHTML='';$('#pi').focus()}else toast(b.dataset.a+' · '+target)};
-$('#px').onclick=()=>{$('#pm').innerHTML='';$('#pn').textContent='—';toast('Conversation privée fermée')};
+/* Les huit salons du site (mêmes identifiants que salons.html) */
+const SALONS = [
+  ['general', 'Salon Général', '🌍'],
+  ['francais', 'Salon Français', '🇫🇷'],
+  ['international', 'Salon International', '🌐'],
+  ['couples', 'Salon Couples', '💕'],
+  ['amateurs', 'Salon Amateurs', '✨'],
+  ['musique', 'Salon Musique', '🎵'],
+  ['vip', 'VIP Lounge', '👑'],
+  ['premium', 'Salon Premium', '💎']
+];
+const PRIVATES = ['vip', 'premium'];
+const SLUGS = SALONS.map(s => s[0]);
+const NAMES = {};
+SALONS.forEach(s => NAMES[s[0]] = s[1]);
 
-const pub=[['Alex','#2f7bff','#2f7bff','Bonsoir tout le monde !','20:14'],['Sophie','#ff2d78','#ff2d78','Salut Alex 👋','20:15'],['Emma','#ff2d78','#ff2d78','Très bonne ambiance ici !','20:16'],['Vous','#ffd60a','#ffd60a','Bienvenue !','20:16']];
-const hm=()=>new Date().toTimeString().slice(0,5);
-function drawPub(){$('#pub').innerHTML=pub.map(m=>`<div class="l"><div class="av" style="--c:${m[1]};${m[0]=='Vous'?'color:#111':''}">${m[0][0]}</div><strong style="color:${m[2]}">${m[0]}</strong><span>${m[3]}</span><time>${m[4]}</time></div>`).join('');$('#pub').scrollTop=1e5}
-drawPub();
-$('#f').onsubmit=e=>{e.preventDefault();const v=$('#i').value.trim();if(!v)return;pub.push(['Vous','#ffd60a','#ffd60a',v.replace(/</g,'&lt;'),hm()]);$('#i').value='';drawPub()};
-$('#pf').onsubmit=e=>{e.preventDefault();const v=$('#pi').value.trim();if(!v)return;
- $('#pm').insertAdjacentHTML('beforeend',`<div class="b me"></div><div class="t me">${hm()} ✓✓</div>`);
- $('#pm').querySelectorAll('.b.me').forEach((n,i,a)=>{if(i==a.length-1)n.textContent=v});$('#pi').value='';$('#pm').scrollTop=1e5};
+let cur = Math.max(0, SLUGS.indexOf(new URLSearchParams(location.search).get('theme')));
+let salon = NAMES[SLUGS[cur]];
+let socket = null, user = null, users = [], streams = [], peers = {}, onlyCam = false, target = '';
 
-let cam=true,mic=false;
-$('#bc').onclick=()=>{cam=!cam;$('#bc').classList.toggle('y',cam);$('#bc span').textContent=cam?'Caméra active':'Caméra coupée'};
-$('#bm').onclick=()=>{mic=!mic;$('#bm span').textContent=mic?'Micro actif':'Micro coupé';$('#me').classList.toggle('mute',!mic)};
-$('#bs').onclick=()=>toast('Réglages bientôt disponibles');
-function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('evc-theme',t)}catch(e){}$('#tt').textContent=t==='light'?'🌙':'☀️'}
-setTheme(document.documentElement.dataset.theme||'dark');
-$('#tt').onclick=()=>setTheme(document.documentElement.dataset.theme==='light'?'dark':'light');
-$('#bq').onclick=()=>{location.href='salons.html'};
-window.onpopstate=()=>location.reload();
-$('#me').classList.add('mute');
+const ROLE_COLORS = { super_admin: '#ffd60a', moderator: '#2f7bff', model: '#ff2d78', user: '#8b93a3' };
+const ROLE_ICONS = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
+const colOf = r => ROLE_COLORS[r] || ROLE_COLORS.user;
+const hm = d => new Date(d || Date.now()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+/* ---------- connexion obligatoire ---------- */
+if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+  location.href = 'login.html?redirect=' + encodeURIComponent('room.html' + location.search);
+}
+user = (typeof getCurrentUser === 'function' ? getCurrentUser() : null);
+if (user && user.username) {
+  const av = document.querySelector('header .av');
+  if (av) av.textContent = user.username[0].toUpperCase();
+}
+
+/* ---------- salon privé : accès accordé par un responsable ---------- */
+if (PRIVATES.includes(SLUGS[cur]) && typeof SalonAccess !== 'undefined') {
+  SalonAccess.status(SLUGS[cur]).then(st => {
+    if (st !== 'approved') location.replace('salons.html?acces=' + encodeURIComponent(st));
+  });
+}
+
+/* ---------- liste des salons ---------- */
+function drawRooms() {
+  $('#rooms').innerHTML = SALONS.map((s, i) =>
+    `<button class="room ${i === cur ? 'act' : ''}" data-i="${i}"><b class="ic">${s[2]}</b>${s[1]}${PRIVATES.includes(s[0]) ? ' 🔒' : ''}</button>`
+  ).join('');
+  $('#rt').textContent = salon;
+  document.title = 'E-Visiocam – ' + salon;
+  $('#rc').textContent = users.length + (users.length > 1 ? ' connectés' : ' connecté');
+  $('#mc').textContent = users.length;
+}
+
+$('#rooms').onclick = async e => {
+  const b = e.target.closest('.room');
+  if (!b) return;
+  const i = +b.dataset.i;
+  if (i === cur) return;
+  if (PRIVATES.includes(SLUGS[i]) && typeof SalonAccess !== 'undefined') {
+    const st = await SalonAccess.status(SLUGS[i]);
+    if (st !== 'approved') { toast('Salon privé : demandez l\'accès depuis la page Salons'); return; }
+  }
+  cur = i;
+  salon = NAMES[SLUGS[cur]];
+  joinSalon();
+};
+
+/* ---------- membres ---------- */
+function drawList() {
+  const q = ($('#q').value || '').toLowerCase();
+  const list = users.filter(u => (u.username || '').toLowerCase().includes(q) && (!onlyCam || u.streamId));
+  $('#list').innerHTML = list.length
+    ? list.map(u => {
+        const n = u.username || '?', c = colOf(u.role);
+        return `<div class="m"><div class="av on" style="--c:${c}">${esc(n[0].toUpperCase())}</div><span>${ROLE_ICONS[u.role] || ''} ${esc(n)}</span>` +
+          (u.streamId ? camIco : '<span class="cm"></span>') +
+          `<button class="dots" data-n="${esc(n)}" data-c="${c}" data-s="${esc(u.streamId || '')}" aria-label="Options ${esc(n)}">` +
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg></button></div>';
+      }).join('')
+    : '<div class="m" style="color:var(--mut);font-weight:500">Personne dans ce salon pour le moment</div>';
+}
+$('#q').oninput = drawList;
+$('#c1').onclick = () => { onlyCam = false; $('#c1').classList.add('act'); $('#c2').classList.remove('act'); drawList(); };
+$('#c2').onclick = () => { onlyCam = true; $('#c2').classList.add('act'); $('#c1').classList.remove('act'); drawList(); };
+
+/* ---------- caméras du salon ---------- */
+function drawCams() {
+  const grid = $('#grid');
+  if (!streams.length) {
+    grid.innerHTML = `<div class="cam" style="--g1:#20242e;--g2:#12151c">${silhouette}<div class="n" style="color:var(--mut)">Aucune caméra active</div></div>`;
+    return;
+  }
+  grid.innerHTML = streams.map(s =>
+    `<div class="cam" id="tile-${esc(s.streamId)}" data-stream="${esc(s.streamId)}">` +
+    (s.isCameraOff ? silhouette : `<video id="cam-${esc(s.streamId)}" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>`) +
+    `<div class="n${s.isMicMuted ? ' mute' : ''}" style="left:auto;right:8px">${esc(s.broadcasterUsername || '')}` +
+    (user && s.broadcasterId === user.id ? ' (moi)' : '') +
+    (s.isMicMuted ? ' <span style="color:var(--pink)">micro coupé</span>' : '') + '</div></div>'
+  ).join('');
+
+  streams.forEach(s => {
+    if (user && s.broadcasterId === user.id) return;
+    if (!peers[s.streamId]) viewStream(s.streamId);
+  });
+}
+
+function viewStream(streamId) {
+  try {
+    const pc = new RTCPeerConnection({
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
+      ]
+    });
+    peers[streamId] = pc;
+    pc.ontrack = ev => { const v = document.getElementById('cam-' + streamId); if (v) { v.srcObject = ev.streams[0]; v.play().catch(() => {}); } };
+    pc.onicecandidate = ev => { if (ev.candidate && socket) socket.emit('webrtc:ice-candidate', { candidate: ev.candidate, streamId }); };
+    pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
+      .then(o => pc.setLocalDescription(o).then(() => socket.emit('webrtc:offer', { offer: o, streamId })))
+      .catch(() => {});
+  } catch (e) {}
+}
+
+/* ---------- discussion publique ---------- */
+const pub = [];
+function drawPub() {
+  $('#pub').innerHTML = pub.length
+    ? pub.map(m => m.sys
+        ? `<div class="l" style="display:block;color:var(--mut);font-style:italic;font-size:13px">— ${esc(m.text)} —</div>`
+        : `<div class="l"><div class="av" style="--c:${m.color};${m.me ? 'color:#111' : ''}">${esc((m.name[0] || '?').toUpperCase())}</div>` +
+          `<strong style="color:${m.color}">${esc(m.name)}</strong><span>${esc(m.text)}</span><time>${m.time}</time></div>`
+      ).join('')
+    : '<div class="l" style="display:block;color:var(--mut);font-size:13px">Aucun message. Soyez le premier !</div>';
+  $('#pub').scrollTop = 1e5;
+}
+
+$('#f').onsubmit = e => {
+  e.preventDefault();
+  const v = $('#i').value.trim();
+  if (!v) return;
+  if (!socket || !socket.connected) { toast('Connexion au serveur en cours…'); return; }
+  socket.emit('chat:message', { text: v, salon });
+  $('#i').value = '';
+};
+
+/* ---------- conversation privée (renvoi vers la page Messages) ---------- */
+$('#pm').innerHTML = '<div style="color:var(--mut);font-size:13px;padding:4px 0">Les messages privés s\'ouvrent depuis la page <b>Messages</b>.</div>';
+$('#pi').placeholder = 'Ouvrir la page Messages…';
+$('#pf').onsubmit = e => { e.preventDefault(); location.href = 'messages.html'; };
+$('#px').onclick = () => { $('#pn').textContent = '—'; toast('Panneau fermé'); };
+
+/* ---------- menu d'un membre ---------- */
+const menu = $('#menu');
+$('#list').onclick = e => {
+  const d = e.target.closest('.dots');
+  if (!d) return;
+  const r = d.getBoundingClientRect(), p = menu.parentElement.getBoundingClientRect();
+  target = d.dataset.n;
+  menu.dataset.stream = d.dataset.s || '';
+  $('#mn').textContent = target;
+  $('#mav').textContent = (target[0] || '?').toUpperCase();
+  $('#mav').style.background = d.dataset.c;
+  menu.style.top = Math.min(r.top - p.top + 10, p.height - menu.offsetHeight - 10) + 'px';
+  menu.hidden = false;
+  e.stopPropagation();
+};
+document.addEventListener('click', e => { if (!menu.contains(e.target)) menu.hidden = true; });
+menu.onclick = e => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  menu.hidden = true;
+  const a = b.dataset.a;
+  if (a === 'pm') { $('#pn').textContent = target; $('#pi').placeholder = 'Écrire à ' + target + ' (page Messages)…'; $('#pi').focus(); return; }
+  if (a === 'Caméra affichée') {
+    const tile = menu.dataset.stream ? document.getElementById('tile-' + menu.dataset.stream) : null;
+    if (tile) { tile.scrollIntoView({ block: 'center' }); tile.style.outline = '2px solid var(--yel)'; setTimeout(() => tile.style.outline = '', 1600); }
+    else toast(target + ' ne diffuse pas de caméra');
+    return;
+  }
+  if (a === 'Membre bloqué') { toast('Blocage : bientôt disponible'); return; }
+  if (a === 'Signalement envoyé') { toast('Signalement : à faire depuis la page Modération'); return; }
+  toast(a + ' · ' + target);
+};
+
+/* ---------- thème clair / sombre ---------- */
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem('evc-theme', t); } catch (e) {}
+  $('#tt').textContent = t === 'light' ? '🌙' : '☀️';
+}
+setTheme(document.documentElement.dataset.theme || 'dark');
+$('#tt').onclick = () => setTheme(document.documentElement.dataset.theme === 'light' ? 'dark' : 'light');
+
+/* ---------- barre du bas ---------- */
+$('#bc').onclick = () => { location.href = 'live.html'; };
+$('#bm').onclick = () => toast('Le micro se règle pendant la diffusion (En direct)');
+$('#bs').onclick = () => toast('Réglages : bientôt disponibles');
+$('#bq').onclick = () => { location.href = 'salons.html'; };
+
+/* ---------- enregistrement de l'entrée (compteur de membres réel) ---------- */
+function recordJoin(slug) {
+  try {
+    const base = (typeof API_URL !== 'undefined' ? API_URL : 'https://e-visiocam-api.onrender.com/api');
+    const tk = (typeof getToken === 'function' ? getToken() : null);
+    if (!tk) return;
+    fetch(base + '/salons/' + encodeURIComponent(slug) + '/join', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tk }
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+/* ---------- socket ---------- */
+function joinSalon() {
+  users = []; streams = []; pub.length = 0;
+  Object.keys(peers).forEach(id => { try { peers[id].close(); } catch (e) {} delete peers[id]; });
+  drawRooms(); drawList(); drawCams(); drawPub();
+  recordJoin(SLUGS[cur]);
+  if (window.history && history.replaceState) history.replaceState(null, '', '?theme=' + SLUGS[cur]);
+  if (socket) socket.emit('salon:join', salon);
+}
+
+function row(m) {
+  const isMe = user && m.user_id === user.id;
+  const name = m.username || 'Anonyme';
+  return { name, color: isMe ? '#ffd60a' : colOf(m.role), text: m.text, time: hm(m.created_at), me: isMe };
+}
+
+function initSocket() {
+  socket = io('https://e-visiocam-api.onrender.com', { auth: { token: typeof getToken === 'function' ? getToken() : null } });
+
+  socket.on('connect', () => {
+    socket.emit('salon:join', salon);
+    socket.emit('salon:request-streams');
+  });
+
+  socket.on('connect_error', err => { toast('Serveur : ' + err.message); });
+
+  socket.on('salon:joined', data => {
+    if (data && data.salon) { salon = data.salon; drawRooms(); }
+  });
+
+  socket.on('chat:history', messages => {
+    pub.length = 0;
+    (messages || []).forEach(m => pub.push(row(m)));
+    drawPub();
+  });
+
+  socket.on('chat:message', msg => { pub.push(row(msg)); drawPub(); });
+
+  socket.on('system', data => { pub.push({ sys: true, text: data.text }); drawPub(); });
+
+  socket.on('users:list', list => {
+    users = list || [];
+    drawRooms(); drawList();
+  });
+
+  socket.on('salon:streams-list', data => {
+    streams = (data && data.streams) || [];
+    drawCams();
+  });
+
+  socket.on('salon:stream-started', () => socket.emit('salon:request-streams'));
+  socket.on('salon:stream-stopped', data => {
+    if (data && peers[data.streamId]) { try { peers[data.streamId].close(); } catch (e) {} delete peers[data.streamId]; }
+    socket.emit('salon:request-streams');
+  });
+  socket.on('salon:stream-updated', () => socket.emit('salon:request-streams'));
+
+  socket.on('webrtc:answer', async data => {
+    const pc = peers[data.streamId];
+    if (pc) { try { await pc.setRemoteDescription(new RTCSessionDescription(data.answer)); } catch (e) {} }
+  });
+  socket.on('webrtc:ice-candidate', async data => {
+    for (const pc of Object.values(peers)) {
+      if (pc && data.candidate) { try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (e) {} }
+    }
+  });
+}
+
+/* ---------- départ ---------- */
+drawRooms(); drawList(); drawCams(); drawPub();
+recordJoin(SLUGS[cur]);
+initSocket();
+window.addEventListener('beforeunload', () => { if (socket) socket.disconnect(); });

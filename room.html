@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>E-Visiocam – Salon Musique</title>
+<title>E-Visiocam – Salon</title>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("evc-theme")||"dark"}catch(e){document.documentElement.dataset.theme="dark"}</script>
 <script>if(/theme=(vip|premium)/.test(location.search))document.documentElement.style.visibility="hidden"</script>
+<script src="https://e-visiocam-api.onrender.com/socket.io/socket.io.js"></script>
+<script src="auth-api.js"></script>
 <link rel="stylesheet" href="room.css">
 </head>
 <body>
@@ -39,12 +41,7 @@
 
  <section class="col">
   <div class="box" style="flex:1">
-   <div class="grid">
-    <div class="cam" style="--g1:#c9a98a;--g2:#4a3a30"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n">Emma <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
-    <div class="cam" style="--g1:#8a9a7a;--g2:#2c3a30"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n">Alex <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
-    <div class="cam" style="--g1:#d4b68a;--g2:#5a4632"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n">Sophie <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
-    <div class="cam" style="--g1:#8e98a8;--g2:#2e3442"><svg class="p" viewBox="0 0 100 100"><circle cx="50" cy="34" r="17"/><path d="M12 100c0-26 16-38 38-38s38 12 38 38z"/></svg><div class="n" id="me">Vous <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg></div></div>
-   </div>
+   <div class="grid" id="grid"></div>
   </div>
   <div class="box chat">
    <div class="bh"><svg viewBox="0 0 24 24"><path d="M4 5h12v9H9l-4 3v-3H4zM18 9h2v8h-1v3l-3-3h-5v-1"/></svg>DISCUSSION PUBLIQUE</div>
