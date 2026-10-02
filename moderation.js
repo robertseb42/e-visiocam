@@ -24,10 +24,10 @@ var rtcConfig = {
 // ============================================================
 async function loadTurnCredentials() {
     try {
-        var response = await fetch('https://e-visiocam-api.onrender.com/api/turn/credentials');
-        var data = await response.json();
+        var data = await apiCall('/turn/credentials');
         if (data.iceServers && data.iceServers.length > 0) {
             rtcConfig.iceServers = data.iceServers;
+            rtcConfig.iceTransportPolicy = data.iceTransportPolicy || 'all';
             var turnCount = 0;
             data.iceServers.forEach(function(s) {
                 if (!s.urls) return;
@@ -99,7 +99,6 @@ function initSocket() {
         reconnection: true
     });
 
-    SuperCameraPanel.bind(socket, function(){return rtcConfig;});
     socket.on('connect', function() {
         console.log('Socket modérateur connecté :', socket.id);
     });

@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://e-visiocam-api.onrender.com/socket.io/socket.io.js"></script>
     <script src="auth-api.js"></script>
+    <script src="sfu-client.js"></script>
     <script src="nav-auth.js" defer></script>
     <script src="legal-banner.js"></script>
     <style>
@@ -271,14 +272,6 @@ let viewerPeerConnections = {};
 let cameraViewExpanded = true;
 let remoteAudioStates = {};
 
-const rtcConfig = {
-    iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
-    ]
-};
-
 // ============================================================
 // INIT
 // ============================================================
@@ -385,7 +378,7 @@ function initSocket() {
 
     // WebRTC Viewer
     socket.on('webrtc:answer', async (data) => {
-        if (viewerPeerConnections[data.streamId]) {
+        if (viewerPeerConnections[data.streamId] && viewerPeerConnections[data.streamId].setRemoteDescription) {
             try {
                 await viewerPeerConnections[data.streamId].setRemoteDescription(
                     new RTCSessionDescription(data.answer)
@@ -396,7 +389,7 @@ function initSocket() {
 
     socket.on('webrtc:ice-candidate', async (data) => {
         for (const [streamId, pc] of Object.entries(viewerPeerConnections)) {
-            if (pc && data.candidate) {
+            if (pc && pc.addIceCandidate && data.candidate) {
                 try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (err) {}
             }
         }
@@ -497,16 +490,24 @@ async function startViewingStream(streamId) {
     if (!stream) return;
 
     try {
+        const attach = (ms) => {
+            const videoEl = document.getElementById('cam-' + streamId);
+            if (videoEl) { videoEl.srcObject = ms; videoEl.play().catch(e => {}); }
+        };
+        // 1) via le SFU ; 2) sinon connexion directe (relais Cloudflare)
+        viewerPeerConnections[streamId] = { placeholder: true, close() {} };
+        const sub = await EvcSfu.subscribe(streamId, { preferredRid: 'h', onStream: attach });
+        if (sub) {
+            if (viewerPeerConnections[streamId] && viewerPeerConnections[streamId].placeholder) viewerPeerConnections[streamId] = sub;
+            else sub.close();
+            return;
+        }
+        if (!viewerPeerConnections[streamId]) return;
+        const rtcConfig = (await EvcSfu.loadConfig()).rtc;
         const pc = new RTCPeerConnection(rtcConfig);
         viewerPeerConnections[streamId] = pc;
 
-        pc.ontrack = (event) => {
-            const videoEl = document.getElementById('cam-' + streamId);
-            if (videoEl) {
-                videoEl.srcObject = event.streams[0];
-                videoEl.play().catch(e => {});
-            }
-        };
+        pc.ontrack = (event) => attach(event.streams[0]);
 
         pc.onicecandidate = (event) => {
             if (event.candidate) {

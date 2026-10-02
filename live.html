@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://e-visiocam-api.onrender.com/socket.io/socket.io.js"></script>
     <script src="auth-api.js"></script>
+    <script src="sfu-client.js"></script>
     <script src="nav-auth.js" defer></script>
     <script src="legal-banner.js"></script>
     <style>
@@ -165,7 +166,6 @@
     </div>
 </main>
 
-<script src="camera-consent.js"></script>
 <script>
 // ============================================================
 // VARIABLES
@@ -173,8 +173,6 @@
 var socket = null;
 var currentUser = null;
 var localStream = null;
-var cameraStarting = false;
-var cameraGeneration = 0;
 var currentStreamId = null;
 var isBroadcasting = false;
 var currentBroadcastStreamId = null;
@@ -191,30 +189,22 @@ var viewerPeerConnection = null;
 
 // ⚠️ rtcConfig GLOBAL - AVEC TURN CLOUDFLARE PAR DÉFAUT
 var rtcConfig = {
-    iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        {
-            urls: [
-                'turn:turn.cloudflare.com:3478?transport=udp',
-                'turn:turn.cloudflare.com:3478?transport=tcp'
-            ],
-            username: 'placeholder',
-            credential: 'placeholder'
-        }
-    ]
+    iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }],
+    iceTransportPolicy: 'all'
 };
+var sfuPublisher = null;   // ma publication sur le SFU (si diffuseur)
+var sfuViewer = null;      // ma réception via le SFU (si spectateur)
 
 // ============================================================
 // CHARGEMENT DES CREDENTIALS CLOUDFLARE TURN
 // ============================================================
 async function loadTurnCredentials() {
     try {
-        const response = await fetch('https://e-visiocam-api.onrender.com/api/turn/credentials');
-        const data = await response.json();
+        const data = await apiCall('/turn/credentials');
 
         if (data.iceServers && data.iceServers.length > 0) {
             rtcConfig.iceServers = data.iceServers;
+            rtcConfig.iceTransportPolicy = data.iceTransportPolicy || 'all';
             
             var turnCount = 0;
             data.iceServers.forEach(function(s) {
@@ -226,8 +216,8 @@ async function loadTurnCredentials() {
                 }
             });
             
-            document.getElementById('turnStatusText').textContent = 'Cloudflare (' + turnCount + ' serveurs)';
-            document.getElementById('turnStatusText').className = 'text-emerald-600 font-bold';
+            document.getElementById('turnStatusText').textContent = data.degraded ? 'STUN seul (IP visibles)' : 'Cloudflare relais (' + turnCount + ' serveurs)';
+            document.getElementById('turnStatusText').className = data.degraded ? 'text-amber-600 font-bold' : 'text-emerald-600 font-bold';
             log('✅ TURN Cloudflare : ' + data.iceServers.length + ' serveurs');
         } else {
             document.getElementById('turnStatusText').textContent = 'STUN seul';
@@ -273,8 +263,6 @@ function initSocket() {
         reconnectionDelay: 1000
     });
 
-    CameraModeration.bind(socket, function(){return rtcConfig;}, function(){stopCamera();});
-    socket.on('live:force-stopped', function(){stopCamera();});
     socket.on('connect', function() {
         log('✅ Connecté au serveur');
         var s = document.getElementById('connectionStatus');
@@ -323,10 +311,9 @@ function initSocket() {
     // Chaque viewer a sa propre RTCPeerConnection
     // ============================================================
     socket.on('webrtc:offer', async function(data) {
-        if (!isBroadcasting || !localStream) return;
         log('📥 Offre de ' + (data.viewerUsername || data.viewerSocketId));
         // 🔍 Transparence : on prévient le membre qu'un membre de l'équipe regarde
-        // Non-public moderation uses the dedicated, server-authorized channel.
+        if (data.moderation) signalerSurveillance(data.viewerUsername, data.horsLive);
         try {
             // 1. Créer une peerConnection UNIQUE pour ce viewer
             var pc = new RTCPeerConnection(rtcConfig);
@@ -443,23 +430,12 @@ function signalerSurveillance(nom, horsLive) {
 // CAMÉRA
 // ============================================================
 async function startCamera() {
-    if (cameraStarting || localStream) return;
-    if (!socket || !socket.connected) { alert('Connectez-vous au serveur avant d’activer la caméra.'); return; }
-    cameraStarting = true;
-    var generation = ++cameraGeneration;
-    var acquired = null;
     try {
-        if (!await CameraModeration.ask() || generation !== cameraGeneration) return;
         log('🎥 Demande d\'accès...');
-        acquired = await navigator.mediaDevices.getUserMedia({
+        localStream = await navigator.mediaDevices.getUserMedia({
             video: { width: 1280, height: 720 },
             audio: true
         });
-        if (generation !== cameraGeneration) { acquired.getTracks().forEach(function(t){t.stop();}); return; }
-        await CameraModeration.activate(acquired);
-        if (generation !== cameraGeneration) { acquired.getTracks().forEach(function(t){t.stop();}); return; }
-        localStream = acquired;
-        myCameraOff = false; myMicMuted = false;
         var video = document.getElementById('localVideo');
         video.srcObject = localStream;
         document.getElementById('localPlaceholder').style.display = 'none';
@@ -477,22 +453,19 @@ async function startCamera() {
         document.getElementById('camStatusText').textContent = 'Active ✅';
         log('✅ Caméra activée');
 
-        // Consent and moderation registration succeeded before showing the active state.
+        // 📷 Caméra allumée : l'équipe (super admin / modérateurs) peut la voir
+        // même sans diffusion, pour vérifier un danger potentiel.
+        if (socket) socket.emit('camera:start', { streamId: currentBroadcastStreamId });
     } catch (err) {
         log('❌ ' + err.message);
-        if(acquired) acquired.getTracks().forEach(function(t){t.stop();});
-        CameraModeration.disable();
-        alert('Activation impossible : ' + err.message);
-    } finally { cameraStarting = false; }
+        alert('Impossible d\'accéder à la caméra : ' + err.message);
+    }
 }
 
 function stopCamera() {
-    cameraGeneration++;
-    CameraModeration.disable();
-    Object.keys(peerConnections).forEach(function(id){try{peerConnections[id].close();}catch(e){}delete peerConnections[id];});
     if (isBroadcasting) stopBroadcast();
     // 📷 Caméra éteinte : on prévient le serveur (fin de la surveillance possible)
-    // Local tracks and all moderation connections are stopped below.
+    if (socket) socket.emit('camera:stop');
     if (localStream) {
         localStream.getTracks().forEach(function(t) { t.stop(); });
         localStream = null;
@@ -520,10 +493,11 @@ function stopCamera() {
 // BROADCAST
 // ============================================================
 function startBroadcast() {
-    if (!localStream || !socket || !socket.connected) { alert('Démarre la caméra et vérifie la connexion.'); return; }
+    if (!localStream) { alert('Démarre la caméra d\'abord'); return; }
     isBroadcasting = true;
     currentBroadcastStreamId = socket.id;
     socket.emit('live:start', { streamId: currentBroadcastStreamId });
+    publishViaSfu(currentBroadcastStreamId);
     document.getElementById('startBroadcastBtn').classList.add('hidden');
     var stopBtn = document.getElementById('stopBroadcastBtn');
     stopBtn.classList.remove('hidden');
@@ -533,10 +507,25 @@ function startBroadcast() {
     log('🔴 En direct !');
 }
 
+// Publie la caméra une seule fois sur le SFU : le diffuseur n'envoie plus qu'UN flux.
+// Si le SFU est indisponible, rien ne change : les spectateurs se connectent en direct.
+async function publishViaSfu(streamId) {
+    try {
+        var handle = await EvcSfu.publish(localStream, streamId);
+        if (!handle) { log('ℹ️ SFU non configuré : connexions directes'); return; }
+        if (!isBroadcasting || currentBroadcastStreamId !== streamId) { handle.close(); return; }
+        sfuPublisher = handle;
+        log('📡 Diffusion SFU active (un seul flux envoyé)');
+    } catch (e) {
+        log('⚠️ SFU indisponible (' + e.message + ') : connexions directes');
+    }
+}
+
 function stopBroadcast() {
     if (!isBroadcasting) return;
     isBroadcasting = false;
-    if(socket && socket.connected) socket.emit('live:stop', { streamId: currentBroadcastStreamId });
+    socket.emit('live:stop', { streamId: currentBroadcastStreamId });
+    if (sfuPublisher) { sfuPublisher.close(); sfuPublisher = null; }
     
     // Fermer toutes les connexions viewers
     Object.keys(peerConnections).forEach(function(viewerId) {
@@ -587,12 +576,10 @@ async function joinStream(streamId, broadcasterUsername) {
     socket.emit('live:join', { streamId: streamId });
     log('👁️ Connexion à ' + broadcasterUsername + '...');
 
-    viewerPeerConnection = new RTCPeerConnection(rtcConfig);
-
-    viewerPeerConnection.ontrack = function(event) {
+    function showRemote(stream) {
         log('🎥 Flux reçu !');
         var remoteVideo = document.getElementById('remoteVideo');
-        remoteVideo.srcObject = event.streams[0];
+        remoteVideo.srcObject = stream;
         remoteVideo.muted = false;
         remoteVideo.volume = 1.0;
         document.getElementById('unmuteBtn').style.display = 'flex';
@@ -600,7 +587,20 @@ async function joinStream(streamId, broadcasterUsername) {
         remoteVideo.play().catch(function(err) {
             log('⚠️ Clique pour activer le son');
         });
-    };
+    }
+
+    // 1) Via le SFU (le diffuseur n'envoie qu'un flux) ; 2) sinon connexion directe.
+    try {
+        var sub = await EvcSfu.subscribe(streamId, { preferredRid: 'f', onStream: showRemote });
+        if (sub && currentStreamId === streamId) { sfuViewer = sub; log('📡 Reçu via le SFU'); return; }
+        if (sub) { sub.close(); return; }
+        log('ℹ️ SFU indisponible pour ce live : connexion directe');
+    } catch (e) { log('⚠️ SFU : ' + e.message); }
+    if (currentStreamId !== streamId) return;
+
+    viewerPeerConnection = new RTCPeerConnection(rtcConfig);
+
+    viewerPeerConnection.ontrack = function(event) { showRemote(event.streams[0]); };
 
     viewerPeerConnection.onicecandidate = function(event) {
         if (event.candidate) {
@@ -630,6 +630,7 @@ function leaveStream() {
     document.getElementById('unmuteBtn').style.display = 'none';
     remoteAudioMuted = false;
     if (viewerPeerConnection) { viewerPeerConnection.close(); viewerPeerConnection = null; }
+    if (sfuViewer) { sfuViewer.close(); sfuViewer = null; }
     log('👋 Live quitté');
 }
 

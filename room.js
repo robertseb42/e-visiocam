@@ -200,20 +200,40 @@ function drawCams() {
 
   streams.forEach(s => {
     if (user && s.broadcasterId === user.id) return;
-    if (!peers[s.streamId]) viewStream(s.streamId);
+    if (!peers[s.streamId]) { viewStream(s.streamId); return; }
+    const ms = peers[s.streamId].evcStream, v = document.getElementById('cam-' + s.streamId);
+    if (ms && v && v.srcObject !== ms) { v.srcObject = ms; v.play().catch(() => {}); }
   });
 }
 
-function viewStream(streamId) {
+async function viewStream(streamId) {
+  if (peers[streamId]) return;
+  peers[streamId] = { placeholder: true, close() {} };      // réserve la place pendant la négociation
+  const attach = ms => {
+    const v = document.getElementById('cam-' + streamId);
+    if (v) { v.srcObject = ms; v.play().catch(() => {}); }
+  };
+  // 1) via le SFU (un seul flux envoyé par le diffuseur) ; 2) sinon connexion directe
   try {
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' }
-      ]
-    });
+    if (window.EvcSfu) {
+      const sub = await EvcSfu.subscribe(streamId, { preferredRid: 'h', onStream: attach });
+      if (sub) {
+        if (peers[streamId] && peers[streamId].placeholder) peers[streamId] = sub; else sub.close();
+        return;
+      }
+    }
+  } catch (e) {}
+  if (!peers[streamId]) return;                             // le live s'est arrêté entre-temps
+  viewDirect(streamId, attach);
+}
+
+async function viewDirect(streamId, attach) {
+  try {
+    const cfg = window.EvcSfu ? (await EvcSfu.loadConfig()).rtc : { iceServers: [{ urls: 'stun:stun.cloudflare.com:3478' }] };
+    if (!peers[streamId]) return;
+    const pc = new RTCPeerConnection(cfg);
     peers[streamId] = pc;
-    pc.ontrack = ev => { const v = document.getElementById('cam-' + streamId); if (v) { v.srcObject = ev.streams[0]; v.play().catch(() => {}); } };
+    pc.ontrack = ev => { pc.evcStream = ev.streams[0]; attach(ev.streams[0]); };
     pc.onicecandidate = ev => { if (ev.candidate && socket) socket.emit('webrtc:ice-candidate', { candidate: ev.candidate, streamId }); };
     pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
       .then(o => pc.setLocalDescription(o).then(() => socket.emit('webrtc:offer', { offer: o, streamId })))
@@ -381,11 +401,11 @@ function initSocket() {
 
   socket.on('webrtc:answer', async data => {
     const pc = peers[data.streamId];
-    if (pc) { try { await pc.setRemoteDescription(new RTCSessionDescription(data.answer)); } catch (e) {} }
+    if (pc && pc.setRemoteDescription) { try { await pc.setRemoteDescription(new RTCSessionDescription(data.answer)); } catch (e) {} }
   });
   socket.on('webrtc:ice-candidate', async data => {
     for (const pc of Object.values(peers)) {
-      if (pc && data.candidate) { try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (e) {} }
+      if (pc && pc.addIceCandidate && data.candidate) { try { await pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (e) {} }
     }
   });
 }
