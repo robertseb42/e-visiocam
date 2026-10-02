@@ -110,6 +110,19 @@ const SalonAccess = (() => {
     try { const d = await api('/salons/list'); return (d && d.salons) || []; } catch (e) { return []; }
   };
 
+  // ---- Logo d'un salon : l'image si le super admin en a envoyé une, sinon l'emoji
+  // BACK : GET /api/salons/list → chaque salon a logoUrl ("/api/salons/musique/logo?v=…") ou null
+  const escHtml = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const logoSrc = s => (s && s.logoUrl) ? API.replace(/\/api\/?$/, '') + s.logoUrl : null;
+  // HTML du logo, à la taille voulue (en px). Si l'image ne charge pas, l'emoji prend le relais.
+  const logoHtml = (s, taille) => {
+    const emoji = (s && s.icon) || '💬', src = logoSrc(s);
+    if (!src) return escHtml(emoji);
+    return '<img src="' + escHtml(src) + '" alt="" loading="lazy" data-fb="' + escHtml(emoji) + '" style="width:' + taille + 'px;height:' + taille +
+      'px;object-fit:contain;border-radius:' + Math.round(taille / 5) + 'px;display:inline-block;vertical-align:middle" '
+      + 'onerror="this.replaceWith(document.createTextNode(this.dataset.fb))">';
+  };
+
   // ---- Passer un salon en VIP, ou lui retirer le VIP (super administrateur)
   // BACK : PUT /api/salons/:slug/private  body { "isPrivate": true | false }
   const setPrivate = async (slug, isPrivate) => {
@@ -144,7 +157,7 @@ const SalonAccess = (() => {
   // BACK : GET /api/salons/users → ["Julie", "Marc", ...]
   const users = async () => DEMO ? DEMO_USERS.filter(n => n !== SUPER) : api('/salons/users').catch(() => []);
 
-  return { DEMO, DEMO_USERS, me, setUser, canManage, isSuper, isModerator, status, request, listRequests, decide, managers, setManager, users, salons, setPrivate, renommer, setVisible };
+  return { DEMO, DEMO_USERS, me, setUser, canManage, isSuper, isModerator, status, request, listRequests, decide, managers, setManager, users, salons, setPrivate, renommer, setVisible, logoSrc, logoHtml };
 })();
 
 /* CÔTÉ BACK (obligatoire) :

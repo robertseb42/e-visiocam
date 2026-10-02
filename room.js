@@ -38,7 +38,7 @@ async function chargerSalons() {
   const demande = SLUGS[cur];
   const liste = await SalonAccess.salons().catch(() => null);
   if (!liste || !liste.length) return;
-  SALONS = liste.map(s => [s.slug, s.name, s.icon || '💬']);
+  SALONS = liste.map(s => [s.slug, s.name, s.icon || '💬', s.logoUrl || null]);
   PRIVATES = liste.filter(s => s.isPrivate).map(s => s.slug);
   CACHES = liste.filter(s => s.isHidden).map(s => s.slug);
   SLUGS = SALONS.map(s => s[0]);
@@ -138,7 +138,7 @@ function drawRooms() {
   const boite = $('#rooms');
   if (!boite) return;
   boite.innerHTML = SALONS.map((s, i) =>
-    `<button class="room ${i === cur ? 'act' : ''}" data-i="${i}"><b class="ic">${s[2]}</b>${s[1]}${PRIVATES.includes(s[0]) ? ' 🔒' : ''}${CACHES.includes(s[0]) ? ' 🚫' : ''}</button>`
+    `<button class="room ${i === cur ? 'act' : ''}" data-i="${i}"><b class="ic">${(typeof SalonAccess !== 'undefined' && SalonAccess.logoHtml) ? SalonAccess.logoHtml({ icon: s[2], logoUrl: s[3] }, 22) : esc(s[2])}</b>${s[1]}${PRIVATES.includes(s[0]) ? ' 🔒' : ''}${CACHES.includes(s[0]) ? ' 🚫' : ''}</button>`
   ).join('');
   const rt = $('#rt'); if (rt) rt.textContent = salon;
   document.title = 'E-Visiocam – ' + salon;
