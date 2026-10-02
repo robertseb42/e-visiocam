@@ -255,6 +255,13 @@
             const params = new URLSearchParams(window.location.search);
             const redirect = params.get('redirect');
 
+            // Mot de passe réinitialisé par un administrateur : nouveau mot de passe obligatoire
+            if (Number(user.must_change_password) === 1) {
+                showToast('Choisissez un nouveau mot de passe 🔑', 'info');
+                setTimeout(() => { window.location.href = 'nouveau-mdp.html'; }, 900);
+                return;
+            }
+
             // Redirection
             setTimeout(() => {
                 if (redirect) {

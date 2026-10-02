@@ -79,9 +79,9 @@
                     class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
             </div>
 
-            <button aria-label="Notifications" onclick="showToast('Aucune nouvelle notification', 'info')" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+            <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
                 <i class="fa-regular fa-bell text-lg"></i>
-                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-primary rounded-full ring-2 ring-white"></span>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
             </button>
 
             <div id="navAuth" class="flex items-center gap-2"></div>

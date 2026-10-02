@@ -43,7 +43,11 @@
                 E-<span class="text-brand-primary">VISIOCAM</span>
             </span>
         </a>
-        <div id="navAuth" class="flex items-center gap-2"></div>
+        <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
     </div>
 </header>
 

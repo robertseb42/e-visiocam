@@ -143,6 +143,96 @@
         startUnreadWatcher();
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // 🔔 CLOCHE DE NOTIFICATION : elle bouge, affiche le point rose
+    //    à l'arrivée d'un message, sonne, et s'éteint à la lecture.
+    // ═══════════════════════════════════════════════════════════
+    let dernierCompteVu = null;
+    let ctxSon = null;
+
+    function injecterStyleCloche() {
+        if (document.getElementById('styleClocheNotif')) return;
+        const style = document.createElement('style');
+        style.id = 'styleClocheNotif';
+        style.textContent = `
+            @keyframes clocheBalancier { 0%,60%,100%{transform:rotate(0)} 70%{transform:rotate(12deg)} 80%{transform:rotate(-10deg)} 90%{transform:rotate(6deg)} }
+            @keyframes clocheSonne { 0%{transform:rotate(0) scale(1)} 20%{transform:rotate(20deg) scale(1.12)} 40%{transform:rotate(-18deg) scale(1.12)} 60%{transform:rotate(12deg) scale(1.08)} 80%{transform:rotate(-8deg)} 100%{transform:rotate(0) scale(1)} }
+            [data-nav-bell] i { display:inline-block; transform-origin:50% 0 }
+            [data-nav-bell].cloche-bouge i { animation: clocheBalancier 2.6s ease-in-out infinite }
+            [data-nav-bell].cloche-sonne i { animation: clocheSonne .9s ease-in-out }
+            [data-nav-bell-badge] { transition: transform .2s ease }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Petit carillon à deux tons (aucun fichier à télécharger)
+    function jouerCloche() {
+        try {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return;
+            ctxSon = ctxSon || new AC();
+            if (ctxSon.state === 'suspended') ctxSon.resume();
+            const t0 = ctxSon.currentTime;
+            [[988, 0], [1319, 0.13]].forEach(function(paire) {
+                const o = ctxSon.createOscillator();
+                const g = ctxSon.createGain();
+                o.type = 'sine';
+                o.frequency.value = paire[0];
+                const t = t0 + paire[1];
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(0.28, t + 0.012);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+                o.connect(g);
+                g.connect(ctxSon.destination);
+                o.start(t);
+                o.stop(t + 1.2);
+            });
+        } catch (e) {}
+    }
+
+    // La cloche qui bouge (et sonne) quand un message arrive
+    function animerCloche(nouveauMessage) {
+        injecterStyleCloche();
+        if (!nouveauMessage) return;
+        document.querySelectorAll('[data-nav-bell]').forEach(function(cloche) {
+            cloche.classList.remove('cloche-sonne');
+            void cloche.offsetWidth;
+            cloche.classList.add('cloche-sonne');
+            setTimeout(function() { cloche.classList.remove('cloche-sonne'); }, 1000);
+        });
+        jouerCloche();
+    }
+
+    // Le point rose : visible seulement s'il reste des messages non lus
+    function mettreAJourCloche(count) {
+        document.querySelectorAll('[data-nav-bell]').forEach(function(cloche) {
+            const point = cloche.querySelector('[data-nav-bell-badge]');
+            if (point) {
+                if (count > 0) {
+                    point.textContent = count > 99 ? '99+' : count;
+                    point.classList.remove('hidden');
+                    point.style.display = 'flex';
+                } else {
+                    point.classList.add('hidden');
+                    point.style.display = 'none';
+                }
+            }
+            cloche.classList.toggle('cloche-bouge', count > 0);
+            cloche.title = count > 0
+                ? count + ' message' + (count > 1 ? 's' : '') + ' non lu' + (count > 1 ? 's' : '')
+                : 'Aucun nouveau message';
+        });
+    }
+
+    // Ouvre la messagerie (ou la connexion si besoin)
+    window.ouvrirNotifications = function() {
+        if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
+            window.location.href = 'login.html?redirect=messages.html';
+        } else {
+            window.location.href = 'messages.html';
+        }
+    };
+
     let unreadSocket = null;
     let pollingInterval = null;
 
@@ -214,6 +304,12 @@
                 sidebarBadge.style.display = 'none';
             }
         }
+
+        // 🔔 Cloche : point rose, balancier, et carillon à l'arrivée d'un message
+        const nouveauMessage = dernierCompteVu !== null && count > dernierCompteVu;
+        mettreAJourCloche(count);
+        if (nouveauMessage) animerCloche(true);
+        dernierCompteVu = count;
     }
 
     window.toggleUserMenu = function(event) {

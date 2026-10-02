@@ -55,6 +55,10 @@
             <a href="moderation-salons.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
                 <i class="fa-solid fa-lock mr-1"></i> Accès salons
             </a>
+            <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
             <div id="navAuth" class="flex items-center gap-2"></div>
             <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
                 <i class="fa-solid fa-arrow-left mr-1"></i> Retour
@@ -62,6 +66,13 @@
         </div>
     </div>
 </header>
+
+<!-- 🎨 Gestion de la bannière d'accueil (images de fond, ordre, durée) -->
+<div class="max-w-[1700px] w-full mx-auto px-6 pt-4">
+    <a href="decor.html" class="inline-block px-5 py-3 bg-brand-primary hover:bg-brand-hover text-slate-900 font-bold rounded-xl">
+        <i class="fa-solid fa-image mr-1"></i> Décor et bannières
+    </a>
+</div>
 
 <main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
     <div class="mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">

@@ -62,6 +62,11 @@ function initAudio() {
     audioEl.addEventListener('volumechange', function() {
         saveRadioState();
     });
+    // Nouvelle tentative dès que le flux est prêt (ou que l'onglet revient au premier plan)
+    audioEl.addEventListener('canplay', retenterLecture);
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) retenterLecture();
+    });
 }
 
 // ---------- PLATEAU QUI TOURNE ----------
@@ -141,6 +146,12 @@ function keepPlayingMuted() {
     }
     armResume();
     updateRadioStatus('SON COUPÉ · CLIQUEZ');
+}
+
+// On retente la lecture dès que le flux est prêt ou que l'onglet revient au premier plan
+function retenterLecture() {
+    if (!audioEl || !audioEl.src || !userWantsToPlay || !audioEl.paused) return;
+    audioEl.play().catch(function() {});
 }
 
 // ---------- CHARGER LES RADIOS ----------

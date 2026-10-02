@@ -167,3 +167,19 @@ function goProfile() {
         window.location.href = 'login.html';
     }
 }
+
+// ============================================================
+// MOT DE PASSE RÉINITIALISÉ PAR UN ADMINISTRATEUR
+// Tant que le membre n'a pas choisi un nouveau mot de passe, on l'y oblige.
+// ============================================================
+(function() {
+    try {
+        var page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var libres = ['nouveau-mdp.html', 'login.html', 'register.html', 'forgot-password.html', 'reset-password.html'];
+        if (libres.indexOf(page) !== -1) return;
+        var user = getCurrentUser();
+        if (user && Number(user.must_change_password) === 1) {
+            window.location.replace('nouveau-mdp.html');
+        }
+    } catch (e) {}
+})();
