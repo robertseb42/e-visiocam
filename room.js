@@ -209,7 +209,7 @@ function drawCams() {
   grid.innerHTML = streams.map(s =>
     `<div class="cam" id="tile-${esc(s.streamId)}" data-stream="${esc(s.streamId)}">` +
     (s.isCameraOff ? silhouette : `<video id="cam-${esc(s.streamId)}" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>`) +
-    `<div class="n${s.isMicMuted ? ' mute' : ''}" style="left:auto;right:8px">${esc(s.broadcasterUsername || '')}` +
+    `<div class="n${s.isMicMuted ? ' mute' : ''}" style="left:auto;right:8px">${s.isPrivate ? '🔒 ' : ''}${esc(s.broadcasterUsername || '')}` +
     (user && s.broadcasterId === user.id ? ' (moi)' : '') +
     (s.isMicMuted ? ' <span style="color:var(--pink)">micro coupé</span>' : '') + '</div></div>'
   ).join('');
@@ -423,10 +423,42 @@ menu.onclick = e => {
 
 /* ---------- barre du bas ---------- */
 $('#bc').onclick = () => { location.href = 'live.html'; };
+$('#bp').onclick = ouvrirLivePrive;
 $('#bm').onclick = () => toast('Le micro se règle pendant la diffusion (En direct)');
 $('#bq').onclick = () => { location.href = 'salons.html'; };
 } catch (errInteraction) {
   console.error('Salon : un élément de la page est absent —', errInteraction);
+}
+
+/* ---------- 🔒 live privé : inviter un ou plusieurs membres, puis passer sur la page Live ---------- */
+function ouvrirLivePrive() {
+  if (typeof LivePrive === 'undefined') { toast('Live privé indisponible'); return; }
+  const membres = users.filter(u => user && u.id !== user.id).map(u => ({ id: u.id, username: u.username }));
+  if (!membres.length) { toast('Aucun autre membre n\'est connecté pour le moment'); return; }
+  LivePrive.ouvrir({
+    membres, titre: '🔒 Live privé', bouton: 'Passer en live privé',
+    onConfirm: (ids, noms) => {
+      try { sessionStorage.setItem('evc-live-prive', JSON.stringify({ invited: ids, names: noms, salon })); } catch (e) {}
+      location.href = 'live.html?prive=1';
+    }
+  });
+}
+
+// Une invitation à un live privé arrive : bannière « Regarder »
+function invitationLivePrive(d) {
+  if (!d || typeof LivePrive === 'undefined') return;
+  LivePrive.banniere({
+    de: d.broadcasterUsername,
+    onRegarder: () => {
+      const tuile = document.getElementById('tile-' + d.streamId);
+      if (tuile) {   // même salon : la caméra est déjà dans la grille
+        tuile.scrollIntoView({ block: 'center' });
+        tuile.style.outline = '2px solid var(--yel)'; setTimeout(() => tuile.style.outline = '', 2000);
+      } else {
+        location.href = 'live.html?join=' + encodeURIComponent(d.streamId) + '&from=' + encodeURIComponent(d.broadcasterUsername || '');
+      }
+    }
+  });
 }
 
 /* ---------- 🔔 cloche : nombre de messages non lus ----------
@@ -530,6 +562,7 @@ function initSocket() {
   // 🔔 Messages privés : le serveur envoie le nombre de non lus à chaque connexion du membre
   socket.on('dm:unread-count', data => { majCloche(data && data.count); chargerNonLusPrives(); });
   socket.on('dm:message', data => { traiterMessagePrive(data); setTimeout(rafraichirCloche, 500); });
+  socket.on('live:private-invite', invitationLivePrive);
 
   socket.on('salon:joined', data => {
     if (data && data.salon) { salon = data.salon; drawRooms(); }

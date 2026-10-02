@@ -11,6 +11,7 @@
     <script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
     <script src="auth-api.js"></script>
     <script src="sfu-client.js"></script>
+    <script src="live-prive.js"></script>
     <script src="nav-auth.js" defer></script>
     <script src="legal-banner.js"></script>
     <style>
@@ -72,6 +73,16 @@
                             <p>Caméra non démarrée</p>
                         </div>
                     </div>
+                </div>
+                <div id="priveBox" class="mb-3 p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                    <label class="flex items-center gap-2 font-bold text-slate-800 cursor-pointer">
+                        <input type="checkbox" id="priveCheck"> 🔒 Live privé (sur invitation)
+                    </label>
+                    <div id="priveInvites" class="hidden mt-2">
+                        <p class="text-slate-600">Invités : <span id="priveNoms" class="font-semibold"></span></p>
+                        <button type="button" id="privePick" class="mt-1 text-brand-primary font-bold hover:underline">Choisir des invités</button>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Seuls les invités et l'équipe de modération voient votre caméra.</p>
                 </div>
                 <div class="space-y-2">
                     <button id="startCamBtn" onclick="startCamera()" class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2">
@@ -240,6 +251,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     currentUser = getCurrentUser();
     if (!currentUser) { window.location.href = 'login.html'; return; }
     
+    chargerConfigPrive();
+    var coche = document.getElementById('priveCheck');
+    coche.addEventListener('change', function() {
+        prive.actif = coche.checked;
+        afficherPrive();
+        if (prive.actif && !prive.invited.length) choisirInvites();
+    });
+    document.getElementById('privePick').addEventListener('click', choisirInvites);
+    afficherPrive();
+
     await loadTurnCredentials();
     initSocket();
     setInterval(refreshStreams, 3000);
@@ -251,6 +272,65 @@ function log(msg) {
     div.textContent = '[' + new Date().toLocaleTimeString('fr-FR') + '] ' + msg;
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
+}
+
+// ============================================================
+// 🔒 LIVE PRIVÉ SUR INVITATION
+// Seuls les invités (et la modération) voient la caméra. Les invités se choisissent avant le live ;
+// on peut en AJOUTER pendant le live, mais pour en retirer il faut terminer le live.
+// ============================================================
+var prive = { actif: false, invited: [], names: {}, salon: null };
+var membresEnLigne = [];    // [{ id, username }] reçus du serveur
+var joinDemande = null;     // live à rejoindre dès la connexion (?join=...)
+
+function chargerConfigPrive() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('join')) joinDemande = { id: params.get('join'), from: params.get('from') || 'Live privé' };
+    if (params.get('prive') !== '1') return;
+    prive.actif = true;
+    try {
+        var cfg = JSON.parse(sessionStorage.getItem('evc-live-prive') || 'null');
+        sessionStorage.removeItem('evc-live-prive');
+        if (cfg && Array.isArray(cfg.invited)) {
+            prive.invited = cfg.invited.map(Number).filter(function(n) { return n > 0; });
+            prive.names = cfg.names || {};
+            prive.salon = typeof cfg.salon === 'string' ? cfg.salon : null;
+        }
+    } catch (e) {}
+}
+
+function afficherPrive() {
+    var coche = document.getElementById('priveCheck');
+    if (!coche) return;
+    coche.checked = prive.actif;
+    coche.disabled = isBroadcasting;
+    var noms = prive.invited.map(function(id) { return prive.names[id] || ('#' + id); });
+    document.getElementById('priveInvites').classList.toggle('hidden', !prive.actif);
+    document.getElementById('priveNoms').textContent = noms.length ? noms.join(', ') : 'personne pour l\'instant';
+    document.getElementById('privePick').textContent = isBroadcasting ? 'Inviter d\'autres membres' : 'Choisir des invités';
+    document.getElementById('broadcastBadge').textContent = (prive.actif && isBroadcasting) ? '🔒 LIVE PRIVÉ' : '🔴 EN DIRECT';
+}
+
+function choisirInvites() {
+    var moi = currentUser ? currentUser.id : null;
+    var membres = membresEnLigne.filter(function(m) { return m.id !== moi; });
+    LivePrive.ouvrir({
+        membres: membres,
+        preselection: prive.invited,
+        deja: isBroadcasting ? prive.invited : [],
+        titre: isBroadcasting ? '🔒 Inviter d\'autres membres' : '🔒 Live privé : choisir les invités',
+        bouton: isBroadcasting ? 'Inviter' : 'Valider',
+        onConfirm: function(ids, noms) {
+            Object.keys(noms).forEach(function(k) { prive.names[k] = noms[k]; });
+            if (isBroadcasting) {
+                var nouveaux = ids.filter(function(id) { return prive.invited.indexOf(id) === -1; });
+                if (nouveaux.length) socket.emit('live:invite', { streamId: currentBroadcastStreamId, invited: nouveaux });
+            } else {
+                prive.invited = ids;
+            }
+            afficherPrive();
+        }
+    });
 }
 
 // ============================================================
@@ -271,6 +351,26 @@ function initSocket() {
         s.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
         s.innerHTML = '🟢 Connecté';
         refreshStreams();
+        if (joinDemande) {   // on arrive depuis une invitation : on rejoint le live tout de suite
+            var j = joinDemande; joinDemande = null;
+            joinStream(j.id, j.from || 'Live privé');
+        }
+    });
+
+    socket.on('users:list', function(list) {
+        membresEnLigne = (list || []).map(function(u) { return { id: u.id, username: u.username }; });
+    });
+
+    socket.on('live:invited', function(d) {
+        prive.invited = (d.invited || []).map(function(i) { return i.id; });
+        (d.invited || []).forEach(function(i) { prive.names[i.id] = i.username; });
+        afficherPrive();
+        log('🔒 Invités : ' + (d.invited || []).map(function(i) { return i.username; }).join(', '));
+    });
+
+    socket.on('live:private-invite', function(d) {
+        log('🔒 ' + d.broadcasterUsername + ' vous invite à son live privé');
+        LivePrive.banniere({ de: d.broadcasterUsername, onRegarder: function() { joinStream(d.streamId, d.broadcasterUsername || 'Live privé'); } });
     });
 
     socket.on('connect_error', function(err) {
@@ -496,9 +596,21 @@ function stopCamera() {
 // ============================================================
 function startBroadcast() {
     if (!localStream) { alert('Démarre la caméra d\'abord'); return; }
+    if (prive.actif && !prive.invited.length) {
+        alert('Choisissez au moins un invité pour démarrer un live privé.');
+        choisirInvites();
+        return;
+    }
     isBroadcasting = true;
     currentBroadcastStreamId = socket.id;
-    socket.emit('live:start', { streamId: currentBroadcastStreamId });
+    var donnees = { streamId: currentBroadcastStreamId };
+    if (prive.actif) {   // live privé : visible dès la première seconde des seuls invités
+        donnees.private = true;
+        donnees.invited = prive.invited;
+        if (prive.salon) donnees.salon = prive.salon;
+    }
+    socket.emit('live:start', donnees);
+    afficherPrive();
     publishViaSfu(currentBroadcastStreamId);
     document.getElementById('startBroadcastBtn').classList.add('hidden');
     var stopBtn = document.getElementById('stopBroadcastBtn');
@@ -539,6 +651,7 @@ function stopBroadcast() {
     document.getElementById('stopBroadcastBtn').classList.add('hidden');
     document.getElementById('broadcastBadge').classList.add('hidden');
     currentBroadcastStreamId = null;
+    afficherPrive();
     log('⏹️ Diffusion arrêtée');
 }
 
@@ -666,7 +779,7 @@ function updateVolumeUI(isMuted) {
 async function refreshStreams() {
     var container = document.getElementById('activeStreams');
     try {
-        var response = await fetch('https://api.e-visiocam.com/api/streams');
+        var response = await fetch('https://api.e-visiocam.com/api/streams', { headers: { Authorization: 'Bearer ' + getToken() } });
         var data = await response.json();
         var streams = data.streams || [];
         document.getElementById('liveCount').textContent = streams.length;
@@ -682,7 +795,7 @@ async function refreshStreams() {
             html += '<div class="relative"><div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold">' + s.broadcasterUsername[0].toUpperCase() + '</div>';
             html += '<span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-white live-pulse"></span></div>';
             html += '<div class="flex-1 min-w-0"><p class="font-bold text-slate-900 text-sm truncate">' + s.broadcasterUsername + '</p>';
-            html += '<p class="text-xs text-red-500 font-bold">🔴 EN DIRECT • ' + s.viewers + ' 👁️</p></div></div></button>';
+            html += '<p class="text-xs text-red-500 font-bold">' + (s.isPrivate ? '🔒 PRIVÉ • ' : '🔴 EN DIRECT • ') + s.viewers + ' 👁️</p></div></div></button>';
         });
         container.innerHTML = html;
     } catch (err) {
