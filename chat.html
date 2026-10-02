@@ -307,7 +307,7 @@ function initSocket() {
     socket.on('connect_error', (err) => {
         const status = document.getElementById('connectionStatus');
         status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-rose-100 text-rose-700';
-        status.innerHTML = '❌ ' + err.message;
+        status.textContent = '❌ ' + err.message;
     });
 
     // Messages
@@ -349,6 +349,7 @@ function initSocket() {
         scrollToBottom();
     });
 
+    socket.on('salon:error', data => showToast(data.message || 'Accès au salon refusé', 'error'));
     socket.on('salon:joined', (data) => {
         document.getElementById('currentSalon').innerText = '💬 ' + data.salon;
         currentSalon = data.salon;
@@ -405,8 +406,12 @@ function initSocket() {
         animateGift(data);
         const container = document.getElementById('chatMessages');
         const div = document.createElement('div');
-        div.className = 'message p-3 bg-gradient-to-r ' + (data.color || 'from-pink-50 to-purple-50') + ' rounded-xl text-center';
-        div.innerHTML = '<p class="text-sm text-white font-bold drop-shadow"><strong>' + data.username + '</strong> a envoyé <span class="text-2xl mx-1">' + data.gift + '</span><strong>' + (data.giftName || '') + '</strong>' + (data.receiver ? ' à <strong>' + data.receiver + '</strong>' : '') + '</p>';
+        div.className = 'message p-3 bg-gradient-to-r ' + safeGiftColor(data.color) + ' rounded-xl text-center';
+        const text = document.createElement('p');
+        text.className = 'text-sm text-white font-bold drop-shadow';
+        text.textContent = String(data.username || '') + ' a envoyé ' + String(data.gift || '') + ' ' + String(data.giftName || '') +
+            (data.receiver ? ' à ' + String(data.receiver) : '');
+        div.appendChild(text);
         container.appendChild(div);
         scrollToBottom();
     });
@@ -677,7 +682,7 @@ async function loadGifts() {
         gifts = data.gifts;
         renderGifts();
     } catch (err) {
-        document.getElementById('giftsGrid').innerHTML = '<p class="text-rose-500 col-span-full text-center">' + err.message + '</p>';
+        document.getElementById('giftsGrid').innerHTML = '<p class="text-rose-500 col-span-full text-center">' + escapeHtml(err.message) + '</p>';
     }
 }
 
@@ -689,15 +694,35 @@ async function loadGiftBalance() {
     } catch (err) {}
 }
 
+function safeGiftColor(color) {
+    const allowed = ['from-rose-500 to-pink-600', 'from-rose-600 to-red-600', 'from-amber-400 to-yellow-500',
+        'from-rose-400 to-pink-500', 'from-amber-500 to-orange-500', 'from-amber-500 to-yellow-600',
+        'from-yellow-400 to-amber-500', 'from-cyan-400 to-blue-500', 'from-purple-500 to-pink-600',
+        'from-red-500 to-purple-700', 'from-red-600 to-orange-600'];
+    return allowed.includes(color) ? color : 'from-pink-500 to-purple-600';
+}
+
 function renderGifts() {
-    document.getElementById('giftsGrid').innerHTML = gifts.map(g => `
-        <button onclick="selectGift(${g.id})" id="gift-${g.id}"
-            class="gift-item relative p-3 rounded-2xl border-2 border-slate-200 hover:border-brand-primary bg-white transition-all text-center">
-            <div class="text-3xl mb-1">${g.emoji}</div>
-            <p class="text-xs font-bold text-slate-800">${g.name}</p>
-            <p class="text-[10px] text-brand-primary font-bold mt-0.5">${g.price} crédits</p>
-        </button>
-    `).join('');
+    const grid = document.getElementById('giftsGrid');
+    grid.replaceChildren();
+    gifts.forEach(g => {
+        if (!Number.isSafeInteger(g.id)) return;
+        const button = document.createElement('button');
+        button.id = 'gift-' + g.id;
+        button.className = 'gift-item relative p-3 rounded-2xl border-2 border-slate-200 hover:border-brand-primary bg-white transition-all text-center';
+        button.addEventListener('click', () => selectGift(g.id));
+        for (const [tag, className, value] of [
+            ['div', 'text-3xl mb-1', g.emoji],
+            ['p', 'text-xs font-bold text-slate-800', g.name],
+            ['p', 'text-[10px] text-brand-primary font-bold mt-0.5', g.price + ' crédits']
+        ]) {
+            const element = document.createElement(tag);
+            element.className = className;
+            element.textContent = String(value || '');
+            button.appendChild(element);
+        }
+        grid.appendChild(button);
+    });
 }
 
 function selectGift(giftId) {
@@ -736,13 +761,7 @@ async function confirmSendGift() {
             })
         });
 
-        socket.emit('gift', {
-            gift: selectedGift.emoji,
-            giftName: selectedGift.name,
-            color: selectedGift.color,
-            receiver: receiver || null,
-            message: message
-        });
+        // L'annonce du cadeau est émise par le serveur après le débit.
 
         showToast('🎁 ' + selectedGift.name + ' envoyé !', 'success');
         userBalance = result.newBalance;
@@ -758,7 +777,16 @@ async function confirmSendGift() {
 function animateGift(giftData) {
     const container = document.createElement('div');
     container.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(0);font-size:8rem;z-index:99999;pointer-events:none;transition:all 0.8s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 30px rgba(233,30,99,0.6));';
-    container.innerHTML = '<div style="text-align:center;"><div style="font-size:8rem;animation:gift-bounce 0.6s ease-out;">' + giftData.gift + '</div><div style="font-size:1.2rem;color:white;font-weight:bold;text-shadow:0 2px 10px rgba(0,0,0,0.5);margin-top:-20px;">' + giftData.username + ' → ' + (giftData.giftName || 'Cadeau') + '</div></div>';
+    const layout = document.createElement('div');
+    layout.style.textAlign = 'center';
+    const emoji = document.createElement('div');
+    emoji.style.cssText = 'font-size:8rem;animation:gift-bounce 0.6s ease-out;';
+    emoji.textContent = String(giftData.gift || '🎁');
+    const label = document.createElement('div');
+    label.style.cssText = 'font-size:1.2rem;color:white;font-weight:bold;text-shadow:0 2px 10px rgba(0,0,0,0.5);margin-top:-20px;';
+    label.textContent = String(giftData.username || '') + ' → ' + String(giftData.giftName || 'Cadeau');
+    layout.append(emoji, label);
+    container.appendChild(layout);
     document.body.appendChild(container);
     setTimeout(() => { container.style.transform = 'translate(-50%,-50%) scale(1)'; }, 50);
     setTimeout(() => {

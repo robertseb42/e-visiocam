@@ -126,7 +126,13 @@ function showToast(msg, type) {
         document.body.appendChild(toast);
     }
     const colors = { success: '#10b981', error: '#e11d48', info: '#3b82f6', warning: '#f59e0b' };
-    toast.innerHTML = '<div style="width:24px;height:24px;border-radius:50%;background:' + (colors[type] || colors.success) + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;">✓</div><span>' + msg + '</span>';
+    const icon = document.createElement('div');
+    icon.style.cssText = 'width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;';
+    icon.style.background = colors[type] || colors.success;
+    icon.textContent = '✓';
+    const text = document.createElement('span');
+    text.textContent = String(msg == null ? '' : msg);
+    toast.replaceChildren(icon, text);
     setTimeout(function() { toast.style.transform = 'translateY(0)'; toast.style.opacity = '1'; }, 10);
     clearTimeout(window._toastTimer);
     window._toastTimer = setTimeout(function() {

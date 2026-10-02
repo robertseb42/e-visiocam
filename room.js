@@ -564,6 +564,7 @@ function initSocket() {
   socket.on('dm:message', data => { traiterMessagePrive(data); setTimeout(rafraichirCloche, 500); });
   socket.on('live:private-invite', invitationLivePrive);
 
+  socket.on('salon:error', data => toast(data.message || 'Accès au salon refusé'));
   socket.on('salon:joined', data => {
     if (data && data.salon) { salon = data.salon; drawRooms(); }
   });
