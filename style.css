@@ -441,3 +441,50 @@ html[data-theme="light"] .cam-home{--h-panel:#fff;--h-border:#e2e8f0;--h-text:#0
   .cam-home .cam-header button[onclick="toggleMobileSidebar()"]{padding:6px}
 }
 @media(max-width:430px){.cam-home .cam-header>div>div:first-child a>span{display:none}}
+
+
+/* ==========================================================
+   THÈME CLAIR — accueil harmonisé (bannière, cartes, radio)
+   Les visuels restent, mais le texte passe sur fond clair :
+   plus de gros blocs noirs au milieu d'une page blanche.
+   ========================================================== */
+/* Bannière : voile blanc à gauche, l'image néon se fond à droite */
+html[data-theme="light"] .cam-banner{background:#fff;color:#0f172a;border-color:#e2e8f0;box-shadow:0 10px 30px #0f172a14}
+html[data-theme="light"] .cam-banner:after,
+html[data-theme="light"] .cam-banner.has-banner-slides:after{background:linear-gradient(90deg,#fff 0%,#fff 33%,rgba(255,255,255,.82) 45%,rgba(255,255,255,0) 66%)}
+html[data-theme="light"] .cam-banner h1{color:#0f172a}
+html[data-theme="light"] .cam-banner h1 span{color:#e91e63}
+html[data-theme="light"] .cam-banner p{color:#475569}
+html[data-theme="light"] .cam-banner-cta{background:#e91e63;border-color:#e91e63;color:#fff;box-shadow:0 6px 18px #e91e6340}
+html[data-theme="light"] .cam-banner-cta:hover{background:#d81b60;border-color:#d81b60}
+html[data-theme="light"] .cam-banner-cta--ghost{background:#fff;color:#0f172a;border-color:#cbd5e1;box-shadow:none}
+html[data-theme="light"] .cam-banner-cta--ghost:hover{background:#fdf2f8;border-color:#e91e63;color:#e91e63}
+html[data-theme="light"] .banner-controls button{background:#fff;color:#0f172a;border-color:#cbd5e1}
+html[data-theme="light"] .banner-dots button{background:#cbd5e1}
+html[data-theme="light"] .banner-dots button[aria-pressed="true"]{background:#e91e63;border-color:#e91e63}
+@media(max-width:700px){html[data-theme="light"] .cam-banner:after,html[data-theme="light"] .cam-banner.has-banner-slides:after{background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.92) 45%,rgba(255,255,255,.55) 100%)}}
+/* Cartes ambiance : image en haut, texte sur fond blanc */
+html[data-theme="light"] .ev-ambiance{background:#fff;color:#0f172a;border-color:#e2e8f0;box-shadow:0 6px 20px #0f172a0f}
+html[data-theme="light"] .ev-ambiance:hover{box-shadow:0 14px 30px #0f172a1f}
+html[data-theme="light"] .ev-ambiance-body{margin-top:0;padding-top:18px;background:#fff}
+html[data-theme="light"] .ev-ambiance h3{text-shadow:none}
+html[data-theme="light"] .ev-ambiance p{color:#475569}
+html[data-theme="light"] .ev-btn{background:#e91e63;color:#fff}
+html[data-theme="light"] .ev-btn:hover{background:#d81b60}
+/* Bandeau direct */
+html[data-theme="light"] .ev-live-icon{background:#fdf2f8;border-color:#fbcfe8;color:#e91e63}
+/* Platine radio : boîtier clair, plateau et vinyle restent sombres */
+html[data-theme="light"] .evc-deck{--d-panel:#f1f5f9;--d-border:#e2e8f0;--d-text:#0f172a;--d-muted:#64748b;--d-yellow:#e91e63;
+  background:linear-gradient(160deg,#ffffff 0%,#f8fafc 60%,#f1f5f9 100%);box-shadow:0 10px 26px #0f172a1a,inset 0 1px 0 #fff}
+html[data-theme="light"] .evc-deck-brand i{box-shadow:0 0 8px #e91e6366}
+html[data-theme="light"] .evc-deck-play{color:#fff;box-shadow:0 4px 14px #e91e6340}
+html[data-theme="light"] .evc-deck-play:hover{background:#d81b60}
+html[data-theme="light"] .evc-deck-speed{background:#e2e8f0}
+html[data-theme="light"] .evc-deck-speed span{color:#94a3b8}
+html[data-theme="light"] .evc-deck-speed span:first-child{color:#fff}
+html[data-theme="light"] .evc-deck-display{background:#fff;box-shadow:inset 0 1px 3px #0f172a14;text-shadow:none}
+html[data-theme="light"] .evc-deck-headshell:after,html[data-theme="light"] .evc-deck-spindle{background:#ffe500}
+/* Bouton « Inscription » de l'en-tête : couleur pleine (le dégradé s'effaçait en thème clair) */
+html[data-theme="light"] #navAuth a[href*="register"]{background:#e91e63;background-image:none;color:#fff}
+html[data-theme="light"] #navAuth a[href*="register"]:hover{background:#d81b60}
+html[data-theme="light"] #radioWidgetMinimized .bg-brand-primary{background:#e91e63;color:#fff}
