@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js"></script>
+    <script src="nav-auth.js" defer></script>
     <script src="legal-banner.js"></script>
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
@@ -57,10 +58,14 @@
             <a href="messages.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary">Messages</a>
             <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary">Crédits</a>
         </nav>
-        <a href="compte.html" class="ml-auto flex items-center gap-2 pl-2 pr-4 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-full text-sm font-semibold">
-            <div class="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-xs font-bold">3</div>
-            <span class="hidden md:inline">Mon compte</span>
-        </a>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            <button data-theme-toggle type="button" aria-label="Changer de thème" title="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors text-lg leading-none">☀️</button>
+            <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
     </div>
 </header>
 
