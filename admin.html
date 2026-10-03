@@ -118,6 +118,29 @@
         </div>
     </div>
 
+    <div id="backupCard" class="mb-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div class="flex items-center gap-3 lg:w-80 shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-database"></i></div>
+                <div>
+                    <p class="font-bold text-slate-900">Sauvegardes
+                        <span id="backupPill" class="ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">…</span>
+                    </p>
+                    <p class="text-xs text-slate-500" id="backupHint">Chargement...</p>
+                </div>
+            </div>
+            <p class="flex-1 text-xs text-slate-500" id="backupDetail"></p>
+            <div class="flex flex-wrap gap-2">
+                <button id="backupRunBtn" onclick="lancerSauvegarde()" class="px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-brand-primary hover:bg-brand-hover whitespace-nowrap">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> Sauvegarder maintenant
+                </button>
+                <button id="backupDlBtn" onclick="telechargerSauvegarde()" class="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">
+                    <i class="fa-solid fa-download mr-1"></i> Télécharger
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
@@ -379,6 +402,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('userBadge').innerText = '👑 ' + currentUser.username;
     }
     loadMaintenance();
+    loadBackup();
     startContactInbox();
     await loadUsers();
     await loadLogs();
@@ -446,6 +470,53 @@ async function toggleMaintenance() {
         alert('Échec : ' + err.message);
         btn.disabled = false;
     }
+}
+
+// ---------- SAUVEGARDES DE LA BASE ----------
+function tailleLisible(n) { return n >= 1048576 ? (n / 1048576).toFixed(1).replace('.', ',') + ' Mo' : Math.max(1, Math.round(n / 1024)) + ' Ko'; }
+function renderBackup(st) {
+    const pill = document.getElementById('backupPill'), hint = document.getElementById('backupHint'), det = document.getElementById('backupDetail');
+    const ok = st.emailConfigure && st.chiffrementPret;
+    pill.textContent = st.lastError ? 'ERREUR' : (ok ? 'Automatique' : 'À configurer');
+    pill.className = 'ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full ' +
+        (st.lastError ? 'bg-red-100 text-red-700' : ok ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700');
+    const der = st.fichiers && st.fichiers[0];
+    hint.textContent = der ? 'Dernière : ' + der.nom.replace(/^e-visiocam-|\.(evcbak|sqlite\.gz)$/g, '').replace('_', ' à ') + ' · ' + tailleLisible(der.taille)
+                           : 'Aucune sauvegarde pour l\'instant';
+    let t = 'Chaque nuit vers ' + st.heure + ' h · ' + (st.fichiers || []).length + ' / ' + st.garde + ' copies sur le serveur (la plus ancienne est remplacée).';
+    if (!st.emailConfigure) t += ' Envoi par email désactivé : ajoutez BACKUP_EMAIL sur Render.';
+    else if (!st.chiffrementPret) t += ' Envoi par email désactivé : ajoutez BACKUP_PASSWORD (12 caractères minimum) sur Render.';
+    else if (st.lastEmail) t += ' Dernier envoi : ' + st.lastEmail + '.';
+    if (st.lastError) t += ' Dernière erreur : ' + st.lastError;
+    det.textContent = t;
+}
+async function loadBackup() {
+    try { renderBackup(await apiCall('/admin/backup')); }
+    catch (err) { document.getElementById('backupHint').textContent = 'Indisponible : ' + err.message; }
+}
+async function lancerSauvegarde() {
+    const btn = document.getElementById('backupRunBtn');
+    btn.disabled = true; btn.style.opacity = '0.6';
+    try {
+        const r = await apiCall('/admin/backup/run', { method: 'POST' });
+        renderBackup(r.statut);
+        showToast('💾 Sauvegarde faite (' + tailleLisible(r.taille) + ') — email : ' + r.email);
+    } catch (err) { showToast(err.message, 'error'); }
+    finally { btn.disabled = false; btn.style.opacity = '1'; }
+}
+async function telechargerSauvegarde() {
+    const btn = document.getElementById('backupDlBtn');
+    btn.disabled = true; btn.style.opacity = '0.6';
+    try {
+        const r = await fetch(API_URL + '/admin/backup/download', { headers: { Authorization: 'Bearer ' + getToken() } });
+        if (!r.ok) { let m = 'Erreur ' + r.status; try { m = (await r.json()).error || m; } catch (e) {} throw new Error(m); }
+        const nom = ((r.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/) || [])[1] || 'e-visiocam-sauvegarde.evcbak';
+        const url = URL.createObjectURL(await r.blob());
+        const a = document.createElement('a'); a.href = url; a.download = nom; document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        showToast('⬇️ ' + nom + (r.headers.get('X-Backup-Encrypted') === '1' ? ' (chiffrée)' : ''));
+    } catch (err) { showToast(err.message, 'error'); }
+    finally { btn.disabled = false; btn.style.opacity = '1'; }
 }
 
 // ---------- CHARGER LES UTILISATEURS ----------
