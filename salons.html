@@ -13,7 +13,7 @@
     <script src="nav-auth.js" defer></script>
     <script src="salon-access.js"></script>
 
-    <link rel="stylesheet" href="style.css?v=20261002-theme">
+    <link rel="stylesheet" href="style.css?v=20261003-footer">
     <script src="maintenance.js" defer></script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -65,17 +65,6 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="privateSalons"></div>
 </main>
 
-<footer class="bg-white border-t border-slate-200 py-6">
-    <div class="max-w-[1700px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-        <p>© 2025 E-VISIOCAM.</p>
-        <div class="flex gap-4">
-            <a href="a-propos.html" class="hover:text-brand-primary">À propos</a>
-            <a href="cgu.html" class="hover:text-brand-primary">CGU</a>
-            <a href="confidentialite.html" class="hover:text-brand-primary">Confidentialité</a>
-            <a href="contact.html" class="hover:text-brand-primary">Contact</a>
-        </div>
-    </div>
-</footer>
 
 <script>
 // "slug" = identifiant du salon, utilisé dans l'adresse : room.html?theme=<slug>
@@ -164,5 +153,6 @@ if (typeof SalonAccess !== 'undefined' && SalonAccess.canManage) {
 </script>
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
+<script src="footer.js" defer></script>
 </body>
 </html>

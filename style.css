@@ -242,3 +242,59 @@ html[data-theme="light"] .decor-page button{background:#eef0f4;border-color:#cfd
 html[data-theme="light"] .decor-page #saveDecor,html[data-theme="light"] .decor-page #addBanner{background:#ffe500;border-color:#ffe500;color:#111113}
 html[data-theme="light"] .decor-page input[type=number]{background:#fff;border-color:#bbb;color:#14161c}
 html[data-theme="light"] .decor-error{color:#c2185b}
+
+
+/* ==========================================================
+   CORRECTIFS D'AFFICHAGE — THÈME SOMBRE (2026-10-03)
+   Styles écrits en clair directement dans certaines pages
+   (cartes, encadrés, tableaux) qui restaient blancs.
+   ========================================================== */
+/* Bande claire en bas des pages longues : le <html> gardait bg-slate-100 */
+html:not([data-theme="light"]).bg-slate-100{background:var(--ev-bg)}
+/* Texte en gras des pages légales (« 48 heures », « DPO : »…) */
+:where(html:not([data-theme="light"])) body .legal-content strong{color:var(--ev-text)}
+:where(html:not([data-theme="light"])) body .legal-content code{background:var(--ev-field);color:#ff8ab8}
+/* Cartes de la page Contact */
+:where(html:not([data-theme="light"])) body .contact-card{background:var(--ev-field);border-left-color:var(--ev-pink);color:var(--ev-text)}
+:where(html:not([data-theme="light"])) body .contact-card:hover{box-shadow:0 8px 20px #0006}
+:where(html:not([data-theme="light"])) body .contact-card h3{color:var(--ev-text)}
+:where(html:not([data-theme="light"])) body .contact-card p,:where(html:not([data-theme="light"])) body .contact-card ul,:where(html:not([data-theme="light"])) body .contact-card li{color:#c5c5cf}
+/* Encadrés des CGU */
+:where(html:not([data-theme="light"])) body .info-box{background:#3b321c;color:#f3e6c2}
+:where(html:not([data-theme="light"])) body .danger-box{background:#3b2025;color:#f6d0d5}
+/* Tableaux (page Cookies) */
+:where(html:not([data-theme="light"])) body .legal-content th{background:var(--ev-field);color:var(--ev-text)}
+:where(html:not([data-theme="light"])) body .legal-content :is(th,td){border-bottom-color:var(--ev-border)}
+/* Messagerie */
+:where(html:not([data-theme="light"])) body .msg-bubble-received{background:var(--ev-field);color:var(--ev-text)}
+:where(html:not([data-theme="light"])) body .conv-item:hover{background:var(--ev-hover)}
+:where(html:not([data-theme="light"])) body .conv-item.active{background:#382333;border-left-color:var(--ev-pink)}
+/* Questions fréquentes repliables */
+:where(html:not([data-theme="light"])) body details summary{color:var(--ev-text)}
+
+/* ==========================================================
+   PIED DE PAGE COMMUN (footer.js) — identique sur toutes les pages
+   ========================================================== */
+.ev-footer{--f-bg:#18181b;--f-border:#3b3b43;--f-text:#f5f5f7;--f-muted:#b1b1bd;--f-accent:#ffe500;
+  align-self:stretch;width:100%;margin-top:3rem;background:var(--f-bg);border-top:1px solid var(--f-border);color:var(--f-muted);font:14px/1.6 Inter,Arial,sans-serif;text-align:left}
+html[data-theme="light"] .ev-footer{--f-bg:#fff;--f-border:#e2e8f0;--f-text:#0f172a;--f-muted:#64748b;--f-accent:#e91e63}
+.ev-footer *{box-sizing:border-box}
+.ev-footer-inner{max-width:1200px;margin:0 auto;padding:40px 24px 28px;display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:32px}
+.ev-footer-brand{display:flex;align-items:center;gap:10px;color:var(--f-text);font-weight:900;font-size:20px;text-decoration:none}
+.ev-footer-logo{width:34px;height:34px;border-radius:10px;background:#ffe500;color:#111113;display:flex;align-items:center;justify-content:center}
+html[data-theme="light"] .ev-footer-logo{background:linear-gradient(135deg,#e91e63,#9c27b0);color:#fff}
+.ev-footer-logo svg{width:18px;height:18px;fill:currentColor}
+.ev-footer-name{color:var(--f-text)}.ev-footer-name span{color:var(--f-accent)}
+.ev-footer p{margin:12px 0 0;font-size:13px;max-width:320px}
+.ev-footer-age{display:inline-block;margin-top:12px;padding:2px 10px;border:1px solid var(--f-border);border-radius:999px;font-size:12px;font-weight:700;color:var(--f-text)}
+.ev-footer h2{margin:0 0 12px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--f-text)}
+.ev-footer ul{list-style:none;margin:0;padding:0}
+.ev-footer li{margin:0 0 8px}
+.ev-footer a{color:var(--f-muted);text-decoration:none;word-break:break-word}
+.ev-footer a:hover,.ev-footer a[aria-current="page"]{color:var(--f-accent)}
+.ev-footer a[aria-current="page"]{font-weight:700}
+.ev-footer a:focus-visible{outline:2px solid var(--f-accent);outline-offset:3px;border-radius:2px}
+.ev-footer-bottom{border-top:1px solid var(--f-border)}
+.ev-footer-bottom>div{max-width:1200px;margin:0 auto;padding:16px 24px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:12px}
+@media(max-width:900px){.ev-footer-inner{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.ev-footer-inner{grid-template-columns:1fr;padding:32px 16px 20px;gap:24px}.ev-footer-bottom>div{padding:14px 16px;flex-direction:column}}
