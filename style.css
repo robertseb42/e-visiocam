@@ -490,3 +490,8 @@ html[data-theme="light"] #navAuth a[href*="register"]:hover{background:#d81b60}
 html[data-theme="light"] #radioWidgetMinimized .bg-brand-primary{background:#e91e63;color:#fff}
 .ev-vip{display:inline-block;vertical-align:middle;margin-left:6px;padding:2px 8px;border-radius:999px;background:#ffe500;color:#111113;font-size:11px;font-weight:900;letter-spacing:.05em;text-shadow:none}
 html[data-theme="light"] .ev-vip{background:#e91e63;color:#fff}
+/* Cartes ambiance : même mise en page en sombre qu'en clair — image entière en haut,
+   texte en dessous (plus de texte posé sur l'image). */
+.ev-ambiance{background:var(--h-panel)}
+.ev-ambiance-body{margin-top:0;padding-top:18px;background:var(--h-panel)}
+.ev-ambiance h3{text-shadow:none}
