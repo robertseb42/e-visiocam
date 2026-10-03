@@ -29,23 +29,13 @@
 
 
 
-    <link rel="stylesheet" href="style.css?v=20261003-footer">
+    <link rel="stylesheet" href="style.css?v=20261003-accueil">
 
     <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
 
-        /* Platine vinyle Technics SL-1200 : rotation du disque en lecture */
-        @keyframes vinylSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        #radioVinyl.spinning { animation: vinylSpin 3s linear infinite; }
-        #radioTonearm { transition: transform 1.2s ease; }
-
-        /* Platine argentée : les textes restent sombres sur le châssis clair
-           (le thème global transforme les gris Tailwind en clairs). */
-        #radioWidget .text-slate-800 { color: #232326; }
-        #radioWidget .text-slate-700 { color: #3b3b41; }
-        #radioWidget .text-slate-500 { color: #4a4a52; }
-        #radioWidget .text-slate-400 { color: #55555c; }
+        /* La platine radio est stylée dans style.css (section « PLATINE RADIO E-VISIOCAM ») */
     </style>
     <script src="maintenance.js" defer></script>
 </head>
@@ -127,135 +117,40 @@
             </a>
         </nav>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             📻 PLATINE VINYLE TECHNICS SL-1200 MK2
-             ═══════════════════════════════════════════════════════════ -->
-        <div id="radioWidget" class="rounded-2xl p-4 shadow-2xl" style="background: linear-gradient(145deg, #ececec 0%, #c8c8c8 40%, #b0b0b0 100%); border: 2px solid #8a8a8a; box-shadow: 0 10px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.6);">
-
-            <!-- Bandeau supérieur style plaque signalétique -->
-            <div class="flex items-center justify-between mb-3 pb-2" style="border-bottom: 1px solid rgba(0,0,0,0.15);">
-                <p class="text-slate-800 text-[10px] font-black tracking-[0.2em] uppercase" style="text-shadow: 0 1px 0 rgba(255,255,255,0.7);">
-                    ⬤ TECHNICS
-                </p>
-                <div class="flex gap-1 items-center">
-                    <span class="w-1.5 h-1.5 bg-rose-500 rounded-full" style="box-shadow: 0 0 8px #e91e63;"></span>
-                    <span class="text-slate-700 text-[9px] font-bold tracking-wider">SL-1200</span>
-                </div>
+        <!-- 📻 PLATINE RADIO E-VISIOCAM (styles : style.css → « PLATINE RADIO ») -->
+        <div id="radioWidget" class="evc-deck" aria-label="Radio">
+            <div class="evc-deck-head">
+                <span class="evc-deck-brand"><i></i>E-VISIOCAM <b>RADIO</b></span>
+                <span class="evc-deck-tag"><i></i>LIVE</span>
             </div>
 
-            <!-- PLATEAU + VINYLE -->
-            <div class="relative aspect-square rounded-lg overflow-hidden flex items-center justify-center mb-3"
-                 style="background: radial-gradient(circle at 50% 50%, #2a2a2a 0%, #1a1a1a 60%, #0a0a0a 100%); box-shadow: inset 0 0 30px rgba(0,0,0,0.8), inset 0 2px 4px rgba(0,0,0,0.6);">
-
-                <!-- Anneau strobe extérieur -->
-                <div class="absolute inset-1 rounded-full" style="border: 1px dashed rgba(255,255,255,0.15);"></div>
-
-                <!-- VINYLE -->
-                <div id="radioVinyl" class="relative rounded-full" style="width: 82%; height: 82%; background:
-                    repeating-radial-gradient(circle at 50% 50%,
-                        #0a0a0a 0px, #0a0a0a 2px,
-                        #151515 3px, #151515 4px,
-                        #0a0a0a 5px, #0a0a0a 6px);
-                    box-shadow: 0 0 20px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,0.5);">
-                    <!-- Label central -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center"
-                         style="width: 38%; height: 38%; background: linear-gradient(135deg, #e91e63 0%, #9c27b0 100%); box-shadow: 0 2px 8px rgba(0,0,0,0.5);">
-                        <i class="fa-solid fa-music text-white/90" style="font-size: 1.5rem;"></i>
-                    </div>
-                    <!-- Trou central -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full"
-                         style="background: radial-gradient(circle, #888 0%, #444 100%);"></div>
+            <div class="evc-deck-platter">
+                <div id="radioVinyl" class="evc-deck-vinyl">
+                    <div class="evc-deck-label"><i class="fa-solid fa-music"></i></div>
+                    <div class="evc-deck-spindle"></div>
                 </div>
-
-                <!-- BRAS DE LECTURE (tonearm) - pivot à droite, pointe vers le centre -->
-<div id="radioTonearm"
-     class="absolute transition-transform"
-     style="top: 12%; right: 0; width: 42%; height: 4px;
-            transform-origin: right center;
-            transform: rotate(-25deg);
-            transition-duration: 1200ms;
-            background: linear-gradient(90deg, #606060 0%, #909090 50%, #d0d0d0 100%);
-            border-radius: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-    <!-- Contrepoids (à droite, fixe) -->
-    <div class="absolute top-1/2 -translate-y-1/2" 
-         style="right: -8px; width: 14px; height: 14px; border-radius: 3px;
-                background: linear-gradient(145deg, #c0c0c0, #606060);
-                box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 3px rgba(0,0,0,0.4);"></div>
-    
-    <!-- Bras vertical + tête de lecture (à gauche, pointe vers le vinyle) -->
-    <div class="absolute top-1/2 -translate-y-1/2" 
-         style="left: -2px; width: 12px; height: 18px;
-                background: linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%);
-                border-radius: 2px 2px 3px 3px;
-                transform: translateY(-50%);
-                box-shadow: 0 2px 4px rgba(0,0,0,0.6);">
-        <!-- Pointe fine en bas (style aiguille) -->
-        <div class="absolute" 
-             style="bottom: -4px; left: 50%; transform: translateX(-50%);
-                    width: 2px; height: 6px; background: #d0d0d0;
-                    border-radius: 0 0 2px 2px;"></div>
-    </div>
-</div>
-
-                <!-- 45 tours adapter (petit point) -->
-                <div class="absolute top-3 left-3 w-3 h-3 rounded-full" style="background: radial-gradient(circle, #666, #333); box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);"></div>
-
-                <!-- Voyant ON AIR -->
-                <div class="absolute bottom-2 right-2 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" style="box-shadow: 0 0 6px #e91e63;"></span>
-                    <span class="text-slate-400 text-[8px] font-bold tracking-wider">ON AIR</span>
-                </div>
-
+                <div id="radioTonearm" class="evc-deck-arm"><span class="evc-deck-weight"></span><span class="evc-deck-headshell"></span></div>
+                <span class="evc-deck-adapter"></span>
+                <span class="evc-deck-onair"><i></i>ON AIR</span>
                 <p class="hidden text-white text-xs" id="radioPlaceholder">📻 Sélectionne une radio</p>
             </div>
 
-            <!-- CONTRÔLES -->
-            <div id="radioAudioControls" class="space-y-2" style="display: none;">
-
-                <!-- Bouton play + volume -->
-                <div class="flex items-center gap-2">
-                    <button id="radioPlayBtn" onclick="togglePlay()"
-                            class="flex items-center justify-center rounded-md transition-all active:scale-95"
-                            style="width: 44px; height: 44px; background: linear-gradient(180deg, #f5f5f5 0%, #c8c8c8 100%); border: 1px solid #8a8a8a; box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8);">
-                        <i class="fa-solid fa-play text-slate-800 text-sm"></i>
+            <div id="radioAudioControls" class="evc-deck-controls" style="display: none;">
+                <div class="evc-deck-row">
+                    <button id="radioPlayBtn" type="button" onclick="togglePlay()" class="evc-deck-play" aria-label="Lecture / pause">
+                        <i class="fa-solid fa-play"></i>
                     </button>
-                    <div class="flex-1">
-                        <input type="range" min="0" max="1" step="0.05" value="0.6" oninput="setVolume(this.value)"
-                               class="w-full accent-brand-primary" style="height: 4px;">
-                    </div>
+                    <input type="range" min="0" max="1" step="0.05" value="0.6" oninput="setVolume(this.value)" class="evc-deck-volume" aria-label="Volume">
                 </div>
-
-                <!-- Navigation + Status -->
-                <div class="flex items-center justify-between">
-                    <div class="flex gap-1">
-                        <button onclick="prevRadio()" class="flex items-center justify-center rounded-md transition-all active:scale-95"
-                                style="width: 30px; height: 30px; background: linear-gradient(180deg, #f5f5f5 0%, #c8c8c8 100%); border: 1px solid #8a8a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8);">
-                            <i class="fa-solid fa-backward-step text-slate-700 text-[10px]"></i>
-                        </button>
-                        <button onclick="nextRadio()" class="flex items-center justify-center rounded-md transition-all active:scale-95"
-                                style="width: 30px; height: 30px; background: linear-gradient(180deg, #f5f5f5 0%, #c8c8c8 100%); border: 1px solid #8a8a8a; box-shadow: 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8);">
-                            <i class="fa-solid fa-forward-step text-slate-700 text-[10px]"></i>
-                        </button>
-
-                        <!-- Boutons 33/45 -->
-                        <div class="flex items-center rounded-md overflow-hidden" style="background: #1a1a1a; border: 1px solid #000;">
-                            <span class="px-1.5 py-0.5 text-[8px] font-black text-rose-400">33</span>
-                            <span class="px-1.5 py-0.5 text-[8px] font-bold text-slate-500">45</span>
-                        </div>
+                <div class="evc-deck-row">
+                    <div class="evc-deck-group">
+                        <button type="button" onclick="prevRadio()" class="evc-deck-btn" aria-label="Radio précédente"><i class="fa-solid fa-backward-step"></i></button>
+                        <button type="button" onclick="nextRadio()" class="evc-deck-btn" aria-label="Radio suivante"><i class="fa-solid fa-forward-step"></i></button>
+                        <div class="evc-deck-speed" aria-hidden="true"><span>33</span><span>45</span></div>
                     </div>
-
-                    <div class="flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full" style="box-shadow: 0 0 6px #10b981;"></span>
-                        <span class="text-slate-700 text-[9px] font-bold tracking-wider" id="radioStatus">PRÊT</span>
-                    </div>
+                    <span class="evc-deck-status"><i></i><span id="radioStatus">PRÊT</span></span>
                 </div>
-
-                <!-- Affichage digital -->
-                <div class="rounded-md px-2 py-1.5" style="background: #0a0a0a; border: 1px solid #333; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);">
-                    <p class="text-[10px] font-mono font-bold tracking-wider truncate text-center" id="radioNowPlaying"
-                       style="color: #4ade80; text-shadow: 0 0 4px #4ade80;">---</p>
-                </div>
+                <p class="evc-deck-display" id="radioNowPlaying">---</p>
             </div>
         </div>
     </aside>
@@ -264,21 +159,66 @@
         <section class="cam-banner" aria-labelledby="cam-banner-title">
             <div class="cam-banner-art" aria-hidden="true"></div>
             <div class="cam-banner-content">
-                <h1 id="cam-banner-title">Chat Cam<br><span>En direct</span></h1>
-                <p>Des milliers de modèles en ligne pour discuter, faire des rencontres et partager des moments uniques.</p>
-                <a href="register.html" class="cam-banner-cta"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="13" height="14" rx="3"/><path d="m17 9 5-3v12l-5-3z"/></svg>Créer un compte gratuit</a>
-                <ul class="cam-banner-trust" aria-label="Les avantages">
-                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 1 10 4v7c0 6-10 11-10 11S2 18 2 12V5z"/><path d="m7 12 3 3 7-7" fill="none" stroke="#11090f" stroke-width="2.5"/></svg>Profils vérifiés</li>
-                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 10V7a6 6 0 0 1 12 0v3h2v13H4V10zm3 0h6V7a3 3 0 0 0-6 0z"/><path d="M12 15v4" stroke="#11090f" stroke-width="2.5"/></svg>Sécurisé et privé</li>
-                    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 0 3 14h8l-1 10L22 9h-9z"/></svg>En direct 24/7</li>
-                </ul>
+                <h1 id="cam-banner-title">Votre salon.<br><span>Vos rencontres.</span></h1>
+                <p>Échangez par écrit ou en vidéo, à votre rythme.</p>
+                <div class="cam-banner-actions">
+                    <a href="salons.html" class="cam-banner-cta"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre un salon</a>
+                    <button type="button" onclick="goLive()" class="cam-banner-cta cam-banner-cta--ghost"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>Diffuser ma webcam</button>
+                </div>
             </div>
         </section>
 
-        <div class="cam-live-panel bg-white rounded-2xl p-6 border border-slate-200">
-            <h2 class="text-xl font-bold mb-4">En direct maintenant</h2>
-            <p class="text-sm text-slate-500">Les modèles en direct s'afficheront ici.</p>
-        </div>
+        <!-- Direct : message d'accueil, remplacé par la liste quand des caméras sont en ligne -->
+        <section class="ev-live" id="liveNow" aria-live="polite">
+            <div class="ev-live-icon" aria-hidden="true"><i class="fa-solid fa-video"></i></div>
+            <div class="ev-live-text">
+                <h2 id="liveTitle">Le direct commence avec vous</h2>
+                <p id="liveText">Aucune caméra en direct pour le moment. Rejoignez un salon pour discuter.</p>
+            </div>
+            <button type="button" id="liveAction" onclick="goLive()" class="ev-btn-ghost"><i class="fa-solid fa-video" aria-hidden="true"></i>Lancer mon direct</button>
+        </section>
+
+        <section aria-labelledby="ambianceTitle">
+            <div class="ev-section-head">
+                <h2 id="ambianceTitle">Trouvez votre ambiance</h2>
+                <a href="salons.html">Tous les salons <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="ev-ambiances">
+                <article class="ev-ambiance">
+                    <img src="img/ambiance-lounge.jpg" alt="" loading="lazy" width="557" height="211">
+                    <div class="ev-ambiance-body">
+                        <h3>Le Lounge</h3>
+                        <p>Un espace convivial pour discuter de tout et faire de belles rencontres.</p>
+                        <a href="chat.html?salon=Salon%20G%C3%A9n%C3%A9ral" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
+                    </div>
+                </article>
+                <article class="ev-ambiance">
+                    <img src="img/ambiance-musique.jpg" alt="" loading="lazy" width="558" height="211">
+                    <div class="ev-ambiance-body">
+                        <h3>Musique &amp; détente</h3>
+                        <p>Partagez vos goûts musicaux et profitez d'une ambiance relax.</p>
+                        <a href="chat.html?salon=Salon%20Musique" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
+                    </div>
+                </article>
+                <article class="ev-ambiance">
+                    <img src="img/ambiance-rencontres.jpg" alt="" loading="lazy" width="557" height="211">
+                    <div class="ev-ambiance-body">
+                        <h3>Rencontres</h3>
+                        <p>Des échanges spontanés dans une ambiance ouverte.</p>
+                        <a href="chat.html?salon=Salon%20Fran%C3%A7ais" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="ev-features" aria-labelledby="featuresTitle">
+            <h2 id="featuresTitle">À chacun sa façon de participer</h2>
+            <ul>
+                <li><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><div><h3>Discutez librement</h3><p>Échangez par écrit avec la communauté dans les salons.</p></div></li>
+                <li><i class="fa-solid fa-video" aria-hidden="true"></i><div><h3>Activez votre caméra</h3><p>Passez en vidéo quand vous le souhaitez depuis un salon.</p></div></li>
+                <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><h3>Gardez le contrôle</h3><p>Choisissez quand et comment vous participez, à votre rythme.</p></div></li>
+            </ul>
+        </section>
     </main>
 </div>
 
@@ -286,6 +226,24 @@
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
 <script src="banner.js" defer></script>
+<script>
+// Caméras en direct : le message d'accueil laisse la place au nombre de lives
+(async function () {
+    try {
+        const r = await fetch(API_URL + '/streams', { headers: getToken() ? { Authorization: 'Bearer ' + getToken() } : {} });
+        if (!r.ok) return;
+        const streams = ((await r.json()).streams || []);
+        if (!streams.length) return;
+        const noms = streams.slice(0, 3).map(s => s.broadcasterUsername).filter(Boolean);
+        document.getElementById('liveTitle').textContent = streams.length + (streams.length > 1 ? ' caméras en direct' : ' caméra en direct');
+        document.getElementById('liveText').textContent = 'En ce moment : ' + noms.join(', ') + (streams.length > noms.length ? ' et ' + (streams.length - noms.length) + ' autre(s)' : '') + '.';
+        const btn = document.getElementById('liveAction');
+        btn.innerHTML = '<i class="fa-solid fa-play" aria-hidden="true"></i>Regarder';
+        btn.onclick = () => { window.location.href = 'live.html'; };
+        document.getElementById('liveNow').classList.add('is-live');
+    } catch (e) { /* le message d'accueil reste affiché */ }
+})();
+</script>
 
 <script src="footer.js" defer></script>
 </body>
