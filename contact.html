@@ -134,6 +134,11 @@
         </div>
 
         <form id="contactForm" class="space-y-4">
+            <!-- Pot de miel anti-robots : invisible pour les visiteurs, ne pas remplir -->
+            <div aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden">
+                <label for="website">Ne pas remplir</label>
+                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">
@@ -173,7 +178,7 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">
                     Message *
                 </label>
-                <textarea id="message" required rows="6" maxlength="2000"
+                <textarea id="message" required rows="6" minlength="10" maxlength="2000"
                     placeholder="Décrivez votre demande en détail..."
                     class="input-field w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none resize-none"></textarea>
                 <p class="text-[10px] text-slate-400 mt-1">
@@ -338,6 +343,12 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
         return;
     }
 
+    if (message.length < 10) {
+        document.getElementById('errorText').textContent = 'Votre message est trop court (10 caractères minimum)';
+        document.getElementById('errorBox').classList.remove('hidden');
+        return;
+    }
+
     const btn = document.getElementById('submitBtn');
     const btnText = document.getElementById('submitText');
     const spinner = document.getElementById('spinner');
@@ -347,10 +358,14 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
     spinner.classList.remove('hidden');
 
     try {
-        // Simulation d'envoi (à remplacer par un vrai appel API plus tard)
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Ici on pourrait envoyer un email à contact@e-visiocam.com
+        await apiCall('/contact', {
+            method: 'POST',
+            body: JSON.stringify({
+                name, email, subject, message,
+                consent: document.getElementById('rgpd').checked,
+                website: document.getElementById('website').value
+            })
+        });
 
         document.getElementById('successBox').classList.remove('hidden');
         document.getElementById('contactForm').reset();
@@ -359,7 +374,9 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
         // Scroll vers le message de succès
         document.getElementById('successBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) {
-        document.getElementById('errorText').textContent = 'Erreur lors de l\'envoi. Réessayez.';
+        document.getElementById('errorText').textContent = (err && err.message && err.message !== 'Erreur' && err.message !== 'Failed to fetch')
+            ? err.message
+            : 'Envoi impossible pour le moment. Réessayez ou écrivez à contact@e-visiocam.com.';
         document.getElementById('errorBox').classList.remove('hidden');
     } finally {
         btn.disabled = false;

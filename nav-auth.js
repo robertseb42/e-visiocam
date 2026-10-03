@@ -82,6 +82,7 @@
                 <button onclick="toggleUserMenu(event)" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <div class="relative">
                         <div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${avatarDisplay}</div>
+                        ${user.role === 'super_admin' ? `<span id="navContactDot" title="Messages contact non lus" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">0</span>` : ''}
                     </div>
                     <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${user.username}</span>
                     <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
@@ -118,6 +119,12 @@
                         ${user.role === 'super_admin' ? `
                             <a href="admin.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                                 <i class="fa-solid fa-crown w-4 text-purple-500"></i> Admin
+                            </a>
+                            <a href="admin.html#contact" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-envelope w-4 text-rose-500"></i> Messages contact
+                                </div>
+                                <span id="navContactBadge" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
                             </a>
                         ` : ''}
                     </div>
@@ -251,6 +258,35 @@
 
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(refreshUnreadCount, 30000);
+
+        // 👑 Super Admin : compteur des messages du formulaire de contact
+        if (typeof isSuperAdmin === 'function' && isSuperAdmin()) {
+            refreshContactCount();
+            if (unreadSocket && !unreadSocket._contactBranche) {
+                unreadSocket._contactBranche = true;
+                unreadSocket.on('contact:unread-count', function(data) {
+                    if (data && typeof data.count === 'number') updateContactBadge(data.count);
+                });
+            }
+            if (!contactInterval) contactInterval = setInterval(refreshContactCount, 30000);
+        }
+    }
+
+    let contactInterval = null;
+    async function refreshContactCount() {
+        try {
+            const data = await apiCall('/contact/admin/unread-count');
+            updateContactBadge(data.count || 0);
+        } catch (err) {}
+    }
+
+    function updateContactBadge(count) {
+        ['navContactBadge', 'navContactDot'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = count > 99 ? '99+' : String(count);
+            el.classList.toggle('hidden', count === 0);
+        });
     }
 
     async function refreshUnreadCount() {
