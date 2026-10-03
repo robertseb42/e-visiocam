@@ -68,6 +68,51 @@
         });
     }
 
-    window.SalonLogo = { LOGO: LOGO, cotePourImage: cotePourImage, ajusterDansCarre: ajusterDansCarre,
-                         octetsDataUrl: octetsDataUrl, preparerImage: preparerImage };
+    // ------------------------------------------------------------
+    // Image d'en-tête d'un salon (carte « Trouvez votre ambiance » de l'accueil)
+    //   SalonLogo.preparerCouverture(file) -> Promise<{ data, w, h, largeur, hauteur, octets }>
+    // Recadre au centre au format de la carte (2,64 : 1), 1600 px de large au maximum,
+    // puis JPG de plus en plus compressé jusqu'à passer sous la limite du serveur.
+    // ------------------------------------------------------------
+    var COVER = {
+        largeur: 1600, ratio: 557 / 211, minW: 600, minH: 200,
+        maxBytes: 10 * 1024 * 1024, serveurMaxBytes: 620 * 1024,
+        types: ['image/png', 'image/jpeg', 'image/webp']
+    };
+
+    function preparerCouverture(file) {
+        return new Promise(function (resolve, reject) {
+            if (!file || COVER.types.indexOf(file.type) === -1) return reject(new Error('Format non accepté : utilisez PNG, JPG ou WebP.'));
+            if (file.size > COVER.maxBytes) return reject(new Error('Image trop lourde : 10 Mo maximum.'));
+            var url = URL.createObjectURL(file), img = new Image();
+            img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('Image illisible ou abîmée.')); };
+            img.onload = function () {
+                URL.revokeObjectURL(url);
+                var w = img.naturalWidth, h = img.naturalHeight;
+                if (w < COVER.minW || h < COVER.minH) return reject(new Error('Image trop petite (' + w + ' × ' + h + ' px) : ' + COVER.minW + ' × ' + COVER.minH + ' px minimum.'));
+                // Zone gardée : la plus grande possible au bon format, centrée
+                var sw = w, sh = Math.round(w / COVER.ratio);
+                if (sh > h) { sh = h; sw = Math.round(h * COVER.ratio); }
+                var sx = Math.floor((w - sw) / 2), sy = Math.floor((h - sh) / 2);
+                var lw = Math.min(COVER.largeur, sw), lh = Math.round(lw / COVER.ratio);
+                var canvas = document.createElement('canvas');
+                canvas.width = lw; canvas.height = lh;
+                var ctx = canvas.getContext('2d');
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, lw, lh);
+                var qualites = [0.86, 0.8, 0.72, 0.64, 0.56];
+                for (var i = 0; i < qualites.length; i++) {
+                    var data = canvas.toDataURL('image/jpeg', qualites[i]);
+                    if (octetsDataUrl(data) <= COVER.serveurMaxBytes) {
+                        return resolve({ data: data, w: w, h: h, largeur: lw, hauteur: lh, octets: octetsDataUrl(data) });
+                    }
+                }
+                reject(new Error('Image trop détaillée : essayez-en une autre.'));
+            };
+            img.src = url;
+        });
+    }
+
+    window.SalonLogo = { LOGO: LOGO, COVER: COVER, cotePourImage: cotePourImage, ajusterDansCarre: ajusterDansCarre,
+                         octetsDataUrl: octetsDataUrl, preparerImage: preparerImage, preparerCouverture: preparerCouverture };
 })();

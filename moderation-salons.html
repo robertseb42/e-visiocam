@@ -110,6 +110,7 @@ function badges(s) {
     let b = '';
     if (s.isPrivate) b += '<span class="ml-1 align-middle text-[10px] bg-pink-50 text-brand-primary font-bold px-2 py-0.5 rounded-full">🔒 VIP</span>';
     if (s.isHidden) b += '<span class="ml-1 align-middle text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-0.5 rounded-full">🚫 MASQUÉ</span>';
+    if (s.homeOrder) b += '<span class="ml-1 align-middle text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full" title="Carte « Trouvez votre ambiance » de l\'accueil">🏠 ACCUEIL n°' + s.homeOrder + '</span>';
     return b;
 }
 
@@ -172,8 +173,50 @@ function ligneSalon(s) {
                 </div>
                 <p data-msg class="hidden"></p>
             </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100" data-cover="${esc(s.slug)}">
+                <p class="text-xs font-bold text-slate-800 mb-1"><i class="fa-solid fa-panorama mr-1"></i>Image d'en-tête <span class="font-normal text-slate-500">(carte « Trouvez votre ambiance » de l'accueil)</span></p>
+                <ul class="text-[11px] text-slate-500 mb-3 grid gap-x-6 gap-y-0.5 sm:grid-cols-2">
+                    <li><b>Taille conseillée :</b> 1600 × 605 px (format bannière)</li>
+                    <li><b>Minimum :</b> 600 × 200 px</li>
+                    <li><b>Formats :</b> JPG, PNG ou WebP · 10 Mo maximum</li>
+                    <li><b>Autre format :</b> recadrée au centre automatiquement</li>
+                </ul>
+                <div class="flex flex-wrap items-start gap-3">
+                    <div class="w-full sm:w-64 rounded-xl overflow-hidden bg-slate-900 shrink-0" style="aspect-ratio:557/211">
+                        <img data-cover-img src="${esc(coverSrc(s))}" alt="" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1 min-w-[220px]">
+                        <p class="text-[11px] text-slate-400 mb-2" data-cover-info>${s.coverUrl ? 'Image actuelle : la vôtre' : 'Image actuelle : image par défaut du site'}</p>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <input type="file" class="hidden" accept="image/png,image/jpeg,image/webp" data-cover-file>
+                            <button type="button" data-cact="choisir" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"><i class="fa-solid fa-upload mr-1"></i>Choisir une image</button>
+                            <button type="button" data-cact="appliquer" disabled class="px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl opacity-50 cursor-not-allowed"><i class="fa-solid fa-check mr-1"></i>Appliquer</button>
+                            ${s.coverUrl ? '<button type="button" data-cact="retirer" class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl"><i class="fa-solid fa-trash mr-1"></i>Retirer l\'image</button>' : ''}
+                        </div>
+                        <label class="flex flex-wrap items-center gap-2 mt-3 text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-house"></i> Sur l'accueil :
+                            <select data-home class="px-3 py-2 text-xs rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                                <option value="">Non affiché</option>
+                                ${[1,2,3,4,5,6].map(n => '<option value="' + n + '"' + (s.homeOrder === n ? ' selected' : '') + '>Position ' + n + '</option>').join('')}
+                            </select>
+                        </label>
+                        <p data-cover-msg class="hidden"></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>`;
+}
+
+// Image d'en-tête affichée : celle du salon, sinon l'image par défaut (même règle que l'accueil)
+const COVERS_DEFAUT = ['img/ambiance-lounge.jpg', 'img/ambiance-musique.jpg', 'img/ambiance-rencontres.jpg'];
+const API_BASE = (typeof API_URL === 'string' ? API_URL : 'https://api.e-visiocam.com/api').replace(/\/api\/?$/, '');
+function coverSrc(s) {
+    if (s && s.coverUrl) return API_BASE + s.coverUrl;
+    if (s && s.slug === 'musique') return COVERS_DEFAUT[1];
+    let h = 0; for (const c of String(s && s.slug || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    return [COVERS_DEFAUT[0], COVERS_DEFAUT[2]][h % 2];
 }
 
 function rendreListe() {
@@ -333,6 +376,83 @@ document.getElementById('salonsList').addEventListener('change', e => {
     if (!inp || !inp.files || !inp.files[0]) return;
     const slug = inp.closest('[data-logo]').dataset.logo, file = inp.files[0];
     choisirLogoSalon(slug, file).then(() => { inp.value = ''; });
+});
+
+// ------------------------------------------------------------------
+// 🏞️ Image d'en-tête + place sur l'accueil
+// ------------------------------------------------------------------
+const coverEnAttente = {};
+const blocCover = slug => [...document.querySelectorAll('[data-cover]')].find(b => b.dataset.cover === slug);
+function messageCover(slug, texte, ok) {
+    const b = blocCover(slug); if (!b) return;
+    const m = b.querySelector('[data-cover-msg]');
+    m.textContent = texte || '';
+    m.className = 'text-xs mt-2 ' + (texte ? (ok ? 'text-emerald-600' : 'text-rose-600') : 'hidden');
+}
+function activerCover(slug, actif) {
+    const b = blocCover(slug); if (!b) return;
+    const bt = b.querySelector('[data-cact="appliquer"]');
+    bt.disabled = !actif;
+    bt.className = 'px-4 py-2 bg-brand-primary text-white text-xs font-bold rounded-xl ' + (actif ? 'hover:bg-brand-hover' : 'opacity-50 cursor-not-allowed');
+}
+async function choisirCover(slug, file) {
+    delete coverEnAttente[slug];
+    activerCover(slug, false);
+    messageCover(slug, 'Préparation de l\'image...', true);
+    try {
+        const r = await SalonLogo.preparerCouverture(file);
+        coverEnAttente[slug] = r;
+        const b = blocCover(slug);
+        b.querySelector('[data-cover-img]').src = r.data;
+        b.querySelector('[data-cover-info]').textContent = 'Aperçu : ' + file.name + ' · ' + r.w + ' × ' + r.h + ' px → ' + r.largeur + ' × ' + r.hauteur
+            + ' px · ' + Math.max(1, Math.round(r.octets / 1024)) + ' Ko. Rien n\'est encore appliqué.';
+        messageCover(slug, '');
+        activerCover(slug, true);
+    } catch (err) { messageCover(slug, err.message, false); }
+}
+async function appliquerCover(slug) {
+    const p = coverEnAttente[slug]; if (!p) return;
+    activerCover(slug, false);
+    messageCover(slug, 'Envoi en cours...', true);
+    try {
+        const rep = await apiCall('/salons/' + encodeURIComponent(slug) + '/cover', { method: 'PUT', body: JSON.stringify({ image: p.data }) });
+        delete coverEnAttente[slug];
+        toast('✅ Image d\'en-tête appliquée');
+        majSalonApresLogo(slug, rep);
+    } catch (err) { messageCover(slug, 'Échec : ' + err.message, false); activerCover(slug, true); }
+}
+async function retirerCover(slug) {
+    if (!confirm('Retirer l\'image d\'en-tête de « ' + (names[slug] || slug) + ' » ?\n\nLa carte de l\'accueil reprendra l\'image par défaut.')) return;
+    try {
+        const rep = await apiCall('/salons/' + encodeURIComponent(slug) + '/cover', { method: 'DELETE' });
+        toast('Image retirée : image par défaut');
+        majSalonApresLogo(slug, rep);
+    } catch (err) { messageCover(slug, 'Échec : ' + err.message, false); }
+}
+async function placerAccueil(slug, valeur) {
+    try {
+        const rep = await apiCall('/salons/' + encodeURIComponent(slug) + '/home', { method: 'PUT', body: JSON.stringify({ position: valeur ? Number(valeur) : null }) });
+        // Les positions des autres salons ont pu bouger : on les met toutes à jour
+        const pos = {}; (rep.home || []).forEach(h => { pos[h.slug] = h.homeOrder; });
+        SALONS.forEach(s => { s.homeOrder = pos[s.slug] || null; });
+        toast(valeur ? '🏠 Affiché sur l\'accueil, position ' + pos[slug] : 'Retiré de l\'accueil');
+        majSalonApresLogo(slug, rep);
+    } catch (err) { messageCover(slug, 'Échec : ' + err.message, false); majSalonApresLogo(slug, null); }
+}
+document.getElementById('salonsList').addEventListener('click', e => {
+    const bt = e.target.closest('[data-cover] [data-cact]'); if (!bt || bt.disabled) return;
+    const bloc = bt.closest('[data-cover]'), slug = bloc.dataset.cover;
+    if (bt.dataset.cact === 'choisir') bloc.querySelector('[data-cover-file]').click();
+    else if (bt.dataset.cact === 'appliquer') appliquerCover(slug);
+    else if (bt.dataset.cact === 'retirer') retirerCover(slug);
+});
+document.getElementById('salonsList').addEventListener('change', e => {
+    const sel = e.target.closest('[data-cover] [data-home]');
+    if (sel) { placerAccueil(sel.closest('[data-cover]').dataset.cover, sel.value); return; }
+    const inp = e.target.closest('[data-cover] [data-cover-file]');
+    if (!inp || !inp.files || !inp.files[0]) return;
+    const slug = inp.closest('[data-cover]').dataset.cover;
+    choisirCover(slug, inp.files[0]).then(() => { inp.value = ''; });
 });
 
 // 🔒 Passer un salon en VIP, ou lui retirer le VIP

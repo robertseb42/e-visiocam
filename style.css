@@ -488,3 +488,5 @@ html[data-theme="light"] .evc-deck-headshell:after,html[data-theme="light"] .evc
 html[data-theme="light"] #navAuth a[href*="register"]{background:#e91e63;background-image:none;color:#fff}
 html[data-theme="light"] #navAuth a[href*="register"]:hover{background:#d81b60}
 html[data-theme="light"] #radioWidgetMinimized .bg-brand-primary{background:#e91e63;color:#fff}
+.ev-vip{display:inline-block;vertical-align:middle;margin-left:6px;padding:2px 8px;border-radius:999px;background:#ffe500;color:#111113;font-size:11px;font-weight:900;letter-spacing:.05em;text-shadow:none}
+html[data-theme="light"] .ev-vip{background:#e91e63;color:#fff}
