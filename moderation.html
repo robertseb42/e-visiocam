@@ -220,16 +220,28 @@
                     <input type="text" id="newWord" required placeholder="Mot a interdire"
                         class="flex-1 px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
                     <select id="newWordSeverity" class="px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
-                        <option value="1">Faible (1)</option>
-                        <option value="2">Moyen (2)</option>
-                        <option value="3">Eleve (3)</option>
-                        <option value="4">Tres eleve (4)</option>
-                        <option value="5">Critique (5)</option>
+                        <option value="1">1 — mot masqué</option>
+                        <option value="2">2 — mot masqué</option>
+                        <option value="3" selected>3 — message bloqué</option>
+                        <option value="4">4 — bloqué + auteur muet 10 min</option>
+                        <option value="5">5 — bloqué + auteur muet 10 min</option>
                     </select>
                     <button type="submit" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-xl whitespace-nowrap">
                         <i class="fa-solid fa-plus mr-1"></i> Ajouter
                     </button>
                 </form>
+            </div>
+            <div class="rounded-xl border border-slate-200 p-4 mb-4 text-xs text-slate-600">
+                <p class="font-bold text-slate-900 text-sm mb-1">Filtre automatique (salons et messages privés)</p>
+                <p>Gravité 1-2 : le mot est remplacé par ★★★ et le message part. Gravité 3 : le message est bloqué et apparaît dans les messages signalés.
+                Gravité 4-5 : bloqué, signalé, et l'auteur ne peut plus écrire pendant 10 minutes. Le filtre reconnaît aussi les mots déguisés
+                (majuscules, accents, c0nn4rd, connaaard, c.o.n.n.a.r.d) sans bloquer les mots qui en contiennent un autre (« charme » ne déclenche pas « arme »).</p>
+                <form onsubmit="testerFiltre(event)" class="flex flex-col md:flex-row gap-2 mt-3">
+                    <input type="text" id="testFiltreTexte" maxlength="500" placeholder="Tester une phrase (rien n'est envoyé)…"
+                        class="flex-1 px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
+                    <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl whitespace-nowrap">Tester</button>
+                </form>
+                <p id="testFiltreResultat" class="text-xs mt-2"></p>
             </div>
             <div id="wordsList" class="grid grid-cols-2 md:grid-cols-4 gap-2"></div>
         </div>
@@ -275,6 +287,7 @@
 </main>
 
 <!-- ✅ LE SCRIPT EST MAINTENANT DANS UN FICHIER SÉPARÉ -->
+<script src="sanction-modal.js"></script>
 <script src="moderation.js"></script>
 
 

@@ -223,12 +223,13 @@ function openActionModal(reportId, targetId, targetName) {
     modal.className = 'fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4';
     var html = '<div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">';
     html += '<h3 class="text-lg font-extrabold text-slate-900 mb-4 text-center">Traiter le signalement</h3>';
-    html += '<p class="text-xs text-slate-500 mb-4 text-center">Contre <strong>' + (targetName || 'Utilisateur #' + targetId) + '</strong></p>';
+    html += '<p class="text-xs text-slate-500 mb-4 text-center">Contre <strong>' + escapeHtml(targetName || 'Utilisateur #' + targetId) + '</strong></p>';
+    window.__nomCibleSignalement = targetName || ('Utilisateur #' + targetId);
     html += '<div class="space-y-2">';
     html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'warn\')" class="w-full p-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-left font-bold text-sm text-amber-900">Avertir</button>';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'mute\')" class="w-full p-3 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-left font-bold text-sm text-orange-900">Mute (5 min)</button>';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'kick\')" class="w-full p-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-left font-bold text-sm text-rose-900">Kick</button>';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'ban\')" class="w-full p-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-left font-bold text-sm text-red-900">Bannir</button>';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'mute\')" class="w-full p-3 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-left font-bold text-sm text-orange-900">Rendre muet… <span class="font-normal text-xs">(durée au choix)</span></button>';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'kick\')" class="w-full p-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-left font-bold text-sm text-rose-900">Expulser (kick)… <span class="font-normal text-xs">(durée au choix)</span></button>';
+    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'ban\')" class="w-full p-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-left font-bold text-sm text-red-900">Bannir… <span class="font-normal text-xs">(jours ou définitif)</span></button>';
     html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'ignore\')" class="w-full p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left font-bold text-sm text-slate-900">Ignorer</button>';
     html += '</div>';
     html += '<button onclick="document.getElementById(\'actionModal\').remove()" class="w-full mt-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Annuler</button>';
@@ -245,19 +246,14 @@ function applyAction(reportId, targetId, action) {
         reason = prompt('Raison :');
         if (reason === null) return;
         promise = apiCall('/mod/users/' + targetId + '/warn', { method: 'POST', body: JSON.stringify({ reason: reason }) });
-    } else if (action === 'mute') {
-        reason = prompt('Raison :');
-        if (reason === null) return;
-        promise = apiCall('/mod/users/' + targetId + '/mute', { method: 'POST', body: JSON.stringify({ duration: 300, reason: reason }) });
-    } else if (action === 'kick') {
-        reason = prompt('Raison :');
-        if (reason === null) return;
-        promise = apiCall('/mod/users/' + targetId + '/kick', { method: 'POST', body: JSON.stringify({ reason: reason }) });
-    } else if (action === 'ban') {
-        if (!confirm('Bannir ?')) return;
-        reason = prompt('Raison :');
-        if (reason === null) return;
-        promise = apiCall('/mod/users/' + targetId + '/ban', { method: 'POST', body: JSON.stringify({ reason: reason }) });
+    } else if (action === 'mute' || action === 'kick' || action === 'ban') {
+        // Durée et motif choisis dans la fenêtre de sanction ; le signalement est clos ensuite
+        var m0 = document.getElementById('actionModal'); if (m0) m0.remove();
+        EvcSanction.ouvrir({ id: targetId, username: window.__nomCibleSignalement || '', type: action, onDone: function () {
+            apiCall('/mod/reports/' + reportId + '/handle', { method: 'POST', body: JSON.stringify({ action: action, newStatus: 'resolved' }) })
+                .then(loadReports).then(loadStats).catch(function () {});
+        } });
+        return;
     } else if (action === 'ignore') {
         newStatus = 'ignored';
         promise = Promise.resolve();
@@ -456,18 +452,7 @@ function forceStopStream(streamId, username) {
 
 function quickBan(username, userId) {
     if (!userId) { alert('ID utilisateur introuvable'); return; }
-    if (!confirm('Bannir ' + username + ' ?')) return;
-    var reason = prompt('Raison :', 'Violation des CGU');
-    if (reason === null) return;
-    apiCall('/mod/users/' + userId + '/ban', { method: 'POST', body: JSON.stringify({ reason: reason }) })
-        .then(function() {
-            if (typeof showToast === 'function') showToast(username + ' banni', 'warning');
-            loadAllStreams();
-        })
-        .catch(function(err) {
-            if (typeof showToast === 'function') showToast(err.message, 'error');
-            else alert(err.message);
-        });
+    EvcSanction.ouvrir({ id: userId, username: username, type: 'ban', onDone: loadAllStreams });
 }
 
 function loadViewLogs() {
@@ -507,7 +492,8 @@ function renderWords() {
     allWords.forEach(function(w) {
         var wordEscaped = escapeHtml(w.word).replace(/'/g, "\\'");
         html += '<div class="bg-slate-100 text-slate-700 rounded-xl p-3 flex items-center justify-between">';
-        html += '<div><p class="font-bold text-sm">' + escapeHtml(w.word) + '</p><p class="text-[10px] opacity-70">Severite ' + w.severity + '/5</p></div>';
+        var effet = w.severity <= 2 ? 'masqué' : w.severity === 3 ? 'bloqué' : 'bloqué + muet';
+        html += '<div><p class="font-bold text-sm">' + escapeHtml(w.word) + '</p><p class="text-[10px] opacity-70">Gravité ' + w.severity + '/5 · ' + effet + '</p></div>';
         html += '<button onclick="deleteWord(\'' + wordEscaped + '\')" class="w-6 h-6 rounded-lg bg-white hover:bg-slate-200 flex items-center justify-center text-xs">X</button>';
         html += '</div>';
     });
@@ -575,13 +561,20 @@ function renderUsers(filter) {
         html += '<td class="py-3 px-2 text-slate-500 font-mono text-xs">#' + u.id + '</td>';
         html += '<td class="py-3 px-2 font-bold text-slate-900">' + escapeHtml(u.username) + (isMe ? ' (moi)' : '') + '</td>';
         html += '<td class="py-3 px-2 text-xs">' + (roleLabels[u.role] || u.role) + '</td>';
-        html += '<td class="py-3 px-2">' + (isBanned ? '<span class="text-rose-600 text-xs font-bold">Banni</span>' : '<span class="text-emerald-600 text-xs font-bold">Actif</span>') + '</td>';
-        html += '<td class="py-3 px-2 text-right">';
+        html += '<td class="py-3 px-2">' + EvcSanction.etiquette(u) + '</td>';
+        html += '<td class="py-3 px-2 text-right whitespace-nowrap">';
         if (canAct) {
+            var actives = EvcSanction.enCours(u);
+            var superA = typeof isSuperAdmin === 'function' && isSuperAdmin();
             html += '<button onclick="quickAction(' + u.id + ', \'warn\')" class="px-2 py-1 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg mr-1">Warn</button>';
-            html += '<button onclick="quickAction(' + u.id + ', \'mute\')" class="px-2 py-1 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs rounded-lg mr-1">Mute</button>';
-            html += '<button onclick="quickAction(' + u.id + ', \'kick\')" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Kick</button>';
+            html += actives.indexOf('mute') !== -1
+                ? '<button onclick="EvcSanction.lever(' + u.id + ', \'mute\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Rendre la parole</button>'
+                : '<button onclick="quickAction(' + u.id + ', \'mute\')" class="px-2 py-1 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs rounded-lg mr-1">Mute</button>';
+            html += actives.indexOf('kick') !== -1
+                ? '<button onclick="EvcSanction.lever(' + u.id + ', \'kick\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Lever l\'exclusion</button>'
+                : '<button onclick="quickAction(' + u.id + ', \'kick\')" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Kick</button>';
             if (!isBanned) html += '<button onclick="quickAction(' + u.id + ', \'ban\')" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs rounded-lg">Ban</button>';
+            else if (superA) html += '<button onclick="EvcSanction.lever(' + u.id + ', \'ban\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg">Débannir</button>';
         } else {
             html += '<span class="text-[10px] text-slate-400">-</span>';
         }
@@ -595,13 +588,10 @@ function quickAction(userId, action) {
     if (action === 'warn') {
         var reason = prompt('Raison :') || '';
         promise = apiCall('/mod/users/' + userId + '/warn', { method: 'POST', body: JSON.stringify({ reason: reason }) });
-    } else if (action === 'mute') {
-        promise = apiCall('/mod/users/' + userId + '/mute', { method: 'POST', body: JSON.stringify({ duration: 300, reason: '' }) });
-    } else if (action === 'kick') {
-        promise = apiCall('/mod/users/' + userId + '/kick', { method: 'POST', body: JSON.stringify({ reason: '' }) });
-    } else if (action === 'ban') {
-        if (!confirm('Bannir ?')) return;
-        promise = apiCall('/mod/users/' + userId + '/ban', { method: 'POST', body: JSON.stringify({ reason: '' }) });
+    } else if (action === 'mute' || action === 'kick' || action === 'ban') {
+        var u = allUsers.find(function (x) { return x.id === userId; }) || {};
+        EvcSanction.ouvrir({ id: userId, username: u.username, type: action, onDone: loadUsers });
+        return;
     } else { return; }
     promise.then(function() {
         if (typeof showToast === 'function') showToast('Action effectuee');
@@ -636,4 +626,15 @@ function escapeHtml(text) {
     var div = document.createElement('div');
     div.textContent = String(text);
     return div.innerHTML;
+}
+// Tester le filtre sur une phrase (sans rien envoyer)
+function testerFiltre(e) {
+    e.preventDefault();
+    var t = document.getElementById('testFiltreTexte').value;
+    var out = document.getElementById('testFiltreResultat');
+    if (!t.trim()) { out.textContent = ''; return; }
+    apiCall('/mod/banned-words/test', { method: 'POST', body: JSON.stringify({ text: t }) }).then(function (r) {
+        out.textContent = r.gravite ? ('→ ' + r.decision + ' (mot : ' + r.mots.join(', ') + ') · « ' + r.texte + ' »') : '→ ' + r.decision;
+        out.className = 'text-xs mt-2 font-semibold ' + (r.gravite >= 3 ? 'text-rose-600' : r.gravite ? 'text-amber-600' : 'text-emerald-600');
+    }).catch(function (err) { out.textContent = err.message; });
 }

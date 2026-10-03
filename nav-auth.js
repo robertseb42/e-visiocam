@@ -247,6 +247,36 @@
         setTimeout(function () { el.remove(); }, 12000);
     }
 
+    // ⚖️ Le membre vient d'être sanctionné : explication claire, puis retour à l'accueil si besoin
+    function afficherSanction(d) {
+        if (!d || !d.type) return;
+        var fin = d.jusqua ? new Date(d.jusqua).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', ' à ') : '';
+        if (d.type === 'unmute') { if (typeof showToast === 'function') showToast('Vous pouvez de nouveau écrire.'); return; }
+        if (d.type === 'mute') {
+            if (typeof showToast === 'function') showToast('🔇 La modération vous a retiré la parole' + (fin ? ' jusqu\'au ' + fin : '') + (d.raison ? ' — ' + d.raison : ''), 'warning');
+            return;
+        }
+        if (document.getElementById('evcSanctionInfo')) return;
+        var titre = d.type === 'ban' ? (d.definitif ? 'Compte banni' : 'Compte suspendu') : 'Vous avez été expulsé';
+        var texte = d.message || (d.type === 'ban' ? (d.definitif ? 'Votre compte a été banni définitivement.' : 'Votre compte est suspendu jusqu\'au ' + fin + '.')
+            : (fin ? 'Vous ne pouvez pas revenir avant le ' + fin + '.' : 'Vous avez été expulsé par la modération.'));
+        var el = document.createElement('div');
+        el.id = 'evcSanctionInfo';
+        el.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(10,10,14,.85);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Inter,sans-serif';
+        el.innerHTML = '<div style="max-width:420px;width:100%;background:#1c1c20;border:1px solid #3a3a42;border-radius:20px;padding:28px;text-align:center;color:#f5f5f6">' +
+            '<div style="font-size:40px;line-height:1">' + (d.type === 'ban' ? '🔨' : '🚪') + '</div>' +
+            '<h2 style="font-size:20px;font-weight:800;margin:12px 0 8px"></h2><p data-t style="font-size:14px;color:#c4c4cc;margin:0 0 6px"></p>' +
+            '<p data-r style="font-size:13px;color:#a6a6b1;margin:0 0 18px"></p>' +
+            '<a href="index.html" style="display:inline-block;padding:11px 22px;background:#ffe500;color:#111113;font-weight:700;border-radius:12px;text-decoration:none">Retour à l\'accueil</a></div>';
+        el.querySelector('h2').textContent = titre;
+        el.querySelector('[data-t]').textContent = texte;
+        el.querySelector('[data-r]').textContent = d.raison && !(d.message || '').includes(d.raison) ? 'Motif : ' + d.raison : '';
+        document.body.appendChild(el);
+        // La session n'est plus utilisable : on oublie le membre sur cet appareil (sauf simple expulsion)
+        if (d.type === 'ban' || fin) { try { if (typeof clearUser === 'function') clearUser(); } catch (e) {} }
+    }
+    window.EvcAfficherSanction = afficherSanction;
+
     let unreadSocket = null;
     let pollingInterval = null;
 
@@ -270,6 +300,9 @@
                 unreadSocket.on('dm:message', function() {
                     setTimeout(refreshUnreadCount, 500);
                 });
+
+                // ⚖️ Sanction de la modération (expulsion, bannissement, sourdine)
+                unreadSocket.on('moderation:sanction', afficherSanction);
 
                 // ❤️ Un modèle suivi vient de lancer un live
                 unreadSocket.on('favori:live', function(d) {

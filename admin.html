@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js"></script>
     <script src="legal-banner.js"></script>
+    <script src="sanction-modal.js"></script>
     <script src="https://api.e-visiocam.com/socket.io/socket.io.js" defer></script>
     <script src="nav-auth.js" defer></script>
 
@@ -692,11 +693,21 @@ function renderUsers(filter = '') {
         if (canAct && u.role === 'moderator') {
             actions += '<button onclick="handleRevokeMod(' + u.id + ')" title="Révoquer modérateur" class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs"><i class="fa-solid fa-user-minus"></i></button>';
         }
+        // Sanctions avec durée au choix (mute / kick / ban), ou levée si elles sont en cours
+        const enCours = canAct ? EvcSanction.enCours(u) : [];
+        if (canAct) {
+            actions += enCours.includes('mute')
+                ? '<button onclick="EvcSanction.lever(' + u.id + ', \'mute\', loadUsers)" title="Rendre la parole" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-microphone"></i></button>'
+                : '<button onclick="handleSanction(' + u.id + ', \'mute\')" title="Rendre muet (durée au choix)" class="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs"><i class="fa-solid fa-microphone-slash"></i></button>';
+            actions += enCours.includes('kick')
+                ? '<button onclick="EvcSanction.lever(' + u.id + ', \'kick\', loadUsers)" title="Lever l\'exclusion" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-door-open"></i></button>'
+                : '<button onclick="handleSanction(' + u.id + ', \'kick\')" title="Expulser (durée au choix)" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 text-xs"><i class="fa-solid fa-right-from-bracket"></i></button>';
+        }
         if (canAct && !isBanned) {
-            actions += '<button onclick="handleBan(' + u.id + ')" title="Bannir" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs"><i class="fa-solid fa-ban"></i></button>';
+            actions += '<button onclick="handleSanction(' + u.id + ', \'ban\')" title="Bannir (jours ou définitif)" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs"><i class="fa-solid fa-ban"></i></button>';
         }
         if (canAct && isBanned) {
-            actions += '<button onclick="handleUnban(' + u.id + ')" title="Débannir" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-check"></i></button>';
+            actions += '<button onclick="EvcSanction.lever(' + u.id + ', \'ban\', loadUsers)" title="Débannir" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-check"></i></button>';
         }
         if (canAct) {
             actions += '<button onclick="handleDelete(' + u.id + ')" title="Supprimer" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs"><i class="fa-solid fa-trash"></i></button>';
@@ -708,7 +719,7 @@ function renderUsers(filter = '') {
             '<td class="py-3 px-2 font-bold text-slate-900">' + escapeHtml(u.username) + (isMe ? ' <span class="text-[10px] text-brand-primary">(moi)</span>' : '') + '</td>' +
             '<td class="py-3 px-2 text-slate-500 text-xs">' + escapeHtml(u.email || '—') + '</td>' +
             '<td class="py-3 px-2">' + (roleBadges[u.role] || escapeHtml(u.role)) + '</td>' +
-            '<td class="py-3 px-2">' + (isBanned ? '<span class="text-rose-600 text-xs font-bold">🔨 Banni</span>' : '<span class="text-emerald-600 text-xs font-bold">✅ Actif</span>') +
+            '<td class="py-3 px-2">' + EvcSanction.etiquette(u) +
                 (Number(u.must_change_password) === 1 ? ' <span class="text-amber-600 text-[10px] font-bold" title="Mot de passe réinitialisé : à changer à la prochaine connexion">🔑 à changer</span>' : '') + '</td>' +
             '<td class="py-3 px-2 text-right">' + actions + '</td>' +
             '</tr>';
@@ -760,15 +771,11 @@ async function handleRevokeMod(userId) {
     } catch (err) { showToast(err.message, 'error'); }
 }
 
-async function handleBan(userId) {
-    const reason = prompt('Raison du bannissement :');
-    if (reason === null) return;
-    try {
-        await apiCall('/admin/users/' + userId + '/ban', { method: 'POST', body: JSON.stringify({ reason }) });
-        showToast('🔨 Utilisateur banni', 'warning');
-        await loadUsers();
-    } catch (err) { showToast(err.message, 'error'); }
+function handleSanction(userId, type) {
+    const u = allUsers.find(x => x.id === userId) || {};
+    EvcSanction.ouvrir({ id: userId, username: u.username, type, onDone: loadUsers });
 }
+function handleBan(userId) { handleSanction(userId, 'ban'); }
 
 async function handleUnban(userId) {
     if (!confirm('Débannir cet utilisateur ?')) return;
