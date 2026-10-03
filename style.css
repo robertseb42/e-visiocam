@@ -495,3 +495,6 @@ html[data-theme="light"] .ev-vip{background:#e91e63;color:#fff}
 .ev-ambiance{background:var(--h-panel)}
 .ev-ambiance-body{margin-top:0;padding-top:18px;background:var(--h-panel)}
 .ev-ambiance h3{text-shadow:none}
+/* Icônes des titres de section (chat, live, admin) : rose de la marque, comme sur l'accueil */
+.ev-ico{color:#ff1680;margin-right:2px}
+html[data-theme="light"] .ev-ico{color:#e91e63}

@@ -10,26 +10,12 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#111113">
     <meta name="robots" content="noindex">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="auth-api.js"></script>
     <script src="legal-banner.js"></script>
     <script src="nav-auth.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { primary: '#e91e63', hover: '#d81b60' },
-                        darkpurple: '#1a0b2e'
-                    },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
     <style>
         .msg-bubble-sent { background: #e91e63; color: white; }
         .msg-bubble-received { background: #f1f5f9; color: #1e293b; }
@@ -39,8 +25,9 @@
         .modal-backdrop { background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); }
     </style>
 
-    <link rel="stylesheet" href="style.css?v=20261003-accueil">
+    <link rel="stylesheet" href="style.css?v=20261003-pages">
     <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261003">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 

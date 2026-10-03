@@ -10,7 +10,6 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#111113">
     <meta name="robots" content="noindex">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
@@ -25,8 +24,9 @@
         video { background: #000; }
     </style>
 
-    <link rel="stylesheet" href="style.css?v=20261003-accueil">
+    <link rel="stylesheet" href="style.css?v=20261003-pages">
     <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261003">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -40,18 +40,27 @@
 </script>
 
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <!-- Même grille que l'accueil : logo dans la colonne de 256px -->
+    <!-- En-tête commun du site (même logo et même menu que l'accueil) -->
     <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
         <div class="flex items-center lg:w-64 lg:shrink-0">
-            <a href="index.html" class="flex items-center gap-2">
+            <a href="index.html" class="flex items-center gap-2" aria-label="E-VISIOCAM — accueil">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
                     <i class="fa-solid fa-video"></i>
                 </div>
-                <span class="text-2xl font-black text-slate-900">Live <span class="text-brand-primary">Webcam</span></span>
+                <span class="text-2xl font-black tracking-tight text-slate-900 whitespace-nowrap">E-<span class="text-brand-primary">VISIOCAM</span></span>
             </a>
         </div>
-        <div class="ml-auto flex items-center gap-3">
-            <div id="connectionStatus" class="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700">⚡ Connexion...</div>
+        <nav class="hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium" aria-label="Navigation principale">
+            <a href="index.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Accueil</a>
+            <a href="live.html" aria-current="page" class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">En direct</a>
+            <a href="modeles.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Modèles</a>
+            <a href="salons.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Salons</a>
+            <a href="messages.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Messages</a>
+            <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Crédits</a>
+        </nav>
+        <div class="ml-auto flex items-center gap-2 sm:gap-3">
+            <div id="connectionStatus" class="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 whitespace-nowrap">⚡ Connexion...</div>
+            <button data-theme-toggle type="button" aria-label="Changer de thème" title="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors text-lg leading-none">☀️</button>
             <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors">
                 <i class="fa-regular fa-bell text-lg"></i>
                 <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
@@ -67,7 +76,7 @@
         <div class="space-y-4">
             <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
                 <h2 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    🎥 Ma webcam
+                    <i class="fa-solid fa-video ev-ico" aria-hidden="true"></i> Ma webcam
                     <span id="broadcastBadge" class="hidden text-[10px] bg-rose-500 text-white px-2 py-0.5 rounded-full font-bold live-pulse">🔴 EN DIRECT</span>
                 </h2>
                 <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden mb-4 relative">
@@ -114,7 +123,7 @@
                 <div class="mt-3 text-xs text-center text-slate-500">
                     Status : <span id="camStatusText">Inactif</span>
                 </div>
-                <div class="mt-2 text-xs text-center text-slate-400">
+                <div id="techTurn" class="hidden mt-2 text-xs text-center text-slate-400">
                     TURN : <span id="turnStatusText">chargement...</span>
                 </div>
             </div>
@@ -122,7 +131,7 @@
             <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-bold text-slate-900 flex items-center gap-2">
-                        🔴 Lives actifs
+                        <i class="fa-solid fa-tower-broadcast ev-ico" aria-hidden="true"></i> Lives actifs
                         <span id="liveCount" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">0</span>
                     </h2>
                     <button onclick="refreshStreams()" class="text-xs text-brand-primary font-bold hover:underline">
@@ -139,7 +148,7 @@
         <div class="lg:col-span-2 space-y-4">
             <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
                 <h2 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    👁️ Regarder un live
+                    <i class="fa-solid fa-eye ev-ico" aria-hidden="true"></i> Regarder un live
                     <span id="watchingBadge" class="hidden text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold">CONNECTÉ</span>
                 </h2>
                 <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden mb-4 relative">
@@ -169,9 +178,10 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+            <!-- Journal technique : visible seulement par l'équipe (modérateurs, super admin) -->
+            <div id="techLog" class="hidden bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="font-bold text-slate-900">📝 Journal des événements</h2>
+                    <h2 class="font-bold text-slate-900"><i class="fa-solid fa-list ev-ico" aria-hidden="true"></i> Journal des événements</h2>
                     <button onclick="document.getElementById('logBox').innerHTML = ''; log('Journal nettoyé');" class="text-xs text-slate-400 hover:text-slate-700 font-bold">
                         <i class="fa-solid fa-eraser"></i> Effacer
                     </button>
@@ -253,6 +263,10 @@ async function loadTurnCredentials() {
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async function() {
+    // Détails techniques (journal, TURN) : réservés à l'équipe
+    if (typeof isModerator === 'function' && isModerator()) {
+        ['techLog', 'techTurn'].forEach(function (id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); });
+    }
     currentUser = getCurrentUser();
     if (!currentUser) { window.location.href = 'login.html'; return; }
     
