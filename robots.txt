@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /dashboard.html
+Disallow: /decor.html
+Disallow: /moderation.html
+Disallow: /moderation-salons.html
+Disallow: /compte.html
+Disallow: /profile.html
+Disallow: /messages.html
+
+Sitemap: https://www.e-visiocam.com/sitemap.xml
