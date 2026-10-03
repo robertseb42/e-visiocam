@@ -21,7 +21,19 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261005">
+    <style>
+        .evc-chart { --grid: #e2e8f0; --axis: #64748b; height: 190px; }
+        :where(html:not([data-theme="light"])) .evc-chart { --grid: #2c2c33; --axis: #9ca3af; }
+        .evc-chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+        .evc-chart .hit { fill: transparent; cursor: default; }
+        .evc-chart .bar.survol { opacity: .7; }
+        .evc-tip { position: absolute; pointer-events: none; z-index: 5; white-space: nowrap; background: #0f172a; color: #f8fafc;
+            font-size: 11px; line-height: 1.35; padding: 6px 8px; border-radius: 8px; box-shadow: 0 6px 18px rgba(0,0,0,.25); transform: translate(-50%, -100%); }
+        .evc-tip b { font-weight: 700; }
+        .stats-periode.actif { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+        :where(html:not([data-theme="light"])) .stats-periode.actif { background: #2c2c33; color: #f5f5f6; }
+    </style>
+    <link rel="stylesheet" href="tailwind.css?v=20261006">
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
 
@@ -187,7 +199,10 @@
 
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="flex border-b border-slate-100 overflow-x-auto scrollbar-none">
-            <button onclick="showTab('users', this)" class="admin-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
+            <button id="statsTabBtn" onclick="showTab('stats', this)" class="admin-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
+                <i class="fa-solid fa-chart-column mr-1"></i> Statistiques
+            </button>
+            <button onclick="showTab('users', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-users mr-1"></i> Utilisateurs
             </button>
             <button onclick="showTab('mods', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
@@ -205,7 +220,84 @@
             </button>
         </div>
 
-        <div id="tab-users" class="tab-content p-5">
+        <div id="tab-stats" class="tab-content p-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
+                <div>
+                    <h2 class="font-bold text-slate-900">Activité du site</h2>
+                    <p class="text-xs text-slate-500" id="statsMaj">Chargement...</p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <div class="inline-flex rounded-xl bg-slate-100 p-1 text-xs font-bold" role="group" aria-label="Période">
+                        <button type="button" data-jours="7" class="stats-periode px-3 py-1.5 rounded-lg text-slate-600">7 jours</button>
+                        <button type="button" data-jours="30" class="stats-periode px-3 py-1.5 rounded-lg text-slate-600">30 jours</button>
+                        <button type="button" data-jours="90" class="stats-periode px-3 py-1.5 rounded-lg text-slate-600">90 jours</button>
+                    </div>
+                    <button type="button" onclick="chargerStats()" class="px-3 py-2 rounded-xl text-xs font-bold text-brand-primary hover:bg-slate-100"><i class="fa-solid fa-rotate"></i> Actualiser</button>
+                    <button type="button" onclick="exporterStats()" class="px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"><i class="fa-solid fa-file-csv"></i> Exporter</button>
+                </div>
+            </div>
+
+            <!-- Chiffres clés -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6" id="statsTuiles">
+                <div class="rounded-2xl border border-slate-200 p-4">
+                    <p class="text-xs text-slate-500 font-medium"><span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1 align-middle live-dot"></span> Connectés maintenant</p>
+                    <p class="text-3xl font-black text-slate-900 mt-1" id="stMaintenant">—</p>
+                    <p class="text-xs text-slate-500 mt-1" id="stMaintenantDetail">&nbsp;</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 p-4">
+                    <p class="text-xs text-slate-500 font-medium">Inscriptions aujourd'hui</p>
+                    <p class="text-3xl font-black text-slate-900 mt-1" id="stInscr">—</p>
+                    <p class="text-xs text-slate-500 mt-1" id="stInscrDetail">&nbsp;</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 p-4">
+                    <p class="text-xs text-slate-500 font-medium">Membres actifs aujourd'hui</p>
+                    <p class="text-3xl font-black text-slate-900 mt-1" id="stActifs">—</p>
+                    <p class="text-xs text-slate-500 mt-1" id="stActifsDetail">&nbsp;</p>
+                </div>
+                <div class="rounded-2xl border border-slate-200 p-4">
+                    <p class="text-xs text-slate-500 font-medium">Crédits vendus aujourd'hui</p>
+                    <p class="text-3xl font-black text-slate-900 mt-1" id="stCredits">—</p>
+                    <p class="text-xs text-slate-500 mt-1" id="stCreditsDetail">&nbsp;</p>
+                </div>
+            </div>
+            <p id="stSimulation" class="hidden mb-4 text-xs rounded-xl bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2">
+                <i class="fa-solid fa-triangle-exclamation"></i> <span></span>
+            </p>
+
+            <!-- Graphiques : une série par graphique, une seule échelle -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <figure class="rounded-2xl border border-slate-200 p-4 m-0">
+                    <figcaption class="mb-2"><p class="text-sm font-bold text-slate-900">Inscriptions par jour</p><p class="text-xs text-slate-500" id="cap-inscriptions">&nbsp;</p></figcaption>
+                    <div class="evc-chart relative" id="chart-inscriptions"></div>
+                </figure>
+                <figure class="rounded-2xl border border-slate-200 p-4 m-0">
+                    <figcaption class="mb-2"><p class="text-sm font-bold text-slate-900">Membres connectés par jour</p><p class="text-xs text-slate-500" id="cap-actifs">&nbsp;</p></figcaption>
+                    <div class="evc-chart relative" id="chart-actifs"></div>
+                </figure>
+                <figure class="rounded-2xl border border-slate-200 p-4 m-0">
+                    <figcaption class="mb-2"><p class="text-sm font-bold text-slate-900">Crédits vendus par jour</p><p class="text-xs text-slate-500" id="cap-credits">&nbsp;</p></figcaption>
+                    <div class="evc-chart relative" id="chart-credits"></div>
+                </figure>
+            </div>
+
+            <details class="mt-4 rounded-2xl border border-slate-200">
+                <summary class="px-4 py-3 text-sm font-bold text-slate-700 cursor-pointer select-none"><i class="fa-solid fa-table mr-1"></i> Voir le détail jour par jour</summary>
+                <div class="overflow-x-auto px-4 pb-4">
+                    <table class="w-full text-xs">
+                        <thead><tr class="text-left text-slate-500 border-b border-slate-200">
+                            <th class="py-2 pr-3 font-semibold">Jour</th><th class="py-2 pr-3 font-semibold text-right">Inscriptions</th>
+                            <th class="py-2 pr-3 font-semibold text-right">Membres connectés</th><th class="py-2 pr-3 font-semibold text-right">Pic simultané</th>
+                            <th class="py-2 pr-3 font-semibold text-right">Crédits vendus</th><th class="py-2 pr-3 font-semibold text-right">Achats</th>
+                            <th class="py-2 pr-3 font-semibold text-right">Montant</th><th class="py-2 font-semibold text-right">Crédits dépensés</th>
+                        </tr></thead>
+                        <tbody id="statsTable" class="tabular-nums"></tbody>
+                    </table>
+                </div>
+            </details>
+            <p class="text-[11px] text-slate-400 mt-3">Jours comptés à l'heure de Paris. « Membres connectés » : membres différents venus sur le site ce jour-là (suivi précis à partir de cette mise à jour ; avant, seule la dernière connexion de chacun est connue).</p>
+        </div>
+
+        <div id="tab-users" class="tab-content p-5 hidden">
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <input type="text" id="searchUser" placeholder="Rechercher..."
                     class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
@@ -399,6 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     loadMaintenance();
     loadBackup();
+    initStats();
     startContactInbox();
     await loadUsers();
     await loadLogs();
@@ -871,6 +964,159 @@ async function deleteRadio(id, name) {
     } catch (err) { showToast(err.message, 'error'); }
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// STATISTIQUES : inscriptions, connectés, crédits vendus
+// ═══════════════════════════════════════════════════════════
+let statsJours = 30;
+let statsData = null;
+const nf = new Intl.NumberFormat('fr-FR');
+const nfEur = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+const fmtJour = (j, long) => {
+    const d = new Date(j + 'T12:00:00Z');
+    return d.toLocaleDateString('fr-FR', long ? { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' } : { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+};
+
+function initStats() {
+    try { const j = parseInt(localStorage.getItem('evc-stats-jours'), 10); if ([7, 30, 90].includes(j)) statsJours = j; } catch (e) {}
+    document.querySelectorAll('.stats-periode').forEach(b => {
+        b.addEventListener('click', () => {
+            statsJours = Number(b.dataset.jours);
+            try { localStorage.setItem('evc-stats-jours', String(statsJours)); } catch (e) {}
+            chargerStats();
+        });
+    });
+    chargerStats();
+    // « Connectés maintenant » se met à jour tout seul tant que l'onglet est ouvert
+    setInterval(() => { if (!document.hidden && !document.getElementById('tab-stats').classList.contains('hidden')) chargerStats(true); }, 30000);
+    let attente;
+    window.addEventListener('resize', () => { clearTimeout(attente); attente = setTimeout(dessinerGraphiques, 150); });
+}
+
+async function chargerStats(silencieux) {
+    document.querySelectorAll('.stats-periode').forEach(b => b.classList.toggle('actif', Number(b.dataset.jours) === statsJours));
+    try {
+        statsData = await apiCall('/admin/stats?days=' + statsJours);
+        afficherStats();
+    } catch (err) {
+        if (!silencieux) document.getElementById('statsMaj').textContent = 'Statistiques indisponibles : ' + err.message;
+    }
+}
+
+function afficherStats() {
+    const d = statsData; if (!d) return;
+    const t = d.aujourdhui, p = d.periode, m = d.maintenant;
+    const per = d.nbJours + ' derniers jours';
+    document.getElementById('statsMaj').textContent = 'Mis à jour à ' + new Date(d.genereLe).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + ' · ' + nf.format(d.total.membres) + ' membres inscrits au total';
+    document.getElementById('stMaintenant').textContent = nf.format(m.membres);
+    document.getElementById('stMaintenantDetail').textContent = (m.lives + m.livesPrives) + ' live' + (m.lives + m.livesPrives > 1 ? 's' : '') + ' en cours' + (m.livesPrives ? ' (dont ' + m.livesPrives + ' privé' + (m.livesPrives > 1 ? 's' : '') + ')' : '') + ' · pic du jour ' + nf.format(t.pic);
+    document.getElementById('stInscr').textContent = nf.format(t.inscriptions);
+    document.getElementById('stInscrDetail').textContent = nf.format(p.inscriptions) + ' sur les ' + per;
+    document.getElementById('stActifs').textContent = nf.format(t.actifs);
+    document.getElementById('stActifsDetail').textContent = nf.format(p.actifsUniques) + ' membres différents sur les ' + per;
+    document.getElementById('stCredits').textContent = nf.format(t.creditsVendus);
+    document.getElementById('stCreditsDetail').textContent = nf.format(p.creditsVendus) + ' sur les ' + per + (p.euros ? ' · ' + nfEur.format(p.euros) : '');
+
+    const sim = document.getElementById('stSimulation');
+    sim.classList.toggle('hidden', !p.creditsSimules);
+    sim.querySelector('span').textContent = p.creditsSimules
+        ? nf.format(p.creditsSimules) + ' crédits de la période viennent d\'achats en mode simulation (paiement réel pas encore activé) : ils ne rapportent rien et ne sont pas comptés dans les montants.'
+        : '';
+
+    document.getElementById('cap-inscriptions').textContent = nf.format(p.inscriptions) + ' sur les ' + per;
+    document.getElementById('cap-actifs').textContent = 'Pic simultané sur la période : ' + nf.format(p.picMax);
+    document.getElementById('cap-credits').textContent = nf.format(p.creditsVendus) + ' crédits · ' + nf.format(p.achats) + ' achat' + (p.achats > 1 ? 's' : '') + (p.euros ? ' · ' + nfEur.format(p.euros) : '');
+
+    document.getElementById('statsTable').innerHTML = d.jours.slice().reverse().map(j =>
+        '<tr class="border-b border-slate-100">' +
+        '<td class="py-1.5 pr-3 text-slate-700">' + escapeHtml(fmtJour(j.jour, true)) + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.inscriptions) + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.actifs) + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.pic) + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.creditsVendus) + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.achats) + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + (j.euros ? nfEur.format(j.euros) : '—') + '</td>' +
+        '<td class="py-1.5 text-right">' + nf.format(j.creditsDepenses) + '</td></tr>').join('');
+    dessinerGraphiques();
+}
+
+function dessinerGraphiques() {
+    if (!statsData) return;
+    const j = statsData.jours;
+    graphiqueColonnes('chart-inscriptions', j, 'inscriptions', x => '<b>' + nf.format(x.inscriptions) + '</b> inscription' + (x.inscriptions > 1 ? 's' : ''));
+    graphiqueColonnes('chart-actifs', j, 'actifs', x => '<b>' + nf.format(x.actifs) + '</b> membre' + (x.actifs > 1 ? 's' : '') + ' connecté' + (x.actifs > 1 ? 's' : '') + '<br>Pic simultané : ' + nf.format(x.pic));
+    graphiqueColonnes('chart-credits', j, 'creditsVendus', x => '<b>' + nf.format(x.creditsVendus) + '</b> crédits vendus<br>' + nf.format(x.achats) + ' achat' + (x.achats > 1 ? 's' : '') + (x.euros ? ' · ' + nfEur.format(x.euros) : '') + (x.creditsSimules ? '<br>dont ' + nf.format(x.creditsSimules) + ' en simulation' : ''));
+}
+
+// Échelle « ronde » : 0, 5, 10… / 0, 50, 100…
+function maxRond(v) {
+    if (v <= 4) return 4;
+    const pas = Math.pow(10, Math.floor(Math.log10(v)));
+    for (const k of [1, 2, 3, 4, 5, 6, 8, 10]) if (k * pas >= v) return k * pas;
+    return 10 * pas;
+}
+
+// Histogramme en colonnes, une série : colonnes fines arrondies en haut, survol = info-bulle
+function graphiqueColonnes(id, jours, cle, texte) {
+    const box = document.getElementById(id);
+    if (!box || !box.offsetWidth) return;
+    const W = box.clientWidth, H = box.clientHeight || 190;
+    const g = 34, d = 4, h = 4, b = 22;        // marges : gauche (axe), droite, haut, bas (dates)
+    const iw = W - g - d, ih = H - h - b;
+    const max = maxRond(Math.max(0, ...jours.map(x => x[cle])));
+    const n = jours.length, band = iw / n;
+    const bw = Math.max(2, Math.min(24, band - 2));   // ≤ 24 px, 2 px d'air entre colonnes
+    const y = v => h + ih - (v / max) * ih;
+    let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + escapeHtml(box.closest('figure').querySelector('figcaption p').textContent) + '">';
+    (max % 2 === 0 ? [0, 0.5, 1] : [0, 1]).forEach(f => {
+        const v = max * f, yy = Math.round(y(v)) + 0.5;
+        s += '<line x1="' + g + '" x2="' + (W - d) + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--grid)" stroke-width="1"/>';
+        s += '<text x="' + (g - 6) + '" y="' + (yy + 3.5) + '" text-anchor="end" font-size="10" fill="var(--axis)">' + nf.format(Math.round(v)) + '</text>';
+    });
+    const tous = Math.max(1, Math.ceil(n / Math.max(2, Math.floor(iw / 48))));   // une date toutes les ~48 px
+    jours.forEach((x, i) => {
+        const cx = g + band * i + band / 2, v = x[cle];
+        const top = y(v), base = h + ih, hb = base - top;
+        if (v > 0) {
+            const r = Math.min(4, bw / 2, hb);
+            const x0 = cx - bw / 2, x1 = cx + bw / 2;
+            s += '<path class="bar text-brand-primary" data-i="' + i + '" fill="currentColor" d="M' + x0 + ',' + base + 'V' + (top + r) + 'Q' + x0 + ',' + top + ' ' + (x0 + r) + ',' + top +
+                'H' + (x1 - r) + 'Q' + x1 + ',' + top + ' ' + x1 + ',' + (top + r) + 'V' + base + 'Z"/>';
+        }
+        if ((n - 1 - i) % tous === 0) s += '<text x="' + cx + '" y="' + (H - 6) + '" text-anchor="middle" font-size="10" fill="var(--axis)">' + fmtJour(x.jour) + '</text>';
+    });
+    s += '<line x1="' + g + '" x2="' + (W - d) + '" y1="' + (h + ih + 0.5) + '" y2="' + (h + ih + 0.5) + '" stroke="var(--axis)" stroke-opacity=".5" stroke-width="1"/>';
+    // Zones de survol par-dessus tout : toute la hauteur de la colonne, plus large que la barre
+    jours.forEach((x, i) => { s += '<rect class="hit" data-i="' + i + '" x="' + (g + band * i) + '" y="' + h + '" width="' + band + '" height="' + ih + '"/>'; });
+    s += '</svg>';
+    box.innerHTML = s + '<div class="evc-tip" hidden></div>';
+    const tip = box.querySelector('.evc-tip');
+    box.querySelectorAll('.hit').forEach(r => {
+        r.addEventListener('mouseenter', () => {
+            const i = Number(r.dataset.i), x = jours[i];
+            tip.innerHTML = '<span style="opacity:.75">' + escapeHtml(fmtJour(x.jour, true)) + '</span><br>' + texte(x);
+            tip.hidden = false;
+            const cx = g + band * i + band / 2;
+            tip.style.left = Math.min(W - 70, Math.max(70, cx)) + 'px';
+            tip.style.top = Math.max(0, y(x[cle]) - 8) + 'px';
+            box.querySelectorAll('.bar').forEach(p => p.classList.toggle('survol', p.dataset.i === r.dataset.i));
+        });
+        r.addEventListener('mouseleave', () => { tip.hidden = true; box.querySelectorAll('.bar.survol').forEach(p => p.classList.remove('survol')); });
+    });
+}
+
+function exporterStats() {
+    if (!statsData) return;
+    const lignes = [['jour', 'inscriptions', 'membres_connectes', 'pic_simultane', 'credits_vendus', 'achats', 'montant_eur', 'credits_simulation', 'credits_depenses']]
+        .concat(statsData.jours.map(j => [j.jour, j.inscriptions, j.actifs, j.pic, j.creditsVendus, j.achats, String(j.euros).replace('.', ','), j.creditsSimules, j.creditsDepenses]));
+    const csv = '﻿' + lignes.map(l => l.join(';')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'statistiques-e-visiocam-' + statsData.jours[statsData.jours.length - 1].jour + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
 // ═══════════════════════════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════════════════════════
@@ -884,6 +1130,7 @@ function showTab(name, btn) {
     btn.classList.add('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
     btn.classList.remove('text-slate-500', 'font-semibold');
     if (name === 'radios') loadRadios();
+    if (name === 'stats') chargerStats();
     if (name === 'logs') loadLogs();
     if (name === 'contact') loadContactMessages();
     if (location.hash !== '#' + name && name === 'contact') history.replaceState(null, '', '#contact');
