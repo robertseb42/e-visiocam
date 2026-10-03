@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261007">
+    <link rel="stylesheet" href="tailwind.css?v=20261008">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -277,7 +277,8 @@ async function saveProfile(e) {
             body: JSON.stringify({ bio, email, birthdate, gender })   // ⚠️ Ajout gender
         });
         saveUser(data.user);
-        showToast('✅ Profil mis à jour !');
+        // Nouvelle adresse e-mail : elle ne s'applique qu'après le clic sur le lien envoyé
+        showToast(data.message ? '✉️ ' + data.message : '✅ Profil mis à jour !', data.message ? 'info' : 'success');
         await loadProfile();
     } catch (err) {
         showToast(err.message, 'error');

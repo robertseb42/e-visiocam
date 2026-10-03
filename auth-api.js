@@ -80,7 +80,11 @@ async function apiCall(endpoint, options) {
         clearToken(); clearUser();
         throw new Error(data.error || 'Session expirée');
     }
-    if (!response.ok) throw new Error(data.error || 'Erreur');
+    if (!response.ok) {
+        const err = new Error(data.error || 'Erreur');
+        err.status = response.status; err.data = data;   // ex. data.needVerification à la connexion
+        throw err;
+    }
     return data;
 }
 
@@ -100,9 +104,16 @@ async function register(username, email, password) {
         method: 'POST',
         body: JSON.stringify({ username: username, email: email, password: password })
     });
+    // Adresse à confirmer : pas encore de session, le lien est envoyé par e-mail
+    if (data.needVerification) return { needVerification: true, email: data.email, username: data.user && data.user.username };
     saveToken(data.token);
     saveUser(data.user);
     return data.user;
+}
+
+// Renvoie le lien de confirmation de l'adresse e-mail (pseudo ou adresse)
+async function renvoyerConfirmation(login) {
+    return apiCall('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ login: login }) });
 }
 
 async function logout() {
