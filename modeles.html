@@ -30,7 +30,7 @@
     <script src="auth-api.js"></script>
     <script src="legal-banner.js"></script>
 
-    <link rel="stylesheet" href="style.css?v=20261003-pages">
+    <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261003">
 </head>
@@ -66,84 +66,103 @@
 
 <main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
     <div class="mb-6">
-        <h1 class="text-3xl font-extrabold text-slate-900">👥 Nos Modèles</h1>
-        <p class="text-sm text-slate-500 mt-1">Découvrez tous nos modèles vérifiés</p>
+        <h1 class="text-3xl font-extrabold text-slate-900"><i class="fa-solid fa-star ev-ico" aria-hidden="true"></i> Nos modèles</h1>
+        <p class="text-sm text-slate-500 mt-1" id="modelsSummary">Chargement…</p>
     </div>
 
     <!-- Filtres -->
     <div class="bg-white rounded-2xl p-4 mb-6 shadow-sm border border-slate-200/80">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:items-end">
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Rechercher</label>
-                <input type="text" id="searchModel" placeholder="Nom du modèle..." class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                <label for="searchModel" class="block text-xs font-bold text-slate-700 mb-1">Rechercher</label>
+                <input type="search" id="searchModel" placeholder="Nom du modèle..." autocomplete="off" class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
             </div>
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Catégorie</label>
-                <select id="filterCat" class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                    <option value="all">Toutes</option>
-                    <option value="fr">Françaises</option>
-                    <option value="int">Internationales</option>
-                    <option value="amateur">Amateurs</option>
-                    <option value="couples">Couples</option>
+                <label for="sortModels" class="block text-xs font-bold text-slate-700 mb-1">Trier par</label>
+                <select id="sortModels" class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                    <option value="live">En direct d'abord</option>
+                    <option value="popular">Les plus suivis</option>
+                    <option value="new">Nouveautés</option>
+                    <option value="name">Nom (A-Z)</option>
                 </select>
             </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Trier par</label>
-                <select class="w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                    <option>Popularité</option>
-                    <option>Nouveautés</option>
-                    <option>Nom (A-Z)</option>
-                </select>
-            </div>
+            <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 cursor-pointer md:pb-2">
+                <input type="checkbox" id="onlyLive" class="rounded"> Seulement en direct
+            </label>
         </div>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" id="modelsGrid"></div>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4" id="modelsGrid" aria-live="polite"></div>
 </main>
 
 
 <script>
-const allModels = [
-    { name: "Luna", type: "fr", viewers: "1.7k", gradient: "from-pink-600 to-purple-800", badge: "⭐ Top" },
-    { name: "Chloé", type: "fr", viewers: "856", gradient: "from-purple-600 to-indigo-800" },
-    { name: "Mia", type: "int", viewers: "642", gradient: "from-rose-600 to-pink-900" },
-    { name: "Sofia", type: "amateur", viewers: "571", gradient: "from-amber-600 to-purple-900" },
-    { name: "Camille", type: "fr", viewers: "499", gradient: "from-fuchsia-600 to-slate-900" },
-    { name: "Eva", type: "int", viewers: "417", gradient: "from-blue-600 to-purple-900" },
-    { name: "Jade", type: "couples", viewers: "381", gradient: "from-emerald-600 to-teal-900" },
-    { name: "Léa", type: "fr", viewers: "362", gradient: "from-indigo-600 to-purple-900" },
-    { name: "Nina", type: "int", viewers: "298", gradient: "from-pink-500 to-red-800" },
-    { name: "Sarah", type: "amateur", viewers: "274", gradient: "from-violet-600 to-pink-900" },
-    { name: "Ana", type: "int", viewers: "211", gradient: "from-cyan-600 to-blue-900" },
-    { name: "Zoé", type: "fr", viewers: "187", gradient: "from-red-500 to-purple-900" },
-];
+// ============================================================
+// Annuaire des modèles : vrais comptes « modèle » du site (API /models)
+// ============================================================
+let MODELS = [];
+const escM = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const DEGRADES = ['from-pink-600 to-purple-800', 'from-purple-600 to-indigo-800', 'from-rose-600 to-pink-900', 'from-amber-600 to-purple-900',
+                  'from-fuchsia-600 to-slate-900', 'from-blue-600 to-purple-900', 'from-emerald-600 to-teal-900', 'from-indigo-600 to-purple-900'];
+const degrade = m => DEGRADES[(m.id || 0) % DEGRADES.length];
 
-function render(filter = 'all', search = '') {
-    const filtered = allModels.filter(m => {
-        const matchCat = filter === 'all' || m.type === filter;
-        const matchSearch = m.name.toLowerCase().includes(search.toLowerCase());
-        return matchCat && matchSearch;
-    });
-
-    document.getElementById('modelsGrid').innerHTML = filtered.map(m => `
-        <a href="index.html" class="group cursor-pointer bg-gradient-to-br ${m.gradient} rounded-2xl p-3 h-44 flex flex-col justify-between relative overflow-hidden shadow-md hover:shadow-xl transition-all hover:-translate-y-1">
-            ${m.badge ? `<span class="absolute top-2 right-2 bg-amber-400 text-slate-900 text-[9px] font-bold px-2 py-0.5 rounded-full z-10">${m.badge}</span>` : ''}
-            <div class="absolute inset-0 flex items-center justify-center opacity-30 group-hover:scale-110 transition-transform">
-                <i class="fa-solid fa-user-large text-6xl text-white"></i>
-            </div>
-            <div class="z-10 mt-auto flex items-center justify-between text-white drop-shadow">
-                <span class="font-bold text-xs">${m.name}</span>
-                <span class="text-[10px] opacity-90"><i class="fa-solid fa-eye text-[9px] mr-1"></i>${m.viewers}</span>
+function carte(m) {
+    const lien = m.isLive ? 'live.html' : '#';
+    return `
+    <div class="relative group">
+        <a href="${lien}" ${m.isLive ? '' : 'aria-disabled="true" tabindex="-1"'} class="block bg-gradient-to-br ${degrade(m)} rounded-2xl p-3 h-48 flex flex-col justify-between relative overflow-hidden shadow-md transition-all ${m.isLive ? 'hover:shadow-xl hover:-translate-y-1' : 'cursor-default'}" title="${escM(m.bio || m.username)}">
+            ${m.isLive ? `<span class="absolute top-2 left-2 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10 live-pulse">● EN DIRECT</span>` : ''}
+            <div class="absolute inset-0 flex items-center justify-center text-white/30 text-6xl font-black select-none">${escM(m.username.charAt(0).toUpperCase())}</div>
+            <div class="z-10 mt-auto text-white drop-shadow">
+                <p class="font-bold text-sm truncate">${escM(m.username)}</p>
+                <p class="text-[11px] opacity-90 truncate">${m.isLive ? '<i class="fa-solid fa-eye text-[9px] mr-1"></i>' + m.viewers + ' · ' + escM(m.liveSalon) : (m.followers ? m.followers + ' abonné' + (m.followers > 1 ? 's' : '') : 'Hors ligne')}</p>
             </div>
         </a>
-    `).join('') || '<p class="col-span-full text-center text-slate-500 py-12">Aucun modèle trouvé</p>';
+        <button type="button" class="ev-fav absolute top-2 right-2 z-20" data-fav="model:${m.id}" aria-pressed="${m.isFavorite ? 'true' : 'false'}"
+                title="${m.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}"><i class="${m.isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
+    </div>`;
 }
 
-render();
+function rendre() {
+    const seulementLive = document.getElementById('onlyLive').checked;
+    const liste = MODELS.filter(m => !seulementLive || m.isLive);
+    const grille = document.getElementById('modelsGrid');
+    const enDirect = MODELS.filter(m => m.isLive).length;
+    document.getElementById('modelsSummary').textContent = MODELS.length
+        ? MODELS.length + ' modèle' + (MODELS.length > 1 ? 's' : '') + (enDirect ? ' · ' + enDirect + ' en direct maintenant' : '') + ' · ❤️ pour être prévenu de leurs lives'
+        : 'Les modèles du site apparaîtront ici.';
+    grille.innerHTML = liste.length ? liste.map(carte).join('')
+        : `<p class="col-span-full text-center text-slate-500 py-12">${MODELS.length ? 'Aucun modèle ne correspond' : (document.getElementById('searchModel').value ? 'Aucun modèle trouvé' : 'Aucun modèle pour le moment')}</p>`;
+}
 
-document.getElementById('searchModel').addEventListener('input', e => render(document.getElementById('filterCat').value, e.target.value));
-document.getElementById('filterCat').addEventListener('change', e => render(e.target.value, document.getElementById('searchModel').value));
+let attente = null;
+async function charger() {
+    const q = document.getElementById('searchModel').value.trim();
+    const sort = document.getElementById('sortModels').value;
+    try {
+        const d = await apiCall('/models?sort=' + encodeURIComponent(sort) + (q ? '&q=' + encodeURIComponent(q) : ''));
+        MODELS = d.models || [];
+    } catch (e) {
+        MODELS = [];
+        document.getElementById('modelsGrid').innerHTML = '<p class="col-span-full text-center text-rose-500 py-12">Impossible de charger les modèles : ' + escM(e.message) + '</p>';
+        return;
+    }
+    rendre();
+    const url = new URL(location.href);
+    if (q) url.searchParams.set('q', q); else url.searchParams.delete('q');
+    history.replaceState(null, '', url);
+}
+
+const q0 = new URLSearchParams(location.search).get('q');
+if (q0) document.getElementById('searchModel').value = q0;
+charger();
+setInterval(charger, 60000);   // statut « en direct » à jour
+document.getElementById('searchModel').addEventListener('input', () => { clearTimeout(attente); attente = setTimeout(charger, 250); });
+document.getElementById('sortModels').addEventListener('change', charger);
+document.getElementById('onlyLive').addEventListener('change', rendre);
+document.addEventListener('evc:favori', e => { const m = MODELS.find(x => 'model:' + x.id === e.detail.type + ':' + e.detail.key); if (m) m.isFavorite = e.detail.favorite; });
 </script>
+<script src="favorites.js"></script>
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
 <script src="footer.js" defer></script>

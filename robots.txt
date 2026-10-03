@@ -7,5 +7,6 @@ Disallow: /moderation-salons.html
 Disallow: /compte.html
 Disallow: /profile.html
 Disallow: /messages.html
+Disallow: /favoris.html
 
 Sitemap: https://www.e-visiocam.com/sitemap.xml

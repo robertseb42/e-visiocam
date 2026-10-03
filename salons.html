@@ -31,7 +31,7 @@
     <script src="nav-auth.js" defer></script>
     <script src="salon-access.js"></script>
 
-    <link rel="stylesheet" href="style.css?v=20261003-pages">
+    <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261003">
 </head>
@@ -105,17 +105,32 @@ const REPLI_PRIVES = [
 const say = m => (window.showToast ? showToast(m) : alert(m));
 const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Salons favoris du membre connecté (cœur plein)
+let FAV_SALONS = new Set();
+async function chargerFavSalons() {
+    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) return;
+    try {
+        const d = await apiCall('/favorites');
+        FAV_SALONS = new Set((d.salons || []).map(x => x.slug));
+        document.querySelectorAll('[data-fav^="salon:"]').forEach(b => EvcFav.majBouton(b, FAV_SALONS.has(b.dataset.fav.slice(6))));
+    } catch (e) {}
+}
+document.addEventListener('evc:favori', e => { if (e.detail.type === 'salon') e.detail.favorite ? FAV_SALONS.add(e.detail.key) : FAV_SALONS.delete(e.detail.key); });
+
 function renderSalons(items, containerId, isPrivate = false) {
     document.getElementById(containerId).innerHTML = items.map(s => `
         <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all">
             <div class="flex items-start justify-between mb-3">
                 <div class="text-3xl">${typeof SalonAccess !== 'undefined' && SalonAccess.logoHtml ? SalonAccess.logoHtml(s, 40) : esc(s.icon || '💬')}</div>
                 ${s.isHidden ? `<span class="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-1 rounded-full" title="Salon masqué (visible par l'équipe uniquement)">🚫 Masqué</span>` : ''}
+                <div class="flex items-center gap-2">
                 ${typeof s.members === 'number'
                     ? `<span class="text-xs bg-pink-50 text-brand-primary font-bold px-2 py-1 rounded-full" title="Membres">
                            <i class="fa-solid fa-users text-[10px] mr-1"></i>${s.members}
                        </span>`
                     : ''}
+                    <button type="button" class="ev-fav" data-fav="salon:${esc(s.slug)}" aria-pressed="${FAV_SALONS.has(s.slug) ? 'true' : 'false'}" title="Ajouter aux favoris"><i class="${FAV_SALONS.has(s.slug) ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
+                </div>
             </div>
             <h3 class="font-bold text-slate-900">${esc(s.name)}</h3>
             <p class="text-xs text-slate-500 mt-1 mb-4">${esc(s.description || '')}</p>
@@ -170,6 +185,8 @@ if (typeof SalonAccess !== 'undefined' && SalonAccess.canManage) {
     }).catch(() => {});
 }
 </script>
+<script src="favorites.js"></script>
+<script>chargerFavSalons();</script>
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
 <script src="footer.js" defer></script>

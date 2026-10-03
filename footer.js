@@ -85,6 +85,13 @@
         if (b.classList.contains('h-full')) { b.style.height = 'auto'; b.style.minHeight = '100%'; }
 
         b.appendChild(footer);
+
+        // Barre de navigation mobile (même dossier que ce fichier)
+        if (!document.querySelector('script[src*="mobile-nav.js"]')) {
+            var sc = document.createElement('script');
+            sc.src = 'mobile-nav.js';
+            document.body.appendChild(sc);
+        }
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', construire);

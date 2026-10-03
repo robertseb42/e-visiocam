@@ -105,6 +105,9 @@
                                 <i class="fa-solid fa-comments w-4" style="color:#0ea5e9"></i> Mes messages
                             </div>
                         </a>
+                        <a href="favoris.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                            <i class="fa-solid fa-heart w-4" style="color:#ff1680"></i> Mes favoris
+                        </a>
                         <a href="credits.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-coins w-4 text-amber-500"></i> Mes crédits
                         </a>
@@ -230,6 +233,20 @@
         }
     };
 
+    // Petite carte « X est en direct » en bas à gauche, 12 secondes
+    function alerteLive(d) {
+        var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+        var el = document.createElement('div');
+        el.className = 'ev-live-alert';
+        el.setAttribute('role', 'status');
+        el.innerHTML = '<span class="ev-live-dot"></span><div><b>' + esc(d.username) + '</b> est en direct' +
+            (d.salon ? '<small>' + esc(d.salon) + '</small>' : '') + '</div>' +
+            '<a href="live.html">Regarder</a><button type="button" aria-label="Fermer">×</button>';
+        el.querySelector('button').onclick = function () { el.remove(); };
+        document.body.appendChild(el);
+        setTimeout(function () { el.remove(); }, 12000);
+    }
+
     let unreadSocket = null;
     let pollingInterval = null;
 
@@ -252,6 +269,11 @@
 
                 unreadSocket.on('dm:message', function() {
                     setTimeout(refreshUnreadCount, 500);
+                });
+
+                // ❤️ Un modèle suivi vient de lancer un live
+                unreadSocket.on('favori:live', function(d) {
+                    if (d && d.username) alerteLive(d);
                 });
             }
         }

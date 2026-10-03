@@ -33,7 +33,7 @@
 
 
 
-    <link rel="stylesheet" href="style.css?v=20261003-pages">
+    <link rel="stylesheet" href="style.css?v=20261003-favoris">
 
     <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
@@ -190,7 +190,7 @@
                     <div class="ev-ambiance-body">
                         <h3>Le Lounge</h3>
                         <p>Un espace convivial pour discuter de tout et faire de belles rencontres.</p>
-                        <a href="chat.html?salon=Salon%20G%C3%A9n%C3%A9ral" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
+                        <a href="room.html?theme=general" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
                     </div>
                 </article>
                 <article class="ev-ambiance">
@@ -198,7 +198,7 @@
                     <div class="ev-ambiance-body">
                         <h3>Musique &amp; détente</h3>
                         <p>Partagez vos goûts musicaux et profitez d'une ambiance relax.</p>
-                        <a href="chat.html?salon=Salon%20Musique" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
+                        <a href="room.html?theme=musique" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
                     </div>
                 </article>
                 <article class="ev-ambiance">
@@ -206,7 +206,7 @@
                     <div class="ev-ambiance-body">
                         <h3>Rencontres</h3>
                         <p>Des échanges spontanés dans une ambiance ouverte.</p>
-                        <a href="chat.html?salon=Salon%20Fran%C3%A7ais" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
+                        <a href="room.html?theme=francais" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
                     </div>
                 </article>
             </div>
@@ -227,6 +227,7 @@
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
 <script src="banner.js" defer></script>
+<script src="site-search.js" defer></script>
 <script>
 // Caméras en direct : le message d'accueil laisse la place au nombre de lives
 (async function () {
@@ -265,7 +266,7 @@
         const salons = ((await r.json()).salons || []);
         if (!salons.length) return;
         document.getElementById('ambiances').innerHTML = salons.map(s => {
-            const lien = s.isPrivate ? 'salons.html' : 'chat.html?salon=' + encodeURIComponent(s.name);
+            const lien = s.isPrivate ? 'salons.html' : 'room.html?theme=' + encodeURIComponent(s.slug);
             return '<article class="ev-ambiance">' +
                 '<img src="' + esc(cover(s)) + '" alt="" loading="lazy" width="557" height="211">' +
                 '<div class="ev-ambiance-body">' +
