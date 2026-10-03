@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Crédits — E-VISIOCAM</title>
+    <title>Mes récompenses — E-VISIOCAM</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261008">
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -41,9 +41,9 @@
         <div class="flex items-center lg:w-64 lg:shrink-0">
             <a href="index.html" class="flex items-center gap-2">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-white">
-                    <i class="fa-solid fa-coins"></i>
+                    <i class="fa-solid fa-gift"></i>
                 </div>
-                <span class="text-2xl font-black text-slate-900">Mes <span class="text-brand-primary">Crédits</span></span>
+                <span class="text-xl sm:text-2xl font-black text-slate-900 whitespace-nowrap">Mes <span class="text-brand-primary">récompenses</span></span>
             </a>
         </div>
         <nav class="hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
@@ -52,7 +52,7 @@
             <a href="modeles.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
             <a href="salons.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
             <a href="messages.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary">Messages</a>
-            <a href="credits.html" class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">Crédits</a>
+            <a href="credits.html" class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">Récompenses</a>
         </nav>
         <div class="ml-auto flex items-center gap-3">
             <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full transition-colors">
@@ -67,47 +67,76 @@
     </div>
 </header>
 
-<main class="max-w-[1200px] w-full mx-auto flex-1 p-6">
-
-    <!-- Notification -->
-    <div id="notification" class="hidden mb-6 p-4 rounded-2xl border flex items-center gap-3"></div>
+<main class="max-w-[1100px] w-full mx-auto flex-1 p-6">
 
     <!-- SOLDE -->
-    <div class="bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-8 text-white mb-8 shadow-xl relative overflow-hidden">
+    <div class="bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-8 text-white mb-6 shadow-xl relative overflow-hidden">
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl"></div>
         <div class="relative z-10 flex justify-between items-center flex-wrap gap-4">
             <div>
-                <p class="text-sm text-slate-300 font-medium">Solde actuel</p>
+                <p class="text-sm text-slate-300 font-medium">Mes crédits</p>
                 <p class="text-5xl font-black mt-2">
-                    <i class="fa-solid fa-coins text-amber-400"></i>
+                    <i class="fa-solid fa-coins text-amber-400" aria-hidden="true"></i>
                     <span id="balance">—</span>
                     <span class="text-lg font-bold text-slate-300">crédits</span>
                 </p>
+                <p class="text-xs text-slate-300 mt-2">À offrir en cadeaux dans les salons et pendant les lives.</p>
             </div>
             <div class="text-right text-xs text-slate-300 space-y-1">
-                <p>Total acheté : <span id="totalPurchased" class="font-bold text-white">—</span></p>
-                <p>Total dépensé : <span id="totalSpent" class="font-bold text-white">—</span></p>
+                <p>Gagnés : <span id="totalEarned" class="font-bold text-white">—</span></p>
+                <p>Offerts en cadeaux : <span id="totalSpent" class="font-bold text-white">—</span></p>
             </div>
         </div>
     </div>
 
-    <!-- INFO STRIPE -->
-    <div id="stripeInfo" class="mb-6"></div>
+    <!-- LE SITE EST GRATUIT -->
+    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm mb-6">
+        <h2 class="text-lg font-extrabold text-slate-900 mb-1">E-VISIOCAM est entièrement gratuit</h2>
+        <p class="text-sm text-slate-600">Salons, lives, mur de caméras, messages privés : tout est accessible sans payer. Les crédits ne s'achètent pas, ils se gagnent en participant à la vie du site, et servent à offrir des cadeaux.</p>
+    </div>
 
-    <!-- PACKS -->
-    <h2 class="text-xl font-bold text-slate-900 mb-4">Acheter des crédits</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="packsGrid">
-        <p class="text-slate-400 text-center col-span-full py-8">
-            <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
-        </p>
+    <!-- COMMENT GAGNER -->
+    <h2 class="text-xl font-bold text-slate-900 mb-1">Comment gagner des crédits</h2>
+    <p class="text-sm text-slate-500 mb-4">Le programme de récompenses arrive bientôt. Voici ce qui est prévu ; les montants seront annoncés au lancement.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-3"><i class="fa-solid fa-hand-sparkles" aria-hidden="true"></i></div>
+            <p class="font-bold text-slate-900 text-sm">Bonus de bienvenue</p>
+            <p class="text-xs text-slate-500 mt-1">Offert une fois votre adresse e-mail confirmée.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-pink-100 text-brand-primary flex items-center justify-center mb-3"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
+            <p class="font-bold text-slate-900 text-sm">Passer chaque jour</p>
+            <p class="text-xs text-slate-500 mt-1">Un petit gain quotidien, plus important si vous venez plusieurs jours de suite.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3"><i class="fa-solid fa-comments" aria-hidden="true"></i></div>
+            <p class="font-bold text-slate-900 text-sm">Participer aux salons et aux lives</p>
+            <p class="text-xs text-slate-500 mt-1">Le temps passé à échanger rapporte des crédits, avec un plafond par jour.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-3"><i class="fa-solid fa-user-plus" aria-hidden="true"></i></div>
+            <p class="font-bold text-slate-900 text-sm">Parrainer un ami</p>
+            <p class="text-xs text-slate-500 mt-1">Crédité quand votre filleul a confirmé son compte et participé quelques jours.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-3"><i class="fa-solid fa-video" aria-hidden="true"></i></div>
+            <p class="font-bold text-slate-900 text-sm">Animer des lives (modèles)</p>
+            <p class="text-xs text-slate-500 mt-1">Les heures de live public et les cadeaux reçus font monter au classement.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-3"><i class="fa-solid fa-medal" aria-hidden="true"></i></div>
+            <p class="font-bold text-slate-900 text-sm">Badges et niveaux</p>
+            <p class="text-xs text-slate-500 mt-1">Affichés à côté de votre pseudo pour montrer votre ancienneté et votre implication.</p>
+        </div>
     </div>
 
     <!-- HISTORIQUE -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-900 text-sm">📜 Historique des transactions</h3>
+            <h3 class="font-bold text-slate-900 text-sm">Historique de mes crédits</h3>
             <button onclick="loadTransactions()" class="text-xs text-brand-primary font-bold hover:underline">
-                <i class="fa-solid fa-refresh"></i> Rafraîchir
+                <i class="fa-solid fa-rotate"></i> Rafraîchir
             </button>
         </div>
         <div class="overflow-x-auto">
@@ -117,7 +146,7 @@
                         <th class="py-3 px-4">Date</th>
                         <th class="py-3 px-4">Type</th>
                         <th class="py-3 px-4">Description</th>
-                        <th class="py-3 px-4 text-right">Montant</th>
+                        <th class="py-3 px-4 text-right">Crédits</th>
                     </tr>
                 </thead>
                 <tbody id="transactionsTable">
@@ -128,213 +157,59 @@
             </table>
         </div>
     </div>
-
-    <!-- INFO SECURITE -->
-    <div class="mt-6 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-        <h3 class="font-bold text-slate-900 mb-2 flex items-center gap-2">
-            <i class="fa-solid fa-shield-halved text-emerald-500"></i>
-            Paiement 100% sécurisé
-        </h3>
-        <p class="text-xs text-slate-500">
-            Vos transactions sont protégées par un chiffrement SSL.
-            Nous acceptons : Visa, Mastercard, PayPal, Apple Pay, Google Pay.
-        </p>
-    </div>
+    <p class="text-xs text-slate-400 mt-4">Les crédits sont gratuits, sans valeur en argent et ne peuvent être ni achetés, ni vendus, ni échangés contre de l'argent. Règles : <a href="cgu.html#credits" class="underline">CGU, article 7</a>.</p>
 </main>
 
 <script>
 // ============================================================
-// PAGE CRÉDITS - Connectée au backend
+// MES RÉCOMPENSES — solde et historique des crédits (site gratuit)
 // ============================================================
-
 let currentUser = null;
-let packs = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     currentUser = getCurrentUser();
-    if (!currentUser) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // Vérifier le retour Stripe
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success')) {
-        const sessionId = params.get('session_id');
-        if (sessionId) {
-            try {
-                const result = await apiCall('/credits/confirm', {
-                    method: 'POST',
-                    body: JSON.stringify({ sessionId: sessionId })
-                });
-                showNotification('✅ Paiement réussi ! Vos crédits ont été ajoutés.', 'success');
-            } catch (err) {
-                showNotification('⚠️ Paiement reçu, mais erreur de confirmation : ' + err.message, 'warning');
-            }
-        } else {
-            showNotification('✅ Paiement réussi !', 'success');
-        }
-        // Nettoyer l'URL
-        window.history.replaceState({}, '', 'credits.html');
-    } else if (params.get('cancelled')) {
-        showNotification('❌ Paiement annulé.', 'warning');
-        window.history.replaceState({}, '', 'credits.html');
-    }
-
-    await Promise.all([loadBalance(), loadPacks(), loadTransactions()]);
+    if (!currentUser) { window.location.href = 'login.html'; return; }
+    // Ancien retour de paiement : on nettoie l'adresse
+    if (location.search) window.history.replaceState({}, '', 'credits.html');
+    await Promise.all([loadBalance(), loadTransactions()]);
 });
 
-// ---------- CHARGER LE SOLDE ----------
 async function loadBalance() {
     try {
         const data = await apiCall('/credits/balance');
-        document.getElementById('balance').innerText = data.balance;
-        document.getElementById('totalPurchased').innerText = data.totalPurchased;
-        document.getElementById('totalSpent').innerText = data.totalSpent;
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
+        document.getElementById('balance').textContent = data.balance;
+        document.getElementById('totalSpent').textContent = data.totalSpent;
+        document.getElementById('totalEarned').textContent = data.totalPurchased;
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
-// ---------- CHARGER LES PACKS ----------
-async function loadPacks() {
-    try {
-        const data = await apiCall('/credits/packs');
-        packs = data.packs;
-
-        // Bandeau d'info
-        if (!data.stripeEnabled) {
-            document.getElementById('stripeInfo').innerHTML = `
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
-                    <i class="fa-solid fa-flask text-amber-600 text-xl mt-0.5"></i>
-                    <div>
-                        <p class="font-bold text-amber-800 text-sm">Mode simulation</p>
-                        <p class="text-xs text-amber-700 mt-1">
-                            Stripe n'est pas configuré. Les paiements sont simulés (aucun argent réel débité).
-                            Pour activer Stripe, ajoutez vos clés API dans le fichier <code class="bg-amber-100 px-1 rounded">.env</code>.
-                        </p>
-                    </div>
-                </div>
-            `;
-        } else {
-            document.getElementById('stripeInfo').innerHTML = `
-                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
-                    <i class="fa-solid fa-shield-halved text-emerald-600 text-xl"></i>
-                    <p class="text-sm text-emerald-800 font-medium">Paiement sécurisé par Stripe</p>
-                </div>
-            `;
-        }
-
-        renderPacks();
-    } catch (err) {
-        document.getElementById('packsGrid').innerHTML =
-            '<p class="text-rose-500 text-center col-span-full py-8">' + err.message + '</p>';
-    }
-}
-
-// ---------- AFFICHER LES PACKS ----------
-function renderPacks() {
-    const popular = 'pack-250';
-    document.getElementById('packsGrid').innerHTML = packs.map(p => {
-        const isPopular = p.id === popular;
-        return `
-            <div class="relative bg-white rounded-2xl p-6 border-2 ${isPopular ? 'border-brand-primary shadow-lg shadow-pink-500/20' : 'border-slate-200'} text-center transition-transform hover:-translate-y-1">
-                ${isPopular ? '<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">POPULAIRE</span>' : ''}
-                <div class="text-amber-400 text-3xl mb-2"><i class="fa-solid fa-coins"></i></div>
-                <p class="text-3xl font-black text-slate-900">${p.credits}</p>
-                <p class="text-xs text-slate-500 mb-2">crédits</p>
-                ${p.bonus > 0
-                    ? '<p class="text-xs text-emerald-500 font-bold mb-3">+' + p.bonus + ' offerts</p>'
-                    : '<p class="text-xs text-transparent mb-3">—</p>'}
-                <p class="text-2xl font-bold text-slate-900 mb-4">${p.priceEuro} €</p>
-                <button onclick="buyPack('${p.id}')"
-                    class="w-full py-3 ${isPopular ? 'bg-brand-primary hover:bg-brand-hover' : 'bg-slate-900 hover:bg-slate-800'} text-white font-bold rounded-xl text-sm transition-colors flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-shopping-cart"></i> Acheter
-                </button>
-            </div>
-        `;
-    }).join('');
-}
-
-// ---------- ACHETER UN PACK ----------
-async function buyPack(packId) {
-    try {
-        const data = await apiCall('/credits/checkout', {
-            method: 'POST',
-            body: JSON.stringify({ packId: packId })
-        });
-
-        if (data.simulated) {
-            // Mode simulation
-            showNotification(`✅ ${data.message} +${data.credits} crédits`, 'success');
-            await loadBalance();
-            await loadTransactions();
-        } else if (data.url) {
-            // Rediriger vers Stripe Checkout
-            window.location.href = data.url;
-        }
-    } catch (err) {
-        showToast(err.message, 'error');
-    }
-}
-
-// ---------- CHARGER L'HISTORIQUE ----------
 async function loadTransactions() {
     const tbody = document.getElementById('transactionsTable');
     try {
         const data = await apiCall('/credits/transactions');
-
-        if (data.transactions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-slate-400 text-sm">Aucune transaction</td></tr>';
+        const liste = data.transactions || [];
+        if (!liste.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-slate-400 text-sm">Aucun mouvement pour le moment</td></tr>';
             return;
         }
-
-        const typeLabels = {
-            purchase: '🛒 Achat',
-            spend: '💸 Dépense',
-            refund: '↩️ Remboursement',
-            bonus: '🎁 Bonus'
-        };
-
-        tbody.innerHTML = data.transactions.map(t => {
-            const isPositive = t.amount > 0;
-            return `
-                <tr class="border-b border-slate-50 hover:bg-slate-50/50">
-                    <td class="py-3 px-4 text-xs text-slate-500">${new Date(t.created_at).toLocaleString('fr-FR')}</td>
-                    <td class="py-3 px-4 text-sm font-medium">${typeLabels[t.type] || t.type}</td>
-                    <td class="py-3 px-4 text-xs text-slate-600">${escapeHtml(t.description || '—')}</td>
-                    <td class="py-3 px-4 text-right font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}">
-                        ${isPositive ? '+' : ''}${t.amount}
-                    </td>
-                </tr>
-            `;
+        const typeLabels = { reward: '🎁 Récompense', bonus: '🎁 Bonus', spend: '💝 Cadeau offert', refund: '↩️ Remboursement', reset: '🔄 Remise à zéro', purchase: '🛒 Ancien achat' };
+        const quand = t => new Date(String(t).replace(' ', 'T') + (/[TZ]/.test(t) ? '' : 'Z')).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        tbody.innerHTML = liste.map(t => {
+            const plus = t.amount > 0;
+            return '<tr class="border-b border-slate-50 hover:bg-slate-50/50">' +
+                '<td class="py-3 px-4 text-xs text-slate-500 whitespace-nowrap">' + escapeHtml(quand(t.created_at)) + '</td>' +
+                '<td class="py-3 px-4 text-sm font-medium whitespace-nowrap">' + escapeHtml(typeLabels[t.type] || t.type) + '</td>' +
+                '<td class="py-3 px-4 text-xs text-slate-600">' + escapeHtml(t.description || '—') + '</td>' +
+                '<td class="py-3 px-4 text-right font-bold ' + (plus ? 'text-emerald-600' : 'text-rose-600') + '">' + (plus ? '+' : '') + Number(t.amount) + '</td></tr>';
         }).join('');
     } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-rose-500">' + err.message + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-rose-500">' + escapeHtml(err.message) + '</td></tr>';
     }
 }
 
-// ---------- NOTIFICATION ----------
-function showNotification(msg, type) {
-    const el = document.getElementById('notification');
-    const colors = {
-        success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-        warning: 'bg-amber-50 border-amber-200 text-amber-800',
-        error: 'bg-rose-50 border-rose-200 text-rose-800'
-    };
-    el.className = 'mb-6 p-4 rounded-2xl border flex items-center gap-3 ' + (colors[type] || colors.success);
-    el.innerHTML = '<span>' + msg + '</span>';
-    el.classList.remove('hidden');
-
-    setTimeout(() => {
-        el.classList.add('hidden');
-    }, 5000);
-}
-
-// ---------- UTILITAIRE ----------
 function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = text == null ? '' : String(text);
     return div.innerHTML;
 }
 </script>

@@ -109,7 +109,7 @@
                             <i class="fa-solid fa-heart w-4" style="color:#ff1680"></i> Mes favoris
                         </a>
                         <a href="credits.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
-                            <i class="fa-solid fa-coins w-4 text-amber-500"></i> Mes crédits
+                            <i class="fa-solid fa-gift w-4 text-amber-500"></i> Mes récompenses
                         </a>
                         <a href="compte.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-gear w-4" style="color:#8b5cf6"></i> Paramètres

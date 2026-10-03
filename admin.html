@@ -34,7 +34,7 @@
         .stats-periode.actif { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
         :where(html:not([data-theme="light"])) .stats-periode.actif { background: #2c2c33; color: #f5f5f6; }
     </style>
-    <link rel="stylesheet" href="tailwind.css?v=20261008">
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
 
@@ -68,7 +68,7 @@
             <a href="modeles.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Modèles</a>
             <a href="salons.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Salons</a>
             <a href="messages.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Messages</a>
-            <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Crédits</a>
+            <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Récompenses</a>
         </nav>
         <div class="ml-auto flex items-center gap-2 sm:gap-3">
             <a href="moderation-salons.html" class="hidden md:inline text-sm text-slate-600 hover:text-brand-primary font-semibold whitespace-nowrap">
@@ -256,14 +256,11 @@
                     <p class="text-xs text-slate-500 mt-1" id="stActifsDetail">&nbsp;</p>
                 </div>
                 <div class="rounded-2xl border border-slate-200 p-4">
-                    <p class="text-xs text-slate-500 font-medium">Crédits vendus aujourd'hui</p>
+                    <p class="text-xs text-slate-500 font-medium">Cadeaux offerts aujourd'hui</p>
                     <p class="text-3xl font-black text-slate-900 mt-1" id="stCredits">—</p>
                     <p class="text-xs text-slate-500 mt-1" id="stCreditsDetail">&nbsp;</p>
                 </div>
             </div>
-            <p id="stSimulation" class="hidden mb-4 text-xs rounded-xl bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2">
-                <i class="fa-solid fa-triangle-exclamation"></i> <span></span>
-            </p>
 
             <!-- Graphiques : une série par graphique, une seule échelle -->
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
@@ -276,7 +273,7 @@
                     <div class="evc-chart relative" id="chart-actifs"></div>
                 </figure>
                 <figure class="rounded-2xl border border-slate-200 p-4 m-0">
-                    <figcaption class="mb-2"><p class="text-sm font-bold text-slate-900">Crédits vendus par jour</p><p class="text-xs text-slate-500" id="cap-credits">&nbsp;</p></figcaption>
+                    <figcaption class="mb-2"><p class="text-sm font-bold text-slate-900">Crédits offerts en cadeaux par jour</p><p class="text-xs text-slate-500" id="cap-credits">&nbsp;</p></figcaption>
                     <div class="evc-chart relative" id="chart-credits"></div>
                 </figure>
             </div>
@@ -288,8 +285,8 @@
                         <thead><tr class="text-left text-slate-500 border-b border-slate-200">
                             <th class="py-2 pr-3 font-semibold">Jour</th><th class="py-2 pr-3 font-semibold text-right">Inscriptions</th>
                             <th class="py-2 pr-3 font-semibold text-right">Membres connectés</th><th class="py-2 pr-3 font-semibold text-right">Pic simultané</th>
-                            <th class="py-2 pr-3 font-semibold text-right">Crédits vendus</th><th class="py-2 pr-3 font-semibold text-right">Achats</th>
-                            <th class="py-2 pr-3 font-semibold text-right">Montant</th><th class="py-2 font-semibold text-right">Crédits dépensés</th>
+                            <th class="py-2 pr-3 font-semibold text-right">Crédits gagnés</th><th class="py-2 pr-3 font-semibold text-right">Cadeaux</th>
+                            <th class="py-2 font-semibold text-right">Crédits offerts</th>
                         </tr></thead>
                         <tbody id="statsTable" class="tabular-nums"></tbody>
                     </table>
@@ -973,7 +970,7 @@ async function deleteRadio(id, name) {
 
 
 // ═══════════════════════════════════════════════════════════
-// STATISTIQUES : inscriptions, connectés, crédits vendus
+// STATISTIQUES : inscriptions, connectés, crédits gagnés et offerts (site gratuit)
 // ═══════════════════════════════════════════════════════════
 let statsJours = 30;
 let statsData = null;
@@ -1021,18 +1018,13 @@ function afficherStats() {
     document.getElementById('stInscrDetail').textContent = nf.format(p.inscriptions) + ' sur les ' + per;
     document.getElementById('stActifs').textContent = nf.format(t.actifs);
     document.getElementById('stActifsDetail').textContent = nf.format(p.actifsUniques) + ' membres différents sur les ' + per;
-    document.getElementById('stCredits').textContent = nf.format(t.creditsVendus);
-    document.getElementById('stCreditsDetail').textContent = nf.format(p.creditsVendus) + ' sur les ' + per + (p.euros ? ' · ' + nfEur.format(p.euros) : '');
+    document.getElementById('stCredits').textContent = nf.format(t.depenses);
+    document.getElementById('stCreditsDetail').textContent = nf.format(t.creditsDepenses) + ' crédits aujourd\'hui · ' + nf.format(d.total.creditsEnCirculation) + ' en circulation';
 
-    const sim = document.getElementById('stSimulation');
-    sim.classList.toggle('hidden', !p.creditsSimules);
-    sim.querySelector('span').textContent = p.creditsSimules
-        ? nf.format(p.creditsSimules) + ' crédits de la période viennent d\'achats en mode simulation (paiement réel pas encore activé) : ils ne rapportent rien et ne sont pas comptés dans les montants.'
-        : '';
 
     document.getElementById('cap-inscriptions').textContent = nf.format(p.inscriptions) + ' sur les ' + per;
     document.getElementById('cap-actifs').textContent = 'Pic simultané sur la période : ' + nf.format(p.picMax);
-    document.getElementById('cap-credits').textContent = nf.format(p.creditsVendus) + ' crédits · ' + nf.format(p.achats) + ' achat' + (p.achats > 1 ? 's' : '') + (p.euros ? ' · ' + nfEur.format(p.euros) : '');
+    document.getElementById('cap-credits').textContent = nf.format(p.creditsDepenses) + ' crédits offerts · ' + nf.format(p.creditsDistribues) + ' gagnés sur les ' + per;
 
     document.getElementById('statsTable').innerHTML = d.jours.slice().reverse().map(j =>
         '<tr class="border-b border-slate-100">' +
@@ -1040,9 +1032,8 @@ function afficherStats() {
         '<td class="py-1.5 pr-3 text-right">' + nf.format(j.inscriptions) + '</td>' +
         '<td class="py-1.5 pr-3 text-right">' + nf.format(j.actifs) + '</td>' +
         '<td class="py-1.5 pr-3 text-right">' + nf.format(j.pic) + '</td>' +
-        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.creditsVendus) + '</td>' +
-        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.achats) + '</td>' +
-        '<td class="py-1.5 pr-3 text-right">' + (j.euros ? nfEur.format(j.euros) : '—') + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.creditsDistribues) + '</td>' +
+        '<td class="py-1.5 pr-3 text-right">' + nf.format(j.depenses) + '</td>' +
         '<td class="py-1.5 text-right">' + nf.format(j.creditsDepenses) + '</td></tr>').join('');
     dessinerGraphiques();
 }
@@ -1052,7 +1043,7 @@ function dessinerGraphiques() {
     const j = statsData.jours;
     graphiqueColonnes('chart-inscriptions', j, 'inscriptions', x => '<b>' + nf.format(x.inscriptions) + '</b> inscription' + (x.inscriptions > 1 ? 's' : ''));
     graphiqueColonnes('chart-actifs', j, 'actifs', x => '<b>' + nf.format(x.actifs) + '</b> membre' + (x.actifs > 1 ? 's' : '') + ' connecté' + (x.actifs > 1 ? 's' : '') + '<br>Pic simultané : ' + nf.format(x.pic));
-    graphiqueColonnes('chart-credits', j, 'creditsVendus', x => '<b>' + nf.format(x.creditsVendus) + '</b> crédits vendus<br>' + nf.format(x.achats) + ' achat' + (x.achats > 1 ? 's' : '') + (x.euros ? ' · ' + nfEur.format(x.euros) : '') + (x.creditsSimules ? '<br>dont ' + nf.format(x.creditsSimules) + ' en simulation' : ''));
+    graphiqueColonnes('chart-credits', j, 'creditsDepenses', x => '<b>' + nf.format(x.creditsDepenses) + '</b> crédits offerts<br>' + nf.format(x.depenses) + ' cadeau' + (x.depenses > 1 ? 'x' : '') + ' · ' + nf.format(x.creditsDistribues) + ' crédits gagnés');
 }
 
 // Échelle « ronde » : 0, 5, 10… / 0, 50, 100…
@@ -1114,8 +1105,8 @@ function graphiqueColonnes(id, jours, cle, texte) {
 
 function exporterStats() {
     if (!statsData) return;
-    const lignes = [['jour', 'inscriptions', 'membres_connectes', 'pic_simultane', 'credits_vendus', 'achats', 'montant_eur', 'credits_simulation', 'credits_depenses']]
-        .concat(statsData.jours.map(j => [j.jour, j.inscriptions, j.actifs, j.pic, j.creditsVendus, j.achats, String(j.euros).replace('.', ','), j.creditsSimules, j.creditsDepenses]));
+    const lignes = [['jour', 'inscriptions', 'membres_connectes', 'pic_simultane', 'credits_gagnes', 'cadeaux', 'credits_offerts']]
+        .concat(statsData.jours.map(j => [j.jour, j.inscriptions, j.actifs, j.pic, j.creditsDistribues, j.depenses, j.creditsDepenses]));
     const csv = '﻿' + lignes.map(l => l.join(';')).join('\r\n');
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));

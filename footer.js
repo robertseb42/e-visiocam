@@ -20,7 +20,7 @@
             ['a-propos.html', 'À propos'],
             ['salons.html', 'Salons'],
             ['modeles.html', 'Modèles'],
-            ['credits.html', 'Crédits'],
+            ['credits.html', 'Récompenses'],
             ['contact.html', 'Nous contacter']
         ]},
         { titre: 'Aide & signalement', liens: [

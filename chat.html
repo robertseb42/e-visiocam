@@ -66,7 +66,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261008">
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -97,7 +97,7 @@
             <a href="modeles.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Modèles</a>
             <a href="salons.html" aria-current="page" class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">Salons</a>
             <a href="messages.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Messages</a>
-            <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Crédits</a>
+            <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Récompenses</a>
         </nav>
         <div class="ml-auto flex items-center gap-2 sm:gap-3">
             <div id="connectionStatus" class="text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700 whitespace-nowrap">⚡ Connexion...</div>
@@ -1121,7 +1121,7 @@ function selectGift(giftId) {
 async function confirmSendGift() {
     if (!selectedGift) return;
     if (userBalance < selectedGift.price) {
-        showToast('❌ Crédits insuffisants', 'error');
+        showToast('Pas assez de crédits pour ce cadeau. Les crédits se gagnent en participant au site (page Mes récompenses).', 'error');
         return;
     }
 
