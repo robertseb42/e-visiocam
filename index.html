@@ -78,6 +78,8 @@
 
             <!-- Thème clair / sombre : un seul réglage pour toutes les pages du site -->
             <button data-theme-toggle type="button" aria-label="Passer en thème clair" title="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none">☀️</button>
+            <!-- Boule à facettes : allumer / éteindre (choix gardé dans le navigateur) -->
+            <button data-disco-toggle type="button" aria-label="Éteindre la boule à facettes" title="Éteindre la boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors"></button>
 
             <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
                 <i class="fa-regular fa-bell text-lg"></i>
@@ -228,6 +230,7 @@
 <script src="radio-widget-floating.js"></script>
 <script src="banner.js" defer></script>
 <script src="site-search.js" defer></script>
+<script src="boule-facette.js" defer></script>
 <script>
 // Caméras en direct : le message d'accueil laisse la place au nombre de lives
 (async function () {
