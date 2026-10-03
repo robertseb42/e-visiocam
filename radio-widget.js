@@ -86,12 +86,13 @@ function updatePlatter(playing) {
 function updateTonearm(playing) {
     var tonearm = document.getElementById('radioTonearm');
     if (!tonearm) return;
-    // -25° = repos (à l'extérieur du vinyle)
-    // -5°  = lecture (au milieu du vinyle)
+    // Pivot en bas à droite, le bras remonte vers le disque :
+    // 2°    = repos (à côté du disque)
+    // -22°  = lecture (pointe posée sur le sillon, le disque arrive devant la pointe)
     if (playing) {
-        tonearm.style.transform = 'rotate(-5deg)';
+        tonearm.style.transform = 'rotate(12deg)';
     } else {
-        tonearm.style.transform = 'rotate(-25deg)';
+        tonearm.style.transform = 'rotate(0deg)';
     }
 }
 

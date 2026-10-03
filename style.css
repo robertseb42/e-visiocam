@@ -325,15 +325,19 @@ html[data-theme="light"] .ev-footer-logo{background:linear-gradient(135deg,#e91e
 .evc-deck-vinyl{position:relative;width:82%;height:82%;border-radius:50%;
   background:repeating-radial-gradient(circle at 50% 50%,#0b0b0d 0 2px,#17171b 3px 4px,#0b0b0d 5px 6px);
   box-shadow:0 0 0 2px #ff168026,0 0 24px #ff168033,0 0 20px #000e,inset 0 0 30px #0008}
-.evc-deck-vinyl:after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 20deg,#ffffff00 0deg,#ffffff14 40deg,#ffffff00 80deg,#ffffff00 180deg,#ffffff10 220deg,#ffffff00 260deg)}
+.evc-deck-platter:after{content:"";position:absolute;top:9%;left:9%;width:82%;height:82%;border-radius:50%;pointer-events:none;z-index:2;background:conic-gradient(from 20deg,#ffffff00 0deg,#ffffff14 40deg,#ffffff00 80deg,#ffffff00 180deg,#ffffff10 220deg,#ffffff00 260deg)}
 .evc-deck-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38%;height:38%;border-radius:50%;display:flex;align-items:center;justify-content:center;
   background:radial-gradient(circle at 35% 30%,#ff5aa6 0%,#ff1680 45%,#a71957 100%);box-shadow:0 0 14px #ff168066;color:#fff;font-size:1.4rem;z-index:1}
 .evc-deck-spindle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#ffe500 0%,#b9a200 100%);z-index:2}
 /* Bras de lecture : rotation pilotée par radio-widget.js */
-.evc-deck-arm{position:absolute;top:12%;right:0;width:42%;height:4px;border-radius:2px;transform-origin:right center;transform:rotate(-25deg);transition:transform 1.2s ease;
-  background:linear-gradient(90deg,#55555e 0%,#8c8c96 50%,#cfcfd6 100%);box-shadow:0 2px 4px #0008;z-index:3}
-.evc-deck-weight{position:absolute;top:50%;right:-8px;width:14px;height:14px;transform:translateY(-50%);border-radius:4px;background:linear-gradient(145deg,#4a4a52,#1f1f24);border:1px solid #5a5a63}
-.evc-deck-headshell{position:absolute;top:50%;left:-2px;width:12px;height:18px;transform:translateY(-50%);border-radius:2px 2px 3px 3px;background:linear-gradient(180deg,#2c2c32,#141417);box-shadow:0 2px 4px #0009}
+/* Bras de lecture : pivot en bas à droite, le bras remonte vers le disque. Le disque tourne dans le sens
+   horaire : sous la pointe (côté droit), le sillon arrive DEVANT la pointe.
+   Repos : rotate(2deg), à côté du disque. Lecture : rotate(-22deg), la pointe posée sur le sillon. */
+.evc-deck-arm{position:absolute;top:8%;right:8%;width:4px;height:58%;margin-right:-2px;border-radius:2px;transform-origin:50% 0;transform:rotate(0deg);transition:transform 1.2s ease;
+  background:linear-gradient(180deg,#cfcfd6 0%,#8c8c96 50%,#55555e 100%);box-shadow:2px 2px 4px #0008;z-index:3}
+.evc-deck-arm:before{content:"";position:absolute;top:-9px;left:50%;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#9a9aa4,#3a3a42 70%);border:1px solid #5a5a63;box-shadow:0 2px 5px #0009}
+.evc-deck-weight{position:absolute;top:-24px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:3px;background:linear-gradient(145deg,#4a4a52,#1f1f24);border:1px solid #5a5a63}
+.evc-deck-headshell{position:absolute;bottom:-14px;left:50%;width:12px;height:18px;margin-left:-6px;transform-origin:50% 0;transform:rotate(22deg);border-radius:2px 2px 3px 3px;background:linear-gradient(180deg,#2c2c32,#141417);box-shadow:0 2px 4px #0009}
 .evc-deck-headshell:after{content:"";position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:3px;height:6px;border-radius:0 0 2px 2px;background:var(--d-yellow)}
 .evc-deck-adapter{position:absolute;top:12px;left:12px;width:11px;height:11px;border-radius:50%;background:radial-gradient(circle,#5a5a63,#26262b)}
 .evc-deck-onair{position:absolute;bottom:9px;right:10px;display:flex;align-items:center;gap:5px;font-size:8px;font-weight:800;letter-spacing:.12em;color:var(--d-muted)}
@@ -358,8 +362,8 @@ html[data-theme="light"] .ev-footer-logo{background:linear-gradient(135deg,#e91e
 .evc-deck-status i{width:6px;height:6px;border-radius:50%;background:var(--d-pink);box-shadow:0 0 6px var(--d-pink)}
 .evc-deck-display{padding:7px 10px;border-radius:10px;background:#0c0c0e;border:1px solid var(--d-border);box-shadow:inset 0 2px 6px #000c;
   font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;color:var(--d-yellow);text-shadow:0 0 6px #ffe50080;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#radioVinyl.spinning{animation:vinylSpin 3s linear infinite}
-@keyframes vinylSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+#radioVinyl.spinning{animation:vinylSpin 1.8s linear infinite;animation-direction:normal}
+@keyframes vinylSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}   /* angle croissant = sens des aiguilles d'une montre */
 @media(prefers-reduced-motion:reduce){#radioVinyl.spinning{animation-duration:12s}.evc-deck-arm{transition:none}}
 /* Version flottante (pages sans barre latérale) */
 .evc-deck--compact{width:252px;padding:12px}

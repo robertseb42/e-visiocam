@@ -88,7 +88,7 @@
         var style = document.createElement('style');
         style.id = 'styleVinylSpin';
         style.textContent = '@keyframes vinylSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}'
-            + '#radioVinyl.spinning{animation:vinylSpin 3s linear infinite}'
+            + '#radioVinyl.spinning{animation:vinylSpin 1.8s linear infinite;animation-direction:normal}'
             + '#radioTonearm{transition:transform 1.2s ease}';
         document.head.appendChild(style);
     }
