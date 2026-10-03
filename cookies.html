@@ -2,6 +2,8 @@
 <html lang="fr" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Politique Cookies — E-VISIOCAM</title>
@@ -74,9 +76,9 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><code>evisiocam_token</code></td>
+                    <td><code>evc_session</code></td>
                     <td>Essentiel</td>
-                    <td>Authentification (JWT)</td>
+                    <td>Session de connexion (cookie sécurisé, illisible par les scripts)</td>
                     <td>7 jours</td>
                 </tr>
                 <tr>

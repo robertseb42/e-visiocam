@@ -240,7 +240,7 @@
         if (typeof io !== 'undefined') {
             if (!unreadSocket) {
                 unreadSocket = io('https://api.e-visiocam.com', {
-                    auth: { token: getToken() },
+                    withCredentials: true,
                     transports: ['websocket', 'polling']
                 });
 

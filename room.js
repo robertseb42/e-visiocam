@@ -518,11 +518,10 @@ let rafraichirCloche = () => {};
 function recordJoin(slug) {
   try {
     const base = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.e-visiocam.com/api');
-    const tk = (typeof getToken === 'function' ? getToken() : null);
-    if (!tk) return;
+    if (typeof isLoggedIn === 'function' && !isLoggedIn()) return;
     fetch(base + '/salons/' + encodeURIComponent(slug) + '/join', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tk }
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
     }).catch(() => {});
   } catch (e) {}
 }
@@ -549,7 +548,7 @@ function initSocket() {
     toast('Connexion au salon indisponible');
     return;
   }
-  socket = io('https://api.e-visiocam.com', { auth: { token: typeof getToken === 'function' ? getToken() : null } });
+  socket = io('https://api.e-visiocam.com', { withCredentials: true });
 
   socket.on('connect', () => {
     socket.emit('salon:join', salon);

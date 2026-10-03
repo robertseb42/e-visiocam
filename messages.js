@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ============================================================
 function initSocket() {
     socket = io('https://api.e-visiocam.com', {
-        auth: { token: getToken() },
+        withCredentials: true,
         transports: ['websocket', 'polling']
     });
 

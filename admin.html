@@ -2,6 +2,8 @@
 <html lang="fr" class="h-full cam-theme">
 <head>
     <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panneau Admin — E-VISIOCAM</title>
@@ -502,7 +504,7 @@ async function telechargerSauvegarde() {
     const btn = document.getElementById('backupDlBtn');
     btn.disabled = true; btn.style.opacity = '0.6';
     try {
-        const r = await fetch(API_URL + '/admin/backup/download', { headers: { Authorization: 'Bearer ' + getToken() } });
+        const r = await fetch(API_URL + '/admin/backup/download', { credentials: 'include' });
         if (!r.ok) { let m = 'Erreur ' + r.status; try { m = (await r.json()).error || m; } catch (e) {} throw new Error(m); }
         const nom = ((r.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/) || [])[1] || 'e-visiocam-sauvegarde.evcbak';
         const url = URL.createObjectURL(await r.blob());
@@ -919,7 +921,7 @@ function startContactInbox() {
     // Temps réel : le serveur prévient le Super Admin à chaque nouveau message
     const brancher = () => {
         if (typeof io === 'undefined' || window._contactSocket) return;
-        window._contactSocket = io('https://api.e-visiocam.com', { auth: { token: getToken() }, transports: ['websocket', 'polling'] });
+        window._contactSocket = io('https://api.e-visiocam.com', { withCredentials: true, transports: ['websocket', 'polling'] });
         window._contactSocket.on('contact:unread-count', data => {
             if (!data || typeof data.count !== 'number') return;
             const arrive = setContactUnread(data.count);

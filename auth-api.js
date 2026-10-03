@@ -6,10 +6,30 @@ const API_URL = (window.location.hostname === 'localhost' || window.location.hos
     ? 'http://localhost:3000/api'
     : 'https://api.e-visiocam.com/api';
 
-// ---------- TOKEN ----------
-function saveToken(token) { localStorage.setItem('evisiocam_token', token); }
-function getToken() { return localStorage.getItem('evisiocam_token'); }
-function clearToken() { localStorage.removeItem('evisiocam_token'); }
+// ---------- SESSION ----------
+// Le jeton de connexion n'est plus gardé dans le navigateur : le serveur le dépose dans un
+// cookie sécurisé (HttpOnly) que le JavaScript ne peut pas lire. Ces fonctions restent pour
+// les anciens appels, mais ne stockent plus rien ; l'ancien jeton éventuel est effacé.
+function saveToken() { clearToken(); }
+function getToken() { return null; }
+function clearToken() { try { localStorage.removeItem('evisiocam_token'); } catch (e) {} }
+clearToken();
+
+// Toutes les requêtes vers l'API emportent le cookie de session (même pour un fetch écrit à la main)
+(function () {
+    if (typeof window === 'undefined' || !window.fetch || window.fetch._evcSession) return;
+    var base = API_URL.replace(/\/api\/?$/, '');
+    var natif = window.fetch.bind(window);
+    var enveloppe = function (input, init) {
+        var url = typeof input === 'string' ? input : (input && input.url) || '';
+        if (url.indexOf(base) === 0 || url.indexOf('https://api.e-visiocam.com') === 0) {
+            init = Object.assign({}, init || {}, { credentials: 'include' });
+        }
+        return natif(input, init);
+    };
+    enveloppe._evcSession = true;
+    window.fetch = enveloppe;
+})();
 
 // ---------- UTILISATEUR ----------
 function saveUser(user) { localStorage.setItem('evisiocam_user', JSON.stringify(user)); }
@@ -33,7 +53,7 @@ function toggleMobileSidebar() {
 }
 
 // ---------- VÉRIFICATIONS ----------
-function isLoggedIn() { return !!getToken() && !!getCurrentUser(); }
+function isLoggedIn() { return !!getCurrentUser(); }
 function hasRole() {
     const roles = Array.from(arguments);
     const user = getCurrentUser();
@@ -47,13 +67,11 @@ function isModel() { return hasRole('model'); }
 // ---------- APPEL API ----------
 async function apiCall(endpoint, options) {
     options = options || {};
-    const token = getToken();
     const headers = {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': 'Bearer ' + token }),
         ...options.headers
     };
-    const response = await fetch(API_URL + endpoint, Object.assign({}, options, { headers: headers }));
+    const response = await fetch(API_URL + endpoint, Object.assign({}, options, { headers: headers, credentials: 'include' }));
     const data = await response.json();
     if (response.status === 503 && data && data.maintenance && window.EvcMaintenance) {
         window.EvcMaintenance.show(data);
