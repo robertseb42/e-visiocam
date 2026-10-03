@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="theme.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contester une sanction — E-VISIOCAM</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#111113">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js"></script>
+    <script src="legal-banner.js"></script>
+    <style>
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+            border-left: 4px solid #e91e63;
+            padding-left: 12px;
+        }
+        .legal-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+        .legal-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #475569;
+            list-style: disc;
+        }
+        .legal-content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .legal-content strong { color: #0f172a; }
+        .legal-content a { color: #e91e63; text-decoration: underline; }
+        .contact-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border-left: 4px solid #e91e63;
+            transition: all 0.2s;
+        }
+        .contact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        .input-field {
+            transition: all 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: #e91e63;
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.1);
+        }
+    </style>
+
+    <link rel="stylesheet" href="style.css?v=20261003-favoris">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261007">
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+        </a>
+        <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+        </a>
+    </div>
+</header>
+
+<main class="max-w-[760px] w-full mx-auto flex-1 p-6">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm legal-content">
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">⚖️ Contester une sanction</h1>
+        <p class="text-sm text-slate-500 mb-6">Vous pensez qu'une mesure prise sur votre compte est injustifiée ? Expliquez-nous pourquoi : l'équipe de modération réexamine la décision et vous répond par e-mail.</p>
+
+        <div id="chargement" class="text-sm text-slate-500"><i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Chargement de la décision…</div>
+
+        <div id="sansLien" class="hidden">
+            <p>Pour contester une sanction, utilisez le <strong>lien personnel</strong> reçu dans l'e-mail qui vous a informé de la mesure (bouton « Contester la décision »).</p>
+            <p>Vous ne trouvez pas cet e-mail ? Vérifiez vos courriers indésirables, ou écrivez-nous via le <a href="contact.html">formulaire de contact</a> en indiquant votre pseudo.</p>
+            <p>Les règles et le barème des sanctions sont détaillés dans l'<a href="cgu.html#sanctions">article 6 des CGU</a>.</p>
+        </div>
+
+        <div id="decision" class="hidden">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 mb-6">
+                <p class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">La décision contestée</p>
+                <dl class="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-4 gap-y-2 text-sm" id="details"></dl>
+            </div>
+
+            <div id="dejaFait" class="hidden rounded-2xl border p-5 mb-6"></div>
+
+            <form id="formAppel" class="hidden space-y-4" novalidate>
+                <div>
+                    <label for="message" class="block text-sm font-bold text-slate-900 mb-1">Pourquoi contestez-vous cette décision ? *</label>
+                    <p class="text-xs text-slate-500 mb-2">Décrivez ce qui s'est passé de votre point de vue, et tout élément utile (contexte, malentendu, erreur de personne…).</p>
+                    <textarea id="message" rows="7" maxlength="3000" required class="input-field w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none"></textarea>
+                    <p class="text-xs text-slate-400 text-right"><span id="nb">0</span> / 3000</p>
+                </div>
+                <div>
+                    <label for="contact" class="block text-sm font-bold text-slate-900 mb-1">Autre adresse e-mail pour la réponse (facultatif)</label>
+                    <input id="contact" type="email" maxlength="200" placeholder="Laissez vide pour recevoir la réponse sur l'adresse de votre compte" class="input-field w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none">
+                </div>
+                <label class="flex items-start gap-2 text-xs text-slate-600">
+                    <input type="checkbox" id="exact" required class="mt-0.5">
+                    <span>Je certifie que les informations ci-dessus sont exactes. Je comprends que la mesure reste appliquée pendant l'examen de ma contestation.</span>
+                </label>
+                <p id="erreur" class="hidden text-sm font-semibold text-rose-600"></p>
+                <button type="submit" id="envoyer" class="w-full py-3 rounded-xl bg-brand-primary hover:bg-brand-hover text-white font-bold text-sm">Envoyer ma contestation</button>
+            </form>
+
+            <div id="merci" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-900">
+                <p class="font-bold mb-1">✅ Contestation envoyée</p>
+                <p style="color:inherit;margin:0">Votre demande a bien été enregistrée et un accusé de réception vous a été envoyé par e-mail. L'équipe de modération l'examinera et vous répondra par e-mail avec une décision motivée.</p>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-200 text-xs text-slate-500">
+            <p>Comment se passe l'examen ? Votre contestation est relue par un membre de l'équipe de modération, qui peut lever la mesure ou la maintenir. Dans les deux cas, la réponse est motivée. Si vous restez en désaccord, vous pouvez recourir à un organisme de règlement extrajudiciaire des litiges ou saisir les juridictions compétentes. Détails : <a href="cgu.html#sanctions">CGU, article 6</a>.</p>
+        </div>
+    </div>
+</main>
+
+<script>
+(function () {
+    var API = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.e-visiocam.com/api');
+    var jeton = new URLSearchParams(location.search).get('t') || '';
+    var $ = function (id) { return document.getElementById(id); };
+    var dateFr = function (iso) { return new Date(iso).toLocaleString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+    function montrer(id) { $('chargement').classList.add('hidden'); $(id).classList.remove('hidden'); }
+
+    if (!/^[a-f0-9]{48}$/.test(jeton)) { montrer('sansLien'); return; }
+    // Le lien secret ne doit pas rester dans l'historique partagé ni être envoyé à d'autres sites
+    try { history.replaceState(null, '', 'contestation.html?t=' + jeton); } catch (e) {}
+
+    fetch(API + '/appeals/' + jeton, { credentials: 'omit' }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+    .then(function (x) {
+        if (!x.ok) { montrer('sansLien'); var p = document.createElement('p'); p.className = 'text-rose-600 font-semibold'; p.textContent = x.d.error || 'Lien invalide'; $('sansLien').prepend(p); return; }
+        var d = x.d;
+        var lignes = [['Compte', d.pseudo], ['Mesure', d.mesure], ['Durée', d.duree], ['Date', dateFr(d.date)]];
+        if (d.fin) lignes.push(['Fin prévue', dateFr(d.fin)]);
+        lignes.push(['Motif', d.motif || 'Non-respect des règles de conduite']);
+        if (d.levee) lignes.push(['État', 'Mesure levée']);
+        lignes.forEach(function (l) {
+            var dt = document.createElement('dt'); dt.className = 'text-slate-500'; dt.textContent = l[0];
+            var dd = document.createElement('dd'); dd.className = 'font-semibold text-slate-900'; dd.textContent = l[1];
+            $('details').append(dt, dd);
+        });
+        montrer('decision');
+        var deja = $('dejaFait');
+        if (d.contestation) {
+            var st = d.contestation.statut;
+            deja.className = 'rounded-2xl border p-5 mb-6 text-sm ' + (st === 'accepted' ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : st === 'rejected' ? 'border-rose-200 bg-rose-50 text-rose-900' : 'border-amber-200 bg-amber-50 text-amber-900');
+            var t = document.createElement('p'); t.className = 'font-bold mb-1';
+            t.textContent = st === 'pending' ? '⏳ Votre contestation est en cours d\'examen' : st === 'accepted' ? '✅ Contestation acceptée : la mesure a été levée' : '❌ Contestation non retenue : la mesure est maintenue';
+            deja.append(t);
+            if (d.contestation.reponse) { var r = document.createElement('p'); r.style.cssText = 'color:inherit;margin:0'; r.textContent = 'Réponse de la modération : ' + d.contestation.reponse; deja.append(r); }
+            deja.classList.remove('hidden');
+        } else if (d.delaiDepasse) {
+            deja.className = 'rounded-2xl border border-slate-200 p-5 mb-6 text-sm text-slate-700';
+            deja.textContent = 'Le délai de 6 mois pour contester cette décision est dépassé. Vous pouvez toujours nous écrire via le formulaire de contact.';
+        } else {
+            $('formAppel').classList.remove('hidden');
+        }
+    }).catch(function () { montrer('sansLien'); });
+
+    $('message').addEventListener('input', function () { $('nb').textContent = this.value.length; });
+    $('formAppel').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var err = $('erreur'); err.classList.add('hidden');
+        var message = $('message').value.trim(), contact = $('contact').value.trim();
+        var faute = message.length < 20 ? 'Expliquez votre contestation (20 caractères au moins).' : !$('exact').checked ? 'Cochez la case de certification pour envoyer.' : '';
+        if (faute) { err.textContent = faute; err.classList.remove('hidden'); return; }
+        var b = $('envoyer'); b.disabled = true; b.textContent = 'Envoi…';
+        fetch(API + '/appeals/' + jeton, { method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: message, contact: contact }) })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (x) {
+                if (!x.ok) throw new Error(x.d.error || 'Envoi impossible');
+                $('formAppel').classList.add('hidden'); $('merci').classList.remove('hidden');
+            })
+            .catch(function (e2) { err.textContent = e2.message; err.classList.remove('hidden'); b.disabled = false; b.textContent = 'Envoyer ma contestation'; });
+    });
+})();
+</script>
+<script src="footer.js" defer></script>
+</body>
+</html>

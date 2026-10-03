@@ -8,5 +8,6 @@ Disallow: /compte.html
 Disallow: /profile.html
 Disallow: /messages.html
 Disallow: /favoris.html
+Disallow: /contestation.html
 
 Sitemap: https://www.e-visiocam.com/sitemap.xml

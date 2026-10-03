@@ -25,7 +25,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261006">
+    <link rel="stylesheet" href="tailwind.css?v=20261007">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -124,6 +124,10 @@
             </button>
             <button onclick="showTab('users', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-users mr-1"></i> Utilisateurs
+            </button>
+            <button id="appealsTabBtn" onclick="showTab('appeals', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-scale-balanced mr-1"></i> Contestations
+                <span id="appealsBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
             <button onclick="showTab('viewlogs', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1"></i> Historique
@@ -270,6 +274,18 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <div id="tab-appeals" class="tab-content p-5 hidden">
+            <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
+                <div class="flex gap-1 text-xs font-semibold" role="group" aria-label="Filtre">
+                    <button type="button" data-appeal-status="pending" class="appeal-filtre px-3 py-1.5 rounded-lg bg-brand-primary text-white">En attente</button>
+                    <button type="button" data-appeal-status="accepted" class="appeal-filtre px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600">Acceptées</button>
+                    <button type="button" data-appeal-status="rejected" class="appeal-filtre px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600">Refusées</button>
+                </div>
+                <p class="text-xs text-slate-500">Le membre reçoit votre réponse par e-mail. Accepter lève la sanction (bannissement : Super Admin).</p>
+            </div>
+            <div id="appealsList" class="space-y-3"><p class="text-center text-slate-400 py-8 text-sm">Chargement...</p></div>
         </div>
 
         <div id="tab-viewlogs" class="tab-content p-5 hidden">

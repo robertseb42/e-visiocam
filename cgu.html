@@ -36,6 +36,7 @@
             border-left: 4px solid #e91e63;
             padding-left: 12px;
         }
+        .legal-content h2[id] { scroll-margin-top: 84px; }
         .legal-content h3 {
             font-size: 1.1rem;
             font-weight: 600;
@@ -87,7 +88,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261006">
+    <link rel="stylesheet" href="tailwind.css?v=20261007">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -109,7 +110,7 @@
     <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm legal-content">
 
         <h1 class="text-3xl font-extrabold text-slate-900 mb-2">📜 Conditions Générales d'Utilisation</h1>
-        <p class="text-sm text-slate-500 mb-8">Dernière mise à jour : 1er octobre 2026</p>
+        <p class="text-sm text-slate-500 mb-8">Dernière mise à jour : 4 octobre 2026</p>
 
         <div class="info-box">
             <strong>⚠️ AVERTISSEMENT IMPORTANT</strong><br>
@@ -184,16 +185,78 @@
             <li>⚠️ Comportement agressif ou irrespectueux</li>
         </ul>
 
-        <h2>Article 6 — Sanctions</h2>
-        <p>En cas de non-respect des CGU, l'éditeur se réserve le droit d'appliquer les sanctions suivantes, sans préavis :</p>
-        <ol>
-            <li><strong>Avertissement</strong> — Notification écrite</li>
-            <li><strong>Mute</strong> — Interdiction de parler temporairement (5 min à 24h)</li>
-            <li><strong>Kick</strong> — Expulsion du salon actuel</li>
-            <li><strong>Bannissement temporaire</strong> — Suspension de compte (1 jour à 30 jours)</li>
-            <li><strong>Bannissement définitif</strong> — Suppression définitive du compte</li>
-            <li><strong>Signalement aux autorités</strong> — En cas de contenu illégal</li>
-        </ol>
+        <h2 id="sanctions">Article 6 — Sanctions, notification et contestation</h2>
+        <p>Pour que chacun puisse profiter du Site en sécurité, l'équipe de modération peut prendre des mesures à l'encontre d'un Utilisateur qui ne respecte pas les présentes CGU, en particulier les règles de conduite de l'article 5. Cet article explique <strong>à quoi chaque Utilisateur s'expose</strong>, comment il en est informé et comment il peut contester une décision.</p>
+
+        <h3>6.1 — Principes</h3>
+        <ul>
+            <li><strong>Proportionnalité</strong> : la mesure est choisie selon la gravité des faits, leur répétition et leurs conséquences pour les autres Utilisateurs.</li>
+            <li><strong>Effet immédiat</strong> : une mesure s'applique dès qu'elle est prise, sans préavis, afin de faire cesser le trouble.</li>
+            <li><strong>Information</strong> : l'Utilisateur concerné est informé de chaque mesure par e-mail, avec ses motifs (article 6.6).</li>
+            <li><strong>Contestation</strong> : toute mesure, sauf le simple avertissement, peut être contestée (article 6.7).</li>
+        </ul>
+
+        <h3>6.2 — Les mesures possibles</h3>
+        <div class="overflow-x-auto mb-4">
+        <table class="w-full text-sm border-collapse">
+            <thead><tr class="text-left border-b border-slate-200"><th class="py-2 pr-3">Mesure</th><th class="py-2 pr-3">Effet</th><th class="py-2">Durée</th></tr></thead>
+            <tbody class="align-top">
+                <tr class="border-b border-slate-100"><td class="py-2 pr-3"><strong>Avertissement</strong></td><td class="py-2 pr-3">Rappel écrit des règles, sans restriction d'accès.</td><td class="py-2">—</td></tr>
+                <tr class="border-b border-slate-100"><td class="py-2 pr-3"><strong>Mise en sourdine (« mute »)</strong></td><td class="py-2 pr-3">L'Utilisateur reste connecté mais ne peut plus écrire, ni dans les salons ni en message privé.</td><td class="py-2">De quelques minutes à plusieurs jours</td></tr>
+                <tr class="border-b border-slate-100"><td class="py-2 pr-3"><strong>Expulsion (« kick »)</strong></td><td class="py-2 pr-3">Déconnexion immédiate du Site, lives en cours arrêtés. Selon la décision, retour possible tout de suite ou interdiction de reconnexion pendant une durée déterminée.</td><td class="py-2">Immédiate, ou jusqu'à 30 jours</td></tr>
+                <tr class="border-b border-slate-100"><td class="py-2 pr-3"><strong>Suspension du compte (bannissement temporaire)</strong></td><td class="py-2 pr-3">Compte bloqué : connexion, messages, lives et utilisation des crédits impossibles. La suspension se lève automatiquement à son terme ; les crédits non utilisés restent sur le compte.</td><td class="py-2">En général de 1 à 30 jours ; davantage sur décision de l'administrateur</td></tr>
+                <tr class="border-b border-slate-100"><td class="py-2 pr-3"><strong>Bannissement définitif</strong></td><td class="py-2 pr-3">Fermeture définitive du compte. Réservé aux manquements graves ou répétés et décidé par l'administrateur du Site.</td><td class="py-2">Définitive</td></tr>
+                <tr><td class="py-2 pr-3"><strong>Signalement aux autorités</strong></td><td class="py-2 pr-3">Transmission aux autorités compétentes (plateforme PHAROS, police, justice) de tout contenu ou comportement susceptible de constituer une infraction, en plus des mesures ci-dessus.</td><td class="py-2">—</td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <h3>6.3 — Barème indicatif</h3>
+        <p>Le tableau ci-dessous indique les mesures habituellement appliquées. Il n'est pas limitatif : la modération apprécie chaque situation et peut, selon les circonstances, choisir une mesure plus légère ou plus lourde.</p>
+        <ul>
+            <li><strong>Spam, publicité, flood, propos grossiers isolés</strong> : avertissement ou mise en sourdine ; expulsion en cas de répétition.</li>
+            <li><strong>Insultes, propos agressifs, irrespect envers un membre ou la modération</strong> : mise en sourdine ou expulsion ; suspension de 1 à 7 jours en cas de répétition.</li>
+            <li><strong>Harcèlement, menaces, divulgation d'informations personnelles d'autrui, propos discriminatoires</strong> : suspension de 7 à 30 jours ; bannissement définitif en cas de répétition ou de gravité particulière.</li>
+            <li><strong>Diffusion d'une caméra ou d'un contenu sans le consentement de la personne filmée, enregistrement d'un live</strong> : suspension longue ou bannissement définitif.</li>
+            <li><strong>Usurpation d'identité, escroquerie, sollicitation à des fins de prostitution</strong> : bannissement définitif.</li>
+            <li><strong>Présence d'un mineur, contenu pédopornographique, apologie du terrorisme, contenu manifestement illicite</strong> : bannissement définitif immédiat et signalement aux autorités.</li>
+            <li><strong>Création d'un autre compte pour contourner une mesure en cours</strong> : bannissement définitif de tous les comptes concernés.</li>
+        </ul>
+
+        <h3>6.4 — Filtre automatique des messages</h3>
+        <p>Les messages écrits dans les salons et en privé passent par un filtre qui détecte une liste de mots interdits, y compris lorsqu'ils sont déguisés (lettres remplacées, répétées ou séparées). Selon la gravité du mot, le filtre :</p>
+        <ul>
+            <li>remplace le mot par des étoiles, le message étant tout de même publié ;</li>
+            <li>bloque le message, qui n'est pas publié, et le transmet à la modération ;</li>
+            <li>pour les termes les plus graves, bloque le message et met automatiquement l'auteur en sourdine pendant une courte durée (10 minutes par défaut).</li>
+        </ul>
+        <p>Les mesures prises par le filtre sont notifiées et contestables comme les autres. Toute mesure plus lourde (expulsion, suspension, bannissement) est décidée par un membre de l'équipe de modération, et non par un système automatique, à l'exception de la suspension préventive prévue à l'article 6.5.</p>
+
+        <h3>6.5 — Suspension préventive après signalements</h3>
+        <p>Lorsqu'un même compte fait l'objet d'au moins cinq signalements d'Utilisateurs différents en sept jours, il est suspendu à titre préventif pendant trois jours, le temps que la modération examine les signalements. La modération peut lever cette suspension à tout moment, ou la remplacer par une autre mesure.</p>
+
+        <h3>6.6 — Information de l'Utilisateur</h3>
+        <p>Dès qu'une mesure est prise, l'Utilisateur en est informé à l'écran s'il est connecté, et par un <strong>e-mail envoyé à l'adresse de son compte</strong> qui précise :</p>
+        <ul>
+            <li>la nature de la mesure et ses effets ;</li>
+            <li>sa durée, sa date de début et, le cas échéant, sa date de fin ;</li>
+            <li>le motif retenu et la règle concernée ;</li>
+            <li>si la mesure a été prise par l'équipe de modération ou par le filtre automatique ;</li>
+            <li>un lien personnel permettant de la contester.</li>
+        </ul>
+        <p>Une personne qui tente de se connecter pendant une suspension ou une exclusion voit également la date à laquelle elle pourra revenir. La levée d'une mesure avant son terme est, elle aussi, notifiée par e-mail.</p>
+
+        <h3>6.7 — Contester une décision</h3>
+        <ul>
+            <li><strong>Comment</strong> : en cliquant sur le lien « Contester la décision » de l'e-mail reçu, qui ouvre un formulaire en ligne. Ce formulaire est accessible même si le compte est suspendu. À défaut, l'Utilisateur peut écrire via la <a href="contact.html">page de contact</a> en indiquant son pseudo.</li>
+            <li><strong>Délai</strong> : six mois à compter de la décision.</li>
+            <li><strong>Examen</strong> : la contestation est examinée par un membre de l'équipe de modération ; la levée d'un bannissement relève de l'administrateur du Site. La mesure reste appliquée pendant l'examen.</li>
+            <li><strong>Réponse</strong> : l'Utilisateur reçoit par e-mail une décision motivée. Si la contestation est acceptée, la mesure est levée immédiatement.</li>
+            <li><strong>Autres recours</strong> : en cas de désaccord persistant, l'Utilisateur peut recourir à un organisme de règlement extrajudiciaire des litiges ou à la médiation de la consommation, et conserve la possibilité de saisir les juridictions compétentes (article 16).</li>
+        </ul>
+
+        <h3>6.8 — Conservation</h3>
+        <p>L'historique des mesures et des contestations (date, nature, durée, motif, auteur de la décision) est conservé de manière sécurisée afin d'assurer le suivi de la modération, de traiter les contestations et de répondre aux demandes des autorités, conformément à la <a href="confidentialite.html">politique de confidentialité</a>.</p>
 
         <h2>Article 7 — Crédits et paiements</h2>
         <h3>7.1 — Système de crédits</h3>
@@ -224,7 +287,7 @@
         <p>L'Utilisateur est <strong>seul responsable</strong> de son comportement et du contenu qu'il publie.</p>
 
         <h2>Article 9 — Modération</h2>
-        <p>Le Site est modéré par une équipe dédiée. Toutefois, l'éditeur ne peut garantir une modération 24/7 en temps réel. Les Utilisateurs sont invités à signaler tout contenu inapproprié via le bouton « Signaler ».</p>
+        <p>Le Site est modéré par une équipe dédiée, assistée d'un filtre automatique des messages (article 6.4). Toutefois, l'éditeur ne peut garantir une modération 24/7 en temps réel. Les Utilisateurs sont invités à signaler tout contenu inapproprié via le bouton « Signaler ». Les mesures que peut prendre la modération, et la manière de les contester, sont décrites à l'<a href="#sanctions">article 6</a>.</p>
 
         <h2>Article 10 — Signalement de contenu illégal</h2>
         <p>Conformément à la loi LCEN du 21 juin 2004, tout contenu illégal peut être signalé :</p>
@@ -271,7 +334,7 @@
         </div>
 
         <p class="text-center text-xs text-slate-400 mt-8">
-            Version 1.0 — 1er octobre 2026
+            Version 1.1 — 4 octobre 2026
         </p>
     </div>
 </main>

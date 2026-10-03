@@ -73,6 +73,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     loadUsers();
     loadAllStreams();
     loadViewLogs();
+    compterContestations();
+    setInterval(compterContestations, 60000);
+    document.querySelectorAll('.appeal-filtre').forEach(function (b) {
+        b.addEventListener('click', function () { appealStatus = b.dataset.appealStatus; loadAppeals(); });
+    });
+    if (location.hash === '#contestations') showTab('appeals', document.getElementById('appealsTabBtn'));
 
     var s = document.getElementById('searchUser');
     if (s) {
@@ -619,6 +625,8 @@ function showTab(name, btn) {
     if (name === 'reports') loadReports();
     if (name === 'users') loadUsers();
     if (name === 'words') loadWords();
+    if (name === 'appeals') loadAppeals();
+    try { history.replaceState(null, '', name === 'appeals' ? '#contestations' : location.pathname); } catch (e) {}
 }
 
 function escapeHtml(text) {
@@ -637,4 +645,71 @@ function testerFiltre(e) {
         out.textContent = r.gravite ? ('→ ' + r.decision + ' (mot : ' + r.mots.join(', ') + ') · « ' + r.texte + ' »') : '→ ' + r.decision;
         out.className = 'text-xs mt-2 font-semibold ' + (r.gravite >= 3 ? 'text-rose-600' : r.gravite ? 'text-amber-600' : 'text-emerald-600');
     }).catch(function (err) { out.textContent = err.message; });
+}
+
+// ============================================================
+// CONTESTATIONS DES SANCTIONS
+// ============================================================
+var appealStatus = 'pending';
+var appealsCache = [];
+
+function compterContestations() {
+    return apiCall('/mod/appeals/count').then(function (d) {
+        var b = document.getElementById('appealsBadge');
+        if (!b) return;
+        b.textContent = d.pending;
+        b.classList.toggle('hidden', !d.pending);
+    }).catch(function () {});
+}
+
+function dateCourte(t) {
+    var d = typeof t === 'string' && !/[TZ]/.test(t) ? new Date(t.replace(' ', 'T') + 'Z') : new Date(t);
+    return d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function loadAppeals() {
+    document.querySelectorAll('.appeal-filtre').forEach(function (b) {
+        var actif = b.dataset.appealStatus === appealStatus;
+        b.className = 'appeal-filtre px-3 py-1.5 rounded-lg ' + (actif ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-600');
+    });
+    var list = document.getElementById('appealsList');
+    return apiCall('/mod/appeals?status=' + appealStatus).then(function (d) {
+        appealsCache = d.appeals || [];
+        compterContestations();
+        if (!appealsCache.length) {
+            list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">' + (appealStatus === 'pending' ? 'Aucune contestation en attente' : 'Aucune contestation') + '</p>';
+            return;
+        }
+        var superA = typeof isSuperAdmin === 'function' && isSuperAdmin();
+        list.innerHTML = appealsCache.map(function (a) {
+            var html = '<div class="rounded-2xl border border-slate-200 p-4">';
+            html += '<div class="flex flex-wrap items-center justify-between gap-2 mb-2"><p class="font-bold text-slate-900">' + escapeHtml(a.username) +
+                ' <span class="font-normal text-slate-500 text-sm">conteste : ' + escapeHtml(a.mesure) + ' (' + escapeHtml(a.duree) + ')</span></p>' +
+                '<span class="text-[11px] text-slate-400">reçue le ' + dateCourte(a.created_at) + '</span></div>';
+            html += '<p class="text-xs text-slate-500 mb-2">Sanction du ' + dateCourte(a.sanction_le) + ' par <strong>' + escapeHtml(a.by_name || '?') + '</strong>' +
+                (a.reason ? ' · motif : « ' + escapeHtml(a.reason) + ' »' : '') + (a.lifted_at ? ' · <span class="text-emerald-600 font-bold">déjà levée</span>' : '') +
+                (a.contact_email ? ' · réponse souhaitée à ' + escapeHtml(a.contact_email) : '') + '</p>';
+            html += '<blockquote class="text-sm text-slate-700 bg-slate-50 rounded-xl p-3 whitespace-pre-wrap mb-3">' + escapeHtml(a.message) + '</blockquote>';
+            if (a.status === 'pending') {
+                var bloque = a.type === 'ban' && !superA;
+                html += '<textarea id="note-' + a.id + '" rows="2" maxlength="2000" placeholder="Votre réponse motivée au membre (envoyée par e-mail)…" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none mb-2"></textarea>';
+                html += '<div class="flex flex-wrap gap-2">' +
+                    '<button onclick="deciderContestation(' + a.id + ', \'accepted\')"' + (bloque ? ' disabled title="Lever un bannissement : Super Admin"' : '') + ' class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40">Accepter et lever la sanction</button>' +
+                    '<button onclick="deciderContestation(' + a.id + ', \'rejected\')" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700">Refuser (maintenir)</button></div>';
+            } else {
+                html += '<p class="text-xs ' + (a.status === 'accepted' ? 'text-emerald-700' : 'text-rose-700') + '"><strong>' + (a.status === 'accepted' ? 'Acceptée' : 'Refusée') + '</strong> par ' +
+                    escapeHtml(a.decided_by || '?') + ' le ' + dateCourte(a.decided_at) + ' — « ' + escapeHtml(a.decision_note || '') + ' »</p>';
+            }
+            return html + '</div>';
+        }).join('');
+    }).catch(function (err) { list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + escapeHtml(err.message) + '</p>'; });
+}
+
+function deciderContestation(id, decision) {
+    var note = (document.getElementById('note-' + id) || {}).value || '';
+    if (note.trim().length < 10) { if (typeof showToast === 'function') showToast('Écrivez une réponse motivée au membre (10 caractères au moins)', 'error'); return; }
+    if (!confirm(decision === 'accepted' ? 'Accepter la contestation et lever la sanction ?' : 'Refuser la contestation et maintenir la sanction ?')) return;
+    apiCall('/mod/appeals/' + id + '/decide', { method: 'POST', body: JSON.stringify({ decision: decision, note: note.trim() }) })
+        .then(function () { if (typeof showToast === 'function') showToast('Réponse envoyée au membre'); loadAppeals(); loadUsers(); })
+        .catch(function (err) { if (typeof showToast === 'function') showToast(err.message, 'error'); });
 }
