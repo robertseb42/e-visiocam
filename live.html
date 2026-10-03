@@ -28,7 +28,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261004">
+    <link rel="stylesheet" href="tailwind.css?v=20261005">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -130,53 +130,48 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-tower-broadcast ev-ico" aria-hidden="true"></i> Lives actifs
-                        <span id="liveCount" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">0</span>
-                    </h2>
-                    <button onclick="refreshStreams()" class="text-xs text-brand-primary font-bold hover:underline">
-                        <i class="fa-solid fa-refresh"></i>
-                    </button>
-                </div>
-                <div id="activeStreams" class="space-y-2 max-h-[300px] overflow-y-auto">
-                    <p class="text-xs text-slate-400 text-center py-4">Aucun live en cours</p>
-                </div>
-            </div>
         </div>
 
-        <!-- VISIONNAGE -->
-        <div class="lg:col-span-2 space-y-4">
+        <!-- VISIONNAGE (en premier sur téléphone) -->
+        <div class="lg:col-span-2 space-y-4 order-first lg:order-none">
+            <!-- MUR DES CAMÉRAS : plusieurs lives regardés en même temps -->
             <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-                <h2 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-eye ev-ico" aria-hidden="true"></i> Regarder un live
-                    <span id="watchingBadge" class="hidden text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold">CONNECTÉ</span>
-                </h2>
-                <div class="aspect-video bg-slate-900 rounded-xl overflow-hidden mb-4 relative">
-                    <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover"></video>
-                    <div id="remotePlaceholder" class="absolute inset-0 flex items-center justify-center text-slate-500 text-sm">
-                        <div class="text-center">
-                            <i class="fa-solid fa-tv text-4xl mb-2"></i>
-                            <p>Sélectionne un live à gauche</p>
-                        </div>
+                <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                    <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells-large ev-ico" aria-hidden="true"></i> Mon mur de caméras
+                        <span id="murCompteur" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">0 / 4</span>
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="btnRemplir" onclick="remplirMur()" class="px-3 py-1.5 rounded-full bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold"><i class="fa-solid fa-wand-magic-sparkles"></i> Remplir le mur</button>
+                        <button type="button" id="btnVider" onclick="viderMur()" class="hidden px-3 py-1.5 rounded-full border border-slate-200 text-slate-600 hover:text-rose-600 text-xs font-bold"><i class="fa-solid fa-xmark"></i> Tout fermer</button>
                     </div>
-                    <button id="unmuteBtn" onclick="toggleRemoteAudio()" class="absolute bottom-3 right-3 bg-black/70 hover:bg-black/90 backdrop-blur text-white px-3 py-2 rounded-full text-xs font-bold flex items-center gap-2 z-10" style="display: none;">
-                        <i class="fa-solid fa-volume-xmark" id="volumeIcon"></i>
-                        <span id="volumeText">Activer le son</span>
-                    </button>
                 </div>
-                <div id="remoteInfo" class="hidden flex items-center justify-between bg-slate-50 rounded-xl p-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold" id="remoteAvatar">?</div>
-                        <div>
-                            <p class="font-bold text-slate-900 text-sm" id="remoteUsername">—</p>
-                            <p class="text-xs text-slate-500"><span id="remoteViewers">0</span> spectateurs</p>
+                <div id="mur" class="grid gap-3 grid-cols-1">
+                    <div id="murVide" class="aspect-video bg-slate-900 rounded-xl flex items-center justify-center text-slate-400 text-sm col-span-full">
+                        <div class="text-center px-4">
+                            <i class="fa-solid fa-tv text-4xl mb-2" aria-hidden="true"></i>
+                            <p>Choisissez une ou plusieurs caméras ci-dessous</p>
+                            <p class="text-xs text-slate-500 mt-1">Jusqu'à <span class="murMax">4</span> en même temps</p>
                         </div>
                     </div>
-                    <button onclick="leaveStream()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-xs">
-                        <i class="fa-solid fa-xmark"></i> Quitter
-                    </button>
+                </div>
+            </div>
+
+            <!-- SÉLECTION : toutes les caméras en direct -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
+                <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                    <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-tower-broadcast ev-ico" aria-hidden="true"></i> Caméras disponibles
+                        <span id="liveCount" class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-bold">0</span>
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <input id="filtreCams" type="search" placeholder="Rechercher un pseudo…" autocomplete="off"
+                            class="w-44 px-3 py-1.5 text-xs rounded-full bg-slate-100 border border-transparent focus:border-brand-primary focus:outline-none">
+                        <button type="button" onclick="refreshStreams()" class="w-8 h-8 rounded-full text-brand-primary hover:bg-slate-100" title="Actualiser" aria-label="Actualiser"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                </div>
+                <div id="activeStreams" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2">
+                    <p class="text-xs text-slate-400 text-center py-4 col-span-full">Aucune caméra en direct</p>
                 </div>
             </div>
 
@@ -214,8 +209,12 @@ var myMicMuted = false;
 // { viewerSocketId: RTCPeerConnection }
 var peerConnections = {};
 
-// Pour le viewer (quand JE regarde un live) : une seule connexion
-var viewerPeerConnection = null;
+// Quand JE regarde : plusieurs lives à la fois (le « mur »), indexés par streamId
+// { streamId: { streamId, nom, pc, sub, el, video, muet } }
+var vues = {};
+var MAX_VUES = window.matchMedia('(max-width: 767px)').matches ? 4 : 6;
+var focusVue = null;          // live agrandi dans le mur
+var dernieresCams = [];       // dernière liste reçue du serveur
 
 // ⚠️ rtcConfig GLOBAL - AVEC TURN CLOUDFLARE PAR DÉFAUT
 var rtcConfig = {
@@ -223,7 +222,6 @@ var rtcConfig = {
     iceTransportPolicy: 'all'
 };
 var sfuPublisher = null;   // ma publication sur le SFU (si diffuseur)
-var sfuViewer = null;      // ma réception via le SFU (si spectateur)
 
 // ============================================================
 // CHARGEMENT DES CREDENTIALS CLOUDFLARE TURN
@@ -281,6 +279,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
     document.getElementById('privePick').addEventListener('click', choisirInvites);
     afficherPrive();
+
+    document.querySelectorAll('.murMax').forEach(function(el) { el.textContent = MAX_VUES; });
+    document.getElementById('filtreCams').addEventListener('input', dessinerCams);
+    document.getElementById('activeStreams').addEventListener('click', function(e) {
+        var b = e.target.closest('[data-stream]');
+        if (b) basculerVue(b.dataset.stream, b.dataset.nom);
+    });
+    majMur();
 
     await loadTurnCredentials();
     initSocket();
@@ -407,26 +413,21 @@ function initSocket() {
     socket.on('live:stopped', function(data) {
         log('⏹️ ' + data.broadcasterUsername + ' a arrêté');
         refreshStreams();
-        if (currentStreamId === data.streamId) leaveStream();
+        if (data && vues[data.streamId]) leaveStream(data.streamId);
     });
 
-    socket.on('live:joined', function() {
-        log('👁️ Connecté au live');
-        document.getElementById('watchingBadge').classList.remove('hidden');
-    });
-
-    socket.on('live:viewer-count', function(data) {
-        document.getElementById('remoteViewers').textContent = data.count;
+    socket.on('live:joined', function(data) {
+        log('👁️ Connecté au live' + (data && data.broadcasterUsername ? ' de ' + data.broadcasterUsername : ''));
     });
 
     socket.on('live:error', function(data) {
         log('❌ ' + data.message);
-        alert(data.message);
+        showToast(data.message, 'error');
     });
 
-    socket.on('live:ended', function() {
+    socket.on('live:ended', function(data) {
         log('🔚 Live terminé');
-        leaveStream();
+        if (data && data.streamId) leaveStream(data.streamId);
     });
 
     // ============================================================
@@ -458,7 +459,8 @@ function initSocket() {
                 if (event.candidate) {
                     socket.emit('webrtc:ice-candidate', {
                         candidate: event.candidate,
-                        targetSocketId: data.viewerSocketId
+                        targetSocketId: data.viewerSocketId,
+                        streamId: data.streamId
                     });
                 }
             };
@@ -489,7 +491,8 @@ function initSocket() {
             // 8. Envoyer au serveur
             socket.emit('webrtc:answer', {
                 answer: answer,
-                viewerSocketId: data.viewerSocketId
+                viewerSocketId: data.viewerSocketId,
+                streamId: data.streamId
             });
             log('📤 Réponse envoyée à ' + (data.viewerUsername || data.viewerSocketId));
         } catch (err) {
@@ -505,11 +508,12 @@ function initSocket() {
     socket.on('webrtc:answer', async function(data) {
         log('📥 Réponse WebRTC');
         try {
-            if (viewerPeerConnection) {
-                await viewerPeerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            // Le bon live : par son streamId, sinon (ancien diffuseur) celui qui attend encore sa réponse
+            var v = data.streamId && vues[data.streamId];
+            if (!v) v = Object.values(vues).find(function(x) { return x.pc && x.pc.signalingState === 'have-local-offer'; });
+            if (v && v.pc) {
+                await v.pc.setRemoteDescription(new RTCSessionDescription(data.answer));
                 log('✅ Connexion P2P établie');
-            } else {
-                log('⚠️ Pas de viewerPeerConnection');
             }
         } catch (err) { log('❌ WebRTC : ' + err.message); }
     });
@@ -520,9 +524,12 @@ function initSocket() {
             if (data.fromSocketId && peerConnections[data.fromSocketId]) {
                 await peerConnections[data.fromSocketId].addIceCandidate(new RTCIceCandidate(data.candidate));
             }
-            // Sinon, c'est pour moi en tant que viewer
-            else if (viewerPeerConnection && data.candidate) {
-                await viewerPeerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            // Sinon, c'est pour moi en tant que spectateur
+            else if (data.candidate) {
+                var cibles = data.streamId && vues[data.streamId] ? [vues[data.streamId]] : Object.values(vues);
+                for (var i = 0; i < cibles.length; i++) {
+                    if (cibles[i].pc) { try { await cibles[i].pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (e) {} }
+                }
             }
         } catch (err) {}
     });
@@ -698,129 +705,207 @@ function toggleMyMic() {
 }
 
 // ============================================================
-// REJOINDRE UN LIVE (en tant que viewer)
+// MUR DE CAMÉRAS : regarder plusieurs lives en même temps
 // ============================================================
-async function joinStream(streamId, broadcasterUsername) {
-    if (currentStreamId) leaveStream();
-    currentStreamId = streamId;
-    document.getElementById('remotePlaceholder').style.display = 'none';
-    document.getElementById('remoteInfo').classList.remove('hidden');
-    document.getElementById('remoteAvatar').textContent = broadcasterUsername[0].toUpperCase();
-    document.getElementById('remoteUsername').textContent = broadcasterUsername;
-    document.getElementById('remoteViewers').textContent = '0';
+function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+
+// Compatibilité : invitation à un live privé, ?join=…
+function joinStream(streamId, nom) { ajouterVue(streamId, nom); }
+
+function basculerVue(streamId, nom) {
+    if (vues[streamId]) leaveStream(streamId); else ajouterVue(streamId, nom);
+}
+
+async function ajouterVue(streamId, nom) {
+    if (!streamId || vues[streamId]) return;
+    if (Object.keys(vues).length >= MAX_VUES) {
+        showToast('Votre mur est plein (' + MAX_VUES + ' caméras) : fermez-en une pour en ajouter une autre', 'error');
+        return;
+    }
+    nom = nom || 'Live';
+    var seul = Object.keys(vues).length === 0;
+    var el = document.createElement('div');
+    el.className = 'vue relative bg-slate-900 rounded-xl overflow-hidden aspect-video group';
+    el.dataset.stream = streamId;
+    el.innerHTML =
+        '<video autoplay playsinline muted class="w-full h-full object-cover"></video>' +
+        '<div class="vue-attente absolute inset-0 flex items-center justify-center text-slate-400 text-xs"><span><i class="fa-solid fa-circle-notch fa-spin mr-1"></i>Connexion…</span></div>' +
+        '<div class="absolute bottom-2 left-2 flex items-center gap-1.5 max-w-[calc(100%-1rem)]">' +
+            '<span class="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded live-pulse">LIVE</span>' +
+            '<span class="bg-black/60 text-white text-xs font-bold px-2 py-0.5 rounded max-w-[90px] sm:max-w-[160px] truncate">' + esc(nom) + '</span>' +
+        '</div>' +
+        '<div class="absolute top-2 right-2 flex items-center gap-1">' +
+            '<button type="button" data-a="son" class="w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs" title="Son"><i class="fa-solid fa-volume-xmark"></i></button>' +
+            '<button type="button" data-a="agrandir" class="hidden sm:inline-block w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs" title="Agrandir dans le mur"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>' +
+            '<button type="button" data-a="plein" class="hidden sm:inline-block w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs" title="Plein écran"><i class="fa-solid fa-expand"></i></button>' +
+            '<button type="button" data-a="fermer" class="w-8 h-8 rounded-full bg-rose-500/90 hover:bg-rose-600 text-white text-xs" title="Fermer"><i class="fa-solid fa-xmark"></i></button>' +
+        '</div>';
+    var v = { streamId: streamId, nom: nom, pc: null, sub: null, el: el, video: el.querySelector('video'), muet: true };
+    vues[streamId] = v;
+    el.addEventListener('click', function(e) {
+        var b = e.target.closest('[data-a]');
+        if (!b) return;
+        if (b.dataset.a === 'fermer') leaveStream(streamId);
+        else if (b.dataset.a === 'son') reglerSon(streamId, !v.muet ? true : false);
+        else if (b.dataset.a === 'agrandir') { focusVue = focusVue === streamId ? null : streamId; majMur(); }
+        else if (b.dataset.a === 'plein') { if (el.requestFullscreen) el.requestFullscreen().catch(function() {}); }
+    });
+    el.addEventListener('dblclick', function(e) { if (!e.target.closest('[data-a]')) { focusVue = focusVue === streamId ? null : streamId; majMur(); } });
+    document.getElementById('mur').appendChild(el);
+    majMur(); dessinerCams();
 
     socket.emit('live:join', { streamId: streamId });
-    log('👁️ Connexion à ' + broadcasterUsername + '...');
+    log('👁️ Connexion à ' + nom + '...');
 
-    function showRemote(stream) {
-        log('🎥 Flux reçu !');
-        var remoteVideo = document.getElementById('remoteVideo');
-        remoteVideo.srcObject = stream;
-        remoteVideo.muted = false;
-        remoteVideo.volume = 1.0;
-        document.getElementById('unmuteBtn').style.display = 'flex';
-        updateVolumeUI(false);
-        remoteVideo.play().catch(function(err) {
-            log('⚠️ Clique pour activer le son');
-        });
+    function afficher(ms) {
+        if (vues[streamId] !== v) return;
+        v.video.srcObject = ms;
+        var attente = el.querySelector('.vue-attente'); if (attente) attente.remove();
+        // Le premier live ouvert a le son ; les suivants démarrent muets (un clic sur 🔇 pour les écouter)
+        reglerSon(streamId, !seul);
+        v.video.play().catch(function() { reglerSon(streamId, true); v.video.play().catch(function() {}); });
+        log('🎥 Flux reçu : ' + nom);
     }
 
-    // 1) Via le SFU (le diffuseur n'envoie qu'un flux) ; 2) sinon connexion directe.
+    // 1) Via le SFU ; 2) sinon connexion directe. Qualité réduite dès qu'il y a plusieurs caméras.
     try {
-        var sub = await EvcSfu.subscribe(streamId, { preferredRid: 'f', onStream: showRemote });
-        if (sub && currentStreamId === streamId) { sfuViewer = sub; log('📡 Reçu via le SFU'); return; }
+        var sub = await EvcSfu.subscribe(streamId, { preferredRid: seul ? 'f' : 'h', onStream: afficher });
+        if (sub && vues[streamId] === v) { v.sub = sub; log('📡 Reçu via le SFU'); return; }
         if (sub) { sub.close(); return; }
         log('ℹ️ SFU indisponible pour ce live : connexion directe');
     } catch (e) { log('⚠️ SFU : ' + e.message); }
-    if (currentStreamId !== streamId) return;
+    if (vues[streamId] !== v) return;
 
-    viewerPeerConnection = new RTCPeerConnection(rtcConfig);
-
-    viewerPeerConnection.ontrack = function(event) { showRemote(event.streams[0]); };
-
-    viewerPeerConnection.onicecandidate = function(event) {
-        if (event.candidate) {
-            socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId: streamId });
-        }
+    var pc = new RTCPeerConnection(rtcConfig);
+    v.pc = pc;
+    pc.ontrack = function(event) { afficher(event.streams[0]); };
+    pc.onicecandidate = function(event) {
+        if (event.candidate) socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId: streamId });
     };
-
-    viewerPeerConnection.onconnectionstatechange = function() {
-        log('🔌 État viewer : ' + viewerPeerConnection.connectionState);
-    };
-
     try {
-        var offer = await viewerPeerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
-        await viewerPeerConnection.setLocalDescription(offer);
+        var offer = await pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
+        await pc.setLocalDescription(offer);
         socket.emit('webrtc:offer', { offer: offer, streamId: streamId });
-        log('📤 Offre envoyée');
     } catch (err) { log('❌ ' + err.message); }
 }
 
-function leaveStream() {
-    if (currentStreamId) socket.emit('live:leave', { streamId: currentStreamId });
-    currentStreamId = null;
-    document.getElementById('remoteVideo').srcObject = null;
-    document.getElementById('remotePlaceholder').style.display = 'flex';
-    document.getElementById('remoteInfo').classList.add('hidden');
-    document.getElementById('watchingBadge').classList.add('hidden');
-    document.getElementById('unmuteBtn').style.display = 'none';
-    remoteAudioMuted = false;
-    if (viewerPeerConnection) { viewerPeerConnection.close(); viewerPeerConnection = null; }
-    if (sfuViewer) { sfuViewer.close(); sfuViewer = null; }
-    log('👋 Live quitté');
+// Quitter un live (ou tous si aucun n'est précisé)
+function leaveStream(streamId) {
+    if (!streamId) { viderMur(); return; }
+    var v = vues[streamId];
+    if (!v) return;
+    delete vues[streamId];
+    if (socket) socket.emit('live:leave', { streamId: streamId });
+    try { if (v.pc) v.pc.close(); } catch (e) {}
+    try { if (v.sub) v.sub.close(); } catch (e) {}
+    if (document.fullscreenElement === v.el) document.exitFullscreen().catch(function() {});
+    v.el.remove();
+    if (focusVue === streamId) focusVue = null;
+    majMur(); dessinerCams();
+    log('👋 Live quitté : ' + v.nom);
+}
+
+function viderMur() { Object.keys(vues).forEach(leaveStream); }
+
+// Ajoute les caméras disponibles jusqu'à remplir le mur
+function remplirMur() {
+    var libres = MAX_VUES - Object.keys(vues).length;
+    var aAjouter = camsFiltrees().filter(function(c) { return !vues[c.streamId]; }).slice(0, libres);
+    if (!aAjouter.length) { showToast(libres ? 'Aucune autre caméra en direct pour le moment' : 'Votre mur est déjà plein', 'error'); return; }
+    aAjouter.forEach(function(c) { ajouterVue(c.streamId, c.broadcasterUsername); });
+}
+
+// Un seul live avec le son à la fois : activer le son d'une caméra coupe les autres
+function reglerSon(streamId, muet) {
+    Object.values(vues).forEach(function(v) {
+        var m = v.streamId === streamId ? muet : (muet ? v.muet : true);
+        v.muet = m;
+        v.video.muted = m;
+        var i = v.el.querySelector('[data-a="son"] i');
+        if (i) i.className = 'fa-solid ' + (m ? 'fa-volume-xmark' : 'fa-volume-high');
+        var b = v.el.querySelector('[data-a="son"]');
+        if (b) { b.title = m ? 'Activer le son' : 'Couper le son'; b.classList.toggle('bg-brand-primary', !m); }
+    });
+    var v = vues[streamId];
+    if (v && !muet) v.video.play().catch(function() {});
+}
+
+// Disposition du mur selon le nombre de caméras (et la caméra agrandie)
+function majMur() {
+    var n = Object.keys(vues).length;
+    var mur = document.getElementById('mur');
+    mur.className = 'grid gap-3 ' + (n <= 1 ? 'grid-cols-1' : n <= 4 ? 'grid-cols-2' : 'grid-cols-2 xl:grid-cols-3');
+    document.getElementById('murVide').classList.toggle('hidden', n > 0);
+    Object.values(vues).forEach(function(v) {
+        var f = focusVue === v.streamId && n > 1;
+        v.el.classList.toggle('col-span-full', f);
+        v.el.classList.toggle('order-first', f);
+        v.el.classList.toggle('ring-2', f);
+        v.el.classList.toggle('ring-brand-primary', f);
+    });
+    document.getElementById('murCompteur').textContent = n + ' / ' + MAX_VUES;
+    document.getElementById('btnVider').classList.toggle('hidden', n === 0);
+    document.getElementById('btnRemplir').classList.toggle('hidden', n >= MAX_VUES);
 }
 
 // ============================================================
-// CONTRÔLE DU SON
+// SÉLECTION : toutes les caméras en direct
 // ============================================================
-function toggleRemoteAudio() {
-    var video = document.getElementById('remoteVideo');
-    remoteAudioMuted = !remoteAudioMuted;
-    video.muted = remoteAudioMuted;
-    updateVolumeUI(remoteAudioMuted);
-    log(remoteAudioMuted ? '🔇 Son coupé' : '🔊 Son activé');
+function camsFiltrees() {
+    var q = (document.getElementById('filtreCams').value || '').trim().toLowerCase();
+    var moi = currentUser ? currentUser.id : null;
+    return dernieresCams.filter(function(s) {
+        return s.streamId !== (socket && socket.id) && s.broadcasterId !== moi &&
+            (!q || String(s.broadcasterUsername || '').toLowerCase().indexOf(q) !== -1);
+    });
 }
 
-function updateVolumeUI(isMuted) {
-    var icon = document.getElementById('volumeIcon');
-    var text = document.getElementById('volumeText');
-    if (!icon || !text) return;
-    if (isMuted) {
-        icon.className = 'fa-solid fa-volume-xmark';
-        text.textContent = 'Activer le son';
-    } else {
-        icon.className = 'fa-solid fa-volume-high';
-        text.textContent = 'Couper le son';
-    }
+function depuis(iso) {
+    if (!iso) return '';
+    var min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+    return min < 60 ? min + ' min' : Math.floor(min / 60) + ' h ' + String(min % 60).padStart(2, '0');
 }
 
-// ============================================================
-// LISTE DES LIVES
-// ============================================================
-async function refreshStreams() {
+function dessinerCams() {
     var container = document.getElementById('activeStreams');
+    var liste = camsFiltrees();
+    var plein = Object.keys(vues).length >= MAX_VUES;
+    if (!liste.length) {
+        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 col-span-full">' +
+            (dernieresCams.length && document.getElementById('filtreCams').value ? 'Aucune caméra ne correspond à la recherche' : 'Aucune caméra en direct pour le moment') + '</p>';
+        return;
+    }
+    container.innerHTML = liste.map(function(s) {
+        var nom = String(s.broadcasterUsername || '?');
+        var affichee = !!vues[s.streamId];
+        var bloque = !affichee && plein;
+        return '<button type="button" data-stream="' + esc(s.streamId) + '" data-nom="' + esc(nom) + '"' + (bloque ? ' disabled' : '') +
+            ' aria-pressed="' + affichee + '" class="cam-choix w-full text-left p-3 rounded-xl border transition-all flex items-center gap-3 ' +
+            (affichee ? 'border-brand-primary bg-pink-50 ring-1 ring-brand-primary' : 'border-slate-200 hover:border-brand-primary bg-white') + (bloque ? ' opacity-50 cursor-not-allowed' : '') + '">' +
+            '<span class="relative shrink-0"><span class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold">' + esc(nom[0].toUpperCase()) + '</span>' +
+            '<span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-white live-pulse"></span></span>' +
+            '<span class="flex-1 min-w-0"><span class="block font-bold text-slate-900 text-sm truncate">' + esc(nom) + '</span>' +
+            '<span class="block text-[11px] text-slate-500 truncate">' + (s.isPrivate ? '🔒 Privé' : (s.salon ? esc(s.salon) : 'En direct')) +
+            ' • ' + (Number(s.viewers) || 0) + ' 👁️' + (s.startedAt ? ' • ' + depuis(s.startedAt) : '') + '</span></span>' +
+            '<span class="shrink-0 text-[11px] font-bold px-2 py-1 rounded-full ' + (affichee ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-600') + '">' +
+            (affichee ? '<i class="fa-solid fa-check"></i> Affichée' : '<i class="fa-solid fa-plus"></i> Regarder') + '</span>' +
+        '</button>';
+    }).join('');
+}
+
+async function refreshStreams() {
     try {
         var response = await fetch('https://api.e-visiocam.com/api/streams', { credentials: 'include' });
         var data = await response.json();
-        var streams = data.streams || [];
-        document.getElementById('liveCount').textContent = streams.length;
-        var others = streams.filter(function(s) { return s.streamId !== socket.id; });
-        if (others.length === 0) {
-            container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucun live en cours</p>';
-            return;
-        }
-        var html = '';
-        others.forEach(function(s) {
-            html += '<button onclick="joinStream(\'' + s.streamId + '\', \'' + s.broadcasterUsername + '\')" class="w-full text-left p-3 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 hover:from-pink-100 hover:to-purple-100 border border-pink-200/60 transition-all">';
-            html += '<div class="flex items-center gap-3">';
-            html += '<div class="relative"><div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold">' + s.broadcasterUsername[0].toUpperCase() + '</div>';
-            html += '<span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-white live-pulse"></span></div>';
-            html += '<div class="flex-1 min-w-0"><p class="font-bold text-slate-900 text-sm truncate">' + s.broadcasterUsername + '</p>';
-            html += '<p class="text-xs text-red-500 font-bold">' + (s.isPrivate ? '🔒 PRIVÉ • ' : '🔴 EN DIRECT • ') + s.viewers + ' 👁️</p></div></div></button>';
+        dernieresCams = data.streams || [];
+        document.getElementById('liveCount').textContent = camsFiltrees().length;
+        // Un live qui n'existe plus quitte le mur
+        Object.keys(vues).forEach(function(id) {
+            if (!dernieresCams.some(function(s) { return s.streamId === id; })) leaveStream(id);
         });
-        container.innerHTML = html;
+        dessinerCams();
     } catch (err) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Erreur</p>';
+        document.getElementById('activeStreams').innerHTML = '<p class="text-xs text-slate-400 text-center py-4 col-span-full">Liste indisponible</p>';
     }
 }
 </script>
