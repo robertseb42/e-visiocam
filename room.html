@@ -1,87 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>E-Visiocam – Salon</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <meta name="theme-color" content="#111113">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-<script src="theme.js"></script>
-<!-- Salon privé : plus jamais d'écran noir. La page reste visible ; le cadenas
-     et la demande d'accès s'affichent par-dessus (voir room.js). -->
-<script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
-<script src="auth-api.js"></script>
-<script src="sfu-client.js"></script>
-<link rel="stylesheet" href="room.css">
-    <script src="maintenance.js" defer></script>
+    <title>Salon — E-VISIOCAM</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <!-- Ancienne adresse des salons : tout passe désormais par chat.html (même salon, même adresse) -->
+    <script>location.replace('chat.html' + location.search + location.hash);</script>
+    <meta http-equiv="refresh" content="0; url=chat.html">
 </head>
-<body>
-<header>
- <a class="logo" href="index.html" aria-label="Accueil E-Visiocam"><i></i><span>E-VISIO<b>CAM</b></span></a>
- <div class="title"><span id="rt">Salon Musique</span><small><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/><path d="M16 5a3.500 3.500 0 010 7M18 14c2.500.7 3.500 2.500 3.500 6"/></svg><span id="rc">24 connectés</span></small></div>
- <div class="hr">
-  <button class="bell" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 0112 0v6l2 2H4zM10 21h4"/></svg></button>
-  <a href="compte.html" class="av on" style="--c:#6b4a3a;width:42px;height:42px;text-decoration:none" title="Mon compte" aria-label="Mon compte">V</a>
- </div>
-</header>
-
-<main>
- <section class="col">
-  <div class="box">
-   <div class="bh"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/></svg>SALONS</div>
-   <div class="rooms" id="rooms"></div>
-  </div>
-  <div class="box priv">
-   <div class="bh"><svg viewBox="0 0 24 24" style="color:var(--pink)"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8 12h8" stroke="#fff"/></svg><span>PRIVÉ · <span id="pn">—</span></span><button class="x" aria-label="Fermer" id="px"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-   <div class="msgs" id="pm"></div>
-   <form class="row" id="pf"><input id="pi" placeholder="Choisissez un membre…" autocomplete="off" disabled><button class="send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M21 3L3 11l7 3 3 7z"/></svg></button></form>
-  </div>
- </section>
-
- <section class="col">
-  <div class="box" style="flex:1">
-   <div class="grid" id="grid"></div>
-  </div>
-  <div class="box chat">
-   <div class="bh"><svg viewBox="0 0 24 24"><path d="M4 5h12v9H9l-4 3v-3H4zM18 9h2v8h-1v3l-3-3h-5v-1"/></svg>DISCUSSION PUBLIQUE</div>
-   <div class="pub" id="pub"></div>
-   <form class="row" id="f"><input id="i" placeholder="Écrire dans le salon…" autocomplete="off"><button class="send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M21 3L3 11l7 3 3 7z"/></svg></button></form>
-  </div>
- </section>
-
- <section class="col">
-  <div class="box mem">
-   <div class="bh" style="border:0;padding-bottom:0"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-4 3-6 6.500-6s6.500 2 6.500 6"/></svg>MEMBRES · <span id="mc">24</span></div>
-   <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Rechercher…"></label>
-   <div class="chips"><button class="chip act" id="c1">Tous</button><button class="chip" id="c2"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg>Avec caméra</button></div>
-   <div class="list" id="list"></div>
-   <div class="menu" id="menu" hidden>
-    <div class="h"><div class="av" id="mav">E</div><span id="mn">Emma</span></div>
-    <button data-a="Profil ouvert"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7" fill="currentColor"/></svg>Voir le profil</button>
-    <button data-a="pm"><svg viewBox="0 0 24 24"><path d="M3 4h18v13H8l-5 4z" fill="currentColor"/></svg>Message privé</button>
-    <button data-a="Caméra affichée"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg>Voir la caméra</button>
-    <button data-a="Membre bloqué"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.600 5.600l12.800 12.800"/></svg>Bloquer</button>
-    <button data-a="Signalement envoyé"><svg viewBox="0 0 24 24" style="color:var(--red)"><path d="M12 3L2 20h20z" fill="currentColor"/><path d="M12 10v4M12 17v.1" stroke="#fff"/></svg>Signaler</button>
-   </div>
-  </div>
- </section>
-</main>
-
-<footer>
- <button class="fb y" id="bc"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2" fill="currentColor"/><path d="M16 10l6-3v10l-6-3z" fill="currentColor"/></svg><span>Caméra active</span></button>
- <button class="fb" id="bp" title="Inviter un ou plusieurs membres à un live que seuls eux (et la modération) verront"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><span>Live privé</span></button>
- <button class="fb" id="bm"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M3 3l18 18"/></svg><span>Micro coupé</span></button>
- <button class="fb q" id="bq"><svg viewBox="0 0 24 24"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg><span>Quitter le salon</span></button>
-</footer>
-<div class="toast" id="toast"></div>
-
-<script src="salon-access.js"></script>
-<script src="live-prive.js"></script>
-<script src="room.js"></script>
+<body style="background:#111113;color:#e5e7eb;font-family:sans-serif;text-align:center;padding:40px">
+    <p>Redirection vers le salon… <a href="chat.html" style="color:#e91e63">Continuer</a></p>
 </body>
 </html>

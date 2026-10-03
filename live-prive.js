@@ -1,7 +1,7 @@
 // ============================================================
 // E-VISIOCAM - Live privé sur invitation : sélecteur d'invités + bannière d'invitation
 // ------------------------------------------------------------
-// Partagé par le salon (room.html) et la page Live (live.html).
+// Partagé par le salon (chat.html) et la page Live (live.html).
 //   LivePrive.ouvrir({ membres, preselection, deja, titre, bouton, onConfirm(ids, noms) })
 //   LivePrive.banniere({ de, onRegarder })
 // Tout le texte venant des membres est inséré avec textContent (jamais de HTML).

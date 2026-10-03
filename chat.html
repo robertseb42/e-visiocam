@@ -19,6 +19,8 @@
     <script src="sfu-client.js"></script>
     <script src="nav-auth.js" defer></script>
     <script src="legal-banner.js"></script>
+    <script src="salon-access.js"></script>
+    <script src="live-prive.js"></script>
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
@@ -49,11 +51,22 @@
         .camera-tile.cam-off video {
             opacity: 0.1;
         }
+        /* Mobile : la colonne salons + membres s'ouvre en volet */
+        @media (max-width: 1023px) {
+            #chatSidebar.ouvert { display: flex; position: fixed; inset: 0; width: auto; z-index: 75; padding: 16px; background: rgba(15,23,42,.72); overflow-y: auto; }
+            #chatSidebar.ouvert > div { flex: none; }
+            #dmPanel { left: 8px; right: 8px; width: auto; bottom: calc(72px + env(safe-area-inset-bottom)); max-height: calc(100vh - 150px); }
+        }
+        .membre-btn .pb { position: absolute; top: -4px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 9999px;
+            background: #e91e63; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .membre-btn.actif { outline: 2px solid #9333ea; outline-offset: -2px; }
+        :where(html:not([data-theme="light"])) .membre-btn:hover, :where(html:not([data-theme="light"])) .membre-btn.actif { background: rgba(147,51,234,.18) !important; }
+        .dm-alerte { position: fixed; right: 16px; top: 76px; z-index: 80; max-width: 300px; cursor: pointer; }
     </style>
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261003">
+    <link rel="stylesheet" href="tailwind.css?v=20261004">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -100,38 +113,26 @@
 
 <main class="max-w-[1700px] w-full mx-auto flex-1 p-4 flex flex-col lg:flex-row gap-4 overflow-hidden">
 
-    <!-- SIDEBAR -->
-    <aside class="hidden lg:flex flex-col w-56 shrink-0 gap-4">
+    <!-- SIDEBAR : salons + membres du salon (sur mobile : volet ouvert par les boutons du haut) -->
+    <aside id="chatSidebar" class="hidden lg:flex flex-col w-60 shrink-0 gap-4" aria-label="Salons et membres">
+        <div class="lg:hidden flex items-center justify-between text-white">
+            <span class="font-bold text-sm">Salons et membres</span>
+            <button type="button" onclick="fermerVolet()" class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
         <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
             <h3 class="font-bold text-slate-900 text-sm mb-3"><i class="fa-solid fa-comments ev-ico" aria-hidden="true"></i> Salons</h3>
-            <div class="space-y-1 text-xs font-medium">
-                <button data-salon="Salon Général" onclick="joinSalon('Salon Général', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl bg-pink-50 border border-pink-200/60 text-brand-primary font-bold">
-                    🌍 Salon Général
-                </button>
-                <button data-salon="Salon Français" onclick="joinSalon('Salon Français', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
-                    🇫🇷 Salon Français
-                </button>
-                <button data-salon="Salon International" onclick="joinSalon('Salon International', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
-                    🌐 Salon International
-                </button>
-                <button data-salon="Salon Couples" onclick="joinSalon('Salon Couples', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
-                    💕 Salon Couples
-                </button>
-                <button data-salon="Salon Amateurs" onclick="joinSalon('Salon Amateurs', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
-                    ✨ Salon Amateurs
-                </button>
-                <button data-salon="Salon Musique" onclick="joinSalon('Salon Musique', this)" class="salon-btn w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-slate-700">
-                    🎵 Salon Musique
-                </button>
+            <div id="salonList" class="space-y-1 text-xs font-medium max-h-[300px] overflow-y-auto">
+                <p class="text-slate-400 text-center py-2">Chargement...</p>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex-1 overflow-hidden flex flex-col">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="font-bold text-slate-900 text-sm"><span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1 align-middle" aria-hidden="true"></span> En ligne</h3>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex-1 min-h-[220px] overflow-hidden flex flex-col">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="font-bold text-slate-900 text-sm"><span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1 align-middle" aria-hidden="true"></span> Dans ce salon</h3>
                 <span class="text-xs bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full" id="onlineCount">0</span>
             </div>
-            <div id="onlineUsers" class="space-y-2 overflow-y-auto text-xs">
+            <p class="text-[11px] text-slate-500 mb-2"><i class="fa-regular fa-envelope" aria-hidden="true"></i> Cliquez sur un membre pour lui écrire en privé.</p>
+            <div id="onlineUsers" class="space-y-1 overflow-y-auto text-xs">
                 <p class="text-slate-400 text-center py-4">Chargement...</p>
             </div>
         </div>
@@ -139,6 +140,17 @@
 
     <!-- ZONE PRINCIPALE -->
     <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+
+        <!-- Mobile : accès aux salons et aux membres -->
+        <div class="lg:hidden flex gap-2">
+            <button type="button" onclick="ouvrirVolet()" class="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-comments ev-ico" aria-hidden="true"></i> Salons
+            </button>
+            <button type="button" onclick="ouvrirVolet()" class="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-user-group ev-ico" aria-hidden="true"></i> Membres <span id="mobMembres" class="text-emerald-600">0</span>
+                <span id="mobNonLus" class="hidden min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-white text-[10px] items-center justify-center">0</span>
+            </button>
+        </div>
 
         <!-- CAMÉRAS DU SALON -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
@@ -148,6 +160,8 @@
                     <span id="cameraCount" class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">0</span>
                 </h3>
                 <div class="flex items-center gap-2">
+                    <a href="live.html" class="px-2.5 h-7 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold flex items-center gap-1" title="Diffuser ma webcam"><i class="fa-solid fa-video"></i><span class="hidden sm:inline">Diffuser</span></a>
+                    <button type="button" onclick="ouvrirLivePrive()" class="px-2.5 h-7 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-600 text-[11px] font-bold flex items-center gap-1" title="Live privé avec des membres du salon"><i class="fa-solid fa-lock"></i><span class="hidden sm:inline">Live privé</span></button>
                     <button onclick="toggleCameraView()" class="text-xs text-slate-400 hover:text-slate-700" title="Réduire/agrandir">
                         <i class="fa-solid fa-eye" id="cameraViewIcon"></i>
                     </button>
@@ -200,6 +214,40 @@
         </div>
     </div>
 </main>
+
+<!-- MESSAGE PRIVÉ : fenêtre séparée, rien n'est écrit dans le salon -->
+<section id="dmPanel" class="hidden fixed z-[66] right-4 bottom-4 w-[350px] h-[460px] max-h-[75vh] bg-white rounded-2xl border border-slate-200 shadow-2xl flex-col overflow-hidden" aria-label="Message privé" aria-live="polite">
+    <div class="px-3 py-2.5 flex items-center gap-2 text-white" style="background:linear-gradient(90deg,#e91e63,#9333ea)">
+        <div id="dmAvatar" class="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center font-bold text-sm shrink-0">?</div>
+        <div class="flex-1 min-w-0">
+            <p class="font-bold text-sm truncate" id="dmName">—</p>
+            <p class="text-[10px] opacity-90"><i class="fa-solid fa-lock" aria-hidden="true"></i> Privé : seul ce membre voit ces messages</p>
+        </div>
+        <a href="messages.html" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center" title="Ouvrir dans la messagerie"><i class="fa-solid fa-up-right-from-square text-xs"></i></a>
+        <button type="button" onclick="fermerPrive()" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center" aria-label="Fermer la conversation privée"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="dmMessages" class="flex-1 overflow-y-auto p-3 space-y-2 bg-slate-50"></div>
+    <p id="dmTyping" class="hidden px-3 py-1 text-[11px] text-slate-400 italic bg-slate-50">écrit…</p>
+    <form id="dmForm" class="p-2 border-t border-slate-100 flex items-center gap-2 bg-white">
+        <input type="text" id="dmInput" maxlength="1000" autocomplete="off" placeholder="Message privé…"
+            class="flex-1 min-w-0 px-3 py-2.5 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-purple-500 focus:outline-none">
+        <button type="submit" class="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 text-white flex items-center justify-center shrink-0" aria-label="Envoyer en privé"><i class="fa-solid fa-paper-plane"></i></button>
+    </form>
+</section>
+
+<!-- SALON PRIVÉ : cadenas + demande d'accès -->
+<div id="lockModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center">
+        <div class="text-4xl leading-none">🔒</div>
+        <h3 id="lockName" class="text-lg font-extrabold text-slate-900 mt-3 mb-1">Salon privé</h3>
+        <p id="lockText" class="text-sm text-slate-500 mb-5"></p>
+        <div class="flex gap-2 justify-center flex-wrap">
+            <button type="button" id="lockAsk" class="hidden px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold"><i class="fa-solid fa-key mr-1"></i>Demander l'accès</button>
+            <button type="button" id="lockEnter" class="hidden px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold">Entrer</button>
+            <button type="button" onclick="fermerCadenas()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold">Fermer</button>
+        </div>
+    </div>
+</div>
 
 <!-- MODAL CADEAUX -->
 <div id="giftModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
@@ -273,9 +321,11 @@
 // VARIABLES
 // ============================================================
 let socket = null;
-// Salon demandé dans l'URL (bouton "Rejoindre" de salons.html) : chat.html?salon=Salon%20Fran%C3%A7ais
-const salonFromUrl = (new URLSearchParams(window.location.search).get('salon') || '').trim();
-let currentSalon = salonFromUrl || 'Salon Général';
+// Salon demandé dans l'adresse : chat.html?theme=<slug> (accueil, Salons, favoris) ou chat.html?salon=<nom>
+const salonDemande = (new URLSearchParams(window.location.search).get('theme')
+    || new URLSearchParams(window.location.search).get('salon') || '').trim();
+let currentSalon = 'Salon Général';   // nom du salon (affiché, envoyé au serveur)
+let currentSlug = 'general';          // identifiant du salon (adresse de la page)
 let currentUser = null;
 let gifts = [];
 let selectedGift = null;
@@ -284,19 +334,340 @@ let salonStreams = [];
 let viewerPeerConnections = {};
 let cameraViewExpanded = true;
 let remoteAudioStates = {};
+// Liste des salons : repli local, remplacée par la vraie liste du serveur
+let SALONS = [
+    { slug: 'general', name: 'Salon Général', icon: '🌍' },
+    { slug: 'francais', name: 'Salon Français', icon: '🇫🇷' },
+    { slug: 'international', name: 'Salon International', icon: '🌐' },
+    { slug: 'couples', name: 'Salon Couples', icon: '💕' },
+    { slug: 'amateurs', name: 'Salon Amateurs', icon: '✨' },
+    { slug: 'musique', name: 'Salon Musique', icon: '🎵' }
+];
+let membres = [];               // membres présents dans le salon
+let membresDuServeur = false;   // vrai quand le serveur envoie la liste du salon (sinon : tous les connectés)
+let tousConnectes = [];
+// Messages privés : nonLus = id du membre -> nombre de messages non lus ; actif = conversation ouverte
+const prive = { nonLus: {}, actif: null };
+const ROLE_ICONS = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
 
 // ============================================================
 // INIT
 // ============================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     currentUser = getCurrentUser();
     if (!currentUser) { window.location.href = 'login.html'; return; }
-    // On affiche tout de suite le salon demandé (avant même la connexion au socket)
-    const titleEl = document.getElementById('currentSalon');
-    if (titleEl) titleEl.innerText = '💬 ' + currentSalon;
-    highlightSalonButton(currentSalon);
+    document.getElementById('dmForm').addEventListener('submit', envoyerPrive);
+    document.getElementById('dmInput').addEventListener('input', signalerFrappe);
+    document.getElementById('onlineUsers').addEventListener('click', e => {
+        const b = e.target.closest('[data-uid]');
+        if (b) { fermerVolet(); ouvrirPrive(Number(b.dataset.uid), b.dataset.n); }
+    });
+    document.getElementById('chatMessages').addEventListener('click', e => {
+        const b = e.target.closest('[data-uid]');
+        if (b) ouvrirPrive(Number(b.dataset.uid), b.dataset.n);
+    });
+    document.getElementById('salonList').addEventListener('click', e => {
+        const b = e.target.closest('[data-slug]');
+        if (b) { fermerVolet(); choisirSalon(b.dataset.slug); }
+    });
+
+    await chargerSalons();
+    let s = trouverSalon(salonDemande) || trouverSalon('general') || SALONS[0];
+    // Salon privé demandé sans accès : cadenas + demande d'accès, et on reste dans le Salon Général
+    if (s.isPrivate && typeof SalonAccess !== 'undefined') {
+        const st = await SalonAccess.status(s.slug).catch(() => 'none');
+        if (st !== 'approved') { afficherCadenas(s, st); s = trouverSalon('general') || SALONS.find(x => !x.isPrivate) || SALONS[0]; }
+    }
+    if (!s && salonDemande) s = { slug: salonDemande, name: salonDemande, icon: '💬' };
+    appliquerSalon(s.name, s.slug);
+    recordJoin(currentSlug);
     initSocket();
 });
+
+// ============================================================
+// SALONS
+// ============================================================
+async function chargerSalons() {
+    if (typeof SalonAccess === 'undefined' || !SalonAccess.salons) { dessinerSalons(); return; }
+    const liste = await SalonAccess.salons().catch(() => null);
+    if (liste && liste.length) {
+        SALONS = liste.map(x => ({ slug: x.slug, name: x.name, icon: x.icon || '💬', logoUrl: x.logoUrl || null, isPrivate: !!x.isPrivate, isHidden: !!x.isHidden }));
+    }
+    dessinerSalons();
+}
+
+function trouverSalon(cle) {
+    if (!cle) return null;
+    const c = String(cle).toLowerCase();
+    return SALONS.find(x => x.slug.toLowerCase() === c || x.name.toLowerCase() === c) || null;
+}
+
+function dessinerSalons() {
+    const boite = document.getElementById('salonList');
+    if (!boite) return;
+    boite.innerHTML = SALONS.map(x => {
+        const actif = x.slug === currentSlug;
+        const logo = (typeof SalonAccess !== 'undefined' && SalonAccess.logoHtml) ? SalonAccess.logoHtml(x, 18) : escapeHtml(x.icon);
+        return '<button type="button" data-slug="' + escapeHtml(x.slug) + '" class="salon-btn w-full text-left px-3 py-2 rounded-xl flex items-center gap-2 ' +
+            (actif ? 'bg-pink-50 border border-pink-200/60 text-brand-primary font-bold' : 'hover:bg-slate-50 text-slate-700') + '"' + (actif ? ' aria-current="true"' : '') + '>' +
+            '<span class="w-5 text-center shrink-0">' + logo + '</span><span class="truncate flex-1">' + escapeHtml(x.name) + '</span>' +
+            (x.isPrivate ? '<i class="fa-solid fa-lock text-[10px] text-amber-500" title="Salon privé"></i>' : '') +
+            (x.isHidden ? '<i class="fa-solid fa-eye-slash text-[10px] text-slate-400" title="Salon masqué"></i>' : '') +
+        '</button>';
+    }).join('');
+}
+
+// Affiche le salon courant (titre, liste, adresse)
+function appliquerSalon(nom, slug) {
+    currentSalon = nom;
+    const trouve = trouverSalon(slug) || trouverSalon(nom);
+    currentSlug = trouve ? trouve.slug : (slug || nom);
+    const titleEl = document.getElementById('currentSalon');
+    if (titleEl) titleEl.textContent = ((trouve && trouve.icon && !trouve.logoUrl) ? trouve.icon : '💬') + ' ' + nom;
+    document.title = nom + ' — E-VISIOCAM';
+    try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('salon');
+        url.searchParams.set('theme', currentSlug);
+        window.history.replaceState({}, '', url);
+    } catch (e) {}
+    dessinerSalons();
+}
+
+async function choisirSalon(slug) {
+    const x = trouverSalon(slug);
+    if (!x || x.slug === currentSlug) return;
+    if (x.isPrivate && typeof SalonAccess !== 'undefined') {
+        const st = await SalonAccess.status(x.slug).catch(() => 'none');
+        if (st !== 'approved') { afficherCadenas(x, st); return; }
+    }
+    joinSalon(x.slug);
+}
+
+// ---------- 🔒 cadenas d'un salon privé ----------
+function afficherCadenas(x, statut) {
+    const textes = {
+        none: "Ce salon est privé. Demandez l'accès : un modérateur ou l'administrateur validera votre demande.",
+        pending: "Votre demande d'accès est en attente de validation.",
+        refused: "Votre demande d'accès a été refusée.",
+        approved: 'Accès accordé, vous pouvez entrer.'
+    };
+    document.getElementById('lockName').textContent = x.name;
+    document.getElementById('lockText').textContent = textes[statut] || textes.none;
+    const ask = document.getElementById('lockAsk'), enter = document.getElementById('lockEnter');
+    ask.classList.toggle('hidden', !!statut && statut !== 'none');
+    enter.classList.toggle('hidden', statut !== 'approved');
+    ask.disabled = false;
+    ask.onclick = async () => {
+        ask.disabled = true;
+        try { await SalonAccess.request(x.slug); afficherCadenas(x, 'pending'); showToast("Demande d'accès envoyée", 'success'); }
+        catch (e) { ask.disabled = false; showToast("Impossible d'envoyer la demande", 'error'); }
+    };
+    enter.onclick = () => { fermerCadenas(); joinSalon(x.slug); };
+    const m = document.getElementById('lockModal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+}
+function fermerCadenas() {
+    const m = document.getElementById('lockModal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+}
+
+// ---------- volet mobile ----------
+function ouvrirVolet() { document.getElementById('chatSidebar').classList.add('ouvert'); }
+function fermerVolet() { document.getElementById('chatSidebar').classList.remove('ouvert'); }
+
+// ---------- compteur réel des membres d'un salon ----------
+function recordJoin(slug) {
+    try {
+        const base = (typeof API_URL !== 'undefined' ? API_URL : 'https://api.e-visiocam.com/api');
+        fetch(base + '/salons/' + encodeURIComponent(slug) + '/join', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
+    } catch (e) {}
+}
+
+// ============================================================
+// MEMBRES DU SALON
+// ============================================================
+function dessinerMembres() {
+    const boite = document.getElementById('onlineUsers');
+    const liste = membres.slice();
+    document.getElementById('onlineCount').textContent = liste.length;
+    const mob = document.getElementById('mobMembres'); if (mob) mob.textContent = liste.length;
+    if (!liste.length) {
+        boite.innerHTML = '<p class="text-slate-400 text-center py-4">Personne dans ce salon pour le moment</p>';
+    } else {
+        boite.innerHTML = liste.map(u => {
+            const nom = String(u.username || '?');
+            const moi = currentUser && u.id === currentUser.id;
+            const nonLus = Number(prive.nonLus[u.id]) || 0;
+            const actif = prive.actif && prive.actif.userId === u.id;
+            const live = u.streamId ? '<span class="text-[9px] font-bold text-white bg-red-500 rounded px-1">LIVE</span>' : '';
+            const avatar = '<span class="relative w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[11px] font-bold shrink-0">' +
+                escapeHtml(nom[0].toUpperCase()) + (nonLus ? '<span class="pb">' + (nonLus > 99 ? '99+' : nonLus) + '</span>' : '') + '</span>';
+            const libelle = '<span class="font-medium text-slate-700 truncate flex-1">' + (ROLE_ICONS[u.role] || '') + ' ' + escapeHtml(nom) + (moi ? ' <span class="text-slate-400">(moi)</span>' : '') + '</span>';
+            if (moi) return '<div class="flex items-center gap-2 p-2 rounded-lg">' + avatar + libelle + live + '</div>';
+            return '<button type="button" class="membre-btn w-full flex items-center gap-2 p-2 rounded-lg hover:bg-purple-50 text-left' + (actif ? ' actif bg-purple-50' : '') + '"' +
+                ' data-uid="' + Number(u.id) + '" data-n="' + escapeHtml(nom) + '" title="Écrire en privé à ' + escapeHtml(nom) + '">' +
+                avatar + libelle + live + '<i class="fa-regular fa-envelope text-purple-500" aria-hidden="true"></i></button>';
+        }).join('');
+    }
+    majTotalNonLus();
+}
+
+function majTotalNonLus() {
+    const total = Object.values(prive.nonLus).reduce((a, n) => a + (Number(n) || 0), 0);
+    const b = document.getElementById('mobNonLus');
+    if (!b) return;
+    b.textContent = total > 99 ? '99+' : String(total);
+    b.classList.toggle('hidden', !total);
+    b.classList.toggle('flex', !!total);
+}
+
+// ============================================================
+// MESSAGES PRIVÉS (rien n'est écrit dans le salon)
+// ============================================================
+function heurePrivee(d) {
+    const t = typeof d === 'string' && !/[TZ]/.test(d) ? d.replace(' ', 'T') + 'Z' : d;
+    return new Date(t || Date.now()).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+const lignePrivee = m => ({ id: m.id, me: !!(currentUser && m.sender_id === currentUser.id), text: m.content, time: heurePrivee(m.created_at) });
+
+function dessinerPrive() {
+    const panel = document.getElementById('dmPanel');
+    const a = prive.actif;
+    if (!a) { panel.classList.add('hidden'); panel.classList.remove('flex'); return; }
+    panel.classList.remove('hidden'); panel.classList.add('flex');
+    document.getElementById('dmName').textContent = a.name;
+    document.getElementById('dmAvatar').textContent = (a.name[0] || '?').toUpperCase();
+    document.getElementById('dmInput').placeholder = 'Message privé à ' + a.name + '…';
+    const zone = document.getElementById('dmMessages');
+    zone.innerHTML = a.messages.length
+        ? a.messages.map(m => '<div class="flex ' + (m.me ? 'justify-end' : 'justify-start') + '"><div class="max-w-[80%] px-3 py-2 rounded-2xl text-sm ' +
+            (m.me ? 'bg-purple-600 text-white rounded-br-sm' : 'bg-white border border-slate-200 text-slate-700 rounded-bl-sm') + '">' +
+            escapeHtml(m.text) + '<div class="text-[10px] mt-0.5 ' + (m.me ? 'text-white/70 text-right' : 'text-slate-400') + '">' + m.time + '</div></div></div>').join('')
+        : '<p class="text-xs text-slate-400 text-center py-6">Aucun message pour le moment.<br>Écrivez le premier : il ne sera visible que par ' + escapeHtml(a.name) + '.</p>';
+    zone.scrollTop = zone.scrollHeight;
+}
+
+let chargementNonLus = null;
+function chargerNonLusPrives() {
+    clearTimeout(chargementNonLus);
+    chargementNonLus = setTimeout(async () => {
+        try {
+            const d = await apiCall('/messages/conversations');
+            const n = {};
+            (d.conversations || []).forEach(c => { if (c.otherUser && c.unreadCount) n[c.otherUser.id] = c.unreadCount; });
+            if (prive.actif) delete n[prive.actif.userId];
+            prive.nonLus = n;
+            dessinerMembres();
+        } catch (e) {}
+    }, 250);
+}
+
+async function ouvrirPrive(userId, name) {
+    if (!userId || !currentUser || userId === currentUser.id) return;
+    try {
+        const st = await apiCall('/messages/start', { method: 'POST', body: JSON.stringify({ userId: userId }) });
+        if (!st || !st.conversation) throw new Error((st && st.error) || 'Messagerie privée indisponible');
+        const convId = st.conversation.id;
+        const rep = await apiCall('/messages/' + convId);   // historique ; la conversation est marquée comme lue
+        prive.actif = { userId, name: name || 'Membre', convId, messages: (rep.messages || []).map(lignePrivee) };
+        delete prive.nonLus[userId];
+        dessinerPrive(); dessinerMembres();
+        document.getElementById('dmInput').focus();
+        if (socket && socket.connected) socket.emit('dm:read', { conversationId: convId });
+    } catch (e) {
+        showToast(e.message || 'Messagerie privée indisponible', 'error');
+    }
+}
+
+function fermerPrive() { prive.actif = null; dessinerPrive(); dessinerMembres(); }
+
+async function envoyerPrive(e) {
+    e.preventDefault();
+    const a = prive.actif, champ = document.getElementById('dmInput');
+    const texte = champ.value.trim();
+    if (!a || !texte) return;
+    champ.value = '';
+    try {
+        if (socket && socket.connected) {
+            socket.emit('dm:send', { conversationId: a.convId, content: texte });   // le message revient par « dm:message »
+        } else {
+            const rep = await apiCall('/messages/' + a.convId, { method: 'POST', body: JSON.stringify({ content: texte }) });
+            if (prive.actif === a && rep.message && !a.messages.some(m => m.id === rep.message.id)) { a.messages.push(lignePrivee(rep.message)); dessinerPrive(); }
+        }
+    } catch (err) {
+        champ.value = texte;
+        showToast(err.message || 'Message non envoyé', 'error');
+    }
+}
+
+let derniereFrappe = 0;
+function signalerFrappe() {
+    const a = prive.actif;
+    if (!a || !socket || !socket.connected || Date.now() - derniereFrappe < 2000) return;
+    derniereFrappe = Date.now();
+    socket.emit('dm:typing', { conversationId: a.convId });
+}
+
+function traiterMessagePrive(data) {
+    if (!data || !data.message || !currentUser) return;
+    const m = data.message, a = prive.actif, moi = m.sender_id === currentUser.id;
+    if (a && a.convId === data.conversationId) {
+        if (!a.messages.some(x => x.id === m.id)) a.messages.push(lignePrivee(m));
+        document.getElementById('dmTyping').classList.add('hidden');
+        dessinerPrive();
+        if (!moi && socket && socket.connected) socket.emit('dm:read', { conversationId: data.conversationId });
+    } else if (!moi) {
+        prive.nonLus[m.sender_id] = (Number(prive.nonLus[m.sender_id]) || 0) + 1;
+        dessinerMembres();
+        alertePrive(m);
+    }
+}
+
+// Petite alerte cliquable : « Message privé de X » → ouvre la conversation
+function alertePrive(m) {
+    const ancien = document.querySelector('.dm-alerte'); if (ancien) ancien.remove();
+    const el = document.createElement('div');
+    el.className = 'dm-alerte bg-white border border-purple-200 shadow-xl rounded-2xl px-4 py-3 text-sm text-slate-700';
+    const titre = document.createElement('p');
+    titre.className = 'font-bold text-purple-600';
+    titre.textContent = '💬 Message privé de ' + (m.sender_username || 'un membre');
+    const extrait = document.createElement('p');
+    extrait.className = 'text-xs text-slate-500 truncate';
+    extrait.textContent = String(m.content || '').slice(0, 80);
+    el.append(titre, extrait);
+    el.addEventListener('click', () => { el.remove(); ouvrirPrive(m.sender_id, m.sender_username); });
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 7000);
+}
+
+// ============================================================
+// 🔒 LIVE PRIVÉ : inviter des membres du salon
+// ============================================================
+function ouvrirLivePrive() {
+    if (typeof LivePrive === 'undefined') { showToast('Live privé indisponible', 'error'); return; }
+    const liste = membres.filter(u => currentUser && u.id !== currentUser.id).map(u => ({ id: u.id, username: u.username }));
+    if (!liste.length) { showToast("Aucun autre membre dans ce salon pour le moment", 'error'); return; }
+    LivePrive.ouvrir({
+        membres: liste, titre: '🔒 Live privé', bouton: 'Passer en live privé',
+        onConfirm: (ids, noms) => {
+            try { sessionStorage.setItem('evc-live-prive', JSON.stringify({ invited: ids, names: noms, salon: currentSalon })); } catch (e) {}
+            window.location.href = 'live.html?prive=1';
+        }
+    });
+}
+
+function invitationLivePrive(d) {
+    if (!d || typeof LivePrive === 'undefined') return;
+    LivePrive.banniere({
+        de: d.broadcasterUsername,
+        onRegarder: () => {
+            const tuile = document.querySelector('[data-stream-id="' + CSS.escape(String(d.streamId)) + '"]');
+            if (tuile) { tuile.scrollIntoView({ block: 'center' }); }
+            else window.location.href = 'live.html?join=' + encodeURIComponent(d.streamId) + '&from=' + encodeURIComponent(d.broadcasterUsername || '');
+        }
+    });
+}
 
 // ============================================================
 // SOCKET
@@ -311,8 +682,9 @@ function initSocket() {
         status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-700';
         status.innerHTML = '🟢 Connecté';
 
-        socket.emit('salon:join', currentSalon);
+        socket.emit('salon:join', currentSlug || currentSalon);
         refreshSalonStreams();
+        chargerNonLusPrives();
     });
 
     socket.on('connect_error', (err) => {
@@ -338,18 +710,32 @@ function initSocket() {
         scrollToBottom();
     });
 
-    // Utilisateurs en ligne
-    socket.on('users:list', (users) => {
-        document.getElementById('onlineCount').innerText = users.length;
-        document.getElementById('onlineUsers').innerHTML = users.map(u => {
-            const icons = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
-            const liveIcon = u.streamId ? ' 🔴' : '';
-            return '<div class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50">' +
-                '<div class="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[10px] font-bold">' + u.username[0].toUpperCase() + '</div>' +
-                '<span class="font-medium text-slate-700">' + (icons[u.role] || '') + ' ' + u.username + liveIcon + '</span>' +
-            '</div>';
-        }).join('');
+    // Membres du salon (le serveur envoie la liste à chaque arrivée / départ)
+    socket.on('salon:members', (data) => {
+        if (!data || data.salon !== currentSalon) return;
+        membresDuServeur = true;
+        membres = data.users || [];
+        dessinerMembres();
     });
+    // Ancien serveur : liste de tous les connectés
+    socket.on('users:list', (users) => {
+        tousConnectes = users || [];
+        if (!membresDuServeur) { membres = tousConnectes; dessinerMembres(); }
+    });
+
+    // Messages privés
+    socket.on('dm:message', (data) => traiterMessagePrive(data));
+    socket.on('dm:unread-count', () => chargerNonLusPrives());
+    socket.on('dm:typing', (data) => {
+        const a = prive.actif;
+        if (!a || !data || data.conversationId !== a.convId) return;
+        const t = document.getElementById('dmTyping');
+        t.textContent = a.name + ' écrit…';
+        t.classList.remove('hidden');
+        clearTimeout(t.cache); t.cache = setTimeout(() => t.classList.add('hidden'), 3000);
+    });
+    socket.on('dm:error', (data) => showToast((data && data.message) || 'Message privé non envoyé', 'error'));
+    socket.on('live:private-invite', (d) => invitationLivePrive(d));
 
     socket.on('system', (data) => {
         const container = document.getElementById('chatMessages');
@@ -360,10 +746,11 @@ function initSocket() {
         scrollToBottom();
     });
 
-    socket.on('salon:error', data => showToast(data.message || 'Accès au salon refusé', 'error'));
+    socket.on('salon:error', data => showToast((data && data.message) || 'Accès au salon refusé', 'error'));
     socket.on('salon:joined', (data) => {
-        document.getElementById('currentSalon').innerText = '💬 ' + data.salon;
-        currentSalon = data.salon;
+        if (!data || !data.salon) return;
+        appliquerSalon(data.salon, data.slug);
+        if (!membresDuServeur) { membres = tousConnectes; dessinerMembres(); }
     });
 
     // ============================================================
@@ -453,8 +840,8 @@ function renderSalonCameras() {
         const isMuted = remoteAudioStates[s.streamId] !== false;
 
         return `
-            <div class="camera-tile relative bg-slate-900 rounded-xl overflow-hidden aspect-video ${s.isCameraOff ? 'cam-off' : ''}" data-stream-id="${s.streamId}">
-                <video id="cam-${s.streamId}" autoplay playsinline muted class="w-full h-full object-cover"></video>
+            <div class="camera-tile relative bg-slate-900 rounded-xl overflow-hidden aspect-video ${s.isCameraOff ? 'cam-off' : ''}" data-stream-id="${escapeHtml(s.streamId)}">
+                <video id="cam-${escapeHtml(s.streamId)}" autoplay playsinline muted class="w-full h-full object-cover"></video>
 
                 ${s.isCameraOff ? `
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-white bg-slate-900/90">
@@ -480,9 +867,9 @@ function renderSalonCameras() {
                 <!-- Infos bas -->
                 <div class="absolute bottom-0 left-0 right-0 p-1.5 bg-gradient-to-t from-black/90 to-transparent">
                     <p class="text-white text-[10px] font-bold truncate">
-                        ${s.broadcasterUsername}${isMe ? ' (moi)' : ''}
+                        ${escapeHtml(s.broadcasterUsername)}${isMe ? ' (moi)' : ''}
                     </p>
-                    <p class="text-white/70 text-[9px]">${s.viewers} 👁️</p>
+                    <p class="text-white/70 text-[9px]">${Number(s.viewers) || 0} 👁️</p>
                 </div>
 
                 <!-- Micro coupé -->
@@ -598,50 +985,30 @@ function renderMessage(msg) {
     div.className = 'message';
     div.innerHTML = '<div class="' + (isMe ? 'flex justify-end' : '') + '">' +
         '<div class="' + (isMe ? 'bg-brand-primary text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-md' : 'max-w-md') + '">' +
-            (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><span class="text-xs font-bold text-slate-700">' + icon + ' ' + msg.username + '</span><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
+            (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><button type="button" data-uid="' + Number(msg.user_id) + '" data-n="' + escapeHtml(msg.username) + '" title="Écrire en privé" class="text-xs font-bold text-slate-700 hover:text-purple-600">' + icon + ' ' + escapeHtml(msg.username) + '</button><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
             '<p class="text-sm ' + (isMe ? '' : 'text-slate-700') + '">' + escapeHtml(msg.text) + '</p>' +
         '</div>' +
     '</div>';
     container.appendChild(div);
 }
 
-// Met en évidence le salon actif dans la liste de gauche
-function highlightSalonButton(salon) {
-    document.querySelectorAll('.salon-btn').forEach(b => {
-        const actif = b.dataset.salon === salon;
-        b.classList.toggle('bg-pink-50', actif);
-        b.classList.toggle('border', actif);
-        b.classList.toggle('border-pink-200/60', actif);
-        b.classList.toggle('text-brand-primary', actif);
-        b.classList.toggle('font-bold', actif);
-        b.classList.toggle('hover:bg-slate-50', !actif);
-        b.classList.toggle('text-slate-700', !actif);
-    });
-}
+function joinSalon(slug) {
+    const x = trouverSalon(slug);
+    if (!x || x.slug === currentSlug) return;
+    appliquerSalon(x.name, x.slug);
+    recordJoin(x.slug);
 
-function joinSalon(salon, btn) {
-    highlightSalonButton(salon);
-    if (salon === currentSalon) return;
-    currentSalon = salon;
-
-    // Le salon reste dans l'URL : un rafraîchissement ou un partage le conserve
-    if (window.history && window.history.replaceState) {
-        const url = new URL(window.location.href);
-        url.searchParams.set('salon', salon);
-        window.history.replaceState({}, '', url);
-    }
-    const titleEl = document.getElementById('currentSalon');
-    if (titleEl) titleEl.innerText = '💬 ' + salon;
-
-    // Fermer les streams de l'ancien salon
+    // Fermer les caméras de l'ancien salon
     Object.keys(viewerPeerConnections).forEach(streamId => {
-        viewerPeerConnections[streamId].close();
+        try { viewerPeerConnections[streamId].close(); } catch (e) {}
         delete viewerPeerConnections[streamId];
     });
     salonStreams = [];
     renderSalonCameras();
+    membres = membresDuServeur ? [] : tousConnectes;
+    dessinerMembres();
 
-    if (socket) socket.emit('salon:join', salon);
+    if (socket) socket.emit('salon:join', x.slug);
 }
 
 function sendReaction(emoji) {

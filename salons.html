@@ -33,7 +33,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261003">
+    <link rel="stylesheet" href="tailwind.css?v=20261004">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -86,7 +86,7 @@
 
 
 <script>
-// "slug" = identifiant du salon, utilisé dans l'adresse : room.html?theme=<slug>
+// "slug" = identifiant du salon, utilisé dans l'adresse : chat.html?theme=<slug>
 // La liste vient du serveur (/api/salons/list) ; ce repli sert uniquement si l'API
 // n'est pas joignable. Aucun chiffre inventé : les compteurs viennent du serveur.
 const REPLI_PUBLICS = [
@@ -136,7 +136,7 @@ function renderSalons(items, containerId, isPrivate = false) {
             <p class="text-xs text-slate-500 mt-1 mb-4">${esc(s.description || '')}</p>
             ${isPrivate
                 ? `<div data-access="${esc(s.slug)}"><span class="block text-center w-full py-2 bg-slate-800 text-white text-xs font-bold rounded-xl opacity-60"><i class="fa-solid fa-lock mr-1"></i>Vérification…</span></div>`
-                : `<a href="room.html?theme=${encodeURIComponent(s.slug)}" class="block text-center w-full py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl transition-colors">Rejoindre</a>`}
+                : `<a href="chat.html?theme=${encodeURIComponent(s.slug)}" class="block text-center w-full py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl transition-colors">Rejoindre</a>`}
         </div>
     `).join('');
 }
@@ -163,7 +163,7 @@ async function refreshAccess() {
     const base = 'block text-center w-full py-2 text-white text-xs font-bold rounded-xl transition-colors ';
     for (const el of document.querySelectorAll('[data-access]')) {
         const slug = el.dataset.access, st = await SalonAccess.status(slug);
-        if (st === 'approved') el.innerHTML = `<a href="room.html?theme=${encodeURIComponent(slug)}" class="${base} bg-brand-primary hover:bg-brand-hover">Entrer</a>`;
+        if (st === 'approved') el.innerHTML = `<a href="chat.html?theme=${encodeURIComponent(slug)}" class="${base} bg-brand-primary hover:bg-brand-hover">Entrer</a>`;
         else if (st === 'pending') el.innerHTML = `<span class="${base} bg-amber-500 cursor-default"><i class="fa-solid fa-hourglass-half mr-1"></i>Demande en attente</span>`;
         else if (st === 'refused') el.innerHTML = `<span class="${base} bg-slate-400 cursor-default">Demande refusée</span>`;
         else el.innerHTML = `<button onclick="askAccess('${slug}')" class="${base} bg-slate-800 hover:bg-slate-700"><i class="fa-solid fa-lock mr-1"></i>Demander accès</button>`;

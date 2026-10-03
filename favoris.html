@@ -20,7 +20,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261003-favoris">
     <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261003">
+    <link rel="stylesheet" href="tailwind.css?v=20261004">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -98,7 +98,7 @@ function ligneSalon(s) {
             <p class="font-bold text-slate-900">${escF(s.name)} ${s.isPrivate ? '<span class="ml-1 text-[10px] bg-pink-50 text-brand-primary font-bold px-2 py-0.5 rounded-full">VIP</span>' : ''}</p>
             <p class="text-xs text-slate-500 truncate">${escF(s.description)}</p>
         </div>
-        <a href="${s.isPrivate ? 'salons.html' : 'room.html?theme=' + encodeURIComponent(s.slug)}" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl">Entrer</a>
+        <a href="${s.isPrivate ? 'salons.html' : 'chat.html?theme=' + encodeURIComponent(s.slug)}" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl">Entrer</a>
         <button type="button" class="ev-fav" data-fav="salon:${escF(s.slug)}" aria-pressed="true" title="Retirer des favoris"><i class="fa-solid fa-heart"></i></button>
     </div>`;
 }

@@ -46,7 +46,7 @@
                 '<span class="ev-suggest-txt"><b>' + esc(m.username) + '</b><small>' + (m.isLive ? '● En direct · ' + esc(m.liveSalon) : 'Modèle') + '</small></span></a>';
         });
         (d.salons || []).forEach(function (s) {
-            html += '<a role="option" href="' + (s.isPrivate ? 'salons.html' : 'room.html?theme=' + encodeURIComponent(s.slug)) + '">' +
+            html += '<a role="option" href="' + (s.isPrivate ? 'salons.html' : 'chat.html?theme=' + encodeURIComponent(s.slug)) + '">' +
                 '<span class="ev-suggest-ico">' + esc(s.icon) + '</span>' +
                 '<span class="ev-suggest-txt"><b>' + esc(s.name) + '</b><small>Salon' + (s.isPrivate ? ' VIP' : '') + '</small></span></a>';
         });
