@@ -111,9 +111,6 @@
                         <a href="credits.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-gift w-4 text-amber-500"></i> Mes récompenses
                         </a>
-                        <a href="compte.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
-                            <i class="fa-solid fa-gear w-4" style="color:#8b5cf6"></i> Paramètres
-                        </a>
                         ${user.role === 'moderator' || user.role === 'super_admin' ? `
                             <a href="moderation.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                                 <i class="fa-solid fa-shield-halved w-4 text-blue-500"></i> Modération

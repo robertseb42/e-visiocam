@@ -32,10 +32,36 @@
         '#evcDiscoBoule canvas{position:absolute;left:0;bottom:0;width:var(--disco-taille);height:var(--disco-taille);filter:drop-shadow(0 0 24px rgba(255,22,128,.28)) drop-shadow(0 10px 30px rgba(0,0,0,.5))}' +
         '#evcDiscoBoule .fil{position:absolute;left:50%;top:0;width:2px;margin-left:-1px;height:calc(var(--disco-fil) + 4px);background:linear-gradient(#5d5d68,#b9b9c4)}' +
         '#evcDiscoBoule .attache{position:absolute;left:50%;top:calc(var(--disco-fil) - 6px);width:10px;height:10px;margin-left:-5px;border-radius:3px;background:linear-gradient(#d9d9e0,#7d7d88)}' +
+        // ---------- Danseur disco (image fournie, animée) ----------
+        '#evcDanseur{position:fixed;left:14px;bottom:10px;z-index:34;pointer-events:none;width:var(--dz);height:calc(var(--dz) * 1.72)}' +
+        // Taille adaptée à la hauteur de l'écran : il reste sous la radio sans la recouvrir
+        '#evcDanseur{--dz:min(170px,calc((100vh - 770px) / 1.72));--t:.58s}' +
+        '@media (max-width:1600px){#evcDanseur{--dz:min(140px,calc((100vh - 770px) / 1.72))}}' +
+        '@media (max-width:1100px),(max-height:920px){#evcDanseur{display:none!important}}' +
+        '#evcDanseur .piste{position:absolute;left:0;bottom:0;width:100%;height:calc(var(--dz) * .5);overflow:visible}' +
+        '#evcDanseur .sens{position:absolute;left:0;right:0;bottom:calc(var(--dz) * .1);height:calc(var(--dz) * 1.52);transform-origin:50% 100%;animation:dzSens calc(var(--t) * 16) steps(1) infinite}' +
+        '#evcDanseur .gars{width:100%;height:100%;transform-origin:50% 100%;animation:dzDanse calc(var(--t) * 2) ease-in-out infinite}' +
+        '#evcDanseur img{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 0 14px rgba(255,255,255,.35)) drop-shadow(0 10px 16px rgba(0,0,0,.5))}' +
+        '#evcDanseur .dalle{animation:dzDalle calc(var(--t) * 4) steps(1) infinite}' +
+        '#evcDanseur .dalle.b{animation-delay:calc(var(--t) * -1)}#evcDanseur .dalle.c{animation-delay:calc(var(--t) * -2)}#evcDanseur .dalle.d{animation-delay:calc(var(--t) * -3)}' +
+        '@keyframes dzSens{0%{transform:scaleX(1)}50%{transform:scaleX(-1)}}' +
+        '@keyframes dzDanse{0%,100%{transform:translateY(0) rotate(-4deg)}25%{transform:translateY(-7px) rotate(0deg)}50%{transform:translateY(0) rotate(4deg)}75%{transform:translateY(-7px) rotate(0deg)}}' +
+        '@keyframes dzDalle{0%{fill:#ff1680}25%{fill:#ffe500}50%{fill:#22d3ee}75%{fill:#a855f7}}' +
+        '@media (prefers-reduced-motion:reduce){#evcDanseur *{animation:none!important}}' +
+        'html:not(.evc-disco) #evcDanseur{display:none}' +
         'html:not(.evc-disco) #evcDiscoBoule,html:not(.evc-disco) #evcDiscoReflets{display:none}' +
         '[data-disco-toggle]{line-height:0}' +
         '[data-disco-toggle][aria-pressed="false"] svg{opacity:.45}';
     document.head.appendChild(css);
+
+    // Danseur disco : image (danseur-disco.webp) sur une petite piste lumineuse
+    var DANSEUR = '<svg class="piste" viewBox="0 0 200 100" aria-hidden="true">' +
+        '<defs><radialGradient id="dzSpot" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>' +
+        '<g transform="translate(100 72) scale(1 .34)"><g transform="rotate(45)">' +
+        '<rect class="dalle a" x="-52" y="-52" width="50" height="50" rx="5"/><rect class="dalle b" x="2" y="-52" width="50" height="50" rx="5"/>' +
+        '<rect class="dalle c" x="-52" y="2" width="50" height="50" rx="5"/><rect class="dalle d" x="2" y="2" width="50" height="50" rx="5"/></g></g>' +
+        '<ellipse cx="100" cy="72" rx="80" ry="22" fill="url(#dzSpot)"/></svg>' +
+        '<div class="sens"><div class="gars"><img src="danseur-disco.webp" alt="" width="342" height="520" decoding="async"></div></div>';
 
     var boule, reflets, cb, cr, ctxB, ctxR, angle = 0, temps = 0, dernier = 0, raf = 0;
     var dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -94,6 +120,11 @@
         reflets.setAttribute('aria-hidden', 'true');
         document.body.prepend(reflets);
         document.body.appendChild(boule);
+        var danseur = document.createElement('div');
+        danseur.id = 'evcDanseur';
+        danseur.setAttribute('aria-hidden', 'true');
+        danseur.innerHTML = DANSEUR;
+        document.body.appendChild(danseur);
         ctxB = cb.getContext('2d');
         ctxR = reflets.getContext('2d');
         taille();
