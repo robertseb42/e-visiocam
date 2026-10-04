@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://accounts.google.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://accounts.google.com https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion — E-VISIOCAM</title>
@@ -94,6 +94,14 @@
             <button type="button" id="verifRetour" class="mt-3 text-sm font-bold text-brand-primary hover:underline">Retour à la connexion</button>
         </div>
         <form id="loginForm" class="space-y-4">
+
+            <!-- ⚡ Connexion rapide avec Google (visible seulement si activée sur le serveur) -->
+            <div data-google-bloc class="hidden">
+                <div id="googleBtn" class="flex justify-center min-h-[44px]"></div>
+                <div class="flex items-center gap-3 my-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <span class="flex-1" style="height:1px;background:currentColor;opacity:.35"></span>ou avec votre adresse e-mail<span class="flex-1" style="height:1px;background:currentColor;opacity:.35"></span>
+                </div>
+            </div>
 
             <!-- Username -->
             <div>
@@ -191,7 +199,9 @@
 
 <script src="auth-api.js"></script>
 <script src="legal-banner.js"></script>
+<script src="google-login.js"></script>
 <script>
+    EvcGoogle.monter(document.getElementById('googleBtn'), { texte: 'continue_with' });
     // ---------- AFFICHER / MASQUER LE MOT DE PASSE ----------
     function togglePassword(fieldId, btn) {
         const field = document.getElementById(fieldId);
