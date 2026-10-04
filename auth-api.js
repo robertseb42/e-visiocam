@@ -31,6 +31,13 @@ clearToken();
     window.fetch = enveloppe;
 })();
 
+// ---------- PHOTO DE PROFIL ----------
+// Adresse complète d'une photo validée (« /api/avatars/12?v=… » → https://api…/api/avatars/12?v=…), sinon null
+function urlAvatar(chemin) {
+    if (typeof chemin !== 'string' || !/^\/api\/avatars\/\d+\?v=[\w-]+$/.test(chemin)) return null;
+    return API_URL.replace(/\/api\/?$/, '') + chemin;
+}
+
 // ---------- UTILISATEUR ----------
 function saveUser(user) { localStorage.setItem('evisiocam_user', JSON.stringify(user)); }
 function getCurrentUser() {

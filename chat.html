@@ -525,9 +525,10 @@ function dessinerMembres() {
             const moi = currentUser && u.id === currentUser.id;
             const nonLus = Number(prive.nonLus[u.id]) || 0;
             const actif = prive.actif && prive.actif.userId === u.id;
+            const photo = (typeof urlAvatar === 'function') ? urlAvatar(u.avatar) : null;
             const live = u.streamId ? '<span class="text-[9px] font-bold text-white bg-red-500 rounded px-1">LIVE</span>' : '';
             const avatar = '<span class="relative w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[11px] font-bold shrink-0">' +
-                escapeHtml(nom[0].toUpperCase()) + (nonLus ? '<span class="pb">' + (nonLus > 99 ? '99+' : nonLus) + '</span>' : '') + '</span>';
+                escapeHtml(nom[0].toUpperCase()) + (photo ? '<img src="' + escapeHtml(photo) + '" alt="" class="absolute inset-0 w-full h-full rounded-full object-cover" loading="lazy">' : '') + (nonLus ? '<span class="pb">' + (nonLus > 99 ? '99+' : nonLus) + '</span>' : '') + '</span>';
             const libelle = '<span class="font-medium text-slate-700 truncate flex-1">' + (ROLE_ICONS[u.role] || '') + ' ' + escapeHtml(nom) + insigneHtml(u.insigne) + (moi ? ' <span class="text-slate-400">(moi)</span>' : '') + '</span>';
             if (moi) return '<div class="flex items-center gap-2 p-2 rounded-lg">' + avatar + libelle + live + '</div>';
             return '<button type="button" class="membre-btn w-full flex items-center gap-2 p-2 rounded-lg hover:bg-purple-50 text-left' + (actif ? ' actif bg-purple-50' : '') + '"' +

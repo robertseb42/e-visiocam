@@ -639,6 +639,7 @@ function showTab(name, btn) {
     if (name === 'users') loadUsers();
     if (name === 'words') loadWords();
     if (name === 'appeals') loadAppeals();
+    if (name === 'photos' && window.EvcPhotos) window.EvcPhotos.charger();
     try { history.replaceState(null, '', name === 'appeals' ? '#contestations' : location.pathname); } catch (e) {}
 }
 

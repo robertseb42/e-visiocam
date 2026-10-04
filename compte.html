@@ -67,6 +67,16 @@
             <div id="avatar" class="w-24 h-24 mx-auto rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-4xl font-bold mb-3">
                 ?
             </div>
+            <!-- 📷 Photo de profil : vérifiée par la modération avant d'être visible des autres -->
+            <div id="photoZone" class="mb-4">
+                <input type="file" id="photoFichier" accept="image/png,image/jpeg,image/webp" hidden>
+                <div class="flex justify-center gap-2 flex-wrap">
+                    <button type="button" id="photoChanger" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700"><i class="fa-solid fa-camera" aria-hidden="true"></i> <span id="photoChangerTexte">Ajouter une photo</span></button>
+                    <button type="button" id="photoRetirer" hidden class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-rose-100 text-rose-600"><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Retirer</button>
+                </div>
+                <p id="photoEtat" class="text-[11px] mt-2 text-amber-600 font-semibold" hidden></p>
+                <p class="text-[10px] text-slate-400 mt-2 leading-snug">Pas de nudité, pas d'autre personne sans son accord, pas de coordonnées. Vérifiée par la modération avant d'être visible (<a href="cgu.html#compte" class="underline">CGU 3.1</a>).</p>
+            </div>
             <h2 class="text-xl font-bold text-slate-900" id="displayUsername">...</h2>
             <p class="text-xs text-slate-500" id="displayRole">...</p>
             <p class="text-xs text-slate-400 mt-1" id="displayJoined">...</p>
@@ -232,6 +242,7 @@ async function loadProfile() {
 
         // Couleur de l'avatar selon le genre/rôle
         updateAvatarColor(u);
+        afficherPhoto(u.avatar);
     } catch (err) {
         showToast(err.message, 'error');
     }
@@ -251,6 +262,83 @@ function updateAvatarColor(user) {
     // Retirer les anciennes classes de gradient
     avatar.className = 'w-24 h-24 mx-auto rounded-full bg-gradient-to-r ' + gradient + ' text-white flex items-center justify-center text-4xl font-bold mb-3';
 }
+
+// ---------- PHOTO DE PROFIL ----------
+let photoApercu = null;
+async function afficherPhoto(etat) {
+    const boite = document.getElementById('avatar');
+    const info = document.getElementById('photoEtat');
+    const st = (etat && etat.status) || 'none';
+    document.getElementById('photoRetirer').hidden = st === 'none';
+    document.getElementById('photoChangerTexte').textContent = st === 'none' ? 'Ajouter une photo' : 'Changer la photo';
+    info.hidden = st !== 'pending';
+    info.textContent = st === 'pending' ? '⏳ En attente de validation : pour l’instant, vous seul la voyez.' : '';
+    let src = null;
+    if (st === 'approved') src = urlAvatar(etat.url);
+    else if (st === 'pending') {
+        try {
+            const r = await fetch(API_URL + '/avatars/me/image', { credentials: 'include' });
+            if (r.ok) { if (photoApercu) URL.revokeObjectURL(photoApercu); photoApercu = URL.createObjectURL(await r.blob()); src = photoApercu; }
+        } catch (e) {}
+    }
+    if (!src) return;
+    const img = document.createElement('img');
+    img.src = src; img.alt = 'Ma photo de profil';
+    img.className = 'w-full h-full rounded-full object-cover' + (st === 'pending' ? ' opacity-70' : '');
+    boite.textContent = ''; boite.appendChild(img);
+}
+
+// Recadre au centre en carré 320 × 320 et compresse en JPEG (photo légère, sans données de localisation)
+function preparerPhoto(fichier) {
+    return new Promise((ok, ko) => {
+        if (!/^image\/(png|jpeg|webp)$/.test(fichier.type)) return ko(new Error('Format non accepté : utilisez une photo PNG, JPG ou WebP.'));
+        if (fichier.size > 15 * 1024 * 1024) return ko(new Error('Photo trop lourde (15 Mo maximum).'));
+        const url = URL.createObjectURL(fichier);
+        const img = new Image();
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            const cote = Math.min(img.naturalWidth, img.naturalHeight);
+            if (cote < 96) return ko(new Error('Photo trop petite (96 × 96 pixels minimum).'));
+            const c = document.createElement('canvas'); c.width = c.height = 320;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 320, 320);
+            ctx.drawImage(img, (img.naturalWidth - cote) / 2, (img.naturalHeight - cote) / 2, cote, cote, 0, 0, 320, 320);
+            ok(c.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); ko(new Error('Image illisible.')); };
+        img.src = url;
+    });
+}
+
+document.getElementById('photoChanger').addEventListener('click', () => document.getElementById('photoFichier').click());
+document.getElementById('avatar').addEventListener('click', () => document.getElementById('photoFichier').click());
+document.getElementById('avatar').style.cursor = 'pointer';
+document.getElementById('avatar').title = 'Changer ma photo de profil';
+document.getElementById('photoFichier').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const bouton = document.getElementById('photoChanger');
+    bouton.disabled = true;
+    try {
+        const image = await preparerPhoto(f);
+        const d = await apiCall('/avatars/me', { method: 'PUT', body: JSON.stringify({ image }) });
+        showToast(d.avatar && d.avatar.status === 'approved' ? 'Photo de profil mise à jour' : 'Photo envoyée : elle sera visible après validation', 'success');
+        await loadProfile();
+        if (window.EvcRafraichirNav) window.EvcRafraichirNav();
+    } catch (err) {
+        showToast(err.message, 'error');
+    } finally { bouton.disabled = false; }
+});
+document.getElementById('photoRetirer').addEventListener('click', async () => {
+    if (!confirm('Retirer votre photo de profil ?')) return;
+    try {
+        await apiCall('/avatars/me', { method: 'DELETE' });
+        showToast('Photo retirée', 'success');
+        await loadProfile();
+        if (window.EvcRafraichirNav) window.EvcRafraichirNav();
+    } catch (err) { showToast(err.message, 'error'); }
+});
 
 // ---------- COMPTEUR DE CARACTÈRES BIO ----------
 function updateBioCount() {

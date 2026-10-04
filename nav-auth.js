@@ -76,12 +76,14 @@
         const avatarGradient = getAvatarGradient(user);
         const avatarIcon = getAvatarIcon(user);
         const avatarDisplay = avatarIcon || initial;
+        // Photo de profil validée par la modération (sinon l'initiale colorée)
+        const photo = (typeof urlAvatar === 'function' && user.avatar) ? urlAvatar(user.avatar.url) : null;
 
         navAuth.innerHTML = `
             <div class="relative" id="userMenuWrapper">
                 <button onclick="toggleUserMenu(event)" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <div class="relative">
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${avatarDisplay}</div>
+                        ${photo ? `<img src="${photo}" alt="" class="w-9 h-9 rounded-full object-cover">` : `<div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${avatarDisplay}</div>`}
                         ${user.role === 'super_admin' ? `<span id="navContactDot" title="Messages contact non lus" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">0</span>` : ''}
                     </div>
                     <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${user.username}</span>
@@ -90,7 +92,7 @@
 
                 <div id="userMenuDropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50">
                     <div class="p-3 border-b border-slate-100 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold">${avatarDisplay}</div>
+                        ${photo ? `<img src="${photo}" alt="" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold">${avatarDisplay}</div>`}
                         <div class="flex-1 min-w-0">
                             <p class="text-xs text-slate-500">Connecté en tant que</p>
                             <p class="text-sm font-bold text-slate-900 truncate">${user.username}</p>
@@ -141,6 +143,21 @@
         `;
 
         startUnreadWatcher();
+        verifierPhoto(user);
+    }
+
+    // Photo de profil : une fois par page, on vérifie auprès du serveur (validation ou refus par la modération)
+    let photoVerifiee = false;
+    function verifierPhoto(user) {
+        if (photoVerifiee || typeof apiCall !== 'function' || typeof saveUser !== 'function') return;
+        photoVerifiee = true;
+        apiCall('/users/me').then(function (d) {
+            if (!d || !d.user) return;
+            const avant = JSON.stringify((user && user.avatar) || null), apres = JSON.stringify(d.user.avatar || null);
+            const courant = getCurrentUser() || {};
+            saveUser(Object.assign({}, courant, { avatar: d.user.avatar || null }));
+            if (avant !== apres) initNavAuth();
+        }).catch(function () {});
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -276,6 +293,8 @@
         if (d.type === 'ban' || fin) { try { if (typeof clearUser === 'function') clearUser(); } catch (e) {} }
     }
     window.EvcAfficherSanction = afficherSanction;
+    // Redessine le menu du compte (ex. après un changement de photo de profil)
+    window.EvcRafraichirNav = function () { try { initNavAuth(); } catch (e) {} };
 
     let unreadSocket = null;
     let pollingInterval = null;

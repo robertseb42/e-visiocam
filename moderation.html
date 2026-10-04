@@ -130,6 +130,10 @@
                 <i class="fa-solid fa-scale-balanced mr-1"></i> Contestations
                 <span id="appealsBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
+            <button onclick="showTab('photos', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-image-portrait mr-1"></i> Photos de profil
+                <span id="photosBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
             <button onclick="showTab('viewlogs', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1"></i> Historique
             </button>
@@ -292,6 +296,14 @@
             <div id="appealsList" class="space-y-3"><p class="text-center text-slate-400 py-8 text-sm">Chargement...</p></div>
         </div>
 
+        <div id="tab-photos" class="tab-content p-5 hidden">
+            <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
+                <p class="text-xs text-slate-500">Une photo n'est visible des autres membres qu'après validation. Refusez toute nudité, tout mineur, toute autre personne sans accord, coordonnées ou publicité (CGU 3.1). Une photo refusée est supprimée.</p>
+                <button type="button" onclick="EvcPhotos.charger()" class="text-xs text-brand-primary font-bold hover:underline whitespace-nowrap"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
+            </div>
+            <div id="photosListe" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"><p class="text-center text-slate-400 py-8 text-sm col-span-full">Chargement...</p></div>
+        </div>
+
         <div id="tab-viewlogs" class="tab-content p-5 hidden">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-slate-900">Historique des surveillances</h3>
@@ -310,6 +322,7 @@
 <script src="sanction-modal.js"></script>
 <script src="offrir-credits.js"></script>
 <script src="moderation.js"></script>
+<script src="moderation-photos.js"></script>
 
 
 <script>

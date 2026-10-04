@@ -112,13 +112,17 @@ const DEGRADES = ['from-pink-600 to-purple-800', 'from-purple-600 to-indigo-800'
                   'from-fuchsia-600 to-slate-900', 'from-blue-600 to-purple-900', 'from-emerald-600 to-teal-900', 'from-indigo-600 to-purple-900'];
 const degrade = m => DEGRADES[(m.id || 0) % DEGRADES.length];
 
+// Photo de profil validée par la modération (sinon la grande initiale)
+const photoM = m => (typeof urlAvatar === 'function') ? urlAvatar(m.avatar) : null;
+
 function carte(m) {
     const lien = m.isLive ? 'live.html' : '#';
     return `
     <div class="relative group">
         <a href="${lien}" ${m.isLive ? '' : 'aria-disabled="true" tabindex="-1"'} class="block bg-gradient-to-br ${degrade(m)} rounded-2xl p-3 h-48 flex flex-col justify-between relative overflow-hidden shadow-md transition-all ${m.isLive ? 'hover:shadow-xl hover:-translate-y-1' : 'cursor-default'}" title="${escM(m.bio || m.username)}">
             ${m.isLive ? `<span class="absolute top-2 left-2 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10 live-pulse">● EN DIRECT</span>` : ''}
-            <div class="absolute inset-0 flex items-center justify-center text-white/30 text-6xl font-black select-none">${escM(m.username.charAt(0).toUpperCase())}</div>
+            ${photoM(m) ? `<img src="${escM(photoM(m))}" alt="" loading="lazy" class="absolute inset-0 w-full h-full object-cover"><div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/70 to-transparent"></div>`
+                        : `<div class="absolute inset-0 flex items-center justify-center text-white/30 text-6xl font-black select-none">${escM(m.username.charAt(0).toUpperCase())}</div>`}
             <div class="z-10 mt-auto text-white drop-shadow">
                 <p class="font-bold text-sm truncate">${escM(m.username)}</p>
                 <p class="text-[11px] opacity-90 truncate">${m.isLive ? '<i class="fa-solid fa-eye text-[9px] mr-1"></i>' + m.viewers + ' · ' + escM(m.liveSalon) : (m.followers ? m.followers + ' abonné' + (m.followers > 1 ? 's' : '') : 'Hors ligne')}</p>
