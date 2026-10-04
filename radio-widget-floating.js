@@ -80,7 +80,7 @@
     `;
 
     // Style du conteneur
-    widget.style.cssText = 'position: fixed; left: 30px; top: 340px; right: auto; bottom: auto; z-index: 9999;';
+    widget.style.cssText = 'position: fixed; right: 28px; top: clamp(500px, 56vh, 650px); left: auto; bottom: auto; z-index: 9999; width: 210px;';
 
     document.body.appendChild(widget);
 
