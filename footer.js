@@ -87,6 +87,15 @@
 
         b.appendChild(footer);
 
+        // 💬 Assistant d'aide (bulle en bas à gauche), sauf là où il gênerait la saisie ou l'équipe
+        var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var sansAssistant = ['chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
+        if (sansAssistant.indexOf(page) === -1 && !document.querySelector('script[src*="assistant.js"]')) {
+            var as = document.createElement('script');
+            as.src = 'assistant.js?v=1';
+            document.body.appendChild(as);
+        }
+
         // Barre de navigation mobile (même dossier que ce fichier)
         if (!document.querySelector('script[src*="mobile-nav.js"]')) {
             var sc = document.createElement('script');
