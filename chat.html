@@ -22,6 +22,7 @@
     <script src="salon-access.js"></script>
     <script src="live-prive.js"></script>
     <script src="danseur-disco.js"></script>
+    <script src="quiz-salon.js?v=1"></script>
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
@@ -69,7 +70,7 @@
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
 <style>
-.evc-bot-msg{max-width:36rem;padding:10px 14px;border-radius:16px;border-top-left-radius:4px;background:linear-gradient(135deg,#ffe50014,#ff168014);border:1px solid #ffe50055}
+.evc-bot-msg{max-width:40rem;padding:10px 14px;border-radius:16px;border-top-left-radius:4px;background:linear-gradient(135deg,#ffe50014,#ff168014);border:1px solid #ffe50055}
 .evc-bot-tete{display:flex;align-items:center;gap:6px;margin-bottom:2px;font-size:12px}
 .evc-bot-av{font-size:14px}
 .evc-bot-ia{font-size:9px;font-weight:900;letter-spacing:.08em;padding:1px 6px;border-radius:99px;background:#ffe500;color:#111113}
@@ -699,6 +700,7 @@ function initSocket() {
     socket = io('https://api.e-visiocam.com', { 
     withCredentials: true 
 });
+    if (typeof EvcQuiz !== 'undefined') EvcQuiz.brancher(socket);   // 🧠 résultats du quiz de l'animateur
 
     socket.on('connect', () => {
         const status = document.getElementById('connectionStatus');
@@ -1011,6 +1013,8 @@ function renderMessage(msg) {
         div.innerHTML = '<div class="evc-bot-msg"><div class="evc-bot-tete"><span class="evc-bot-av" aria-hidden="true">🤖</span><strong>' + escapeHtml(msg.username) + '</strong>' +
             '<span class="evc-bot-ia" title="Animateur virtuel : messages automatiques, ce n’est pas une personne">IA</span><span class="text-[10px] text-slate-400">' + time + '</span></div>' +
             '<p>' + escapeHtml(msg.text) + '</p></div>';
+        // 🧠 Quiz en direct : boutons de réponse, compte à rebours, sons (et air à deviner pour le blind test)
+        if (msg.quiz && typeof EvcQuiz !== 'undefined') div.querySelector('.evc-bot-msg').appendChild(EvcQuiz.carte(msg));
         container.appendChild(div);
         return;
     }

@@ -4,45 +4,115 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>E-VISIOCAM</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#111113">
+  <meta name="rating" content="adult">
+  <!-- Même thème que les pages (clé « evc-theme »), appliqué avant l'affichage -->
+  <script src="theme.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css?v=20261007-bras2">
+  <!-- Indispensable : sans tailwind, la pastille réduite de la radio s'affichait en permanence (barre « TONIC ▮ ») -->
+  <link rel="stylesheet" href="tailwind.css?v=20261009">
   <style>
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050505}
-    #evcPage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#050505}
-    @media(max-width:1200px){
-      #radioWidgetFloating{
-        left:auto!important;
-        right:12px!important;
-        top:auto!important;
-        bottom:12px!important;
-      }
-    }
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111113}
+    html[data-theme="light"],html[data-theme="light"] body{background:#eef1f6}
+    #evcPage{position:fixed;inset:0;width:100%;height:100%;border:0;background:transparent}
+    /* La radio : placée par le script ci-dessous (colonne de droite de l'accueil, sinon en bas à droite) */
+    #radioWidgetFloating{transition:top .35s ease,left .35s ease,transform .35s ease;transform-origin:top left}
+    #radioWidgetFloating.evc-coin{transform-origin:bottom right}
+    @media (prefers-reduced-motion:reduce){#radioWidgetFloating{transition:none}}
   </style>
   <script>window.__EVC_PERSISTENT_RADIO__ = true;</script>
 </head>
 <body>
   <iframe id="evcPage" title="E-VISIOCAM"></iframe>
   <script>
-    (function(){
+    (function () {
       var p = new URLSearchParams(location.search).get('page') || 'index.html';
-      // sécurité: uniquement une page locale du site
-      if (/^(?:https?:)?\/\//i.test(p) || p.indexOf('..') !== -1) p = 'index.html';
+      // Sécurité : uniquement une page locale du site
+      if (/^(?:[a-z]+:)?\/\//i.test(p) || p.indexOf('..') !== -1 || /^\s*javascript:/i.test(p)) p = 'index.html';
       var frame = document.getElementById('evcPage');
-      frame.addEventListener('load', function () {
-        try {
-          // Masque systématiquement l'ancienne radio intégrée à la page.
-          // Le seul lecteur visible/actif reste celui persistant du shell.
-          var oldRadio = frame.contentDocument && frame.contentDocument.getElementById('radioWidget');
-          if (oldRadio) {
-            oldRadio.style.setProperty('display', 'none', 'important');
-            oldRadio.setAttribute('aria-hidden', 'true');
+      var observeur = null;
+
+      // ---------- Placement de la radio ----------
+      // Sur l'accueil, la page publie « __evcColonne » : centre et haut de la colonne libre de droite
+      // (sous la boule à facettes et le danseur). Ailleurs, la radio se range en bas à droite.
+      // La page affichée range la bulle « Besoin d'aide ? » juste sous la radio
+      function annoncer(r) {
+        window.__evcRadioPlace = r;
+        try { frame.contentWindow.dispatchEvent(new Event('evc:radio-placee')); } catch (e) {}
+      }
+      function placerRadio() {
+        var w = document.getElementById('radioWidgetFloating');
+        if (!w) return;
+        var info = null;
+        try { info = frame.contentWindow && frame.contentWindow.__evcColonne; } catch (e) {}
+        // offsetWidth / offsetHeight : taille réelle sans l'effet du zoom (transform)
+        var largeur = w.offsetWidth || 252, hauteur = w.offsetHeight || 360;
+        if (info && info.largeur >= 150 && window.innerWidth >= 1024) {
+          var echelle = Math.min(1, (info.largeur - 16) / largeur, (window.innerHeight - info.haut - 12) / hauteur);
+          if (echelle >= 0.55) {
+            w.classList.remove('evc-coin');
+            var gauche = Math.round(info.centre - largeur * echelle / 2);
+            w.style.cssText = 'position:fixed;z-index:9999;right:auto;bottom:auto;left:' + gauche + 'px;top:' + Math.round(info.haut) + 'px;transform:scale(' + echelle.toFixed(3) + ')';
+            annoncer({ colonne: true, left: gauche, top: Math.round(info.haut), width: Math.round(largeur * echelle), height: Math.round(hauteur * echelle) });
+            return;
           }
+        }
+        annoncer({ colonne: false });
+        w.classList.add('evc-coin');
+        w.style.cssText = 'position:fixed;z-index:9999;left:auto;top:auto;right:16px;bottom:16px;transform:' + (window.innerWidth < 640 ? 'scale(.85)' : 'none');
+      }
+
+      // ---------- Le cadre suit le thème et la boule ; l'adresse suit la page ----------
+      function synchroniser() {
+        var d;
+        try { d = frame.contentDocument && frame.contentDocument.documentElement; } catch (e) { return; }
+        if (!d) return;
+        var t = d.getAttribute('data-theme');
+        if (t && t !== document.documentElement.getAttribute('data-theme')) document.documentElement.setAttribute('data-theme', t);
+      }
+
+      frame.addEventListener('load', function () {
+        var doc, win;
+        try { doc = frame.contentDocument; win = frame.contentWindow; } catch (e) { return; }
+        if (!doc) return;
+        // Ancienne radio intégrée à la page : masquée, seule la radio persistante joue
+        var ancienne = doc.getElementById('radioWidget');
+        if (ancienne) { ancienne.style.setProperty('display', 'none', 'important'); ancienne.setAttribute('aria-hidden', 'true'); }
+        // Titre et adresse : un rechargement ou un favori ramène sur la bonne page
+        try {
+          document.title = doc.title || 'E-VISIOCAM';
+          var page = (win.location.pathname.split('/').pop() || 'index.html') + win.location.search + win.location.hash;
+          history.replaceState(null, '', 'app-shell.html?page=' + encodeURIComponent(page));
         } catch (e) {}
+        synchroniser();
+        if (observeur) observeur.disconnect();
+        observeur = new MutationObserver(synchroniser);
+        observeur.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+        try { win.addEventListener('evc:colonne', placerRadio); win.addEventListener('resize', placerRadio); } catch (e) {}
+        setTimeout(placerRadio, 50); setTimeout(placerRadio, 600); setTimeout(placerRadio, 1800);
       });
+      window.addEventListener('resize', placerRadio);
+      window.addEventListener('evc:radio-taille', placerRadio);
+      window.__evcPlacerRadio = placerRadio;
       frame.src = p;
     })();
   </script>
   <script src="radio-widget.js"></script>
   <script src="radio-widget-floating.js"></script>
+  <script>
+    // La radio vient d'être créée : premier placement, puis à chaque ouverture / réduction
+    (function () {
+      var w = document.getElementById('radioWidgetFloating');
+      if (!w) return;
+      if (window.__evcPlacerRadio) window.__evcPlacerRadio();
+      // Seulement quand la radio s'ouvre ou se réduit (pas à chaque tour du vinyle)
+      new MutationObserver(function (liste) {
+        if (liste.some(function (m) { return m.target.id === 'radioWidgetExpanded' || m.target.id === 'radioWidgetMinimized'; }) && window.__evcPlacerRadio) window.__evcPlacerRadio();
+      }).observe(w, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    })();
+  </script>
 </body>
 </html>

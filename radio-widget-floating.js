@@ -80,7 +80,7 @@
     `;
 
     // Style du conteneur
-    widget.style.cssText = 'position: fixed; right: 28px; top: clamp(500px, 56vh, 650px); left: auto; bottom: auto; z-index: 9999; width: 210px;';
+    widget.style.cssText = 'position: fixed; right: 16px; bottom: 16px; z-index: 9999;';   // placée ensuite par app-shell.html (colonne de droite de l'accueil)
 
     document.body.appendChild(widget);
 

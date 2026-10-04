@@ -124,7 +124,6 @@
         danseur.setAttribute('aria-hidden', 'true');
         danseur.innerHTML = DANSEUR;
         document.body.appendChild(danseur);
-        window.addEventListener('resize', placerDanseur);
         setTimeout(placerDanseur, 300); setTimeout(placerDanseur, 1500);
         ctxB = cb.getContext('2d');
         ctxR = reflets.getContext('2d');
@@ -132,27 +131,62 @@
         window.addEventListener('resize', taille);
     }
 
-    // 🕺 Danseur : sous la boule, dans la marge libre à droite du contenu ; masqué s'il n'y a pas la place
+    // 🪩 Colonne de droite : boule, danseur et radio empilés et centrés dans la marge libre à droite du contenu.
+    // La position est publiée (window.__evcColonne + évènement « evc:colonne ») pour la radio persistante (app-shell.html).
+    function radioPersistante() {
+        try { if (window.top !== window && window.top.__EVC_PERSISTENT_RADIO__) return window.top.document.getElementById('radioWidgetFloating'); } catch (e) {}
+        return null;
+    }
     function placerDanseur() {
         var d = document.getElementById('evcDanseur');
-        if (!d || !boule) return;
-        var b = boule.getBoundingClientRect();
         var contenu = document.querySelector('.cam-layout main') || document.querySelector('main');
         var droiteContenu = contenu ? contenu.getBoundingClientRect().right : window.innerWidth;
-        var marge = window.innerWidth - droiteContenu;             // place libre à droite du contenu
-        var haut = b.bottom + 6;                                    // juste sous la boule
-        var dz = Math.min(170, marge - 20, (window.innerHeight - haut - 12) / 1.72);
-        if (!(dz >= 90) || window.innerWidth < 1024) { d.classList.remove('place'); return; }
-        dz = Math.floor(dz);
-        // centré sous la boule, sans déborder sur le contenu
-        var centre = b.left + b.width / 2;
-        var gauche = Math.max(droiteContenu + 8, Math.min(window.innerWidth - dz - 6, centre - dz / 2));
-        d.style.setProperty('--dz', dz + 'px');
-        d.style.top = Math.round(haut) + 'px';
-        d.style.right = 'auto';
-        d.style.left = Math.round(gauche) + 'px';
-        d.classList.add('place');
+        var marge = window.innerWidth - droiteContenu;              // place libre à droite du contenu
+        var large = window.innerWidth >= 1024 && marge >= 120;
+        var centre = droiteContenu + marge / 2;
+        var tete = document.querySelector('header');
+        var haut = (tete ? tete.getBoundingClientRect().bottom : 64) + 16;
+
+        // Boule : centrée dans la colonne (sinon à sa place d'origine, en haut à droite)
+        if (boule) {
+            var avant = boule.style.getPropertyValue('--disco-taille');
+            boule.style.removeProperty('--disco-taille');
+            if (large && actif) {
+                // Taille normale, réduite si la colonne est plus étroite que la boule
+                var normale = boule.offsetWidth || 190, t = Math.max(70, Math.min(normale, marge - 24));
+                if (t < normale) boule.style.setProperty('--disco-taille', t + 'px');
+                boule.style.left = Math.round(centre - t / 2) + 'px'; boule.style.right = 'auto';
+            } else { boule.style.left = ''; boule.style.right = ''; }
+            if (boule.style.getPropertyValue('--disco-taille') !== avant) taille();   // redessine la boule à sa nouvelle taille
+            if (actif) haut = boule.getBoundingClientRect().bottom + 6;
+        }
+
+        // Place à garder pour la radio sous le danseur
+        var radio = radioPersistante(), reserve = 0;
+        if (radio && large) {
+            var rw = radio.offsetWidth || 252, rh = radio.offsetHeight || 360;
+            reserve = rh * Math.min(1, (marge - 16) / rw) + 20 + 56;   // radio + bulle « Besoin d'aide ? »
+        }
+
+        // Danseur : sous la boule, seulement si la boule est allumée et qu'il y a la place
+        if (d) {
+            var dz = Math.min(170, marge - 30, (window.innerHeight - haut - reserve - 12) / 1.72);
+            if (actif && large && dz >= 80) {
+                dz = Math.floor(dz);
+                d.style.setProperty('--dz', dz + 'px');
+                d.style.top = Math.round(haut) + 'px';
+                d.style.right = 'auto';
+                d.style.left = Math.round(centre - dz / 2) + 'px';
+                d.classList.add('place');
+                haut += dz * 1.72 + 4;
+            } else d.classList.remove('place');
+        }
+
+        window.__evcColonne = large ? { centre: Math.round(centre), haut: Math.round(haut + 6), largeur: Math.round(marge) } : null;
+        try { window.dispatchEvent(new Event('evc:colonne')); } catch (e) {}
     }
+    window.addEventListener('resize', function () { placerDanseur(); });
+    setTimeout(placerDanseur, 400); setTimeout(placerDanseur, 1500);
 
     function taille() {
         if (!reflets) return;
@@ -303,8 +337,9 @@
     function appliquer() {
         document.documentElement.classList.toggle('evc-disco', actif);
         majBoutons();
-        if (actif) { if (!boule) creer(); else taille(); demarrer(); setTimeout(placerDanseur, 50); }
+        if (actif) { if (!boule) creer(); else taille(); demarrer(); }
         else if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        setTimeout(placerDanseur, 50);   // boule allumée ou éteinte : la colonne (danseur, radio) se réorganise
     }
     function basculer() {
         actif = !actif;

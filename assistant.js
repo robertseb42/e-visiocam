@@ -92,6 +92,9 @@
         '.evc-as [hidden]{display:none!important}',
         '.evc-as.dans-colonne .evc-as-bulle{position:static;width:100%;justify-content:center;box-shadow:0 8px 22px #0004}',
         '.evc-as.dans-colonne .evc-as-panneau{left:max(18px,calc((100vw - 1700px) / 2 + 24px))}',
+        '.evc-as.sous-radio{position:fixed;z-index:9990;transition:top .35s ease,left .35s ease}',
+        '.evc-as.sous-radio .evc-as-bulle{position:static;width:100%;justify-content:center;box-shadow:0 8px 22px #0004}',
+        '.evc-as.sous-radio .evc-as-panneau{left:auto;right:18px}',
         '.evc-as-bulle:hover{transform:translateY(-2px)}',
         '.evc-as-bulle:focus-visible,.evc-as button:focus-visible,.evc-as input:focus-visible,.evc-as textarea:focus-visible{outline:3px solid #ff1680;outline-offset:2px}',
         '.evc-as-bulle i{font-size:18px}',
@@ -338,21 +341,33 @@
         if (t) { e.preventDefault(); ouvrir(t.getAttribute('data-assistant') || ''); }
     });
 
-    // Sur l'accueil, la bulle se range sous la radio de la colonne de gauche ; ailleurs (ou si la colonne est masquée), en bas à gauche
+    // Où ranger la bulle : sous la radio persistante (colonne de droite de l'accueil),
+    // sinon sous la radio de la colonne de gauche, sinon dans la colonne de gauche, sinon en bas à gauche
     function ranger() {
-        var radio = document.getElementById('radioWidget');
-        var colonne = radio && radio.closest('aside');
-        var visible = colonne && getComputedStyle(colonne).display !== 'none' && radio.getBoundingClientRect().width > 0;
-        if (visible) {
-            if (racine.previousElementSibling !== radio) radio.insertAdjacentElement('afterend', racine);
-            racine.classList.add('dans-colonne');
-        } else {
+        var place = null;
+        try { if (window.top !== window) place = window.top.__evcRadioPlace; } catch (e) {}
+        racine.classList.remove('dans-colonne', 'sous-radio');
+        racine.style.left = racine.style.top = racine.style.width = '';
+        if (place && place.colonne && window.innerWidth >= 1024) {
             if (racine.parentNode !== document.body) document.body.appendChild(racine);
-            racine.classList.remove('dans-colonne');
+            racine.classList.add('sous-radio');
+            racine.style.left = place.left + 'px';
+            racine.style.top = (place.top + place.height + 10) + 'px';
+            racine.style.width = place.width + 'px';
+            return placer();
         }
+        var radio = document.getElementById('radioWidget');
+        var colonne = document.getElementById('sidebar') || (radio && radio.closest('aside'));
+        var colonneVisible = colonne && getComputedStyle(colonne).display !== 'none' && colonne.getBoundingClientRect().width > 0;
+        if (colonneVisible) {
+            var radioVisible = radio && colonne.contains(radio) && radio.getBoundingClientRect().width > 0;
+            if (radioVisible) { if (racine.previousElementSibling !== radio) radio.insertAdjacentElement('afterend', racine); }
+            else if (racine.parentNode !== colonne) colonne.appendChild(racine);
+            racine.classList.add('dans-colonne');
+        } else if (racine.parentNode !== document.body) document.body.appendChild(racine);
         placer();
     }
-    function monter() { ranger(); window.addEventListener('resize', ranger); setTimeout(ranger, 800); }
+    function monter() { ranger(); window.addEventListener('resize', ranger); window.addEventListener('evc:radio-placee', ranger); setTimeout(ranger, 800); setTimeout(ranger, 2000); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', monter); else monter();
 
     window.EvcAssistant = { ouvrir: ouvrir, fermer: fermer, chercher: function (t) { return chargerBase().then(function () { return chercher(t); }); } };
