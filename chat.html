@@ -21,6 +21,7 @@
     <script src="legal-banner.js"></script>
     <script src="salon-access.js"></script>
     <script src="live-prive.js"></script>
+    <script src="danseur-disco.js"></script>
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
@@ -178,13 +179,14 @@
         <div class="flex-1 flex flex-col lg:flex-row gap-4 overflow-hidden">
 
             <!-- CHAT -->
-            <div class="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden min-h-[400px]">
+            <div id="chatCard" class="flex-1 flex flex-col bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden min-h-[400px]" style="position:relative">
                 <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <div>
                         <h2 class="font-bold text-slate-900 text-sm" id="currentSalon">🌍 Salon Général</h2>
                         <p class="text-xs text-slate-500">Chat en temps réel</p>
                     </div>
                     <div class="flex items-center gap-2">
+                        <button type="button" data-danseur-toggle class="w-8 h-8 rounded-full bg-purple-50 hover:bg-purple-100 items-center justify-center text-sm" title="Danseur">🕺</button>
                         <button onclick="sendReaction('❤️')" class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-sm" title="J'aime">❤️</button>
                         <button onclick="sendReaction('👏')" class="w-8 h-8 rounded-full bg-amber-50 hover:bg-amber-100 flex items-center justify-center text-sm" title="Bravo">👏</button>
                         <button onclick="sendReaction('🔥')" class="w-8 h-8 rounded-full bg-orange-50 hover:bg-orange-100 flex items-center justify-center text-sm" title="Feu">🔥</button>
@@ -425,6 +427,13 @@ function appliquerSalon(nom, slug) {
     const titleEl = document.getElementById('currentSalon');
     if (titleEl) titleEl.textContent = ((trouve && trouve.icon && !trouve.logoUrl) ? trouve.icon : '💬') + ' ' + nom;
     document.title = nom + ' — E-VISIOCAM';
+    // 🕺 Salon Musique : le danseur disco s'invite dans le coin du chat
+    if (typeof EvcDanseur !== 'undefined') {
+        if (currentSlug === 'musique') {
+            const form = document.getElementById('chatForm');
+            EvcDanseur.afficher(document.getElementById('chatCard'), { bas: (form ? form.offsetHeight : 64) + 4, place: document.getElementById('chatMessages') });
+        } else EvcDanseur.cacher();
+    }
     try {
         const url = new URL(window.location.href);
         url.searchParams.delete('salon');
