@@ -411,6 +411,22 @@
                 <h4>Derniers parrainages</h4>
                 <div class="tbl"><table><thead><tr><th>Filleul</th><th>Parrain</th><th>État</th><th>Date</th></tr></thead><tbody id="rwaParr"></tbody></table></div>
 
+                <h4>🤖 Animateur virtuel <span id="anmNom" class="text-xs" style="color:var(--a-muted)"></span></h4>
+                <p class="text-xs" style="color:var(--a-muted);margin:-4px 0 10px">Il accueille les membres dans les salons, relance les salons silencieux (question du jour, quiz, astuce) et annonce les lives publics. Il est toujours affiché avec l'étiquette « IA » : ce n'est jamais présenté comme une vraie personne. Commandes des membres : !quiz, !question, !aide.</p>
+                <form id="anmForm" onsubmit="enregistrerAnimateur(event)">
+                    <div class="flex flex-wrap gap-4 mb-3 text-sm font-bold" style="color:var(--a-text)">
+                        <label class="flex items-center gap-2"><input type="checkbox" id="anm_actif"> Animateur actif</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" id="anm_accueil"> Accueillir les arrivants</label>
+                        <label class="flex items-center gap-2"><input type="checkbox" id="anm_quiz"> Quiz</label>
+                    </div>
+                    <div class="rwa-form">
+                        <label>Relancer un salon silencieux après (minutes)<input type="number" id="anm_relanceMinutes" min="3" max="240"></label>
+                        <label>Crédits par bonne réponse au quiz<input type="number" id="anm_quizCredits" min="0" max="100"></label>
+                        <label>Crédits de quiz par jour et par membre (plafond)<input type="number" id="anm_quizMaxJour" min="0" max="500"></label>
+                    </div>
+                    <button type="submit" class="rwa-btn mt-3"><i class="fa-solid fa-floppy-disk mr-1"></i> Enregistrer l'animateur</button>
+                </form>
+
                 <h4>Réglages</h4>
                 <form id="rwaForm" onsubmit="enregistrerRecompenses(event)">
                     <label class="flex items-center gap-2 text-sm font-bold mb-3" style="color:var(--a-text)"><input type="checkbox" id="rwa_actif"> Programme actif (décocher pour tout mettre en pause)</label>
@@ -740,7 +756,8 @@ const roleBadges = {
     super_admin: '<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-bold">👑 Super Admin</span>',
     moderator:   '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-bold">🔵 Modérateur</span>',
     model:       '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-bold">🟢 Modèle</span>',
-    user:        '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold">⚪ Utilisateur</span>'
+    user:        '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold">⚪ Utilisateur</span>',
+    bot:         '<span class="bg-yellow-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-bold">🤖 Animateur (IA)</span>'
 };
 
 function renderUsers(filter = '') {
@@ -1268,6 +1285,7 @@ async function chargerRecompenses() {
         : '<tr><td colspan="5" class="text-slate-400">Aucun crédit offert ou retiré à la main pour le moment</td></tr>';
     remplirReglages(d.config);
     remplirMembresOffre();
+    chargerAnimateur();
 }
 
 async function remplirMembresOffre() {
@@ -1304,6 +1322,24 @@ function remplirReglages(c) {
 
 function remettreDefautRecompenses() {
     if (rwaData) { remplirReglages(Object.assign({}, rwaData.defaut, { actif: document.getElementById('rwa_actif').checked })); showToast('Valeurs par défaut chargées : pensez à enregistrer', 'info'); }
+}
+
+async function chargerAnimateur() {
+    try {
+        const d = await apiCall('/admin/animateur');
+        const c = d.config;
+        ['actif', 'accueil', 'quiz'].forEach(k => { document.getElementById('anm_' + k).checked = !!c[k]; });
+        ['relanceMinutes', 'quizCredits', 'quizMaxJour'].forEach(k => { document.getElementById('anm_' + k).value = c[k]; });
+        document.getElementById('anmNom').textContent = d.compte && d.compte.username ? '· pseudo : ' + d.compte.username : '';
+    } catch (e) { document.getElementById('anmNom').textContent = '· indisponible'; }
+}
+async function enregistrerAnimateur(e) {
+    e.preventDefault();
+    const corps = {};
+    ['actif', 'accueil', 'quiz'].forEach(k => { corps[k] = document.getElementById('anm_' + k).checked; });
+    ['relanceMinutes', 'quizCredits', 'quizMaxJour'].forEach(k => { corps[k] = Number(document.getElementById('anm_' + k).value); });
+    try { await apiCall('/admin/animateur', { method: 'PUT', body: JSON.stringify(corps) }); showToast('Animateur virtuel enregistré', 'success'); chargerAnimateur(); }
+    catch (err) { showToast(err.message, 'error'); }
 }
 
 async function enregistrerRecompenses(e) {

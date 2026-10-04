@@ -68,6 +68,13 @@
     <link rel="stylesheet" href="style.css?v=20261007-bras2">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
+<style>
+.evc-bot-msg{max-width:36rem;padding:10px 14px;border-radius:16px;border-top-left-radius:4px;background:linear-gradient(135deg,#ffe50014,#ff168014);border:1px solid #ffe50055}
+.evc-bot-tete{display:flex;align-items:center;gap:6px;margin-bottom:2px;font-size:12px}
+.evc-bot-av{font-size:14px}
+.evc-bot-ia{font-size:9px;font-weight:900;letter-spacing:.08em;padding:1px 6px;border-radius:99px;background:#ffe500;color:#111113}
+.evc-bot-msg p{margin:0;font-size:14px;line-height:1.5}
+</style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -998,6 +1005,14 @@ function renderMessage(msg) {
     const icon = icons[msg.role] || '';
     const div = document.createElement('div');
     div.className = 'message';
+    // 🤖 Animateur virtuel : toujours affiché comme une IA, sans message privé possible
+    if (msg.bot || msg.role === 'bot') {
+        div.innerHTML = '<div class="evc-bot-msg"><div class="evc-bot-tete"><span class="evc-bot-av" aria-hidden="true">🤖</span><strong>' + escapeHtml(msg.username) + '</strong>' +
+            '<span class="evc-bot-ia" title="Animateur virtuel : messages automatiques, ce n’est pas une personne">IA</span><span class="text-[10px] text-slate-400">' + time + '</span></div>' +
+            '<p>' + escapeHtml(msg.text) + '</p></div>';
+        container.appendChild(div);
+        return;
+    }
     div.innerHTML = '<div class="' + (isMe ? 'flex justify-end' : '') + '">' +
         '<div class="' + (isMe ? 'bg-brand-primary text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-md' : 'max-w-md') + '">' +
             (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><button type="button" data-uid="' + Number(msg.user_id) + '" data-n="' + escapeHtml(msg.username) + '" title="Écrire en privé" class="text-xs font-bold text-slate-700 hover:text-purple-600">' + icon + ' ' + escapeHtml(msg.username) + insigneHtml(msg.insigne) + '</button><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
