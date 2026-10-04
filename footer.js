@@ -24,6 +24,7 @@
             ['contact.html', 'Nous contacter']
         ]},
         { titre: 'Aide & signalement', liens: [
+            ['aide.html', 'Centre d\'aide'],
             ['mailto:contact@e-visiocam.com', 'contact@e-visiocam.com'],
             ['mailto:abuse@e-visiocam.com', 'Signaler un abus'],
             ['mailto:dpo@e-visiocam.com', 'Protection des données (DPO)'],
