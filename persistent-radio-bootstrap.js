@@ -3,7 +3,7 @@
   if (window.top !== window) return;
   if (window.__EVC_PERSISTENT_RADIO__) return;
   // Moteurs de recherche et aperçus de liens : ils lisent la vraie page, pas le cadre radio
-  if (/bot|crawl|spider|slurp|facebookexternalhit|embedly|preview|lighthouse|headless/i.test(navigator.userAgent || '')) return;
+  if (/bot|crawl|spider|slurp|google|bing|yandex|baidu|duckduck|qwant|inspection|facebookexternalhit|embedly|preview|lighthouse|headless/i.test(navigator.userAgent || '')) return;
 
   var file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
   var excluded = [
