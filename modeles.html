@@ -56,7 +56,8 @@
     .ev-action{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:150px;padding:7px 10px;border-radius:999px;
         background:#fff;color:#111113;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 4px 12px #0005;transition:transform .15s ease}
     .ev-action:hover,.ev-action:focus-visible{transform:scale(1.05)}
-    .ev-action-cam{background:#ffe500}
+    .ev-action-cam{background:#ffe500;border:0;cursor:pointer;font-family:inherit}
+    .ev-membre{cursor:pointer}
     @media (hover:none){.ev-membre-actions{opacity:1;background:linear-gradient(to bottom,transparent 30%,#0007);justify-content:flex-end;padding-bottom:42px}}
     @media (prefers-reduced-motion:reduce){.ev-point-live{animation:none}.ev-membre img,.ev-membre-actions,.ev-action{transition:none}}
 </style>
@@ -193,10 +194,10 @@ function carteMembre(m) {
                    <a href="${ecrire}" class="ev-action"><i class="fa-regular fa-comment"></i> Message</a>`;
     } else if (!m.moi && m.online) {
         actions = `<a href="${ecrire}" class="ev-action"><i class="fa-regular fa-comment"></i> Message</a>
-                   <a href="${ecrire}&demande=cam" class="ev-action ev-action-cam"><i class="fa-solid fa-video"></i> Demander la cam</a>`;
+                   <button type="button" class="ev-action ev-action-cam" data-cam="${Number(m.id)}" data-nom="${escM(m.username)}"><i class="fa-solid fa-video"></i> Demander la cam</button>`;
     }
     return `
-        <div class="ev-membre ${m.isLive ? 'est-live' : (enLigne ? '' : 'est-absent')} ${actions ? 'a-actions' : ''}"
+        <div data-fiche="${Number(m.id)}" class="ev-membre ${m.isLive ? 'est-live' : (enLigne ? '' : 'est-absent')} ${actions ? 'a-actions' : ''}"
              title="${escM(m.username + (m.moi ? ' (vous)' : (m.isLive ? ' — en direct' : (enLigne ? ' — connecté' : ' — hors ligne'))))}" ${actions ? 'tabindex="0"' : ''}>
             ${photo ? `<img src="${escM(photo)}" alt="" loading="lazy">` : ''}
             ${actions ? `<div class="ev-membre-actions">${actions}</div>` : ''}
@@ -214,7 +215,7 @@ function rendreMembres() {
     const liste = MEMBRES.filter(m => (!q || m.username.toLowerCase().includes(q)) && (!live || m.isLive));
     const enDirect = MEMBRES.filter(m => m.isLive).length, enLigne = MEMBRES.filter(m => m.online || m.moi).length;
     resume.textContent = MEMBRES.length
-        ? MEMBRES.length + ' membre' + (MEMBRES.length > 1 ? 's' : '') + ' · 🟡 ' + enLigne + ' connecté' + (enLigne > 1 ? 's' : '') + ' · 🔴 ' + enDirect + ' en direct. Passez sur un membre connecté pour lui écrire ou lui demander sa cam.'
+        ? MEMBRES.length + ' membre' + (MEMBRES.length > 1 ? 's' : '') + ' · 🟡 ' + enLigne + ' connecté' + (enLigne > 1 ? 's' : '') + ' · 🔴 ' + enDirect + ' en direct. Cliquez sur une photo pour voir la fiche du membre.'
         : 'Aucun membre avec une photo pour le moment. Ajoutez la vôtre dans Mon compte !';
     grille.innerHTML = liste.length ? liste.map(carteMembre).join('')
         : (MEMBRES.length ? '<p class="col-span-full text-center text-slate-500 py-6">Aucun membre ne correspond</p>' : '');
@@ -252,6 +253,16 @@ setInterval(() => { charger(); chargerMembres(); }, 60000);   // statut « en di
 document.getElementById('searchModel').addEventListener('input', () => { clearTimeout(attente); attente = setTimeout(charger, 250); });
 document.getElementById('sortModels').addEventListener('change', charger);
 document.getElementById('onlyLive').addEventListener('change', rendre);
+// 📷 « Demander la cam » : vraie demande (l'autre accepte ou refuse) ; un clic sur la photo ouvre la fiche
+document.getElementById('membresGrid').addEventListener('click', async e => {
+    const b = e.target.closest('[data-cam]');
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if (typeof EvcCam === 'undefined') { location.href = 'messages.html?ecrire=' + b.dataset.cam + '&demande=cam'; return; }
+    b.disabled = true;
+    const ok = await EvcCam.demander(b.dataset.cam, b.dataset.nom);
+    if (ok) b.innerHTML = '✅ Demande envoyée'; else b.disabled = false;
+});
 document.addEventListener('evc:favori', e => { const m = MODELS.find(x => 'model:' + x.id === e.detail.type + ':' + e.detail.key); if (m) m.isFavorite = e.detail.favorite; });
 </script>
 <script src="favorites.js"></script>

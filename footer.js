@@ -118,6 +118,13 @@
             document.body.appendChild(as);
         }
 
+        // 📷 Fiche membre + demandes de cam (notifications « X aimerait voir ta cam »)
+        if (!document.querySelector('script[src*="membres-social.js"]')) {
+            var ms = document.createElement('script');
+            ms.src = 'membres-social.js?v=1';
+            document.body.appendChild(ms);
+        }
+
         // Barre de navigation mobile (même dossier que ce fichier)
         if (!document.querySelector('script[src*="mobile-nav.js"]')) {
             var sc = document.createElement('script');

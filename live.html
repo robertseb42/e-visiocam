@@ -280,6 +280,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
     document.getElementById('privePick').addEventListener('click', choisirInvites);
     afficherPrive();
+    // 📷 Demande de cam acceptée : le live privé est prêt (le demandeur est le seul invité),
+    // on allume la caméra ; c'est le membre qui clique lui-même sur « Lancer le live »
+    if (prive.actif && new URLSearchParams(location.search).get('auto') === '1') {
+        var noms = prive.invited.map(function(id) { return prive.names[id] || ('#' + id); }).join(', ');
+        log('📷 Demande acceptée : live privé pour ' + noms + '. Cliquez sur « Lancer le live » quand vous êtes prêt.');
+        try { history.replaceState(null, '', 'live.html'); } catch (e) {}
+        setTimeout(function() { startCamera(); var b = document.getElementById('startBroadcastBtn'); if (b) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 500);
+        if (typeof showToast === 'function') showToast('Live privé prêt pour ' + noms + ' : autorisez la caméra puis cliquez sur « Lancer le live »', 'success');
+    }
 
     document.querySelectorAll('.murMax').forEach(function(el) { el.textContent = MAX_VUES; });
     document.getElementById('filtreCams').addEventListener('input', dessinerCams);
@@ -373,6 +382,7 @@ function initSocket() {
         reconnectionDelay: 1000
     });
 
+    if (typeof EvcCam !== 'undefined') EvcCam.brancher(socket);   // 📷 demandes de cam reçues tout de suite
     socket.on('connect', function() {
         log('✅ Connecté au serveur');
         var s = document.getElementById('connectionStatus');
