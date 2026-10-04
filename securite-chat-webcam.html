@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="theme.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sécurité sur un chat webcam : 10 conseils essentiels | E-VISIOCAM</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#111113">
+    <meta name="description" content="Anonymat, arrière-plan, captures d’écran, arnaques et chantage à la webcam : 10 conseils simples pour discuter en vidéo en toute sécurité.">
+    <link rel="canonical" href="https://www.e-visiocam.com/securite-chat-webcam.html">
+    <meta name="rating" content="adult">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="E-VISIOCAM">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:title" content="Sécurité sur un chat webcam : 10 conseils essentiels | E-VISIOCAM">
+    <meta property="og:description" content="Anonymat, arrière-plan, captures d’écran, arnaques et chantage à la webcam : 10 conseils simples pour discuter en vidéo en toute sécurité.">
+    <meta property="og:url" content="https://www.e-visiocam.com/securite-chat-webcam.html">
+    <meta property="og:image" content="https://www.e-visiocam.com/img/partage.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Article", "headline": "Sécurité sur un chat webcam : 10 conseils essentiels", "description": "Anonymat, arrière-plan, captures d’écran, arnaques et chantage à la webcam : 10 conseils simples pour discuter en vidéo en toute sécurité.", "inLanguage": "fr-FR", "datePublished": "2026-10-04", "dateModified": "2026-10-04", "mainEntityOfPage": "https://www.e-visiocam.com/securite-chat-webcam.html", "author": {"@type": "Organization", "name": "E-VISIOCAM"}, "publisher": {"@type": "Organization", "name": "E-VISIOCAM", "logo": {"@type": "ImageObject", "url": "https://www.e-visiocam.com/apple-touch-icon.png"}}}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Un live privé est-il vraiment privé ?", "acceptedAnswer": {"@type": "Answer", "text": "Seuls vos invités le voient, mais l’un d’eux peut faire une capture d’écran. Ne montrez que ce que vous acceptez de partager."}}, {"@type": "Question", "name": "Que faire en cas de chantage à la webcam ?", "acceptedAnswer": {"@type": "Answer", "text": "Ne payez pas, coupez le contact, gardez des preuves, signalez la personne et portez plainte. En cas de danger, appelez le 17."}}, {"@type": "Question", "name": "Comment signaler un membre sur E-VISIOCAM ?", "acceptedAnswer": {"@type": "Answer", "text": "Utilisez le bouton Signaler dans le salon en indiquant le pseudo et ce qui s’est passé, ou écrivez à abuse@e-visiocam.com."}}]}]}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+            border-left: 4px solid #e91e63;
+            padding-left: 12px;
+        }
+        .legal-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        .legal-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+        .legal-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #475569;
+            list-style: disc;
+        }
+        .legal-content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .legal-content strong { color: #0f172a; }
+        .legal-content a { color: #e91e63; text-decoration: underline; }
+    </style>
+
+    <link rel="stylesheet" href="style.css?v=20261010-guides">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
+  <script src="persistent-radio-bootstrap.js"></script>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+        </a>
+        <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+        </a>
+    </div>
+</header>
+
+<main class="max-w-[900px] w-full mx-auto flex-1 p-6">
+    <article class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm legal-content">
+        <p class="text-xs text-slate-500 mb-2"><a href="index.html">Accueil</a> › <a href="guides.html">Guides</a></p>
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">Sécurité sur un chat webcam : 10 conseils essentiels</h1>
+        <p class="text-sm text-slate-500 mb-8">Les bons réflexes pour discuter en vidéo sereinement</p>
+        <div class="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 mb-8 border border-pink-200/60">
+            <p class="text-slate-700 leading-relaxed mb-0">Discuter en vidéo avec des inconnus peut être très sympa, à condition de garder quelques réflexes. Voici <strong>10 conseils simples</strong> pour profiter d’un chat webcam en toute sécurité, sur E-VISIOCAM comme ailleurs.</p>
+        </div>
+
+        <h2>1. Gardez un pseudo anonyme</h2>
+        <p>Évitez votre nom, votre ville, votre âge exact ou le nom de votre entreprise dans votre pseudo et votre profil. Ces informations suffisent parfois à vous retrouver.</p>
+
+        <h2>2. Ne donnez pas vos coordonnées trop vite</h2>
+        <p>Numéro de téléphone, adresse, réseaux sociaux personnels : prenez le temps de connaître la personne. Une vraie rencontre peut attendre.</p>
+
+        <h2>3. Vérifiez ce qu’on voit derrière vous</h2>
+        <p>Avant d’allumer la caméra, regardez votre arrière-plan : courrier, photos de famille, vue par la fenêtre, plaque de rue… Un mur neutre est le plus sûr.</p>
+
+        <h2>4. Partez du principe que tout peut être capturé</h2>
+        <p>Même dans un live privé, un interlocuteur malveillant peut faire une capture d’écran. Les enregistrements sont interdits sur E-VISIOCAM, mais la règle d’or reste : <strong>ne montrez que ce que vous accepteriez de voir circuler</strong>.</p>
+
+        <h2>5. Ne payez jamais quelqu’un rencontré sur un chat</h2>
+        <p>Carte prépayée (PCS, Neosurf…), virement, code reçu par SMS, « frais » pour un rendez-vous : ce sont les arnaques les plus courantes. Sur E-VISIOCAM, demander de l’argent est interdit.</p>
+
+        <h2>6. Chantage : ne cédez pas</h2>
+        <p>Si quelqu’un menace de diffuser des images de vous contre de l’argent (« sextorsion ») : <strong>ne payez pas</strong>, car le chantage continue souvent après. Cessez tout contact, gardez des captures des messages, signalez la personne et portez plainte. Le site gouvernemental <a href="https://www.cybermalveillance.gouv.fr" target="_blank" rel="noopener">cybermalveillance.gouv.fr</a> explique les démarches.</p>
+
+        <h2>7. Utilisez le bouton Signaler</h2>
+        <p>Un comportement vous dérange ? Ne répondez plus et utilisez le bouton <strong>Signaler 🚩</strong> dans le salon. La modération est prévenue, et les insultes et menaces sont aussi filtrées automatiquement.</p>
+
+        <h2>8. Protégez votre compte</h2>
+        <p>Un mot de passe unique, que vous n’utilisez nulle part ailleurs. Ne le communiquez jamais : l’équipe d’E-VISIOCAM ne vous le demandera jamais.</p>
+
+        <h2>9. Méfiez-vous des liens et des invitations « ailleurs »</h2>
+        <p>Une personne qui insiste pour continuer sur une autre application ou vous envoie un lien inconnu cherche souvent à sortir de la zone modérée. Restez sur le site tant que vous n’avez pas confiance.</p>
+
+        <h2>10. Respectez les autres comme vous voulez être respecté</h2>
+        <p>Le consentement compte aussi en ligne : on ne force personne à allumer sa caméra, à répondre ou à aller plus loin. Les mineurs sont strictement interdits : si vous pensez qu’un mineur est présent, signalez-le immédiatement.</p>
+
+        <h2>En cas d’urgence</h2>
+        <ul>
+            <li>Danger immédiat ou menace grave : appelez le <strong>17</strong> ou le <strong>112</strong>.</li>
+            <li>Contenu illégal en ligne : signalez-le sur <a href="https://www.internet-signalement.gouv.fr" target="_blank" rel="noopener">PHAROS</a>.</li>
+            <li>Abus sur E-VISIOCAM : <a href="mailto:abuse@e-visiocam.com">abuse@e-visiocam.com</a>.</li>
+        </ul>
+
+        <h2>Pour aller plus loin</h2>
+        <ul>
+            <li><a href="guide-chat-webcam.html">Chat webcam entre adultes : le guide pour bien débuter</a></li>
+            <li><a href="aide.html">Centre d’aide</a></li>
+        </ul>
+<h2>Questions fréquentes</h2>
+<h3>Un live privé est-il vraiment privé ?</h3>
+<p>Seuls vos invités le voient, mais l’un d’eux peut faire une capture d’écran. Ne montrez que ce que vous acceptez de partager.</p>
+<h3>Que faire en cas de chantage à la webcam ?</h3>
+<p>Ne payez pas, coupez le contact, gardez des preuves, signalez la personne et portez plainte. En cas de danger, appelez le 17.</p>
+<h3>Comment signaler un membre sur E-VISIOCAM ?</h3>
+<p>Utilisez le bouton Signaler dans le salon en indiquant le pseudo et ce qui s’est passé, ou écrivez à abuse@e-visiocam.com.</p>
+        <div class="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 mt-8 border border-pink-200/60 text-center">
+            <p class="text-slate-700 mb-3"><strong>Prêt à essayer ?</strong> L’inscription est gratuite et prend une minute.</p>
+            <a href="register.html" class="inline-block px-6 py-3 rounded-xl font-bold" style="background:#ffe500;color:#111113;text-decoration:none">Créer mon compte gratuit</a>
+        </div>
+        <p class="text-center text-xs text-slate-400 mt-8">Mis à jour le 4 octobre 2026 · Site réservé aux personnes majeures (18 ans et plus)</p>
+    </article>
+</main>
+
+
+<script src="footer.js" defer></script>
+</body>
+</html>

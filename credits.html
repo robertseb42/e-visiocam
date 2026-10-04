@@ -19,7 +19,7 @@
     <script src="legal-banner.js"></script>
     <script src="nav-auth.js" defer></script>
 
-    <link rel="stylesheet" href="style.css?v=20261007-bras2">
+    <link rel="stylesheet" href="style.css?v=20261010-guides">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
   <script src="persistent-radio-bootstrap.js"></script>
@@ -96,6 +96,10 @@
 .rw-link input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:1px solid var(--rw-line);background:var(--rw-soft);color:var(--rw-text);font-size:12px}
 .rw-btn{flex:none;padding:10px 14px;border-radius:12px;border:0;background:#ffe500;color:#111113;font-weight:800;font-size:12px;cursor:pointer}
 .rw-btn:hover{background:#fff04a}
+.rw-share{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.rw-share a,.rw-share button{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:1px solid var(--rw-line);background:var(--rw-soft);color:var(--rw-text);font-size:12px;font-weight:700;text-decoration:none;cursor:pointer}
+.rw-share a:hover,.rw-share button:hover{border-color:#ff2d8a}
+#parrainage{scroll-margin-top:90px}
 .rw-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
 .rw-stats div{background:var(--rw-soft);border-radius:12px;padding:10px 4px}
 .rw-stats b{display:block;font-size:20px;font-weight:900}
@@ -156,12 +160,19 @@
 
     <!-- PARRAINAGE + CLASSEMENT -->
     <div class="rw-grid two" style="margin-top:16px">
-        <section class="rw-card">
+        <section class="rw-card" id="parrainage">
             <h2>🤝 Parrainer un ami</h2>
             <p class="rw-sub" id="parrainRegle">Partagez votre lien d’invitation.</p>
             <div class="rw-link">
                 <input id="parrainLien" readonly aria-label="Mon lien d’invitation" value="">
                 <button type="button" class="rw-btn" id="parrainCopier"><i class="fa-regular fa-copy" aria-hidden="true"></i> Copier</button>
+            </div>
+            <div class="rw-share" aria-label="Partager mon lien d’invitation">
+                <button type="button" id="partageNatif" hidden><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> Partager</button>
+                <a id="partageWhatsapp" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> WhatsApp</a>
+                <a id="partageTelegram" target="_blank" rel="noopener"><i class="fa-brands fa-telegram" aria-hidden="true"></i> Telegram</a>
+                <a id="partageX" target="_blank" rel="noopener"><i class="fa-brands fa-x-twitter" aria-hidden="true"></i> X</a>
+                <a id="partageMail"><i class="fa-regular fa-envelope" aria-hidden="true"></i> E-mail</a>
             </div>
             <div class="rw-stats">
                 <div><b id="parrValides">0</b><span>validés</span></div>
@@ -300,6 +311,7 @@ function afficher(r) {
     // Parrainage
     const p = r.parrainage || {};
     document.getElementById('parrainLien').value = location.origin + location.pathname.replace(/[^/]*$/, '') + 'register.html?parrain=' + encodeURIComponent(p.code || '');
+    preparerPartage(document.getElementById('parrainLien').value);
     document.getElementById('parrValides').textContent = p.valides || 0;
     document.getElementById('parrAttente').textContent = p.enAttente || 0;
     document.getElementById('parrRefuses').textContent = p.refuses || 0;
@@ -339,6 +351,21 @@ async function loadClassement() {
         document.getElementById('rangModeles').innerHTML = liste(d.modeles || []);
     } catch (e) {
         document.getElementById('rangMembres').innerHTML = '<li class="rw-muted text-xs">Indisponible</li>';
+    }
+}
+
+// Partage du lien d'invitation : WhatsApp, Telegram, X, e-mail, ou le menu de partage du téléphone
+function preparerPartage(lien) {
+    const texte = 'Rejoins-moi sur E-VISIOCAM : salons, radio, quiz musicaux et chat webcam entre adultes. Inscription gratuite :';
+    const t = encodeURIComponent(texte), l = encodeURIComponent(lien);
+    document.getElementById('partageWhatsapp').href = 'https://wa.me/?text=' + t + '%20' + l;
+    document.getElementById('partageTelegram').href = 'https://t.me/share/url?url=' + l + '&text=' + t;
+    document.getElementById('partageX').href = 'https://x.com/intent/post?text=' + t + '&url=' + l;
+    document.getElementById('partageMail').href = 'mailto:?subject=' + encodeURIComponent('Rejoins-moi sur E-VISIOCAM') + '&body=' + t + '%0A%0A' + l;
+    const natif = document.getElementById('partageNatif');
+    if (navigator.share) {
+        natif.hidden = false;
+        natif.onclick = () => navigator.share({ title: 'E-VISIOCAM', text: texte, url: lien }).catch(() => {});
     }
 }
 

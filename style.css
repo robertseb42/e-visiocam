@@ -558,3 +558,13 @@ html[data-theme="light"] .ev-live-alert a{background:#e91e63;color:#fff}
   body:not(.cam-home) #navAuth a{padding:7px 9px!important;font-size:12px}
 }
 @media(max-width:430px){body:not(.cam-home)>header.sticky>div>div:first-child a>span{display:none}}
+
+/* Accueil : invitation + guides */
+.ev-invite{margin-top:16px}
+.ev-invite-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px}
+.ev-invite p{margin:0 0 14px;color:var(--h-muted,inherit);line-height:1.6;font-size:14px}
+.ev-invite .ev-btn{display:inline-flex;align-items:center;gap:8px}
+.ev-invite .ev-guides{display:block!important;margin:0;padding:0;list-style:none}
+.ev-invite .ev-guides li{display:block!important;padding:6px 0!important;border:0!important}
+.ev-invite .ev-guides a{color:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+@media (max-width:760px){.ev-invite-grid{grid-template-columns:1fr}}
