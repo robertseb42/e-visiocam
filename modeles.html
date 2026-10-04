@@ -36,22 +36,26 @@
     <link rel="stylesheet" href="tailwind.css?v=20261009">
   <script src="persistent-radio-bootstrap.js"></script>
 <style>
-    /* Galerie des membres : photo carrée, pseudo en bas, cliquable si en ligne */
+    /* Galerie des membres : photo carrée, pseudo seul ; point rouge = en direct, jaune = connecté */
     .ev-membres{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
     .ev-membre{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:#2a2a30;box-shadow:0 4px 14px #0003}
-    .ev-membre img{width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
-    .ev-membre.est-en-ligne{box-shadow:0 0 0 3px #34d399,0 4px 14px #0003}
-    .ev-membre.est-live{box-shadow:0 0 0 4px #f43f5e,0 4px 14px #0003}
-    .ev-membre.est-absent img{filter:saturate(.75) brightness(.85)}
-    .ev-membre-point{position:absolute;top:10px;right:10px;width:12px;height:12px;border-radius:50%;background:#34d399;box-shadow:0 0 0 2px #fff}
-    .ev-membre-live{position:absolute;top:8px;left:8px;background:#f43f5e;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
-    .ev-membre-bas{position:absolute;inset:auto 0 0 0;padding:26px 10px 9px;background:linear-gradient(to top,#000c,#0006 60%,transparent);color:#fff}
-    .ev-membre-nom{margin:0;font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .ev-membre-action{margin:2px 0 0;font-size:10.5px;font-weight:600;opacity:.9}
+    .ev-membre img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease,filter .35s ease}
+    .ev-membre.est-live{box-shadow:0 0 0 3px #f43f5e,0 0 22px #f43f5e66}
+    .ev-membre.est-absent img{filter:saturate(.7) brightness(.8)}
+    .ev-membre-bas{position:absolute;inset:auto 0 0 0;padding:28px 12px 10px;background:linear-gradient(to top,#000b,#0005 60%,transparent)}
+    .ev-membre-nom{margin:0;display:flex;align-items:center;gap:7px;color:#fff;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #0008}
+    .ev-point{flex:none;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 2px #0006}
+    .ev-point-on{background:#ffe500}
+    .ev-point-live{background:#f43f5e;animation:evPoint 1.4s ease-in-out infinite}
+    @keyframes evPoint{0%,100%{box-shadow:0 0 0 2px #0006,0 0 0 0 #f43f5ecc}50%{box-shadow:0 0 0 2px #0006,0 0 0 7px #f43f5e00}}
+    .ev-membre-survol{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;transition:.2s ease;
+        background:#ffe500;color:#111113;font-size:12px;font-weight:800;padding:7px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 18px #0006}
     .ev-membre-lien{display:block;transition:transform .2s ease}
     .ev-membre-lien:hover{transform:translateY(-3px)}
-    .ev-membre-lien:hover img{transform:scale(1.06)}
-    .ev-membre-lien:hover .ev-membre-action{text-decoration:underline}
+    .ev-membre-lien:hover img{transform:scale(1.07);filter:brightness(.75)}
+    .ev-membre-lien:hover .ev-membre-survol,.ev-membre-lien:focus-visible .ev-membre-survol{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    @media (hover:none){.ev-membre-survol{display:none}}
+    @media (prefers-reduced-motion:reduce){.ev-point-live{animation:none}.ev-membre img,.ev-membre-lien{transition:none}}
 </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -175,22 +179,21 @@ function rendre() {
 let MEMBRES = null;   // null = non connecté
 function carteMembre(m) {
     const photo = urlAvatar(m.avatar);
-    // En live : on ouvre sa caméra · en ligne : on lui écrit · hors ligne : simple vignette
+    const enLigne = m.online || m.moi;   // si vous voyez la page, vous êtes connecté
+    // 🔴 en direct : on ouvre sa caméra · 🟡 connecté : on lui écrit · hors ligne : simple vignette
     const lien = m.moi ? null : (m.isLive ? 'live.html' : (m.online ? 'messages.html?ecrire=' + Number(m.id) : null));
-    const action = m.isLive ? '<i class="fa-solid fa-video"></i> Voir sa caméra' : '<i class="fa-regular fa-envelope"></i> Lui écrire';
-    const etat = m.isLive ? 'est-live' : (m.online ? 'est-en-ligne' : (m.moi ? '' : 'est-absent'));
+    const point = m.isLive ? '<span class="ev-point ev-point-live" title="En direct"></span>'
+                : (enLigne ? '<span class="ev-point ev-point-on" title="Connecté"></span>' : '');
+    const survol = lien ? `<span class="ev-membre-survol">${m.isLive ? '<i class="fa-solid fa-video"></i> Voir sa caméra' : '<i class="fa-regular fa-envelope"></i> Lui écrire'}</span>` : '';
     const contenu = `
-        <div class="ev-membre ${etat}">
+        <div class="ev-membre ${m.isLive ? 'est-live' : (enLigne ? '' : 'est-absent')}">
             ${photo ? `<img src="${escM(photo)}" alt="" loading="lazy">` : ''}
-            ${m.isLive ? '<span class="ev-membre-live">● EN DIRECT</span>' : (m.online ? '<span class="ev-membre-point" title="En ligne"></span>' : '')}
-            <div class="ev-membre-bas">
-                <p class="ev-membre-nom">${m.insigne ? escM(m.insigne.icone) + ' ' : ''}${escM(m.username)}${m.moi ? ' <span style="opacity:.7;font-weight:400">(vous)</span>' : ''}</p>
-                <p class="ev-membre-action">${lien ? action : (m.moi ? 'Votre photo' : 'Hors ligne')}</p>
-            </div>
+            ${survol}
+            <div class="ev-membre-bas"><p class="ev-membre-nom">${point}${escM(m.username)}</p></div>
         </div>`;
     return lien
         ? `<a href="${lien}" class="ev-membre-lien" title="${escM((m.isLive ? 'Voir la caméra de ' : 'Écrire à ') + m.username)}">${contenu}</a>`
-        : `<div title="${escM(m.username)}">${contenu}</div>`;
+        : `<div title="${escM(m.username + (m.moi ? ' (vous)' : (enLigne ? ' — connecté' : ' — hors ligne')))}">${contenu}</div>`;
 }
 function rendreMembres() {
     const grille = document.getElementById('membresGrid'), resume = document.getElementById('membresResume');
@@ -201,9 +204,9 @@ function rendreMembres() {
     const q = document.getElementById('searchModel').value.trim().toLowerCase();
     const live = document.getElementById('onlyLive').checked;
     const liste = MEMBRES.filter(m => (!q || m.username.toLowerCase().includes(q)) && (!live || m.isLive));
-    const enDirect = MEMBRES.filter(m => m.isLive).length, enLigne = MEMBRES.filter(m => m.online && !m.moi).length;
+    const enDirect = MEMBRES.filter(m => m.isLive).length, enLigne = MEMBRES.filter(m => m.online || m.moi).length;
     resume.textContent = MEMBRES.length
-        ? MEMBRES.length + ' membre' + (MEMBRES.length > 1 ? 's' : '') + ' avec une photo' + (enLigne ? ' · ' + enLigne + ' en ligne' : '') + (enDirect ? ' · ' + enDirect + ' en live' : '') + '. Cliquez sur un membre en ligne pour lui écrire.'
+        ? MEMBRES.length + ' membre' + (MEMBRES.length > 1 ? 's' : '') + ' · 🟡 ' + enLigne + ' connecté' + (enLigne > 1 ? 's' : '') + ' · 🔴 ' + enDirect + ' en direct. Touchez un membre connecté pour lui écrire, ou un membre en direct pour voir sa caméra.'
         : 'Aucun membre avec une photo pour le moment. Ajoutez la vôtre dans Mon compte !';
     grille.innerHTML = liste.length ? liste.map(carteMembre).join('')
         : (MEMBRES.length ? '<p class="col-span-full text-center text-slate-500 py-6">Aucun membre ne correspond</p>' : '');
