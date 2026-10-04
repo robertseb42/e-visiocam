@@ -21,9 +21,10 @@
     css.textContent =
         'html.evc-disco{background:#111113}' +
         'html.evc-disco[data-theme="light"]{background:#eef1f6}' +
-        'html.evc-disco body.cam-home{background:transparent!important}' +
+        // Toutes les pages : fond transparent pour laisser passer les reflets, qui restent derrière le contenu (z-index -1)
+        'html.evc-disco body{background:transparent!important}' +
         'html.evc-disco .cam-layout,html.evc-disco .ev-footer{position:relative;z-index:1}' +
-        '#evcDiscoReflets{position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%}' +
+        '#evcDiscoReflets{position:fixed;inset:0;z-index:-1;pointer-events:none;width:100%;height:100%}' +
         '#evcDiscoBoule{position:fixed;top:0;right:var(--disco-droite);z-index:35;pointer-events:none;width:var(--disco-taille);height:calc(var(--disco-fil) + var(--disco-taille))}' +
         '#evcDiscoBoule{--disco-taille:190px;--disco-fil:96px;--disco-droite:14px}' +
         '@media (max-width:1600px){#evcDiscoBoule{--disco-taille:150px;--disco-fil:80px}}' +
@@ -171,7 +172,8 @@
         // Danseur : sous la boule, seulement si la boule est allumée et qu'il y a la place
         if (d) {
             var dz = Math.min(170, marge - 30, (window.innerHeight - haut - reserve - 12) / 1.72);
-            if (actif && large && dz >= 80) {
+            var dejaDansLeChat = !!document.querySelector('.evc-dz');   // danseur du Salon Musique déjà affiché
+            if (actif && large && dz >= 80 && !dejaDansLeChat) {
                 dz = Math.floor(dz);
                 d.style.setProperty('--dz', dz + 'px');
                 d.style.top = Math.round(haut) + 'px';

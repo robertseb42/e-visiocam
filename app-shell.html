@@ -43,11 +43,36 @@
         window.__evcRadioPlace = r;
         try { frame.contentWindow.dispatchEvent(new Event('evc:radio-placee')); } catch (e) {}
       }
+      // Toutes les autres pages : la colonne libre à droite du contenu principal (<main>), sous l'en-tête
+      function colonneGenerique() {
+        try {
+          var doc = frame.contentDocument, win = frame.contentWindow;
+          if (!doc || !doc.body) return null;
+          var main = doc.querySelector('main');
+          var droite = 0;
+          if (main) {
+            var r = main.getBoundingClientRect(), cs = win.getComputedStyle(main);
+            droite = r.right - parseFloat(cs.paddingRight || 0);
+            // contenu plus étroit que <main> (ex. page centrée) : on prend le bord droit réel des blocs
+            var maxEnfant = 0;
+            for (var i = 0; i < main.children.length; i++) {
+              var e = main.children[i], re = e.getBoundingClientRect();
+              if (re.width && win.getComputedStyle(e).position !== 'fixed') maxEnfant = Math.max(maxEnfant, re.right);
+            }
+            if (maxEnfant) droite = Math.min(droite, maxEnfant) || droite;
+          } else return null;
+          var marge = win.innerWidth - droite;
+          var tete = doc.querySelector('header');
+          var haut = (tete ? tete.getBoundingClientRect().bottom : 64) + 16;
+          return { centre: Math.round(droite + marge / 2), haut: Math.round(haut), largeur: Math.round(marge) };
+        } catch (e) { return null; }
+      }
       function placerRadio() {
         var w = document.getElementById('radioWidgetFloating');
         if (!w) return;
         var info = null;
         try { info = frame.contentWindow && frame.contentWindow.__evcColonne; } catch (e) {}
+        if (!info) info = colonneGenerique();
         // offsetWidth / offsetHeight : taille réelle sans l'effet du zoom (transform)
         var largeur = w.offsetWidth || 252, hauteur = w.offsetHeight || 360;
         if (info && info.largeur >= 150 && window.innerWidth >= 1024) {

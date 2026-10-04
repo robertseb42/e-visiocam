@@ -87,6 +87,27 @@
 
         b.appendChild(footer);
 
+        // 🪩 Boule à facettes et danseur sur toutes les pages (sauf les outils d'administration),
+        // avec leur bouton marche / arrêt à côté du bouton clair / sombre
+        var pageB = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var sansBoule = ['admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'login.html', 'register.html', 'forgot-password.html', 'reset-password.html', 'nouveau-mdp.html', 'verifier-email.html', '404.html'];
+        if (sansBoule.indexOf(pageB) === -1) {
+            var themeBtn = document.querySelector('[data-theme-toggle]');
+            if (themeBtn && !document.querySelector('[data-disco-toggle]')) {
+                var disco = document.createElement('button');
+                disco.type = 'button';
+                disco.setAttribute('data-disco-toggle', '');
+                disco.className = 'p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors';
+                disco.setAttribute('aria-label', 'Boule à facettes');
+                themeBtn.insertAdjacentElement('afterend', disco);
+            }
+            if (!document.querySelector('script[src*="boule-facette.js"]')) {
+                var bf = document.createElement('script');
+                bf.src = 'boule-facette.js?v=2';
+                document.body.appendChild(bf);
+            }
+        }
+
         // 💬 Assistant d'aide (bulle en bas à gauche), sauf là où il gênerait la saisie ou l'équipe
         var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
         var sansAssistant = ['chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
