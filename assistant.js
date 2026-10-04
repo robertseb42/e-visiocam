@@ -173,8 +173,29 @@
         if (!restaurer()) accueil();
     }
 
+    // La radio ouverte cache le panneau d'aide : on la réduit pendant l'aide, puis on la rouvre
+    var radioReduite = false;
+    function radioFenetre() {
+        try { if (window.top !== window && window.top.minimizeRadioWidget) return window.top; } catch (e) {}
+        return window.minimizeRadioWidget ? window : null;
+    }
+    function reduireRadio() {
+        var w = radioFenetre(); if (!w) return;
+        try {
+            var ex = w.document.getElementById('radioWidgetExpanded');
+            if (ex && !ex.classList.contains('hidden')) { w.minimizeRadioWidget(); radioReduite = true; }
+        } catch (e) {}
+    }
+    function rouvrirRadio() {
+        if (!radioReduite) return;
+        radioReduite = false;
+        var w = radioFenetre();
+        try { if (w && w.expandRadioWidget) w.expandRadioWidget(); } catch (e) {}
+    }
+
     function ouvrir(question) {
         if (!panneau) construire();
+        reduireRadio();
         placer();
         panneau.hidden = false; bulle.hidden = true; ouvert = true;
         bulle.setAttribute('aria-expanded', 'true');
@@ -185,6 +206,7 @@
         if (panneau) panneau.hidden = true;
         bulle.hidden = false; ouvert = false;
         bulle.setAttribute('aria-expanded', 'false');
+        rouvrirRadio();
         bulle.focus();
     }
 
