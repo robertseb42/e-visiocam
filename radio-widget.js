@@ -1,4 +1,17 @@
 // ============================================================
+// MODE RADIO PERSISTANTE E-VISIOCAM
+// Dans app-shell.html, le lecteur réel vit dans la fenêtre parente.
+// Les pages affichées dans l'iframe ne recréent jamais un <audio>.
+// ============================================================
+if (window.top !== window && window.top.__EVC_PERSISTENT_RADIO__) {
+    window.togglePlay = function(){ return window.top.togglePlay && window.top.togglePlay(); };
+    window.nextRadio = function(){ return window.top.nextRadio && window.top.nextRadio(); };
+    window.prevRadio = function(){ return window.top.prevRadio && window.top.prevRadio(); };
+    window.setVolume = function(v){ return window.top.setVolume && window.top.setVolume(v); };
+    window.resumeRadio = function(){ return window.top.resumeRadio && window.top.resumeRadio(); };
+    window.loadRadios = function(){ return Promise.resolve(); };
+} else {
+// ============================================================
 // LECTEUR RADIO VINTAGE - STYLE TECHNICS SL-1200 MK2
 // E-VISIOCAM
 // ============================================================
@@ -34,9 +47,6 @@ function loadRadioState() {
 function initAudio() {
     if (audioEl) return;
     audioEl = new Audio();
-    // Ne pas forcer crossOrigin : beaucoup de flux radio publics n'envoient pas
-    // Access-Control-Allow-Origin. Un <audio> simple peut pourtant les lire.
-    audioEl.preload = 'none';
     audioEl.volume = loadRadioState().volume;
 
     audioEl.addEventListener('playing', function() {
@@ -59,13 +69,7 @@ function initAudio() {
         updateRadioStatus('CHARGEMENT...');
     });
     audioEl.addEventListener('error', function() {
-        var err = audioEl && audioEl.error;
-        console.error('📻 Erreur flux radio', err ? { code: err.code, message: err.message, src: audioEl.currentSrc || audioEl.src } : 'inconnue');
-        isPlaying = false;
-        updatePlayBtn(false);
-        updatePlatter(false);
-        updateTonearm(false);
-        updateRadioStatus('FLUX INDISPONIBLE');
+        updateRadioStatus('ERREUR');
     });
     audioEl.addEventListener('volumechange', function() {
         saveRadioState();
@@ -206,15 +210,7 @@ function playRadio(index, autoPlay) {
     if (audioEl) { audioEl.pause(); audioEl.removeAttribute('src'); audioEl.load(); }
 
     if (radio.stream_url && radio.stream_url.trim()) {
-        var streamUrl = String(radio.stream_url || '').trim();
-        // Une page HTTPS ne peut pas lire un flux HTTP (mixed content).
-        if (location.protocol === 'https:' && /^http:\/\//i.test(streamUrl)) {
-            console.error('📻 Flux HTTP bloqué sur page HTTPS :', streamUrl);
-            updateRadioStatus('FLUX HTTP BLOQUÉ');
-            showPlayButton();
-            return;
-        }
-        audioEl.src = streamUrl;
+        audioEl.src = radio.stream_url;
         audioEl.load();
         updateRadioStatus(autoPlay ? 'CHARGEMENT...' : 'PRÊT');
         showPlayButton();
@@ -287,14 +283,8 @@ function togglePlay() {
     if (audioEl.paused) {
         userWantsToPlay = true;
         audioEl.muted = false;
-        updateRadioStatus('CHARGEMENT...');
-        audioEl.play().then(function() {
-            updatePlayBtn(true);
-            updateRadioStatus('LECTURE');
-        }).catch(function(err) {
-            console.error('📻 Lecture impossible :', err);
-            updatePlayBtn(false);
-            updateRadioStatus(err && err.name === 'NotAllowedError' ? 'CLIQUE ▶' : 'FLUX INDISPONIBLE');
+        audioEl.play().catch(function(err) {
+            updateRadioStatus('ERREUR');
         });
     } else {
         userWantsToPlay = false;
@@ -341,3 +331,5 @@ window.togglePlay = togglePlay;
 window.setVolume = setVolume;
 window.resumeRadio = resumeRadio;
 window.keepPlayingMuted = keepPlayingMuted;
+
+}

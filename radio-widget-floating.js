@@ -6,6 +6,7 @@
 // ============================================================
 
 (function() {
+    if (window.top !== window && window.top.__EVC_PERSISTENT_RADIO__) return;
     // Éviter les doubles injections
     if (document.getElementById('radioWidgetFloating')) return;
 
