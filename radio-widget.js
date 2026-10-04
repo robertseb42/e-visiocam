@@ -34,7 +34,9 @@ function loadRadioState() {
 function initAudio() {
     if (audioEl) return;
     audioEl = new Audio();
-    audioEl.crossOrigin = 'anonymous';
+    // Ne pas forcer crossOrigin : beaucoup de flux radio publics n'envoient pas
+    // Access-Control-Allow-Origin. Un <audio> simple peut pourtant les lire.
+    audioEl.preload = 'none';
     audioEl.volume = loadRadioState().volume;
 
     audioEl.addEventListener('playing', function() {
@@ -57,7 +59,13 @@ function initAudio() {
         updateRadioStatus('CHARGEMENT...');
     });
     audioEl.addEventListener('error', function() {
-        updateRadioStatus('ERREUR');
+        var err = audioEl && audioEl.error;
+        console.error('📻 Erreur flux radio', err ? { code: err.code, message: err.message, src: audioEl.currentSrc || audioEl.src } : 'inconnue');
+        isPlaying = false;
+        updatePlayBtn(false);
+        updatePlatter(false);
+        updateTonearm(false);
+        updateRadioStatus('FLUX INDISPONIBLE');
     });
     audioEl.addEventListener('volumechange', function() {
         saveRadioState();
@@ -198,7 +206,15 @@ function playRadio(index, autoPlay) {
     if (audioEl) { audioEl.pause(); audioEl.removeAttribute('src'); audioEl.load(); }
 
     if (radio.stream_url && radio.stream_url.trim()) {
-        audioEl.src = radio.stream_url;
+        var streamUrl = String(radio.stream_url || '').trim();
+        // Une page HTTPS ne peut pas lire un flux HTTP (mixed content).
+        if (location.protocol === 'https:' && /^http:\/\//i.test(streamUrl)) {
+            console.error('📻 Flux HTTP bloqué sur page HTTPS :', streamUrl);
+            updateRadioStatus('FLUX HTTP BLOQUÉ');
+            showPlayButton();
+            return;
+        }
+        audioEl.src = streamUrl;
         audioEl.load();
         updateRadioStatus(autoPlay ? 'CHARGEMENT...' : 'PRÊT');
         showPlayButton();
@@ -271,8 +287,14 @@ function togglePlay() {
     if (audioEl.paused) {
         userWantsToPlay = true;
         audioEl.muted = false;
-        audioEl.play().catch(function(err) {
-            updateRadioStatus('ERREUR');
+        updateRadioStatus('CHARGEMENT...');
+        audioEl.play().then(function() {
+            updatePlayBtn(true);
+            updateRadioStatus('LECTURE');
+        }).catch(function(err) {
+            console.error('📻 Lecture impossible :', err);
+            updatePlayBtn(false);
+            updateRadioStatus(err && err.name === 'NotAllowedError' ? 'CLIQUE ▶' : 'FLUX INDISPONIBLE');
         });
     } else {
         userWantsToPlay = false;

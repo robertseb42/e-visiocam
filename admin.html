@@ -424,18 +424,6 @@
                         <label>Crédits par bonne réponse au quiz<input type="number" id="anm_quizCredits" min="0" max="100"></label>
                         <label>Crédits de quiz par jour et par membre (plafond)<input type="number" id="anm_quizMaxJour" min="0" max="500"></label>
                     </div>
-                    <div style="margin-top:14px;padding:12px;border:1px solid var(--a-border);border-radius:12px">
-                        <div class="flex flex-wrap gap-4 mb-3 text-sm font-bold" style="color:var(--a-text)">
-                            <label class="flex items-center gap-2"><input type="checkbox" id="anm_ia"> Génération IA (Mistral)</label>
-                            <label class="flex items-center gap-2"><input type="checkbox" id="anm_iaQuizGeneral"> Quiz culture générale IA</label>
-                            <label class="flex items-center gap-2"><input type="checkbox" id="anm_iaQuizMusique"> Quiz musique IA</label>
-                            <label class="flex items-center gap-2"><input type="checkbox" id="anm_iaQuestions"> Questions de relance IA</label>
-                        </div>
-                        <div class="rwa-form">
-                            <label>Difficulté IA<select id="anm_iaDifficulte"><option value="facile">Facile</option><option value="moyen">Moyen</option><option value="difficile">Difficile</option></select></label>
-                        </div>
-                        <p id="anmIaEtat" class="text-xs" style="color:var(--a-muted);margin-top:8px">La clé MISTRAL_API_KEY doit être configurée uniquement sur le serveur Render. Si l’IA est indisponible, les quiz locaux continuent automatiquement.</p>
-                    </div>
                     <button type="submit" class="rwa-btn mt-3"><i class="fa-solid fa-floppy-disk mr-1"></i> Enregistrer l'animateur</button>
                 </form>
 
@@ -1340,18 +1328,15 @@ async function chargerAnimateur() {
     try {
         const d = await apiCall('/admin/animateur');
         const c = d.config;
-        ['actif', 'accueil', 'quiz', 'ia', 'iaQuizGeneral', 'iaQuizMusique', 'iaQuestions'].forEach(k => { const el = document.getElementById('anm_' + k); if (el) el.checked = !!c[k]; });
+        ['actif', 'accueil', 'quiz'].forEach(k => { document.getElementById('anm_' + k).checked = !!c[k]; });
         ['relanceMinutes', 'quizCredits', 'quizMaxJour'].forEach(k => { document.getElementById('anm_' + k).value = c[k]; });
         document.getElementById('anmNom').textContent = d.compte && d.compte.username ? '· pseudo : ' + d.compte.username : '';
-        document.getElementById('anm_iaDifficulte').value = c.iaDifficulte || 'moyen';
-        document.getElementById('anmIaEtat').textContent = d.iaDisponible ? '✅ Mistral configuré sur le serveur. En cas de panne/quota, fallback local automatique.' : '⚠️ MISTRAL_API_KEY absente du serveur : l’animateur restera en mode local même si Génération IA est cochée.';
     } catch (e) { document.getElementById('anmNom').textContent = '· indisponible'; }
 }
 async function enregistrerAnimateur(e) {
     e.preventDefault();
     const corps = {};
-    ['actif', 'accueil', 'quiz', 'ia', 'iaQuizGeneral', 'iaQuizMusique', 'iaQuestions'].forEach(k => { corps[k] = document.getElementById('anm_' + k).checked; });
-    corps.iaDifficulte = document.getElementById('anm_iaDifficulte').value;
+    ['actif', 'accueil', 'quiz'].forEach(k => { corps[k] = document.getElementById('anm_' + k).checked; });
     ['relanceMinutes', 'quizCredits', 'quizMaxJour'].forEach(k => { corps[k] = Number(document.getElementById('anm_' + k).value); });
     try { await apiCall('/admin/animateur', { method: 'PUT', body: JSON.stringify(corps) }); showToast('Animateur virtuel enregistré', 'success'); chargerAnimateur(); }
     catch (err) { showToast(err.message, 'error'); }
