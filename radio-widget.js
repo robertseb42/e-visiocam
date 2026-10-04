@@ -81,30 +81,43 @@ function initAudio() {
     });
 }
 
+
+function evcVisibleRadioEl(id) {
+    try {
+        var f = document.getElementById('evcPage');
+        if (f && f.contentDocument) return f.contentDocument.getElementById(id);
+    } catch (e) {}
+    return null;
+}
+
 // ---------- PLATEAU QUI TOURNE ----------
 function updatePlatter(playing) {
     var platter = document.getElementById('radioVinyl');
-    if (!platter) return;
+    var visiblePlatter = evcVisibleRadioEl('radioVinyl');
+    if (!platter && !visiblePlatter) return;
     if (playing) {
-        platter.style.animationPlayState = 'running';
-        platter.classList.add('spinning');
+        if (platter) { platter.style.animationPlayState = 'running'; platter.classList.add('spinning'); }
+        if (visiblePlatter) { visiblePlatter.style.animationPlayState = 'running'; visiblePlatter.classList.add('spinning'); }
     } else {
-        platter.style.animationPlayState = 'paused';
-        platter.classList.remove('spinning');
+        if (platter) { platter.style.animationPlayState = 'paused'; platter.classList.remove('spinning'); }
+        if (visiblePlatter) { visiblePlatter.style.animationPlayState = 'paused'; visiblePlatter.classList.remove('spinning'); }
     }
 }
 
 // ---------- BRAS DE LECTURE ----------
 function updateTonearm(playing) {
     var tonearm = document.getElementById('radioTonearm');
-    if (!tonearm) return;
+    var visibleTonearm = evcVisibleRadioEl('radioTonearm');
+    if (!tonearm && !visibleTonearm) return;
     // Pivot en bas à droite, le bras remonte vers le disque :
     // 2°    = repos (à côté du disque)
     // -22°  = lecture (pointe posée sur le sillon, le disque arrive devant la pointe)
     if (playing) {
-        tonearm.style.transform = 'rotate(12deg)';
+        if (tonearm) tonearm.style.transform = 'rotate(12deg)';
+        if (visibleTonearm) visibleTonearm.style.transform = 'rotate(12deg)';
     } else {
-        tonearm.style.transform = 'rotate(0deg)';
+        if (tonearm) tonearm.style.transform = 'rotate(0deg)';
+        if (visibleTonearm) visibleTonearm.style.transform = 'rotate(0deg)';
     }
 }
 
@@ -205,7 +218,9 @@ function playRadio(index, autoPlay) {
     saveRadioState();
 
     var nowPlaying = document.getElementById('radioNowPlaying');
+    var visibleNowPlaying = evcVisibleRadioEl('radioNowPlaying');
     if (nowPlaying) nowPlaying.textContent = radio.name;
+    if (visibleNowPlaying) visibleNowPlaying.textContent = radio.name;
 
     if (audioEl) { audioEl.pause(); audioEl.removeAttribute('src'); audioEl.load(); }
 
@@ -268,7 +283,9 @@ function updatePlayBtn(isPlaying) {
 
 function updateRadioStatus(text) {
     var status = document.getElementById('radioStatus');
+    var visibleStatus = evcVisibleRadioEl('radioStatus');
     if (status) status.textContent = text;
+    if (visibleStatus) visibleStatus.textContent = text;
 }
 
 function togglePlay() {

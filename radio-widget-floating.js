@@ -81,6 +81,9 @@
 
     // Style du conteneur
     widget.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999;';
+    // Dans le shell persistant, cette platine sert uniquement de contrôleur technique.
+    // La platine visible est celle intégrée à la page (sidebar).
+    if (window.__EVC_PERSISTENT_RADIO__) widget.style.display = 'none';
 
     document.body.appendChild(widget);
 
