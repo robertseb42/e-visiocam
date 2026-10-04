@@ -209,6 +209,9 @@
             <button onclick="showTab('mods', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-user-shield mr-1"></i> Modération
             </button>
+            <button id="rewardsTabBtn" onclick="showTab('rewards', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-gift mr-1"></i> Récompenses
+            </button>
             <button onclick="showTab('radios', this)" class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-radio mr-1"></i> Radios
             </button>
@@ -339,6 +342,68 @@
                 <button onclick="handlePromoteMod()" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-sm font-bold rounded-xl">
                     <i class="fa-solid fa-user-shield mr-1"></i> Nommer
                 </button>
+            </div>
+        </div>
+
+        <div id="tab-rewards" class="tab-content p-5 hidden">
+            <style>
+                .rwa{--a-line:#e2e8f0;--a-soft:#f8fafc;--a-text:#0f172a;--a-muted:#64748b}
+                :where(html:not([data-theme="light"])) .rwa{--a-line:var(--ev-border);--a-soft:var(--ev-field);--a-text:var(--ev-text);--a-muted:var(--ev-muted)}
+                .rwa h4{font-size:13px;font-weight:800;color:var(--a-text);margin:22px 0 8px}
+                .rwa-tuiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+                .rwa-tuiles div{background:var(--a-soft);border:1px solid var(--a-line);border-radius:14px;padding:12px}
+                .rwa-tuiles b{display:block;font-size:20px;font-weight:900;color:var(--a-text)}
+                .rwa-tuiles span{font-size:11px;color:var(--a-muted)}
+                .rwa-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+                .rwa-form label{display:block;font-size:11px;font-weight:700;color:var(--a-muted)}
+                .rwa-form input[type=number]{width:100%;margin-top:4px;padding:8px 10px;border-radius:10px;border:1px solid var(--a-line);background:var(--a-soft);color:var(--a-text);font-size:13px}
+                .rwa table{width:100%;font-size:12px;border-collapse:collapse}
+                .rwa th{text-align:left;font-size:10px;text-transform:uppercase;color:var(--a-muted);padding:8px;border-bottom:1px solid var(--a-line)}
+                .rwa td{padding:8px;border-bottom:1px solid var(--a-line);color:var(--a-text)}
+                .rwa .tbl{overflow-x:auto;border:1px solid var(--a-line);border-radius:14px}
+                .rwa-btn{padding:8px 14px;border-radius:10px;border:0;font-weight:800;font-size:12px;cursor:pointer;background:#ffe500;color:#111113}
+                .rwa-btn.danger{background:#e11d48;color:#fff;padding:5px 10px;font-size:11px}
+                .rwa-btn.ghost{background:transparent;border:1px solid var(--a-line);color:var(--a-text)}
+                .rwa-alerte{border:1px solid #f59e0b66;background:#f59e0b1a;border-radius:12px;padding:10px 12px;font-size:12px;color:var(--a-text);margin-bottom:6px}
+                .rwa-retrait{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+                .rwa-retrait.hidden{display:none}
+                .rwa-retrait input{padding:6px 8px;border-radius:8px;border:1px solid var(--a-line);background:var(--a-soft);color:var(--a-text);font-size:12px}
+            </style>
+            <div class="rwa">
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-900">Programme de récompenses</h3>
+                        <p class="text-xs text-slate-500 mt-1" id="rwaResume">Chargement...</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select id="rwaJours" class="text-xs rounded-lg border border-slate-200 px-2 py-1.5">
+                            <option value="7">7 jours</option><option value="30" selected>30 jours</option><option value="90">90 jours</option>
+                        </select>
+                        <button type="button" class="rwa-btn ghost" onclick="chargerRecompenses()"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                </div>
+
+                <h4>Crédits distribués par action</h4>
+                <div class="rwa-tuiles" id="rwaTuiles"></div>
+
+                <h4>Alertes</h4>
+                <div id="rwaAlertes"></div>
+
+                <h4>Meilleurs gagnants</h4>
+                <div class="tbl"><table><thead><tr><th>Membre</th><th>Gagnés (période)</th><th>Solde</th><th></th></tr></thead><tbody id="rwaTop"></tbody></table></div>
+
+                <h4>Derniers parrainages</h4>
+                <div class="tbl"><table><thead><tr><th>Filleul</th><th>Parrain</th><th>État</th><th>Date</th></tr></thead><tbody id="rwaParr"></tbody></table></div>
+
+                <h4>Réglages</h4>
+                <form id="rwaForm" onsubmit="enregistrerRecompenses(event)">
+                    <label class="flex items-center gap-2 text-sm font-bold mb-3" style="color:var(--a-text)"><input type="checkbox" id="rwa_actif"> Programme actif (décocher pour tout mettre en pause)</label>
+                    <div class="rwa-form" id="rwaChamps"></div>
+                    <div class="flex gap-2 mt-4">
+                        <button type="submit" class="rwa-btn"><i class="fa-solid fa-floppy-disk mr-1"></i> Enregistrer</button>
+                        <button type="button" class="rwa-btn ghost" onclick="remettreDefautRecompenses()">Valeurs par défaut</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -1128,12 +1193,88 @@ function showTab(name, btn) {
     btn.classList.add('text-brand-primary', 'border-b-2', 'border-brand-primary', 'font-bold');
     btn.classList.remove('text-slate-500', 'font-semibold');
     if (name === 'radios') loadRadios();
+    if (name === 'rewards') chargerRecompenses();
     if (name === 'stats') chargerStats();
     if (name === 'logs') loadLogs();
     if (name === 'contact') loadContactMessages();
     if (location.hash !== '#' + name && name === 'contact') history.replaceState(null, '', '#contact');
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// RÉCOMPENSES (programme de crédits gratuits)
+// ═══════════════════════════════════════════════════════════
+const RWA_CHAMPS = [
+    ['bienvenue', 'Bonus de bienvenue (crédits)'],
+    ['quotidien', 'Connexion du jour'], ['quotidienSerie', 'Connexion du jour en série'], ['serieJours', 'Jours de suite pour la série'],
+    ['actif15', 'Participation : crédits par 15 min'], ['actifMaxJour', 'Participation : plafond par jour'],
+    ['liveHeure', 'Live (modèles) : crédits par heure'], ['liveMaxJour', 'Live : plafond par jour'],
+    ['parrainage', 'Parrainage : crédits'], ['parrainageJoursActifs', 'Parrainage : jours actifs du filleul'], ['parrainageMaxMois', 'Parrainage : maximum par mois'],
+    ['signalement', 'Signalement confirmé : crédits'], ['signalementMaxSemaine', 'Signalements payés par semaine']
+];
+let rwaData = null;
+
+async function chargerRecompenses() {
+    const j = document.getElementById('rwaJours').value;
+    try { rwaData = await apiCall('/admin/rewards?days=' + j); }
+    catch (err) { document.getElementById('rwaResume').textContent = 'Indisponible : ' + err.message; return; }
+    const d = rwaData, nf = new Intl.NumberFormat('fr-FR');
+    document.getElementById('rwaResume').textContent = (d.config.actif ? '🟢 Actif' : '⏸️ En pause') + ' · ' + nf.format(d.total) + ' crédits distribués sur ' + d.nbJours + ' jours (depuis le ' + d.depuis.split('-').reverse().join('/') + ')';
+    document.getElementById('rwaTuiles').innerHTML = d.parAction.length ? d.parAction.map(a =>
+        '<div><span>' + escapeHtml(a.libelle) + '</span><b>' + nf.format(a.credits) + '</b><span>' + nf.format(a.membres) + ' membre(s) · ' + nf.format(a.fois) + ' fois</span></div>').join('')
+        : '<p class="text-xs text-slate-400">Aucun crédit distribué sur la période.</p>';
+    const al = (d.memeIp || []).map(m => '<div class="rwa-alerte">⚠️ <b>' + m.n + ' comptes</b> inscrits depuis la même connexion : ' + escapeHtml(m.comptes) + '</div>');
+    document.getElementById('rwaAlertes').innerHTML = al.join('') || '<p class="text-xs text-slate-400">Aucune alerte.</p>';
+    const ico = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
+    document.getElementById('rwaTop').innerHTML = d.top.length ? d.top.map(u =>
+        '<tr><td>' + (ico[u.role] || '') + ' <b>' + escapeHtml(u.username) + '</b>' +
+        '<div class="rwa-retrait hidden" id="rwaR' + Number(u.id) + '"><input type="number" min="1" max="' + Number(u.solde || 0) + '" placeholder="Crédits" style="width:90px"><input type="text" maxlength="200" placeholder="Raison (envoyée par e-mail)" style="flex:1;min-width:160px">' +
+        '<button type="button" class="rwa-btn danger" onclick="retirerCredits(' + Number(u.id) + ')">Confirmer</button></div></td>' +
+        '<td>' + nf.format(u.credits) + '</td><td>' + nf.format(u.solde || 0) + '</td>' +
+        '<td style="text-align:right"><button type="button" class="rwa-btn danger" onclick="document.getElementById(\'rwaR' + Number(u.id) + '\').classList.toggle(\'hidden\')">Retirer</button></td></tr>').join('')
+        : '<tr><td colspan="4" class="text-slate-400">Personne pour le moment</td></tr>';
+    const etat = { pending: '⏳ En attente', rewarded: '✅ Validé', refused: '⛔ Refusé' };
+    document.getElementById('rwaParr').innerHTML = d.parrainages.length ? d.parrainages.map(p =>
+        '<tr><td>' + escapeHtml(p.filleul) + '</td><td>' + escapeHtml(p.parrain) + '</td><td>' + (etat[p.status] || escapeHtml(p.status)) + (p.reason ? ' <span class="text-slate-400">(' + escapeHtml(p.reason) + ')</span>' : '') + '</td><td>' + escapeHtml(String(p.created_at).slice(0, 10).split('-').reverse().join('/')) + '</td></tr>').join('')
+        : '<tr><td colspan="4" class="text-slate-400">Aucun parrainage</td></tr>';
+    remplirReglages(d.config);
+}
+
+function remplirReglages(c) {
+    document.getElementById('rwa_actif').checked = !!c.actif;
+    document.getElementById('rwaChamps').innerHTML = RWA_CHAMPS.map(([k, l]) =>
+        '<label>' + escapeHtml(l) + '<input type="number" min="0" max="100000" step="1" id="rwa_' + k + '" value="' + Number(c[k]) + '"></label>').join('');
+}
+
+function remettreDefautRecompenses() {
+    if (rwaData) { remplirReglages(Object.assign({}, rwaData.defaut, { actif: document.getElementById('rwa_actif').checked })); showToast('Valeurs par défaut chargées : pensez à enregistrer', 'info'); }
+}
+
+async function enregistrerRecompenses(e) {
+    e.preventDefault();
+    const corps = { actif: document.getElementById('rwa_actif').checked };
+    RWA_CHAMPS.forEach(([k]) => { corps[k] = Number(document.getElementById('rwa_' + k).value); });
+    try {
+        await apiCall('/admin/rewards/config', { method: 'PUT', body: JSON.stringify(corps) });
+        showToast('Réglages des récompenses enregistrés', 'success');
+        chargerRecompenses();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function retirerCredits(id) {
+    const boite = document.getElementById('rwaR' + id);
+    const [m, r] = boite.querySelectorAll('input');
+    try {
+        const res = await apiCall('/admin/rewards/users/' + id + '/retirer', { method: 'POST', body: JSON.stringify({ montant: Number(m.value), raison: r.value }) });
+        showToast(res.retire + ' crédits retirés (le membre est prévenu par e-mail)', 'success');
+        chargerRecompenses();
+    } catch (err) { showToast(err.message, 'error'); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const sel = document.getElementById('rwaJours');
+    if (sel) sel.addEventListener('change', chargerRecompenses);
+});
 
 // ═══════════════════════════════════════════════════════════
 // MESSAGES CONTACT (formulaire contact.html)

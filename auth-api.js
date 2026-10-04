@@ -99,10 +99,12 @@ async function login(username, password) {
     return data.user;
 }
 
-async function register(username, email, password) {
+async function register(username, email, password, parrain) {
+    const corps = { username: username, email: email, password: password };
+    if (parrain) corps.parrain = String(parrain).slice(0, 30);
     const data = await apiCall('/auth/register', {
         method: 'POST',
-        body: JSON.stringify({ username: username, email: email, password: password })
+        body: JSON.stringify(corps)
     });
     // Adresse à confirmer : pas encore de session, le lien est envoyé par e-mail
     if (data.needVerification) return { needVerification: true, email: data.email, username: data.user && data.user.username };

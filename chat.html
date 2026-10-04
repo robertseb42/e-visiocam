@@ -487,6 +487,12 @@ function recordJoin(slug) {
 // ============================================================
 // MEMBRES DU SALON
 // ============================================================
+// 🏅 Niveau du programme de récompenses, à côté du pseudo (Bronze, Argent, Or, Diamant)
+function insigneHtml(n) {
+    if (!n || !n.icone) return '';
+    return ' <span title="Niveau ' + escapeHtml(n.nom || '') + '" aria-label="Niveau ' + escapeHtml(n.nom || '') + '" style="font-size:11px">' + escapeHtml(n.icone) + '</span>';
+}
+
 function dessinerMembres() {
     const boite = document.getElementById('onlineUsers');
     const liste = membres.slice();
@@ -503,7 +509,7 @@ function dessinerMembres() {
             const live = u.streamId ? '<span class="text-[9px] font-bold text-white bg-red-500 rounded px-1">LIVE</span>' : '';
             const avatar = '<span class="relative w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[11px] font-bold shrink-0">' +
                 escapeHtml(nom[0].toUpperCase()) + (nonLus ? '<span class="pb">' + (nonLus > 99 ? '99+' : nonLus) + '</span>' : '') + '</span>';
-            const libelle = '<span class="font-medium text-slate-700 truncate flex-1">' + (ROLE_ICONS[u.role] || '') + ' ' + escapeHtml(nom) + (moi ? ' <span class="text-slate-400">(moi)</span>' : '') + '</span>';
+            const libelle = '<span class="font-medium text-slate-700 truncate flex-1">' + (ROLE_ICONS[u.role] || '') + ' ' + escapeHtml(nom) + insigneHtml(u.insigne) + (moi ? ' <span class="text-slate-400">(moi)</span>' : '') + '</span>';
             if (moi) return '<div class="flex items-center gap-2 p-2 rounded-lg">' + avatar + libelle + live + '</div>';
             return '<button type="button" class="membre-btn w-full flex items-center gap-2 p-2 rounded-lg hover:bg-purple-50 text-left' + (actif ? ' actif bg-purple-50' : '') + '"' +
                 ' data-uid="' + Number(u.id) + '" data-n="' + escapeHtml(nom) + '" title="Écrire en privé à ' + escapeHtml(nom) + '">' +
@@ -985,7 +991,7 @@ function renderMessage(msg) {
     div.className = 'message';
     div.innerHTML = '<div class="' + (isMe ? 'flex justify-end' : '') + '">' +
         '<div class="' + (isMe ? 'bg-brand-primary text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-md' : 'max-w-md') + '">' +
-            (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><button type="button" data-uid="' + Number(msg.user_id) + '" data-n="' + escapeHtml(msg.username) + '" title="Écrire en privé" class="text-xs font-bold text-slate-700 hover:text-purple-600">' + icon + ' ' + escapeHtml(msg.username) + '</button><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
+            (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><button type="button" data-uid="' + Number(msg.user_id) + '" data-n="' + escapeHtml(msg.username) + '" title="Écrire en privé" class="text-xs font-bold text-slate-700 hover:text-purple-600">' + icon + ' ' + escapeHtml(msg.username) + insigneHtml(msg.insigne) + '</button><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
             '<p class="text-sm ' + (isMe ? '' : 'text-slate-700') + '">' + escapeHtml(msg.text) + '</p>' +
         '</div>' +
     '</div>';

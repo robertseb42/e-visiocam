@@ -67,74 +67,126 @@
     </div>
 </header>
 
-<main class="max-w-[1100px] w-full mx-auto flex-1 p-6">
+<style>
+/* ---------- Mes récompenses (styles propres à la page, clair et sombre) ---------- */
+.rw{--rw-card:#ffffff;--rw-line:#e2e8f0;--rw-text:#0f172a;--rw-muted:#64748b;--rw-soft:#f1f5f9;--rw-accent:#e11d74;--rw-ok:#059669;--rw-bar:#e2e8f0}
+:where(html:not([data-theme="light"])) .rw{--rw-card:var(--ev-panel);--rw-line:var(--ev-border);--rw-text:var(--ev-text);--rw-muted:var(--ev-muted);--rw-soft:var(--ev-field);--rw-accent:var(--ev-pink);--rw-ok:#34d399;--rw-bar:#303037}
+.rw-grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:900px){.rw-grid.two{grid-template-columns:1fr 1fr}.rw-grid.three{grid-template-columns:repeat(3,1fr)}}
+.rw-card{background:var(--rw-card);border:1px solid var(--rw-line);border-radius:18px;padding:20px;color:var(--rw-text);min-width:0}
+.rw-card h2{font-size:15px;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.rw-sub{font-size:12px;color:var(--rw-muted);margin:0 0 14px}
+.rw-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--rw-line);font-size:13px}
+.rw-row:first-of-type{border-top:0}
+.rw-row b{font-weight:800;white-space:nowrap}
+.rw-bar{height:8px;border-radius:99px;background:var(--rw-bar);overflow:hidden;margin-top:6px}
+.rw-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff1680,#ffb300);width:0;transition:width .8s ease}
+.rw-ok{color:var(--rw-ok);font-weight:800}
+.rw-muted{color:var(--rw-muted)}
+.rw-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:#ffffff1f;font-size:12px;font-weight:800}
+.rw-badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.rw-badge{border:1px solid var(--rw-line);border-radius:14px;padding:12px;text-align:center;background:var(--rw-soft)}
+.rw-badge .ic{font-size:26px;line-height:1}
+.rw-badge p{margin:6px 0 0;font-size:12px;font-weight:800}
+.rw-badge small{display:block;font-size:11px;color:var(--rw-muted);margin-top:2px}
+.rw-badge.off{opacity:.45;filter:grayscale(1)}
+.rw-link{display:flex;gap:8px;margin:10px 0}
+.rw-link input{flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:1px solid var(--rw-line);background:var(--rw-soft);color:var(--rw-text);font-size:12px}
+.rw-btn{flex:none;padding:10px 14px;border-radius:12px;border:0;background:#ffe500;color:#111113;font-weight:800;font-size:12px;cursor:pointer}
+.rw-btn:hover{background:#fff04a}
+.rw-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.rw-stats div{background:var(--rw-soft);border-radius:12px;padding:10px 4px}
+.rw-stats b{display:block;font-size:20px;font-weight:900}
+.rw-stats span{font-size:11px;color:var(--rw-muted)}
+.rw-rank{list-style:none;margin:0;padding:0}
+.rw-rank li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--rw-line);font-size:13px}
+.rw-rank li:first-child{border-top:0}
+.rw-rank .pos{width:24px;text-align:center;font-weight:900;color:var(--rw-muted)}
+.rw-rank .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.rw-rank .me{color:var(--rw-accent)}
+.rw-earn{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.rw-earn div{background:var(--rw-card);border:1px solid var(--rw-line);border-radius:16px;padding:16px;color:var(--rw-text)}
+.rw-earn .amt{float:right;font-weight:900;color:var(--rw-accent);font-size:13px}
+.rw-earn p{margin:0;font-size:13px;font-weight:800}
+.rw-earn small{display:block;margin-top:4px;font-size:12px;color:var(--rw-muted)}
+.rw-alert{border-radius:14px;padding:12px 16px;font-size:13px;margin-bottom:16px;border:1px solid #f59e0b66;background:#f59e0b1a;color:var(--rw-text)}
+.rw-title{font-size:18px;font-weight:800;margin:28px 0 12px;color:var(--rw-text)}
+</style>
+<main class="rw max-w-[1100px] w-full mx-auto flex-1 p-4 sm:p-6">
 
-    <!-- SOLDE -->
-    <div class="bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-8 text-white mb-6 shadow-xl relative overflow-hidden">
+    <!-- SOLDE + NIVEAU -->
+    <div class="bg-gradient-to-r from-purple-900 via-darkpurple to-slate-900 rounded-3xl p-6 sm:p-8 text-white mb-6 shadow-xl relative overflow-hidden">
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl"></div>
-        <div class="relative z-10 flex justify-between items-center flex-wrap gap-4">
+        <div class="relative z-10 flex justify-between items-start flex-wrap gap-6">
             <div>
                 <p class="text-sm text-slate-300 font-medium">Mes crédits</p>
                 <p class="text-5xl font-black mt-2">
                     <i class="fa-solid fa-coins text-amber-400" aria-hidden="true"></i>
-                    <span id="balance">—</span>
+                    <span id="balance" data-evc-solde>—</span>
                     <span class="text-lg font-bold text-slate-300">crédits</span>
                 </p>
                 <p class="text-xs text-slate-300 mt-2">À offrir en cadeaux dans les salons et pendant les lives.</p>
             </div>
-            <div class="text-right text-xs text-slate-300 space-y-1">
-                <p>Gagnés : <span id="totalEarned" class="font-bold text-white">—</span></p>
-                <p>Offerts en cadeaux : <span id="totalSpent" class="font-bold text-white">—</span></p>
+            <div style="min-width:240px;flex:1;max-width:380px">
+                <p class="text-sm text-slate-300 font-medium">Mon niveau</p>
+                <p class="mt-2 flex items-center gap-2 flex-wrap"><span class="rw-pill" id="niveauPill">—</span> <span class="text-xs text-slate-300" id="serieTxt"></span></p>
+                <div class="rw-bar" style="background:#ffffff26"><i id="niveauBar"></i></div>
+                <p class="text-xs text-slate-300 mt-2" id="niveauTxt">&nbsp;</p>
             </div>
         </div>
     </div>
 
-    <!-- LE SITE EST GRATUIT -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm mb-6">
-        <h2 class="text-lg font-extrabold text-slate-900 mb-1">E-VISIOCAM est entièrement gratuit</h2>
-        <p class="text-sm text-slate-600">Salons, lives, mur de caméras, messages privés : tout est accessible sans payer. Les crédits ne s'achètent pas, ils se gagnent en participant à la vie du site, et servent à offrir des cadeaux.</p>
+    <div id="alertes"></div>
+
+    <!-- AUJOURD'HUI + BADGES -->
+    <div class="rw-grid two">
+        <section class="rw-card">
+            <h2>📅 Aujourd’hui</h2>
+            <p class="rw-sub">Vos gains du jour. Les compteurs repartent à zéro à minuit (heure de Paris).</p>
+            <div id="jourListe"><p class="rw-muted text-sm">Chargement…</p></div>
+        </section>
+        <section class="rw-card">
+            <h2>🏅 Mes badges</h2>
+            <p class="rw-sub">Ils s’affichent sur votre profil. Le niveau apparaît à côté de votre pseudo dans les salons.</p>
+            <div class="rw-badges" id="badgesListe"></div>
+        </section>
+    </div>
+
+    <!-- PARRAINAGE + CLASSEMENT -->
+    <div class="rw-grid two" style="margin-top:16px">
+        <section class="rw-card">
+            <h2>🤝 Parrainer un ami</h2>
+            <p class="rw-sub" id="parrainRegle">Partagez votre lien d’invitation.</p>
+            <div class="rw-link">
+                <input id="parrainLien" readonly aria-label="Mon lien d’invitation" value="">
+                <button type="button" class="rw-btn" id="parrainCopier"><i class="fa-regular fa-copy" aria-hidden="true"></i> Copier</button>
+            </div>
+            <div class="rw-stats">
+                <div><b id="parrValides">0</b><span>validés</span></div>
+                <div><b id="parrAttente">0</b><span>en attente</span></div>
+                <div><b id="parrRefuses">0</b><span>refusés</span></div>
+            </div>
+            <p class="text-xs rw-muted" style="margin:12px 0 0">Un parrainage est refusé si le filleul s’inscrit depuis la même connexion que vous : un compte par personne.</p>
+        </section>
+        <section class="rw-card">
+            <h2>🏆 Classement du mois <span class="rw-muted text-xs font-semibold" id="classementMois"></span></h2>
+            <p class="rw-sub">Membres les plus actifs et modèles les plus gâtés en cadeaux.</p>
+            <div class="rw-grid two" style="gap:20px">
+                <div><p class="text-xs font-bold rw-muted" style="margin:0 0 4px">MEMBRES</p><ol class="rw-rank" id="rangMembres"></ol></div>
+                <div><p class="text-xs font-bold rw-muted" style="margin:0 0 4px">MODÈLES</p><ol class="rw-rank" id="rangModeles"></ol></div>
+            </div>
+        </section>
     </div>
 
     <!-- COMMENT GAGNER -->
-    <h2 class="text-xl font-bold text-slate-900 mb-1">Comment gagner des crédits</h2>
-    <p class="text-sm text-slate-500 mb-4">Le programme de récompenses arrive bientôt. Voici ce qui est prévu ; les montants seront annoncés au lancement.</p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-3"><i class="fa-solid fa-hand-sparkles" aria-hidden="true"></i></div>
-            <p class="font-bold text-slate-900 text-sm">Bonus de bienvenue</p>
-            <p class="text-xs text-slate-500 mt-1">Offert une fois votre adresse e-mail confirmée.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-pink-100 text-brand-primary flex items-center justify-center mb-3"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
-            <p class="font-bold text-slate-900 text-sm">Passer chaque jour</p>
-            <p class="text-xs text-slate-500 mt-1">Un petit gain quotidien, plus important si vous venez plusieurs jours de suite.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3"><i class="fa-solid fa-comments" aria-hidden="true"></i></div>
-            <p class="font-bold text-slate-900 text-sm">Participer aux salons et aux lives</p>
-            <p class="text-xs text-slate-500 mt-1">Le temps passé à échanger rapporte des crédits, avec un plafond par jour.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-3"><i class="fa-solid fa-user-plus" aria-hidden="true"></i></div>
-            <p class="font-bold text-slate-900 text-sm">Parrainer un ami</p>
-            <p class="text-xs text-slate-500 mt-1">Crédité quand votre filleul a confirmé son compte et participé quelques jours.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-3"><i class="fa-solid fa-video" aria-hidden="true"></i></div>
-            <p class="font-bold text-slate-900 text-sm">Animer des lives (modèles)</p>
-            <p class="text-xs text-slate-500 mt-1">Les heures de live public et les cadeaux reçus font monter au classement.</p>
-        </div>
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-3"><i class="fa-solid fa-medal" aria-hidden="true"></i></div>
-            <p class="font-bold text-slate-900 text-sm">Badges et niveaux</p>
-            <p class="text-xs text-slate-500 mt-1">Affichés à côté de votre pseudo pour montrer votre ancienneté et votre implication.</p>
-        </div>
-    </div>
+    <h2 class="rw-title">Comment gagner des crédits</h2>
+    <div class="rw-earn" id="gagnerListe"></div>
 
     <!-- HISTORIQUE -->
+    <h2 class="rw-title">Historique</h2>
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="font-bold text-slate-900 text-sm">Historique de mes crédits</h3>
+            <h3 class="font-bold text-slate-900 text-sm">Mouvements de mes crédits</h3>
             <button onclick="loadTransactions()" class="text-xs text-brand-primary font-bold hover:underline">
                 <i class="fa-solid fa-rotate"></i> Rafraîchir
             </button>
@@ -157,30 +209,142 @@
             </table>
         </div>
     </div>
-    <p class="text-xs text-slate-400 mt-4">Les crédits sont gratuits, sans valeur en argent et ne peuvent être ni achetés, ni vendus, ni échangés contre de l'argent. Règles : <a href="cgu.html#credits" class="underline">CGU, article 7</a>.</p>
+    <p class="text-xs text-slate-400 mt-4">E-VISIOCAM est entièrement gratuit. Les crédits ne s’achètent pas : ils sont sans valeur en argent et ne peuvent être ni vendus ni échangés contre de l’argent. Les crédits obtenus de façon artificielle (comptes multiples, triche) peuvent être retirés. Règles : <a href="cgu.html#credits" class="underline">CGU, article 7</a>.</p>
 </main>
 
 <script>
 // ============================================================
-// MES RÉCOMPENSES — solde et historique des crédits (site gratuit)
+// MES RÉCOMPENSES — niveau, gains du jour, badges, parrainage, classement
 // ============================================================
 let currentUser = null;
+let resume = null;
+
+const TOUS_BADGES = [
+    { id: 'fidele', icone: '🔥', nom: 'Fidèle', aide: '7 jours de suite' },
+    { id: 'pilier', icone: '🏛️', nom: 'Pilier', aide: '30 jours de suite' },
+    { id: 'parrain', icone: '🤝', nom: 'Parrain', aide: '1 filleul validé' },
+    { id: 'animateur', icone: '🎙️', nom: 'Animateur', aide: '10 h de live (modèles)' },
+    { id: 'ancien', icone: '⭐', nom: 'Ancien', aide: 'Membre depuis 1 an' }
+];
 
 document.addEventListener('DOMContentLoaded', async () => {
     currentUser = getCurrentUser();
     if (!currentUser) { window.location.href = 'login.html'; return; }
-    // Ancien retour de paiement : on nettoie l'adresse
     if (location.search) window.history.replaceState({}, '', 'credits.html');
-    await Promise.all([loadBalance(), loadTransactions()]);
+    document.getElementById('parrainCopier').addEventListener('click', copierLien);
+    await Promise.all([loadRecompenses(), loadClassement(), loadTransactions()]);
+    // Un gain arrive en direct : on met la page à jour
+    let attente = null;
+    window.addEventListener('evc:recompense', () => { clearTimeout(attente); attente = setTimeout(() => { loadRecompenses(); loadTransactions(); }, 800); });
 });
 
-async function loadBalance() {
+async function loadRecompenses() {
     try {
-        const data = await apiCall('/credits/balance');
-        document.getElementById('balance').textContent = data.balance;
-        document.getElementById('totalSpent').textContent = data.totalSpent;
-        document.getElementById('totalEarned').textContent = data.totalPurchased;
-    } catch (err) { showToast(err.message, 'error'); }
+        resume = await apiCall('/rewards/me');
+        afficher(resume);
+    } catch (err) {
+        // Ancien serveur sans le programme : on retombe sur le simple solde
+        try { const b = await apiCall('/credits/balance'); document.getElementById('balance').textContent = b.balance; } catch (e) {}
+        document.getElementById('jourListe').innerHTML = '<p class="rw-muted text-sm">' + escapeHtml(err.message) + '</p>';
+    }
+}
+
+function afficher(r) {
+    const c = r.config || {};
+    document.getElementById('balance').textContent = r.solde;
+
+    // Niveau
+    const n = r.niveau || {};
+    document.getElementById('niveauPill').textContent = (n.icone || '') + ' ' + (n.nom || '');
+    const bar = document.getElementById('niveauBar');
+    if (n.suivant) {
+        const pct = Math.max(2, Math.min(100, Math.round((r.gagnes - n.min) / (n.suivant.min - n.min) * 100)));
+        requestAnimationFrame(() => { bar.style.width = pct + '%'; });
+        document.getElementById('niveauTxt').textContent = r.gagnes + ' crédits gagnés au total · encore ' + (n.suivant.min - r.gagnes) + ' pour ' + n.suivant.icone + ' ' + n.suivant.nom;
+    } else {
+        bar.style.width = '100%';
+        document.getElementById('niveauTxt').textContent = r.gagnes + ' crédits gagnés au total · niveau maximum atteint';
+    }
+    document.getElementById('serieTxt').textContent = r.serie ? '🔥 ' + r.serie + ' jour' + (r.serie > 1 ? 's' : '') + ' de suite' : '';
+
+    // Alertes
+    const al = [];
+    if (!r.programmeActif) al.push('Le programme de récompenses est en pause pour le moment. Vos crédits et votre niveau sont conservés.');
+    else if (!r.confirme) al.push('Confirmez votre adresse e-mail pour commencer à gagner des crédits (lien reçu à l’inscription).');
+    else if (!r.eligible) al.push('Vous ne gagnez pas de crédits pendant une sanction en cours (sourdine, expulsion).');
+    document.getElementById('alertes').innerHTML = al.map(t => '<div class="rw-alert">⚠️ ' + escapeHtml(t) + '</div>').join('');
+
+    // Aujourd'hui
+    const a = r.aujourdhui || {};
+    const lignes = [];
+    const bonusSerie = (r.serie || 0) >= c.serieJours;
+    const prevuJour = bonusSerie ? c.quotidienSerie : c.quotidien;
+    lignes.push(ligne('Connexion du jour', a.quotidien > 0 ? '<span class="rw-ok">✓ +' + a.quotidien + '</span>' : '<span class="rw-muted">+' + prevuJour + ' à venir</span>',
+        bonusSerie ? 'Bonus de série actif (' + c.serieJours + ' jours et plus)' : 'Encore ' + Math.max(0, c.serieJours - (r.serie || 0)) + ' jour(s) de suite pour passer à +' + c.quotidienSerie + '/jour'));
+    lignes.push(ligne('Participation (salons, messages, lives)', '<b>' + a.actif + ' / ' + c.actifMaxJour + '</b>',
+        '+' + c.actif15 + ' crédits par tranche de 15 minutes actives', a.actif / (c.actifMaxJour || 1)));
+    if (r.estModele) lignes.push(ligne('Lives animés', '<b>' + a.live + ' / ' + c.liveMaxJour + '</b>',
+        '+' + c.liveHeure + ' crédits par heure de live public', a.live / (c.liveMaxJour || 1)));
+    if (!r.bienvenueRecue && r.confirme) lignes.push(ligne('Bonus de bienvenue', '<span class="rw-muted">+' + c.bienvenue + '</span>', 'Offert à votre prochaine connexion'));
+    document.getElementById('jourListe').innerHTML = lignes.join('');
+    document.querySelectorAll('#jourListe .rw-bar>i').forEach(i => requestAnimationFrame(() => { i.style.width = i.dataset.w; }));
+
+    // Badges : gagnés d'abord, puis ceux à débloquer
+    const gagnes = r.badges || [];
+    const ids = new Set(gagnes.map(b => b.id));
+    const html = gagnes.map(b => badge(b, true)).concat(TOUS_BADGES.filter(b => !ids.has(b.id)).map(b => badge(b, false)));
+    document.getElementById('badgesListe').innerHTML = html.join('');
+
+    // Parrainage
+    const p = r.parrainage || {};
+    document.getElementById('parrainLien').value = location.origin + location.pathname.replace(/[^/]*$/, '') + 'register.html?parrain=' + encodeURIComponent(p.code || '');
+    document.getElementById('parrValides').textContent = p.valides || 0;
+    document.getElementById('parrAttente').textContent = p.enAttente || 0;
+    document.getElementById('parrRefuses').textContent = p.refuses || 0;
+    document.getElementById('parrainRegle').textContent = '+' + c.parrainage + ' crédits pour chaque ami qui s’inscrit avec votre lien, confirme son adresse et participe ' + c.parrainageJoursActifs + ' jours différents (' + c.parrainageMaxMois + ' parrainages par mois au plus).';
+
+    // Comment gagner (montants réels)
+    const g = [
+        ['🎉', 'Bonus de bienvenue', '+' + c.bienvenue, 'Une seule fois, une fois votre adresse e-mail confirmée.'],
+        ['📅', 'Passer chaque jour', '+' + c.quotidien + ' / jour', 'Puis +' + c.quotidienSerie + ' par jour à partir de ' + c.serieJours + ' jours de suite.'],
+        ['💬', 'Participer', '+' + c.actif15 + ' / 15 min', 'Écrire dans les salons, réagir, envoyer des messages ou des cadeaux. ' + c.actifMaxJour + ' crédits par jour au plus.'],
+        ['🤝', 'Parrainer un ami', '+' + c.parrainage, 'Quand votre filleul a confirmé son compte et participé ' + c.parrainageJoursActifs + ' jours.'],
+        ['🛡️', 'Signaler un abus', '+' + c.signalement, 'Si la modération confirme le signalement. ' + c.signalementMaxSemaine + ' par semaine au plus.'],
+        ['🎙️', 'Animer des lives (modèles)', '+' + c.liveHeure + ' / heure', 'Live public uniquement. ' + c.liveMaxJour + ' crédits par jour au plus.']
+    ];
+    document.getElementById('gagnerListe').innerHTML = g.map(x => '<div><span class="amt">' + escapeHtml(x[2]) + '</span><p>' + x[0] + ' ' + escapeHtml(x[1]) + '</p><small>' + escapeHtml(x[3]) + '</small></div>').join('');
+}
+
+function ligne(titre, valeur, aide, ratio) {
+    return '<div class="rw-row" style="display:block"><div style="display:flex;justify-content:space-between;gap:10px"><span>' + escapeHtml(titre) + '</span>' + valeur + '</div>' +
+        (aide ? '<div class="text-xs rw-muted" style="margin-top:2px">' + escapeHtml(aide) + '</div>' : '') +
+        (ratio !== undefined ? '<div class="rw-bar"><i data-w="' + Math.round(Math.min(1, ratio) * 100) + '%"></i></div>' : '') + '</div>';
+}
+
+function badge(b, ok) {
+    return '<div class="rw-badge' + (ok ? '' : ' off') + '" title="' + escapeHtml(ok ? b.aide : 'À débloquer : ' + b.aide) + '"><div class="ic">' + b.icone + '</div><p>' + escapeHtml(b.nom) + '</p><small>' + escapeHtml(ok ? b.aide : '🔒 ' + b.aide) + '</small></div>';
+}
+
+async function loadClassement() {
+    try {
+        const d = await apiCall('/rewards/classement');
+        const [y, m] = (d.mois || '').split('-');
+        document.getElementById('classementMois').textContent = y ? '· ' + new Date(Date.UTC(+y, +m - 1, 15)).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }) : '';
+        const moi = currentUser && currentUser.username;
+        const liste = (arr, unite) => arr.length ? arr.map((x, i) => '<li><span class="pos">' + (['🥇', '🥈', '🥉'][i] || (i + 1)) + '</span><span class="nm' + (x.username === moi ? ' me' : '') + '">' + escapeHtml(x.username) + '</span><b>' + x.credits + '</b></li>').join('')
+            : '<li class="rw-muted text-xs">Personne pour le moment ce mois-ci</li>';
+        document.getElementById('rangMembres').innerHTML = liste(d.membres || []);
+        document.getElementById('rangModeles').innerHTML = liste(d.modeles || []);
+    } catch (e) {
+        document.getElementById('rangMembres').innerHTML = '<li class="rw-muted text-xs">Indisponible</li>';
+    }
+}
+
+async function copierLien() {
+    const inp = document.getElementById('parrainLien');
+    try { await navigator.clipboard.writeText(inp.value); }
+    catch (e) { inp.select(); try { document.execCommand('copy'); } catch (e2) {} }
+    showToast('Lien d’invitation copié', 'success');
 }
 
 async function loadTransactions() {
@@ -192,7 +356,7 @@ async function loadTransactions() {
             tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-slate-400 text-sm">Aucun mouvement pour le moment</td></tr>';
             return;
         }
-        const typeLabels = { reward: '🎁 Récompense', bonus: '🎁 Bonus', spend: '💝 Cadeau offert', refund: '↩️ Remboursement', reset: '🔄 Remise à zéro', purchase: '🛒 Ancien achat' };
+        const typeLabels = { reward: '🎁 Récompense', bonus: '🎁 Bonus', spend: '💝 Cadeau offert', refund: '↩️ Remboursement', retrait: '⛔ Retrait', reset: '🔄 Remise à zéro', purchase: '🛒 Ancien achat' };
         const quand = t => new Date(String(t).replace(' ', 'T') + (/[TZ]/.test(t) ? '' : 'Z')).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         tbody.innerHTML = liste.map(t => {
             const plus = t.amount > 0;
@@ -213,6 +377,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 </script>
+
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
 <script src="footer.js" defer></script>

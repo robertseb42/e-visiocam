@@ -94,6 +94,11 @@
             <a href="login.html" class="inline-block mt-3 text-sm font-bold text-brand-primary hover:underline">J’ai confirmé, me connecter</a>
         </div>
         <form id="registerForm" class="space-y-4">
+            <!-- 🤝 Invitation d'un membre (lien de parrainage) -->
+            <div id="parrainBox" class="hidden rounded-xl bg-pink-50 border border-pink-200 px-4 py-3 text-xs text-slate-700">
+                <i class="fa-solid fa-user-plus text-brand-primary mr-1" aria-hidden="true"></i>
+                Vous êtes invité par <strong id="parrainNom"></strong>. Bienvenue !
+            </div>
 
             <!-- Username -->
             <div>
@@ -197,6 +202,22 @@
 <script src="auth-api.js"></script>
 <script src="legal-banner.js"></script>
 <script>
+    // ---------- PARRAINAGE : register.html?parrain=Pseudo ----------
+    // Le pseudo est gardé pour la durée de la visite (si le visiteur change de page avant de s'inscrire)
+    function lireParrain() {
+        let p = '';
+        try { p = new URLSearchParams(location.search).get('parrain') || sessionStorage.getItem('evc-parrain') || ''; } catch (e) {}
+        p = String(p).trim();
+        return /^[A-Za-z0-9_.-]{3,30}$/.test(p) ? p : '';
+    }
+    (function () {
+        const p = lireParrain();
+        if (!p) return;
+        try { sessionStorage.setItem('evc-parrain', p); } catch (e) {}
+        document.getElementById('parrainNom').textContent = p;
+        document.getElementById('parrainBox').classList.remove('hidden');
+    })();
+
     // ---------- FORCE DU MOT DE PASSE ----------
     function checkStrength() {
         const pwd = document.getElementById('password').value;
@@ -281,7 +302,7 @@
         spinner.classList.remove('hidden');
 
         try {
-            const user = await register(username, email, password);
+            const user = await register(username, email, password, lireParrain());
             if (user.needVerification) {
                 afficherVerification(user.email, username, ['registerForm', 'errorBox']);
                 return;

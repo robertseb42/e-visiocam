@@ -304,6 +304,14 @@
                 // ⚖️ Sanction de la modération (expulsion, bannissement, sourdine)
                 unreadSocket.on('moderation:sanction', afficherSanction);
 
+                // 🎁 Crédits gagnés (programme de récompenses)
+                unreadSocket.on('recompense:gain', function(d) {
+                    if (!d || !d.montant) return;
+                    if (typeof showToast === 'function') showToast('🎁 +' + d.montant + ' crédits · ' + (d.libelle || 'Récompense'), 'success');
+                    document.querySelectorAll('[data-evc-solde]').forEach(function (el) { if (typeof d.solde === 'number') el.textContent = d.solde; });
+                    try { window.dispatchEvent(new CustomEvent('evc:recompense', { detail: d })); } catch (e) {}
+                });
+
                 // ❤️ Un modèle suivi vient de lancer un live
                 unreadSocket.on('favori:live', function(d) {
                     if (d && d.username) alerteLive(d);
