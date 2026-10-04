@@ -90,6 +90,8 @@
         'html[data-theme="light"] .evc-as{--as-bg:#ffffff;--as-panel:#f1f5f9;--as-line:#e2e8f0;--as-text:#0f172a;--as-muted:#64748b}',
         '.evc-as-bulle{position:fixed;left:18px;bottom:var(--as-bas,18px);z-index:9990;display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;border:0;cursor:pointer;background:#ffe500;color:#111113;font:800 14px Inter,system-ui,sans-serif;box-shadow:0 10px 30px #0006;transition:transform .2s}',
         '.evc-as [hidden]{display:none!important}',
+        '.evc-as.dans-colonne .evc-as-bulle{position:static;width:100%;justify-content:center;box-shadow:0 8px 22px #0004}',
+        '.evc-as.dans-colonne .evc-as-panneau{left:max(18px,calc((100vw - 1700px) / 2 + 24px))}',
         '.evc-as-bulle:hover{transform:translateY(-2px)}',
         '.evc-as-bulle:focus-visible,.evc-as button:focus-visible,.evc-as input:focus-visible,.evc-as textarea:focus-visible{outline:3px solid #ff1680;outline-offset:2px}',
         '.evc-as-bulle i{font-size:18px}',
@@ -336,7 +338,21 @@
         if (t) { e.preventDefault(); ouvrir(t.getAttribute('data-assistant') || ''); }
     });
 
-    function monter() { document.body.appendChild(racine); placer(); window.addEventListener('resize', placer); setTimeout(placer, 800); }
+    // Sur l'accueil, la bulle se range sous la radio de la colonne de gauche ; ailleurs (ou si la colonne est masquée), en bas à gauche
+    function ranger() {
+        var radio = document.getElementById('radioWidget');
+        var colonne = radio && radio.closest('aside');
+        var visible = colonne && getComputedStyle(colonne).display !== 'none' && radio.getBoundingClientRect().width > 0;
+        if (visible) {
+            if (racine.previousElementSibling !== radio) radio.insertAdjacentElement('afterend', racine);
+            racine.classList.add('dans-colonne');
+        } else {
+            if (racine.parentNode !== document.body) document.body.appendChild(racine);
+            racine.classList.remove('dans-colonne');
+        }
+        placer();
+    }
+    function monter() { ranger(); window.addEventListener('resize', ranger); setTimeout(ranger, 800); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', monter); else monter();
 
     window.EvcAssistant = { ouvrir: ouvrir, fermer: fermer, chercher: function (t) { return chargerBase().then(function () { return chercher(t); }); } };

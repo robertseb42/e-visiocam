@@ -33,11 +33,10 @@
         '#evcDiscoBoule .fil{position:absolute;left:50%;top:0;width:2px;margin-left:-1px;height:calc(var(--disco-fil) + 4px);background:linear-gradient(#5d5d68,#b9b9c4)}' +
         '#evcDiscoBoule .attache{position:absolute;left:50%;top:calc(var(--disco-fil) - 6px);width:10px;height:10px;margin-left:-5px;border-radius:3px;background:linear-gradient(#d9d9e0,#7d7d88)}' +
         // ---------- Danseur disco (image fournie, animée) ----------
-        '#evcDanseur{position:fixed;left:14px;bottom:10px;z-index:34;pointer-events:none;width:var(--dz);height:calc(var(--dz) * 1.72)}' +
-        // Taille adaptée à la hauteur de l'écran : il reste sous la radio sans la recouvrir
-        '#evcDanseur{--dz:min(170px,calc((100vh - 770px) / 1.72));--t:.58s}' +
-        '@media (max-width:1600px){#evcDanseur{--dz:min(140px,calc((100vh - 770px) / 1.72))}}' +
-        '@media (max-width:1100px),(max-height:920px){#evcDanseur{display:none!important}}' +
+        '#evcDanseur{position:fixed;right:14px;top:300px;z-index:34;pointer-events:none;width:var(--dz);height:calc(var(--dz) * 1.72);display:none}' +
+        '#evcDanseur.place{display:block}' +
+        // Taille et place calculées en JavaScript (placerDanseur) : sous la boule, dans la marge de droite
+        '#evcDanseur{--dz:150px;--t:.58s}' +
         '#evcDanseur .piste{position:absolute;left:0;bottom:0;width:100%;height:calc(var(--dz) * .5);overflow:visible}' +
         '#evcDanseur .sens{position:absolute;left:0;right:0;bottom:calc(var(--dz) * .1);height:calc(var(--dz) * 1.52);transform-origin:50% 100%;animation:dzSens calc(var(--t) * 16) steps(1) infinite}' +
         '#evcDanseur .gars{width:100%;height:100%;transform-origin:50% 100%;animation:dzDanse calc(var(--t) * 2) ease-in-out infinite}' +
@@ -125,10 +124,34 @@
         danseur.setAttribute('aria-hidden', 'true');
         danseur.innerHTML = DANSEUR;
         document.body.appendChild(danseur);
+        window.addEventListener('resize', placerDanseur);
+        setTimeout(placerDanseur, 300); setTimeout(placerDanseur, 1500);
         ctxB = cb.getContext('2d');
         ctxR = reflets.getContext('2d');
         taille();
         window.addEventListener('resize', taille);
+    }
+
+    // 🕺 Danseur : sous la boule, dans la marge libre à droite du contenu ; masqué s'il n'y a pas la place
+    function placerDanseur() {
+        var d = document.getElementById('evcDanseur');
+        if (!d || !boule) return;
+        var b = boule.getBoundingClientRect();
+        var contenu = document.querySelector('.cam-layout main') || document.querySelector('main');
+        var droiteContenu = contenu ? contenu.getBoundingClientRect().right : window.innerWidth;
+        var marge = window.innerWidth - droiteContenu;             // place libre à droite du contenu
+        var haut = b.bottom + 6;                                    // juste sous la boule
+        var dz = Math.min(170, marge - 20, (window.innerHeight - haut - 12) / 1.72);
+        if (!(dz >= 90) || window.innerWidth < 1024) { d.classList.remove('place'); return; }
+        dz = Math.floor(dz);
+        // centré sous la boule, sans déborder sur le contenu
+        var centre = b.left + b.width / 2;
+        var gauche = Math.max(droiteContenu + 8, Math.min(window.innerWidth - dz - 6, centre - dz / 2));
+        d.style.setProperty('--dz', dz + 'px');
+        d.style.top = Math.round(haut) + 'px';
+        d.style.right = 'auto';
+        d.style.left = Math.round(gauche) + 'px';
+        d.classList.add('place');
     }
 
     function taille() {
@@ -280,7 +303,7 @@
     function appliquer() {
         document.documentElement.classList.toggle('evc-disco', actif);
         majBoutons();
-        if (actif) { if (!boule) creer(); else taille(); demarrer(); }
+        if (actif) { if (!boule) creer(); else taille(); demarrer(); setTimeout(placerDanseur, 50); }
         else if (raf) { cancelAnimationFrame(raf); raf = 0; }
     }
     function basculer() {
