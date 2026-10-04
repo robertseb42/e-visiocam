@@ -1,0 +1,52 @@
+{
+  "name": "e-visiocam-backend",
+  "version": "1.0.0",
+  "description": "Backend sécurisé pour E-VISIOCAM",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test:decor": "node --test tests/decor.test.js",
+    "test:salons": "node --test tests/salons.test.js",
+    "test:admin": "node --test tests/admin-reset.test.js",
+    "test:sfu": "node --test tests/sfu.test.js",
+    "test:maintenance": "node --test tests/maintenance.test.js",
+    "test:salon-logo": "node --test tests/salon-logo.test.js",
+    "test:admin-reset": "node --test tests/admin-reset.test.js",
+    "test:live-prive": "node --test tests/private-live.test.js tests/live-prive.test.js",
+    "admin:create": "node scripts/create-admin.cjs",
+    "test:security": "node --test tests/security-hardening.test.js",
+    "check:distribution": "node scripts/check-distribution.cjs",
+    "test:contact": "node --test tests/contact.test.js",
+    "test:salon-home": "node --test tests/salon-home.test.js",
+    "test:backup": "node --test tests/backup.test.js",
+    "backup:restore": "node scripts/restore-backup.cjs",
+    "test:session": "node --test tests/session-cookie.test.js",
+    "test:discover": "node --test tests/discover.test.js",
+    "test:membres": "node --test tests/salon-members.test.js",
+    "test:stats": "node --test tests/stats.test.js",
+    "test:sanctions": "node --test tests/sanctions.test.js",
+    "test:contestation": "node --test tests/contestation.test.js",
+    "test:email": "node --test tests/email-verif.test.js",
+    "test:gratuit": "node --test tests/gratuit.test.js",
+    "test:recompenses": "node --test tests/recompenses.test.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^12.9.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^10.0.14",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4",
+    "stripe": "^14.0.0",
+    "validator": "^13.11.0"
+  }
+}
