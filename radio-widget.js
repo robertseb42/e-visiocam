@@ -1,17 +1,4 @@
 // ============================================================
-// MODE RADIO PERSISTANTE E-VISIOCAM
-// Dans app-shell.html, le lecteur réel vit dans la fenêtre parente.
-// Les pages affichées dans l'iframe ne recréent jamais un <audio>.
-// ============================================================
-if (window.top !== window && window.top.__EVC_PERSISTENT_RADIO__) {
-    window.togglePlay = function(){ return window.top.togglePlay && window.top.togglePlay(); };
-    window.nextRadio = function(){ return window.top.nextRadio && window.top.nextRadio(); };
-    window.prevRadio = function(){ return window.top.prevRadio && window.top.prevRadio(); };
-    window.setVolume = function(v){ return window.top.setVolume && window.top.setVolume(v); };
-    window.resumeRadio = function(){ return window.top.resumeRadio && window.top.resumeRadio(); };
-    window.loadRadios = function(){ return Promise.resolve(); };
-} else {
-// ============================================================
 // LECTEUR RADIO VINTAGE - STYLE TECHNICS SL-1200 MK2
 // E-VISIOCAM
 // ============================================================
@@ -47,6 +34,7 @@ function loadRadioState() {
 function initAudio() {
     if (audioEl) return;
     audioEl = new Audio();
+    audioEl.crossOrigin = 'anonymous';
     audioEl.volume = loadRadioState().volume;
 
     audioEl.addEventListener('playing', function() {
@@ -81,43 +69,30 @@ function initAudio() {
     });
 }
 
-
-function evcVisibleRadioEl(id) {
-    try {
-        var f = document.getElementById('evcPage');
-        if (f && f.contentDocument) return f.contentDocument.getElementById(id);
-    } catch (e) {}
-    return null;
-}
-
 // ---------- PLATEAU QUI TOURNE ----------
 function updatePlatter(playing) {
     var platter = document.getElementById('radioVinyl');
-    var visiblePlatter = evcVisibleRadioEl('radioVinyl');
-    if (!platter && !visiblePlatter) return;
+    if (!platter) return;
     if (playing) {
-        if (platter) { platter.style.animationPlayState = 'running'; platter.classList.add('spinning'); }
-        if (visiblePlatter) { visiblePlatter.style.animationPlayState = 'running'; visiblePlatter.classList.add('spinning'); }
+        platter.style.animationPlayState = 'running';
+        platter.classList.add('spinning');
     } else {
-        if (platter) { platter.style.animationPlayState = 'paused'; platter.classList.remove('spinning'); }
-        if (visiblePlatter) { visiblePlatter.style.animationPlayState = 'paused'; visiblePlatter.classList.remove('spinning'); }
+        platter.style.animationPlayState = 'paused';
+        platter.classList.remove('spinning');
     }
 }
 
 // ---------- BRAS DE LECTURE ----------
 function updateTonearm(playing) {
     var tonearm = document.getElementById('radioTonearm');
-    var visibleTonearm = evcVisibleRadioEl('radioTonearm');
-    if (!tonearm && !visibleTonearm) return;
+    if (!tonearm) return;
     // Pivot en bas à droite, le bras remonte vers le disque :
     // 2°    = repos (à côté du disque)
     // -22°  = lecture (pointe posée sur le sillon, le disque arrive devant la pointe)
     if (playing) {
-        if (tonearm) tonearm.style.transform = 'rotate(12deg)';
-        if (visibleTonearm) visibleTonearm.style.transform = 'rotate(12deg)';
+        tonearm.style.transform = 'rotate(12deg)';
     } else {
-        if (tonearm) tonearm.style.transform = 'rotate(0deg)';
-        if (visibleTonearm) visibleTonearm.style.transform = 'rotate(0deg)';
+        tonearm.style.transform = 'rotate(0deg)';
     }
 }
 
@@ -218,9 +193,7 @@ function playRadio(index, autoPlay) {
     saveRadioState();
 
     var nowPlaying = document.getElementById('radioNowPlaying');
-    var visibleNowPlaying = evcVisibleRadioEl('radioNowPlaying');
     if (nowPlaying) nowPlaying.textContent = radio.name;
-    if (visibleNowPlaying) visibleNowPlaying.textContent = radio.name;
 
     if (audioEl) { audioEl.pause(); audioEl.removeAttribute('src'); audioEl.load(); }
 
@@ -283,9 +256,7 @@ function updatePlayBtn(isPlaying) {
 
 function updateRadioStatus(text) {
     var status = document.getElementById('radioStatus');
-    var visibleStatus = evcVisibleRadioEl('radioStatus');
     if (status) status.textContent = text;
-    if (visibleStatus) visibleStatus.textContent = text;
 }
 
 function togglePlay() {
@@ -348,5 +319,3 @@ window.togglePlay = togglePlay;
 window.setVolume = setVolume;
 window.resumeRadio = resumeRadio;
 window.keepPlayingMuted = keepPlayingMuted;
-
-}
