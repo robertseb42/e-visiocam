@@ -254,9 +254,12 @@
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <input type="text" id="searchUser" placeholder="Rechercher..."
                     class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
-                <button onclick="loadUsers()" class="text-xs text-brand-primary font-bold hover:underline">
-                    <i class="fa-solid fa-refresh"></i> Rafraichir
-                </button>
+                <div class="flex items-center gap-3">
+                    <button type="button" onclick="offrirA('')" class="px-3 py-1.5 rounded-xl text-xs font-bold" style="background:#ffe500;color:#111113"><i class="fa-solid fa-gift mr-1"></i> Offrir des crédits</button>
+                    <button onclick="loadUsers()" class="text-xs text-brand-primary font-bold hover:underline">
+                        <i class="fa-solid fa-refresh"></i> Rafraichir
+                    </button>
+                </div>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
@@ -304,6 +307,7 @@
 
 <!-- ✅ LE SCRIPT EST MAINTENANT DANS UN FICHIER SÉPARÉ -->
 <script src="sanction-modal.js"></script>
+<script src="offrir-credits.js"></script>
 <script src="moderation.js"></script>
 
 

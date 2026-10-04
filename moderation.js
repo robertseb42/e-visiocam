@@ -560,18 +560,22 @@ function renderUsers(filter) {
     var html = '';
     filtered.forEach(function(u) {
         var isBanned = u.status === 'banned';
-        var isSuperAdmin = u.role === 'super_admin';
+        var cibleAdmin = u.role === 'super_admin';
         var isMe = currentUser && u.id === currentUser.id;
-        var canAct = !isSuperAdmin && !isMe;
+        var canAct = !cibleAdmin && !isMe;
+        var moiAdmin = currentUser && currentUser.role === 'super_admin';
+        // 🎁 Offrir des crédits : un modérateur ne peut pas s'en offrir ni en offrir à l'équipe
+        var peutOffrir = !isBanned && (moiAdmin || (!isMe && u.role !== 'moderator' && !cibleAdmin));
         html += '<tr class="border-b border-slate-50 hover:bg-slate-50/50">';
         html += '<td class="py-3 px-2 text-slate-500 font-mono text-xs">#' + u.id + '</td>';
         html += '<td class="py-3 px-2 font-bold text-slate-900">' + escapeHtml(u.username) + (isMe ? ' (moi)' : '') + '</td>';
         html += '<td class="py-3 px-2 text-xs">' + (roleLabels[u.role] || u.role) + '</td>';
         html += '<td class="py-3 px-2">' + EvcSanction.etiquette(u) + '</td>';
         html += '<td class="py-3 px-2 text-right whitespace-nowrap">';
+        if (peutOffrir) html += '<button onclick="offrirA(\'' + escapeHtml(u.username).replace(/'/g, "\\'") + '\')" title="Offrir des crédits" class="px-2 py-1 bg-yellow-100 text-amber-700 hover:bg-yellow-200 text-xs rounded-lg mr-1"><i class="fa-solid fa-gift"></i> Offrir</button>';
         if (canAct) {
             var actives = EvcSanction.enCours(u);
-            var superA = typeof isSuperAdmin === 'function' && isSuperAdmin();
+            var superA = moiAdmin;
             html += '<button onclick="quickAction(' + u.id + ', \'warn\')" class="px-2 py-1 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg mr-1">Warn</button>';
             html += actives.indexOf('mute') !== -1
                 ? '<button onclick="EvcSanction.lever(' + u.id + ', \'mute\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Rendre la parole</button>'
@@ -581,12 +585,21 @@ function renderUsers(filter) {
                 : '<button onclick="quickAction(' + u.id + ', \'kick\')" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Kick</button>';
             if (!isBanned) html += '<button onclick="quickAction(' + u.id + ', \'ban\')" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs rounded-lg">Ban</button>';
             else if (superA) html += '<button onclick="EvcSanction.lever(' + u.id + ', \'ban\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg">Débannir</button>';
-        } else {
+        } else if (!peutOffrir) {
             html += '<span class="text-[10px] text-slate-400">-</span>';
         }
         html += '</td></tr>';
     });
     tbody.innerHTML = html;
+}
+
+// Fenêtre « Offrir des crédits »
+function offrirA(nom) {
+    var moi = currentUser || {};
+    var noms = allUsers.filter(function (u) {
+        return u.status !== 'banned' && (moi.role === 'super_admin' || (u.id !== moi.id && u.role !== 'moderator' && u.role !== 'super_admin'));
+    }).map(function (u) { return u.username; });
+    EvcOffrir.ouvrir({ username: nom, membres: noms });
 }
 
 function quickAction(userId, action) {

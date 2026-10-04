@@ -17,6 +17,7 @@
     <script src="auth-api.js"></script>
     <script src="legal-banner.js"></script>
     <script src="sanction-modal.js"></script>
+    <script src="offrir-credits.js"></script>
     <script src="https://api.e-visiocam.com/socket.io/socket.io.js" defer></script>
     <script src="nav-auth.js" defer></script>
 
@@ -303,6 +304,7 @@
                 <input type="text" id="searchUser" placeholder="Rechercher..."
                     class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
                 <div class="flex items-center gap-3">
+                    <button type="button" onclick="offrirA('')" class="px-3 py-1.5 rounded-xl text-xs font-bold" style="background:#ffe500;color:#111113"><i class="fa-solid fa-gift mr-1"></i> Offrir des crédits</button>
                     <span class="text-xs text-slate-500" id="userCount">Chargement...</span>
                     <button onclick="loadUsers()" class="text-xs text-brand-primary hover:underline font-bold">
                         <i class="fa-solid fa-refresh"></i> Rafraîchir
@@ -367,6 +369,9 @@
                 .rwa-alerte{border:1px solid #f59e0b66;background:#f59e0b1a;border-radius:12px;padding:10px 12px;font-size:12px;color:var(--a-text);margin-bottom:6px}
                 .rwa-retrait{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
                 .rwa-retrait.hidden{display:none}
+                .rwa-offre{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+                .rwa-offre input{padding:9px 11px;border-radius:10px;border:1px solid var(--a-line);background:var(--a-soft);color:var(--a-text);font-size:13px}
+                .rwa-btn.ok{background:#059669;color:#fff;padding:5px 10px;font-size:11px;margin-right:4px}
                 .rwa-retrait input{padding:6px 8px;border-radius:8px;border:1px solid var(--a-line);background:var(--a-soft);color:var(--a-text);font-size:12px}
             </style>
             <div class="rwa">
@@ -382,6 +387,17 @@
                         <button type="button" class="rwa-btn ghost" onclick="chargerRecompenses()"><i class="fa-solid fa-rotate"></i></button>
                     </div>
                 </div>
+
+                <h4>🎁 Offrir des crédits à un membre</h4>
+                <form id="rwaOffre" onsubmit="offrirCredits(event)" class="rwa-offre">
+                    <input type="text" id="rwaOffreNom" list="rwaMembres" placeholder="Pseudo du membre" required maxlength="30" autocomplete="off">
+                    <datalist id="rwaMembres"></datalist>
+                    <input type="number" id="rwaOffreMontant" min="1" max="5000" step="1" placeholder="Crédits" required style="width:110px">
+                    <input type="text" id="rwaOffreRaison" placeholder="Petit mot affiché au membre (ex. : merci pour ta bonne humeur)" required maxlength="120" style="flex:1;min-width:220px">
+                    <button type="submit" class="rwa-btn"><i class="fa-solid fa-gift mr-1"></i> Offrir</button>
+                </form>
+                <p class="text-xs" style="color:var(--a-muted);margin-top:6px">Le membre est prévenu tout de suite et voit votre petit mot dans son historique. Les crédits offerts comptent pour son niveau. 5 000 crédits au plus par envoi. Les modérateurs peuvent aussi offrir des crédits, dans les limites fixées dans les Réglages ci-dessous.</p>
+                <div class="tbl" style="margin-top:10px"><table><thead><tr><th>Membre</th><th>Crédits</th><th>Motif</th><th>Par</th><th>Date</th></tr></thead><tbody id="rwaManuels"></tbody></table></div>
 
                 <h4>Crédits distribués par action</h4>
                 <div class="rwa-tuiles" id="rwaTuiles"></div>
@@ -747,6 +763,8 @@ function renderUsers(filter = '') {
         const canAct = !isMe;
 
         let actions = '<div class="flex justify-end gap-1 flex-wrap">';
+        // 🎁 Offrir des crédits (possible aussi pour soi-même et l'équipe : Super Admin)
+        if (!isBanned) actions += '<button onclick="offrirA(\'' + escapeHtml(u.username).replace(/'/g, "\\'") + '\')" title="Offrir des crédits" class="w-7 h-7 rounded-lg bg-yellow-100 text-amber-700 hover:bg-yellow-200 text-xs"><i class="fa-solid fa-gift"></i></button>';
         // 🔑 Réinitialisation du mot de passe : possible sur n'importe quel compte
         actions += '<button onclick="handleResetPassword(' + u.id + ', \'' + escapeHtml(u.username).replace(/'/g, "\\'") + '\')" title="Réinitialiser le mot de passe" class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 text-xs"><i class="fa-solid fa-key"></i></button>';
         if (canAct && u.role === 'user') {
@@ -1210,7 +1228,8 @@ const RWA_CHAMPS = [
     ['actif15', 'Participation : crédits par 15 min'], ['actifMaxJour', 'Participation : plafond par jour'],
     ['liveHeure', 'Live (modèles) : crédits par heure'], ['liveMaxJour', 'Live : plafond par jour'],
     ['parrainage', 'Parrainage : crédits'], ['parrainageJoursActifs', 'Parrainage : jours actifs du filleul'], ['parrainageMaxMois', 'Parrainage : maximum par mois'],
-    ['signalement', 'Signalement confirmé : crédits'], ['signalementMaxSemaine', 'Signalements payés par semaine']
+    ['signalement', 'Signalement confirmé : crédits'], ['signalementMaxSemaine', 'Signalements payés par semaine'],
+    ['modoOffreMax', 'Modérateurs : crédits offerts par envoi (0 = interdit)'], ['modoOffreJour', 'Modérateurs : crédits offerts par jour']
 ];
 let rwaData = null;
 
@@ -1231,13 +1250,50 @@ async function chargerRecompenses() {
         '<div class="rwa-retrait hidden" id="rwaR' + Number(u.id) + '"><input type="number" min="1" max="' + Number(u.solde || 0) + '" placeholder="Crédits" style="width:90px"><input type="text" maxlength="200" placeholder="Raison (envoyée par e-mail)" style="flex:1;min-width:160px">' +
         '<button type="button" class="rwa-btn danger" onclick="retirerCredits(' + Number(u.id) + ')">Confirmer</button></div></td>' +
         '<td>' + nf.format(u.credits) + '</td><td>' + nf.format(u.solde || 0) + '</td>' +
-        '<td style="text-align:right"><button type="button" class="rwa-btn danger" onclick="document.getElementById(\'rwaR' + Number(u.id) + '\').classList.toggle(\'hidden\')">Retirer</button></td></tr>').join('')
+        '<td style="text-align:right;white-space:nowrap"><button type="button" class="rwa-btn ok" data-offrir="' + escapeHtml(u.username) + '">Offrir</button><button type="button" class="rwa-btn danger" onclick="document.getElementById(\'rwaR' + Number(u.id) + '\').classList.toggle(\'hidden\')">Retirer</button></td></tr>').join('')
         : '<tr><td colspan="4" class="text-slate-400">Personne pour le moment</td></tr>';
     const etat = { pending: '⏳ En attente', rewarded: '✅ Validé', refused: '⛔ Refusé' };
     document.getElementById('rwaParr').innerHTML = d.parrainages.length ? d.parrainages.map(p =>
         '<tr><td>' + escapeHtml(p.filleul) + '</td><td>' + escapeHtml(p.parrain) + '</td><td>' + (etat[p.status] || escapeHtml(p.status)) + (p.reason ? ' <span class="text-slate-400">(' + escapeHtml(p.reason) + ')</span>' : '') + '</td><td>' + escapeHtml(String(p.created_at).slice(0, 10).split('-').reverse().join('/')) + '</td></tr>').join('')
         : '<tr><td colspan="4" class="text-slate-400">Aucun parrainage</td></tr>';
+    document.querySelectorAll('[data-offrir]').forEach(b => b.addEventListener('click', () => {
+        document.getElementById('rwaOffreNom').value = b.dataset.offrir;
+        document.getElementById('rwaOffreMontant').focus();
+        document.getElementById('rwaOffre').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }));
+    const quandM = t => new Date(String(t).replace(' ', 'T') + (/[TZ]/.test(t) ? '' : 'Z')).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    document.getElementById('rwaManuels').innerHTML = (d.manuels || []).length ? d.manuels.map(m =>
+        '<tr><td><b>' + escapeHtml(m.username) + '</b></td><td style="font-weight:800;color:' + (m.amount > 0 ? '#059669' : '#e11d48') + '">' + (m.amount > 0 ? '+' : '') + m.amount + '</td><td>' +
+        (m.type === 'retrait' ? '⛔ ' : '🎁 ') + escapeHtml(m.description || '') + '</td><td>' + (m.parRole === 'moderator' ? '🔵 ' : m.par ? '👑 ' : '') + escapeHtml(m.par || '—') + '</td><td>' + escapeHtml(quandM(m.created_at)) + '</td></tr>').join('')
+        : '<tr><td colspan="5" class="text-slate-400">Aucun crédit offert ou retiré à la main pour le moment</td></tr>';
     remplirReglages(d.config);
+    remplirMembresOffre();
+}
+
+async function remplirMembresOffre() {
+    const dl = document.getElementById('rwaMembres');
+    if (dl.childElementCount) return;
+    try {
+        if (!allUsers.length) { const data = await apiCall('/admin/users'); allUsers = data.users || []; }
+        dl.innerHTML = allUsers.filter(u => u.status !== 'banned').map(u => '<option value="' + escapeHtml(u.username) + '"></option>').join('');
+    } catch (e) {}
+}
+
+// Fenêtre « Offrir des crédits » (onglet Utilisateurs)
+function offrirA(nom) {
+    EvcOffrir.ouvrir({ username: nom, membres: allUsers.filter(u => u.status !== 'banned').map(u => u.username),
+        onDone: () => { if (!document.getElementById('tab-rewards').classList.contains('hidden')) chargerRecompenses(); } });
+}
+
+async function offrirCredits(e) {
+    e.preventDefault();
+    const nom = document.getElementById('rwaOffreNom'), mt = document.getElementById('rwaOffreMontant'), rs = document.getElementById('rwaOffreRaison');
+    try {
+        const r = await apiCall('/admin/rewards/offrir', { method: 'POST', body: JSON.stringify({ username: nom.value.trim(), montant: Number(mt.value), raison: rs.value }) });
+        showToast('🎁 ' + r.offert + ' crédits offerts à ' + r.username + ' (nouveau solde : ' + r.solde + ')', 'success');
+        nom.value = ''; mt.value = ''; rs.value = '';
+        chargerRecompenses();
+    } catch (err) { showToast(err.message, 'error'); }
 }
 
 function remplirReglages(c) {
