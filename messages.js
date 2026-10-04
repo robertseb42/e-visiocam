@@ -20,11 +20,22 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    var ecrire = parseInt(new URLSearchParams(location.search).get('ecrire'), 10);
+    var params = new URLSearchParams(location.search);
+    var ecrire = parseInt(params.get('ecrire'), 10);
     if (ecrire > 0 && ecrire !== currentUser.id) {
         // Arrivée depuis la galerie des membres : messages.html?ecrire=12 ouvre la conversation avec ce membre
+        // (&demande=cam : le message de demande de caméra est déjà écrit, il reste à l'envoyer ou le modifier)
+        var demande = params.get('demande');
         try { history.replaceState(null, '', location.pathname); } catch (e) {}
-        startConversationWith(ecrire);
+        Promise.resolve(startConversationWith(ecrire)).then(function () {
+            var champ = document.getElementById('messageInput');
+            if (!champ) return;
+            if (demande === 'cam' && !champ.value) {
+                champ.value = '📷 Salut ! Ça te dirait d’allumer ta cam ? Si tu es d’accord, tu peux m’inviter dans un live privé. Pas de souci si tu préfères pas 😊';
+            }
+            champ.focus();
+            try { champ.setSelectionRange(champ.value.length, champ.value.length); } catch (e) {}
+        });
     }
     initSocket();
     loadConversations();

@@ -48,14 +48,17 @@
     .ev-point-on{background:#ffe500}
     .ev-point-live{background:#f43f5e;animation:evPoint 1.4s ease-in-out infinite}
     @keyframes evPoint{0%,100%{box-shadow:0 0 0 2px #0006,0 0 0 0 #f43f5ecc}50%{box-shadow:0 0 0 2px #0006,0 0 0 7px #f43f5e00}}
-    .ev-membre-survol{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.9);opacity:0;transition:.2s ease;
-        background:#ffe500;color:#111113;font-size:12px;font-weight:800;padding:7px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 18px #0006}
-    .ev-membre-lien{display:block;transition:transform .2s ease}
-    .ev-membre-lien:hover{transform:translateY(-3px)}
-    .ev-membre-lien:hover img{transform:scale(1.07);filter:brightness(.75)}
-    .ev-membre-lien:hover .ev-membre-survol,.ev-membre-lien:focus-visible .ev-membre-survol{opacity:1;transform:translate(-50%,-50%) scale(1)}
-    @media (hover:none){.ev-membre-survol{display:none}}
-    @media (prefers-reduced-motion:reduce){.ev-point-live{animation:none}.ev-membre img,.ev-membre-lien{transition:none}}
+    /* Actions au survol (ou au toucher sur téléphone) : Message · Demander la cam · Voir sa caméra */
+    .ev-membre-actions{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 10px 40px;
+        background:#0008;opacity:0;transition:opacity .2s ease}
+    .ev-membre.a-actions:hover .ev-membre-actions,.ev-membre.a-actions:focus-within .ev-membre-actions{opacity:1}
+    .ev-membre.a-actions:hover img{transform:scale(1.07)}
+    .ev-action{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:150px;padding:7px 10px;border-radius:999px;
+        background:#fff;color:#111113;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 4px 12px #0005;transition:transform .15s ease}
+    .ev-action:hover,.ev-action:focus-visible{transform:scale(1.05)}
+    .ev-action-cam{background:#ffe500}
+    @media (hover:none){.ev-membre-actions{opacity:1;background:linear-gradient(to bottom,transparent 30%,#0007);justify-content:flex-end;padding-bottom:42px}}
+    @media (prefers-reduced-motion:reduce){.ev-point-live{animation:none}.ev-membre img,.ev-membre-actions,.ev-action{transition:none}}
 </style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -180,20 +183,25 @@ let MEMBRES = null;   // null = non connecté
 function carteMembre(m) {
     const photo = urlAvatar(m.avatar);
     const enLigne = m.online || m.moi;   // si vous voyez la page, vous êtes connecté
-    // 🔴 en direct : on ouvre sa caméra · 🟡 connecté : on lui écrit · hors ligne : simple vignette
-    const lien = m.moi ? null : (m.isLive ? 'live.html' : (m.online ? 'messages.html?ecrire=' + Number(m.id) : null));
+    // 🔴 en direct : voir sa caméra · 🟡 connecté : lui écrire ou lui demander sa cam · hors ligne : simple vignette
     const point = m.isLive ? '<span class="ev-point ev-point-live" title="En direct"></span>'
                 : (enLigne ? '<span class="ev-point ev-point-on" title="Connecté"></span>' : '');
-    const survol = lien ? `<span class="ev-membre-survol">${m.isLive ? '<i class="fa-solid fa-video"></i> Voir sa caméra' : '<i class="fa-regular fa-envelope"></i> Lui écrire'}</span>` : '';
-    const contenu = `
-        <div class="ev-membre ${m.isLive ? 'est-live' : (enLigne ? '' : 'est-absent')}">
+    const ecrire = 'messages.html?ecrire=' + Number(m.id);
+    let actions = '';
+    if (!m.moi && m.isLive) {
+        actions = `<a href="live.html" class="ev-action ev-action-cam"><i class="fa-solid fa-video"></i> Voir sa caméra</a>
+                   <a href="${ecrire}" class="ev-action"><i class="fa-regular fa-comment"></i> Message</a>`;
+    } else if (!m.moi && m.online) {
+        actions = `<a href="${ecrire}" class="ev-action"><i class="fa-regular fa-comment"></i> Message</a>
+                   <a href="${ecrire}&demande=cam" class="ev-action ev-action-cam"><i class="fa-solid fa-video"></i> Demander la cam</a>`;
+    }
+    return `
+        <div class="ev-membre ${m.isLive ? 'est-live' : (enLigne ? '' : 'est-absent')} ${actions ? 'a-actions' : ''}"
+             title="${escM(m.username + (m.moi ? ' (vous)' : (m.isLive ? ' — en direct' : (enLigne ? ' — connecté' : ' — hors ligne'))))}" ${actions ? 'tabindex="0"' : ''}>
             ${photo ? `<img src="${escM(photo)}" alt="" loading="lazy">` : ''}
-            ${survol}
+            ${actions ? `<div class="ev-membre-actions">${actions}</div>` : ''}
             <div class="ev-membre-bas"><p class="ev-membre-nom">${point}${escM(m.username)}</p></div>
         </div>`;
-    return lien
-        ? `<a href="${lien}" class="ev-membre-lien" title="${escM((m.isLive ? 'Voir la caméra de ' : 'Écrire à ') + m.username)}">${contenu}</a>`
-        : `<div title="${escM(m.username + (m.moi ? ' (vous)' : (enLigne ? ' — connecté' : ' — hors ligne')))}">${contenu}</div>`;
 }
 function rendreMembres() {
     const grille = document.getElementById('membresGrid'), resume = document.getElementById('membresResume');
@@ -206,7 +214,7 @@ function rendreMembres() {
     const liste = MEMBRES.filter(m => (!q || m.username.toLowerCase().includes(q)) && (!live || m.isLive));
     const enDirect = MEMBRES.filter(m => m.isLive).length, enLigne = MEMBRES.filter(m => m.online || m.moi).length;
     resume.textContent = MEMBRES.length
-        ? MEMBRES.length + ' membre' + (MEMBRES.length > 1 ? 's' : '') + ' · 🟡 ' + enLigne + ' connecté' + (enLigne > 1 ? 's' : '') + ' · 🔴 ' + enDirect + ' en direct. Touchez un membre connecté pour lui écrire, ou un membre en direct pour voir sa caméra.'
+        ? MEMBRES.length + ' membre' + (MEMBRES.length > 1 ? 's' : '') + ' · 🟡 ' + enLigne + ' connecté' + (enLigne > 1 ? 's' : '') + ' · 🔴 ' + enDirect + ' en direct. Passez sur un membre connecté pour lui écrire ou lui demander sa cam.'
         : 'Aucun membre avec une photo pour le moment. Ajoutez la vôtre dans Mon compte !';
     grille.innerHTML = liste.length ? liste.map(carteMembre).join('')
         : (MEMBRES.length ? '<p class="col-span-full text-center text-slate-500 py-6">Aucun membre ne correspond</p>' : '');
