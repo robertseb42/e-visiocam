@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>E-VISIOCAM</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050505}
+    #evcPage{position:fixed;inset:0;width:100%;height:100%;border:0;background:#050505}
+    @media(max-width:900px){
+      #radioWidgetFloating{left:12px!important;top:auto!important;bottom:12px!important}
+    }
+  </style>
+  <script>window.__EVC_PERSISTENT_RADIO__ = true;</script>
+</head>
+<body>
+  <iframe id="evcPage" title="E-VISIOCAM"></iframe>
+  <script>
+    (function(){
+      var p = new URLSearchParams(location.search).get('page') || 'index.html';
+      // sécurité: uniquement une page locale du site
+      if (/^(?:https?:)?\/\//i.test(p) || p.indexOf('..') !== -1) p = 'index.html';
+      document.getElementById('evcPage').src = p;
+    })();
+  </script>
+  <script src="radio-widget.js"></script>
+  <script src="radio-widget-floating.js"></script>
+</body>
+</html>

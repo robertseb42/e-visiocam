@@ -1,4 +1,28 @@
 // ============================================================
+// MODE RADIO PERSISTANTE E-VISIOCAM
+// Dans app-shell.html, le lecteur réel vit dans la fenêtre parente.
+// Les pages affichées dans l'iframe ne recréent jamais un <audio>.
+// ============================================================
+if (window.top !== window && window.top.__EVC_PERSISTENT_RADIO__) {
+    // Le vrai lecteur vit dans le shell parent. On masque l'ancienne platine locale
+    // pour qu'il n'y ait qu'un seul lecteur visible.
+    function evcHideLocalRadio() {
+        var local = document.getElementById('radioWidget');
+        if (local) local.style.display = 'none';
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', evcHideLocalRadio);
+    } else {
+        evcHideLocalRadio();
+    }
+    window.togglePlay = function(){ return window.top.togglePlay && window.top.togglePlay(); };
+    window.nextRadio = function(){ return window.top.nextRadio && window.top.nextRadio(); };
+    window.prevRadio = function(){ return window.top.prevRadio && window.top.prevRadio(); };
+    window.setVolume = function(v){ return window.top.setVolume && window.top.setVolume(v); };
+    window.resumeRadio = function(){ return window.top.resumeRadio && window.top.resumeRadio(); };
+    window.loadRadios = function(){ return Promise.resolve(); };
+} else {
+// ============================================================
 // LECTEUR RADIO VINTAGE - STYLE TECHNICS SL-1200 MK2
 // E-VISIOCAM
 // ============================================================
@@ -34,7 +58,6 @@ function loadRadioState() {
 function initAudio() {
     if (audioEl) return;
     audioEl = new Audio();
-    audioEl.crossOrigin = 'anonymous';
     audioEl.volume = loadRadioState().volume;
 
     audioEl.addEventListener('playing', function() {
@@ -319,3 +342,5 @@ window.togglePlay = togglePlay;
 window.setVolume = setVolume;
 window.resumeRadio = resumeRadio;
 window.keepPlayingMuted = keepPlayingMuted;
+
+}

@@ -6,6 +6,7 @@
 // ============================================================
 
 (function() {
+    if (window.top !== window && window.top.__EVC_PERSISTENT_RADIO__) return;
     // Éviter les doubles injections
     if (document.getElementById('radioWidgetFloating')) return;
 
@@ -79,7 +80,7 @@
     `;
 
     // Style du conteneur
-    widget.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999;';
+    widget.style.cssText = 'position: fixed; left: 30px; top: 340px; right: auto; bottom: auto; z-index: 9999;';
 
     document.body.appendChild(widget);
 
@@ -114,8 +115,11 @@
         memoireOuverte(true);
     };
 
-    var ouverte = false;
-    try { ouverte = localStorage.getItem('evcRadioOuvert') === '1'; } catch (e) {}
+    var ouverte = true;
+    try {
+        var memorisee = localStorage.getItem('evcRadioOuvert');
+        if (memorisee !== null) ouverte = memorisee === '1';
+    } catch (e) {}
     if (ouverte) window.expandRadioWidget(); else window.minimizeRadioWidget();
 
     // Clic sur la version réduite → rouvrir
