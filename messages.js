@@ -20,6 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    var ecrire = parseInt(new URLSearchParams(location.search).get('ecrire'), 10);
+    if (ecrire > 0 && ecrire !== currentUser.id) {
+        // Arrivée depuis la galerie des membres : messages.html?ecrire=12 ouvre la conversation avec ce membre
+        try { history.replaceState(null, '', location.pathname); } catch (e) {}
+        startConversationWith(ecrire);
+    }
     initSocket();
     loadConversations();
 

@@ -75,6 +75,9 @@
                     <button type="button" id="photoRetirer" hidden class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-rose-100 text-rose-600"><i class="fa-regular fa-trash-can" aria-hidden="true"></i> Retirer</button>
                 </div>
                 <p id="photoEtat" class="text-[11px] mt-2 text-amber-600 font-semibold" hidden></p>
+                <label id="photoGalerieZone" class="mt-2 inline-flex items-center gap-2 text-[11px] text-slate-600 cursor-pointer" hidden>
+                    <input type="checkbox" id="photoGalerie" class="rounded"> Afficher ma photo dans la galerie des membres
+                </label>
                 <p class="text-[10px] text-slate-400 mt-2 leading-snug">Pas de nudité, pas d'autre personne sans son accord, pas de coordonnées. Vérifiée par la modération avant d'être visible (<a href="cgu.html#compte" class="underline">CGU 3.1</a>).</p>
             </div>
             <h2 class="text-xl font-bold text-slate-900" id="displayUsername">...</h2>
@@ -270,6 +273,8 @@ async function afficherPhoto(etat) {
     const info = document.getElementById('photoEtat');
     const st = (etat && etat.status) || 'none';
     document.getElementById('photoRetirer').hidden = st === 'none';
+    document.getElementById('photoGalerieZone').hidden = st === 'none';
+    document.getElementById('photoGalerie').checked = !etat || etat.galerie !== false;
     document.getElementById('photoChangerTexte').textContent = st === 'none' ? 'Ajouter une photo' : 'Changer la photo';
     info.hidden = st !== 'pending';
     info.textContent = st === 'pending' ? '⏳ En attente de validation : pour l’instant, vous seul la voyez.' : '';
@@ -329,6 +334,12 @@ document.getElementById('photoFichier').addEventListener('change', async (e) => 
     } catch (err) {
         showToast(err.message, 'error');
     } finally { bouton.disabled = false; }
+});
+document.getElementById('photoGalerie').addEventListener('change', async (e) => {
+    try {
+        await apiCall('/avatars/me/galerie', { method: 'PUT', body: JSON.stringify({ visible: e.target.checked }) });
+        showToast(e.target.checked ? 'Votre photo apparaît dans la galerie des membres' : 'Votre photo n’apparaît plus dans la galerie', 'success');
+    } catch (err) { e.target.checked = !e.target.checked; showToast(err.message, 'error'); }
 });
 document.getElementById('photoRetirer').addEventListener('click', async () => {
     if (!confirm('Retirer votre photo de profil ?')) return;

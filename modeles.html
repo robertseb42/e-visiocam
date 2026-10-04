@@ -35,6 +35,24 @@
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
   <script src="persistent-radio-bootstrap.js"></script>
+<style>
+    /* Galerie des membres : photo carrée, pseudo en bas, cliquable si en ligne */
+    .ev-membres{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+    .ev-membre{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:#2a2a30;box-shadow:0 4px 14px #0003}
+    .ev-membre img{width:100%;height:100%;object-fit:cover;transition:transform .3s ease}
+    .ev-membre.est-en-ligne{box-shadow:0 0 0 3px #34d399,0 4px 14px #0003}
+    .ev-membre.est-live{box-shadow:0 0 0 4px #f43f5e,0 4px 14px #0003}
+    .ev-membre.est-absent img{filter:saturate(.75) brightness(.85)}
+    .ev-membre-point{position:absolute;top:10px;right:10px;width:12px;height:12px;border-radius:50%;background:#34d399;box-shadow:0 0 0 2px #fff}
+    .ev-membre-live{position:absolute;top:8px;left:8px;background:#f43f5e;color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
+    .ev-membre-bas{position:absolute;inset:auto 0 0 0;padding:26px 10px 9px;background:linear-gradient(to top,#000c,#0006 60%,transparent);color:#fff}
+    .ev-membre-nom{margin:0;font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ev-membre-action{margin:2px 0 0;font-size:10.5px;font-weight:600;opacity:.9}
+    .ev-membre-lien{display:block;transition:transform .2s ease}
+    .ev-membre-lien:hover{transform:translateY(-3px)}
+    .ev-membre-lien:hover img{transform:scale(1.06)}
+    .ev-membre-lien:hover .ev-membre-action{text-decoration:underline}
+</style>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -99,6 +117,13 @@
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-4" id="modelsGrid" aria-live="polite"></div>
+
+    <!-- 👥 Galerie des membres : photos validées par la modération, caméra en tête si le membre est en live -->
+    <section id="membresZone" style="margin-top:40px" aria-labelledby="membresTitre">
+        <h2 id="membresTitre" class="text-2xl font-extrabold text-slate-900">👥 Membres de la communauté</h2>
+        <p class="text-sm text-slate-500 mt-1 mb-4" id="membresResume">Chargement…</p>
+        <div class="ev-membres" id="membresGrid" aria-live="polite"></div>
+    </section>
 </main>
 
 
@@ -142,7 +167,52 @@ function rendre() {
         ? MODELS.length + ' modèle' + (MODELS.length > 1 ? 's' : '') + (enDirect ? ' · ' + enDirect + ' en direct maintenant' : '') + ' · ❤️ pour être prévenu de leurs lives'
         : 'Les modèles du site apparaîtront ici.';
     grille.innerHTML = liste.length ? liste.map(carte).join('')
-        : `<p class="col-span-full text-center text-slate-500 py-12">${MODELS.length ? 'Aucun modèle ne correspond' : (document.getElementById('searchModel').value ? 'Aucun modèle trouvé' : 'Aucun modèle pour le moment')}</p>`;
+        : `<p class="col-span-full text-center text-slate-500 py-6">${MODELS.length ? 'Aucun modèle ne correspond' : (document.getElementById('searchModel').value ? 'Aucun modèle trouvé' : 'Aucun modèle pour le moment : découvrez les membres ci-dessous 👇')}</p>`;
+    rendreMembres();
+}
+
+// ---------- Galerie des membres ----------
+let MEMBRES = null;   // null = non connecté
+function carteMembre(m) {
+    const photo = urlAvatar(m.avatar);
+    // En live : on ouvre sa caméra · en ligne : on lui écrit · hors ligne : simple vignette
+    const lien = m.moi ? null : (m.isLive ? 'live.html' : (m.online ? 'messages.html?ecrire=' + Number(m.id) : null));
+    const action = m.isLive ? '<i class="fa-solid fa-video"></i> Voir sa caméra' : '<i class="fa-regular fa-envelope"></i> Lui écrire';
+    const etat = m.isLive ? 'est-live' : (m.online ? 'est-en-ligne' : (m.moi ? '' : 'est-absent'));
+    const contenu = `
+        <div class="ev-membre ${etat}">
+            ${photo ? `<img src="${escM(photo)}" alt="" loading="lazy">` : ''}
+            ${m.isLive ? '<span class="ev-membre-live">● EN DIRECT</span>' : (m.online ? '<span class="ev-membre-point" title="En ligne"></span>' : '')}
+            <div class="ev-membre-bas">
+                <p class="ev-membre-nom">${m.insigne ? escM(m.insigne.icone) + ' ' : ''}${escM(m.username)}${m.moi ? ' <span style="opacity:.7;font-weight:400">(vous)</span>' : ''}</p>
+                <p class="ev-membre-action">${lien ? action : (m.moi ? 'Votre photo' : 'Hors ligne')}</p>
+            </div>
+        </div>`;
+    return lien
+        ? `<a href="${lien}" class="ev-membre-lien" title="${escM((m.isLive ? 'Voir la caméra de ' : 'Écrire à ') + m.username)}">${contenu}</a>`
+        : `<div title="${escM(m.username)}">${contenu}</div>`;
+}
+function rendreMembres() {
+    const grille = document.getElementById('membresGrid'), resume = document.getElementById('membresResume');
+    if (MEMBRES === null) {
+        resume.innerHTML = '<a href="login.html" class="underline font-semibold">Connectez-vous</a> pour découvrir les membres de la communauté.';
+        grille.innerHTML = ''; return;
+    }
+    const q = document.getElementById('searchModel').value.trim().toLowerCase();
+    const live = document.getElementById('onlyLive').checked;
+    const liste = MEMBRES.filter(m => (!q || m.username.toLowerCase().includes(q)) && (!live || m.isLive));
+    const enDirect = MEMBRES.filter(m => m.isLive).length, enLigne = MEMBRES.filter(m => m.online && !m.moi).length;
+    resume.textContent = MEMBRES.length
+        ? MEMBRES.length + ' membre' + (MEMBRES.length > 1 ? 's' : '') + ' avec une photo' + (enLigne ? ' · ' + enLigne + ' en ligne' : '') + (enDirect ? ' · ' + enDirect + ' en live' : '') + '. Cliquez sur un membre en ligne pour lui écrire.'
+        : 'Aucun membre avec une photo pour le moment. Ajoutez la vôtre dans Mon compte !';
+    grille.innerHTML = liste.length ? liste.map(carteMembre).join('')
+        : (MEMBRES.length ? '<p class="col-span-full text-center text-slate-500 py-6">Aucun membre ne correspond</p>' : '');
+}
+async function chargerMembres() {
+    if (typeof getCurrentUser !== 'function' || !getCurrentUser()) { MEMBRES = null; rendreMembres(); return; }
+    try { const d = await apiCall('/models/members'); MEMBRES = d.members || []; }
+    catch (e) { MEMBRES = []; }
+    rendreMembres();
 }
 
 let attente = null;
@@ -166,7 +236,8 @@ async function charger() {
 const q0 = new URLSearchParams(location.search).get('q');
 if (q0) document.getElementById('searchModel').value = q0;
 charger();
-setInterval(charger, 60000);   // statut « en direct » à jour
+chargerMembres();
+setInterval(() => { charger(); chargerMembres(); }, 60000);   // statut « en direct » à jour
 document.getElementById('searchModel').addEventListener('input', () => { clearTimeout(attente); attente = setTimeout(charger, 250); });
 document.getElementById('sortModels').addEventListener('change', charger);
 document.getElementById('onlyLive').addEventListener('change', rendre);
