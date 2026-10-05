@@ -72,6 +72,8 @@
         <h1 class="text-3xl font-extrabold text-slate-900">Espace Moderateur</h1>
         <p class="text-sm text-slate-500 mt-1">Surveillance, signalements et sanctions</p>
     </div>
+    <style>#bandeauStagiaire{background:#fffbeb;border:1px solid #fde68a;color:#78350f}:where(html:not([data-theme="light"])) #bandeauStagiaire{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45);color:#fde68a}#bandeauStagiaire strong{color:inherit}</style>
+    <div id="bandeauStagiaire" class="hidden mb-6 rounded-2xl p-4 text-sm"></div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
@@ -133,6 +135,10 @@
             <button onclick="showTab('photos', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-image-portrait mr-1"></i> Photos de profil
                 <span id="photosBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button onclick="showTab('candidatures', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-user-plus mr-1"></i> Candidatures
+                <span id="candidaturesBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
             <button onclick="showTab('viewlogs', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1"></i> Historique
@@ -304,6 +310,23 @@
             <div id="photosListe" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"><p class="text-center text-slate-400 py-8 text-sm col-span-full">Chargement...</p></div>
         </div>
 
+        <div id="tab-candidatures" class="tab-content p-5 hidden">
+            <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
+                <p class="text-xs text-slate-500">Candidatures envoyées depuis la page <a href="devenir-moderateur.html" target="_blank" class="text-brand-primary font-bold">Devenir modérateur</a>. Tous les modérateurs peuvent laisser un avis ; le Super Admin accepte (stage de 3 semaines) ou refuse. Pensez à écrire au candidat en message privé avant de décider.</p>
+                <div class="flex gap-2 items-center whitespace-nowrap">
+                    <select id="candidaturesFiltre" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white">
+                        <option value="pending">En attente</option>
+                        <option value="accepted">Acceptées</option>
+                        <option value="refused">Refusées</option>
+                        <option value="withdrawn">Retirées</option>
+                    </select>
+                    <button type="button" onclick="EvcCandidatures.charger()" class="text-xs text-brand-primary font-bold hover:underline"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
+                </div>
+            </div>
+            <div id="stagiairesBloc" class="hidden mb-5"></div>
+            <div id="candidaturesListe" class="space-y-3"><p class="text-center text-slate-400 py-8 text-sm">Chargement...</p></div>
+        </div>
+
         <div id="tab-viewlogs" class="tab-content p-5 hidden">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-slate-900">Historique des surveillances</h3>
@@ -323,6 +346,7 @@
 <script src="offrir-credits.js"></script>
 <script src="moderation.js"></script>
 <script src="moderation-photos.js"></script>
+<script src="moderation-equipe.js?v=1"></script>
 
 
 <script>

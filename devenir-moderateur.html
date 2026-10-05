@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="theme.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devenir modérateur — E-VISIOCAM</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#111113">
+    <meta name="description" content="Rejoignez l’équipe de modération bénévole d’E-VISIOCAM : conditions, stage de 3 semaines, charte du modérateur et formulaire de candidature.">
+    <link rel="canonical" href="https://www.e-visiocam.com/devenir-moderateur.html">
+    <meta name="rating" content="adult">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="E-VISIOCAM">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:title" content="Devenir modérateur — E-VISIOCAM">
+    <meta property="og:description" content="Rejoignez l’équipe de modération bénévole d’E-VISIOCAM : conditions, stage de 3 semaines, charte du modérateur et formulaire de candidature.">
+    <meta property="og:url" content="https://www.e-visiocam.com/devenir-moderateur.html">
+    <meta property="og:image" content="https://www.e-visiocam.com/img/partage.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+            border-left: 4px solid #e91e63;
+            padding-left: 12px;
+        }
+        .legal-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        .legal-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+        .legal-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #475569;
+            list-style: disc;
+        }
+        .legal-content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .legal-content strong { color: #0f172a; }
+        .legal-content a { color: #e91e63; text-decoration: underline; }
+    </style>
+
+    <script src="auth-api.js"></script>
+    <link rel="stylesheet" href="style.css?v=20261010-guides">
+    <link rel="stylesheet" href="equipe.css?v=1">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
+  <script src="persistent-radio-bootstrap.js"></script>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+        </a>
+        <a href="index.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold">
+            <i class="fa-solid fa-arrow-left mr-1"></i> Retour
+        </a>
+    </div>
+</header>
+
+<main class="max-w-[900px] w-full mx-auto flex-1 p-6">
+    <div class="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-sm legal-content">
+
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">🛡️ Devenir modérateur</h1>
+        <p>Les salons d’E-VISIOCAM restent agréables grâce à une équipe de membres bénévoles qui veillent au respect des règles. Vous passez du temps sur le site, vous êtes calme et juste ? <strong>Rejoignez l’équipe.</strong></p>
+
+        <div class="evr-etapes" aria-label="Les étapes">
+            <div><b>1</b><span>Vous postulez</span><small>Formulaire ci-dessous</small></div>
+            <div><b>2</b><span>On fait connaissance</span><small>Vérification du compte et échange en message privé</small></div>
+            <div><b>3</b><span>Stage de 3 semaines</span><small>Avec un modérateur confirmé</small></div>
+            <div><b>4</b><span>Modérateur confirmé</span><small>Toutes les actions de modération</small></div>
+        </div>
+
+        <h2>Le rôle du modérateur</h2>
+        <ul>
+            <li>Accueillir les nouveaux et répondre aux questions dans les salons.</li>
+            <li>Faire respecter les <a href="cgu.html">conditions d’utilisation</a> : avertir, rendre muet, expulser, et bannir quand c’est nécessaire.</li>
+            <li>Traiter les signalements, valider les photos de profil et surveiller les lives.</li>
+            <li>Rester neutre : on modère un comportement, jamais une personne qu’on n’aime pas.</li>
+        </ul>
+
+        <h2>Les conditions</h2>
+        <ul id="evrConditions">
+            <li>Être majeur.</li>
+            <li>Avoir un compte E-VISIOCAM depuis au moins 15 jours.</li>
+            <li>N’avoir reçu aucune sanction depuis 90 jours.</li>
+            <li>Être présent régulièrement, au moins 2 heures par semaine.</li>
+        </ul>
+        <p>Pas besoin d’un ordinateur particulier : la modération se fait depuis le navigateur, sur ordinateur comme sur téléphone.</p>
+
+        <h2>Le stage de 3 semaines</h2>
+        <p>Les nouveaux modérateurs commencent comme <strong>modérateurs stagiaires</strong>. Pendant le stage, vous pouvez avertir, rendre muet ou expulser un membre pour <strong>60 minutes au plus</strong>. Le bannissement et les décisions sur les contestations restent réservés aux modérateurs confirmés : vous leur signalez les cas graves. À la fin du stage, le fondateur vous confirme dans l’équipe.</p>
+
+        <h2 id="charte">La charte du modérateur</h2>
+        <ol class="evr-charte">
+            <li><strong>Bienveillance d’abord.</strong> Un rappel poli suffit souvent ; la sanction vient ensuite.</li>
+            <li><strong>Neutralité.</strong> Les mêmes règles pour tous, amis compris.</li>
+            <li><strong>Discrétion.</strong> Ce que vous voyez en modération (signalements, lives surveillés, historique) reste dans l’équipe.</li>
+            <li><strong>Pas d’abus de pouvoir.</strong> Pas de sanction pour un désaccord personnel, pas de surveillance sans raison.</li>
+            <li><strong>Un motif pour chaque sanction.</strong> Le membre le reçoit par e-mail et peut le contester.</li>
+            <li><strong>Mineurs et contenus illégaux :</strong> action immédiate et alerte du fondateur.</li>
+            <li><strong>Bénévolat.</strong> La modération n’est pas rémunérée ; vous pouvez arrêter quand vous le souhaitez.</li>
+        </ol>
+
+        <h2 id="postuler">Postuler</h2>
+        <div id="evrZone" class="evr-zone"><p class="evr-muted">Chargement…</p></div>
+    </div>
+</main>
+
+<script src="devenir-moderateur.js?v=1"></script>
+<script src="footer.js" defer></script>
+</body>
+</html>

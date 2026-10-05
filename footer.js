@@ -22,6 +22,8 @@
             ['modeles.html', 'Modèles'],
             ['credits.html', 'Récompenses'],
             ['guides.html', 'Guides du chat webcam'],
+            ['equipe.html', 'L\'équipe'],
+            ['devenir-moderateur.html', 'Devenir modérateur'],
             ['contact.html', 'Nous contacter']
         ]},
         { titre: 'Aide & signalement', liens: [

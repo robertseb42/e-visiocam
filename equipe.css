@@ -1,0 +1,63 @@
+/* ============================================================
+   E-VISIOCAM — pages « L'équipe » et « Devenir modérateur »
+   ============================================================ */
+.evr-scope, .legal-content {
+    --evr-panel: #f8fafc; --evr-border: #e2e8f0; --evr-text: #0f172a; --evr-muted: #64748b;
+    --evr-accent: #e91e63; --evr-accent-ink: #fff; --evr-ok: #059669; --evr-ko: #e11d48; --evr-field: #fff;
+}
+:where(html:not([data-theme="light"])) .evr-scope, :where(html:not([data-theme="light"])) .legal-content {
+    --evr-panel: #25252b; --evr-border: #3b3b43; --evr-text: #f5f5f7; --evr-muted: #b1b1bd;
+    --evr-accent: #ffe500; --evr-accent-ink: #111113; --evr-ok: #34d399; --evr-ko: #fb7185; --evr-field: #1c1c20;
+}
+.evr-muted { color: var(--evr-muted) !important; }
+
+/* Étapes */
+.evr-etapes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 24px 0 8px; }
+.evr-etapes > div { background: var(--evr-panel); border: 1px solid var(--evr-border); border-radius: 16px; padding: 14px 12px; text-align: center; }
+.evr-etapes b { display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; border-radius: 999px; background: var(--evr-accent); color: var(--evr-accent-ink); font-weight: 800; margin-bottom: 6px; }
+.evr-etapes span { display: block; font-weight: 700; color: var(--evr-text); font-size: 14px; }
+.evr-etapes small { display: block; color: var(--evr-muted); font-size: 12px; margin-top: 3px; line-height: 1.35; }
+@media (max-width: 640px) { .evr-etapes { grid-template-columns: repeat(2, 1fr); } }
+
+.legal-content ol.evr-charte { padding-left: 1.4rem; list-style: decimal; margin-bottom: 1rem; }
+.legal-content ol.evr-charte li { margin-bottom: .45rem; line-height: 1.6; }
+
+/* Zone candidature */
+.evr-zone { background: var(--evr-panel); border: 1px solid var(--evr-border); border-radius: 20px; padding: 20px; }
+.evr-zone p { margin-bottom: .6rem; }
+.evr-conds { list-style: none !important; padding: 0 !important; margin: 0 0 16px !important; }
+.evr-conds li { display: flex; gap: 8px; align-items: baseline; }
+.evr-conds .ok { color: var(--evr-ok); } .evr-conds .ko { color: var(--evr-ko); }
+.evr-champ { margin-bottom: 14px; }
+.evr-champ label, .evr-champ legend { display: block; font-weight: 700; font-size: 14px; color: var(--evr-text); margin-bottom: 6px; }
+.evr-champ textarea, .evr-champ input[type=number] { width: 100%; border: 1px solid var(--evr-border); background: var(--evr-field); color: var(--evr-text); border-radius: 12px; padding: 10px 12px; font: inherit; font-size: 14px; }
+.evr-champ textarea { min-height: 120px; resize: vertical; }
+.evr-champ input[type=number] { max-width: 120px; }
+.evr-champ small { display: block; color: var(--evr-muted); font-size: 12px; margin-top: 4px; }
+.evr-puces { display: flex; flex-wrap: wrap; gap: 8px; border: 0; padding: 0; margin: 0; }
+.evr-puces label { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--evr-border); background: var(--evr-field); cursor: pointer; font-weight: 600; font-size: 13px; color: var(--evr-text); margin: 0; }
+.evr-puces input { accent-color: var(--evr-accent); }
+.evr-coche { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--evr-text); margin: 6px 0 16px; }
+.evr-coche input { margin-top: 4px; accent-color: var(--evr-accent); }
+.evr-btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 12px; padding: 11px 18px; font-weight: 800; font-size: 14px; cursor: pointer; background: var(--evr-accent); color: var(--evr-accent-ink) !important; text-decoration: none !important; }
+.evr-btn[disabled] { opacity: .55; cursor: not-allowed; }
+.evr-btn.sec { background: transparent; color: var(--evr-text) !important; border: 1px solid var(--evr-border); }
+.evr-erreur { color: var(--evr-ko); font-weight: 600; font-size: 14px; min-height: 1.2em; }
+.evr-statut { display: flex; gap: 14px; align-items: flex-start; }
+.evr-statut .ico { font-size: 28px; line-height: 1; }
+.evr-statut h3 { margin: 0 0 4px !important; color: var(--evr-text) !important; }
+
+/* Page équipe */
+.evq-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin: 18px 0 8px; }
+.evq-carte { background: var(--evr-panel); border: 1px solid var(--evr-border); border-radius: 18px; padding: 16px 12px; text-align: center; }
+.evq-photo { width: 84px; height: 84px; border-radius: 999px; object-fit: cover; display: block; margin: 0 auto 10px; background: var(--evr-border); }
+.evq-initiale { width: 84px; height: 84px; border-radius: 999px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; background: var(--evr-accent); color: var(--evr-accent-ink); }
+.evq-nom { font-weight: 800; color: var(--evr-text); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evq-nom small { font-weight: 600; color: var(--evr-muted); }
+.evq-grade { display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; }
+.evq-grade.fondateur { background: #7c3aed; color: #fff; }
+.evq-grade.moderateur { background: #059669; color: #fff; }
+.evq-grade.stagiaire { background: #f59e0b; color: #111; }
+.evq-section { margin-top: 26px; }
+.evq-cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; background: var(--evr-panel); border: 1px solid var(--evr-border); border-radius: 20px; padding: 18px 20px; }
+.evq-cta p { margin: 0 !important; }
