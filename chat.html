@@ -898,7 +898,8 @@ function renderSalonCameras() {
 
     if (!salonStreams || salonStreams.length === 0) {
         count.textContent = '0';
-        grid.innerHTML = '<p class="text-slate-400 text-center py-6 text-xs col-span-full"><i class="fa-solid fa-video-slash mr-1"></i> Aucune caméra active dans ce salon</p>';
+        grid.innerHTML = '<p class="text-slate-400 text-center py-6 text-xs col-span-full" data-aucune-cam><i class="fa-solid fa-video-slash mr-1"></i> Aucune caméra active dans ce salon</p>';
+        majTuileLocale();
         return;
     }
 
@@ -958,7 +959,70 @@ function renderSalonCameras() {
         }
     });
 
+    majTuileLocale();
     afficherMaCamera();
+}
+
+// 📷 Ma caméra allumée mais pas (encore) dans la liste du serveur : je la vois quand même en petit,
+// avec son état. Cette vignette n'existe que sur MON écran, les autres membres ne la voient pas.
+function majTuileLocale() {
+    const grid = document.getElementById('camerasGrid');
+    if (!grid) return;
+    const e = etatMaCam();
+    const myId = currentUser ? String(currentUser.id) : '';
+    const dejaListee = (salonStreams || []).some(s => String(s.broadcasterId) === myId || (e && e.streamId && s.streamId === e.streamId));
+    const besoin = !!(e && e.active && !dejaListee);
+    let tuile = document.getElementById('tuileMaCamLocale');
+    const vide = grid.querySelector('[data-aucune-cam]');
+
+    if (!besoin) {
+        if (tuile) tuile.remove();
+        if (!grid.children.length) grid.innerHTML = '<p class="text-slate-400 text-center py-6 text-xs col-span-full" data-aucune-cam><i class="fa-solid fa-video-slash mr-1"></i> Aucune caméra active dans ce salon</p>';
+        return;
+    }
+    if (vide) vide.remove();
+    if (!tuile) {
+        tuile = document.createElement('div');
+        tuile.id = 'tuileMaCamLocale';
+        tuile.className = 'camera-tile relative bg-slate-900 rounded-xl overflow-hidden aspect-video cursor-pointer';
+        tuile.title = 'Ma caméra';
+        tuile.onclick = () => { if (window.EvcMaCam) EvcMaCam.ouvrir(); };
+        grid.prepend(tuile);
+    }
+    const etiquette = e.broadcasting
+        ? '<div class="absolute top-1.5 left-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">● EN DIRECT</div>'
+        : '<div class="absolute top-1.5 left-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded" style="background:#6b7280">🔒 Visible modération</div>';
+    const action = e.broadcasting ? '' :
+        '<button type="button" onclick="event.stopPropagation(); diffuserDepuisTuile(this);" class="absolute top-1.5 right-1.5 text-white text-[10px] font-bold px-2 py-1 rounded-md" style="background:#e11d48">🔴 Diffuser</button>';
+    const etat = e.broadcasting ? 'en direct' : 'non diffusée';
+    if (tuile.dataset.etat !== etat) {
+        tuile.dataset.etat = etat;
+        tuile.innerHTML = '<video id="cam-moi-local" autoplay playsinline muted class="w-full h-full object-cover" style="transform:scaleX(-1)"></video>'
+            + etiquette + action
+            + '<div class="absolute bottom-0 left-0 right-0 p-1.5 bg-gradient-to-t from-black/90 to-transparent"><p class="text-white text-[10px] font-bold truncate">'
+            + escapeHtml(currentUser ? currentUser.username || 'Moi' : 'Moi') + ' (moi)</p></div>';
+    }
+    const v = document.getElementById('cam-moi-local');
+    if (v && e.stream && v._evcSource !== e.stream) {
+        v._evcSource = e.stream;
+        try { v.srcObject = new MediaStream(e.stream.getVideoTracks()); } catch (er) { v.srcObject = e.stream; }
+        v.play().catch(() => {});
+    }
+}
+
+async function diffuserDepuisTuile(bouton) {
+    let S = null;
+    try { S = window.top !== window ? window.top.EvcCamSession : null; } catch (e) {}
+    if (!S) return;
+    bouton.disabled = true; bouton.textContent = '…';
+    try {
+        await S.startBroadcast({ private: false });
+        if (typeof showToast === 'function') showToast('Tu es en direct dans le salon');
+        setTimeout(refreshSalonStreams, 1500);   // le serveur ajoute le live à la liste
+    } catch (er) {
+        bouton.disabled = false; bouton.textContent = '🔴 Diffuser';
+        if (typeof showToast === 'function') showToast(er.message || 'Diffusion impossible', 'error');
+    }
 }
 
 // 📷 Ma caméra persistante : affichée directement dans ma tuile (sans repasser par le réseau)
@@ -994,7 +1058,14 @@ function afficherMaCamera() {
 }
 // Flux remplacé (ex. caméra récupérée après mise en veille sur iPhone) : on le remet dans ma tuile
 window.addEventListener('evc:cam', (ev) => {
-    if (ev.detail && ev.detail.type === 'state') afficherMaCamera();
+    if (!ev.detail || ev.detail.type !== 'state') return;
+    majTuileLocale();
+    afficherMaCamera();
+    // Diffusion lancée ou arrêtée (ici ou ailleurs) : on redemande la liste au serveur
+    if (ev.detail.broadcasting !== window.__evcEtaitEnDirect) {
+        window.__evcEtaitEnDirect = ev.detail.broadcasting;
+        setTimeout(refreshSalonStreams, 1500);
+    }
 });
 
 async function startViewingStream(streamId) {
