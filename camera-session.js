@@ -196,12 +196,43 @@
         });
     }
 
+    // L'erreur est expliquée à l'écran (aide-camera.js) : la page n'a pas besoin d'afficher d'alerte
+    function aider(err) {
+        if (window.EvcAideCam && err.name !== 'Annule') {
+            EvcAideCam.expliquerErreur(err, function () { start().catch(function () {}); });
+        }
+        if (window.EvcAideCam) err.evcGere = true;
+        return err;
+    }
+
+    async function demanderCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            var nd = new Error('Caméra indisponible dans ce navigateur'); nd.name = 'NonDisponible';
+            throw aider(nd);
+        }
+        // On prévient AVANT la question du téléphone : beaucoup moins de refus par réflexe
+        if (window.EvcAideCam) {
+            var ok = await EvcAideCam.prevenir();
+            if (!ok) { var an = new Error('Activation annulée'); an.name = 'Annule'; throw aider(an); }
+        }
+        try {
+            return await navigator.mediaDevices.getUserMedia(CONTRAINTES);
+        } catch (e) {
+            // Caméra qui ne sait pas faire du 720p : on réessaie sans exigence de taille
+            if (e && (e.name === 'OverconstrainedError' || e.name === 'ConstraintNotSatisfiedError')) {
+                try { return await navigator.mediaDevices.getUserMedia({ video: true, audio: true }); }
+                catch (e2) { throw aider(e2); }
+            }
+            throw aider(e);
+        }
+    }
+
     async function start() {
         if (stream && stream.getTracks().some(function (t) { return t.readyState === 'live'; })) return stream;
         if (demarrage) return demarrage;
         if (stream) { await recuperer(); if (stream) return stream; }
         demarrage = (async function () {
-            var s = await navigator.mediaDevices.getUserMedia(CONTRAINTES);
+            var s = await demanderCamera();
             stream = s;
             cameraOff = false; micMuted = false;
             surveillerPistes(s);

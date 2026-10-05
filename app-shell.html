@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>E-VISIOCAM</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <!-- Appli installable (écran d'accueil) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="E-VisioCam">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#111113">
   <meta name="rating" content="adult">
   <!-- Cadre technique de la radio : Google indexe les vraies pages, pas celui-ci -->
@@ -145,6 +152,8 @@
   <script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
   <script src="auth-api.js"></script>
   <script src="sfu-client.js"></script>
-  <script src="camera-session.js?v=1"></script>
+  <script src="aide-camera.js?v=1"></script>
+  <script src="camera-session.js?v=2"></script>
+  <script src="guide-installation.js?v=1"></script>
 </body>
 </html>

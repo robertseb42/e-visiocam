@@ -691,7 +691,8 @@ async function startCamera() {
         }
     } catch (err) {
         log('❌ ' + err.message);
-        alert('Impossible d\'accéder à la caméra : ' + err.message);
+        // Avec l'appli, une fenêtre d'aide claire est déjà affichée (aide-camera.js)
+        if (!err.evcGere) alert('Impossible d\'accéder à la caméra : ' + err.message);
     }
 }
 
