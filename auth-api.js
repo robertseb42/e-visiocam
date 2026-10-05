@@ -116,10 +116,11 @@ function evcSource() {
     return '';
 }
 
-async function register(username, email, password, parrain, departement) {
+async function register(username, email, password, parrain, departement, birthdate) {
     const corps = { username: username, email: email, password: password };
     if (parrain) corps.parrain = String(parrain).slice(0, 30);
     if (departement) corps.departement = String(departement).slice(0, 3);
+    if (birthdate) corps.birthdate = String(birthdate).slice(0, 10);
     if (evcSource()) corps.source = evcSource();
     const data = await apiCall('/auth/register', {
         method: 'POST',
