@@ -21,6 +21,7 @@
     <script src="legal-banner.js"></script>
     <script src="salon-access.js"></script>
     <script src="live-prive.js"></script>
+    <script src="ma-cam-salon.js?v=1"></script>
     <script src="danseur-disco.js"></script>
     <script src="quiz-salon.js?v=1"></script>
 <script src="departements-data.js"></script>
@@ -173,7 +174,7 @@
                     <span id="cameraCount" class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">0</span>
                 </h3>
                 <div class="flex items-center gap-2">
-                    <a href="live.html" class="px-2.5 h-7 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold flex items-center gap-1" title="Diffuser ma webcam"><i class="fa-solid fa-video"></i><span class="hidden sm:inline">Diffuser</span></a>
+                    <button type="button" id="maCamBtn" onclick="if (window.EvcMaCam) EvcMaCam.ouvrir(); else location.href='live.html';" class="px-2.5 h-7 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold flex items-center gap-1" title="Allumer ma caméra"><i class="fa-solid fa-video"></i><span>Ma cam</span><span class="point" aria-hidden="true"></span></button>
                     <button type="button" onclick="ouvrirLivePrive()" class="px-2.5 h-7 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-600 text-[11px] font-bold flex items-center gap-1" title="Live privé avec des membres du salon"><i class="fa-solid fa-lock"></i><span class="hidden sm:inline">Live privé</span></button>
                     <button onclick="toggleCameraView()" class="text-xs text-slate-400 hover:text-slate-700" title="Réduire/agrandir">
                         <i class="fa-solid fa-eye" id="cameraViewIcon"></i>
