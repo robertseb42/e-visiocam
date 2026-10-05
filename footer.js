@@ -90,10 +90,10 @@
 
         b.appendChild(footer);
 
-        // 🪩 Boule à facettes et danseur sur toutes les pages (sauf les outils d'administration),
+        // 🪩 Boule à facettes et danseur sur toutes les pages (sauf l'éditeur de décor et les formulaires de connexion),
         // avec leur bouton marche / arrêt à côté du bouton clair / sombre
         var pageB = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-        var sansBoule = ['admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'login.html', 'register.html', 'forgot-password.html', 'reset-password.html', 'nouveau-mdp.html', 'verifier-email.html', '404.html'];
+        var sansBoule = ['decor.html', 'login.html', 'register.html', 'forgot-password.html', 'reset-password.html'];
         if (sansBoule.indexOf(pageB) === -1) {
             var themeBtn = document.querySelector('[data-theme-toggle]');
             if (themeBtn && !document.querySelector('[data-disco-toggle]')) {

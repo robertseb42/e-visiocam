@@ -31,6 +31,8 @@
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
   <script src="persistent-radio-bootstrap.js"></script>
+    <script src="auth-api.js"></script>
+    <script src="nav-auth.js" defer></script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -46,7 +48,17 @@
             <a href="modeles.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Modèles</a>
             <a href="salons.html" class="px-3 py-2 text-slate-600 hover:text-brand-primary">Salons</a>
         </nav>
-    </div>
+    
+        <div class="evc-actions flex items-center gap-2 sm:gap-3">
+            <!-- Barre d'actions commune à toutes les pages : thème, boule à facettes, cloche, compte -->
+            <button data-theme-toggle type="button" aria-label="Changer de thème" title="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none"><i class="fa-regular fa-sun"></i></button>
+            <button data-disco-toggle type="button" aria-label="Boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors"></button>
+            <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div></div>
 </header>
 
 <main class="max-w-[900px] w-full mx-auto flex-1 p-6">

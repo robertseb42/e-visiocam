@@ -99,15 +99,16 @@
 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
 <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
 </div>
-<!-- Thème clair / sombre : un seul réglage pour toutes les pages du site -->
-<button aria-label="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle="" title="Passer en thème clair" type="button">☀️</button>
-<!-- Boule à facettes : allumer / éteindre (choix gardé dans le navigateur) -->
-<button aria-label="Éteindre la boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-disco-toggle="" title="Éteindre la boule à facettes" type="button"></button>
-<button aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-nav-bell="" onclick="ouvrirNotifications()">
-<i class="fa-regular fa-bell text-lg"></i>
-<span class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white" data-nav-bell-badge="">0</span>
-</button>
-<div class="flex items-center gap-2" id="navAuth"></div>
+        <div class="evc-actions flex items-center gap-2 sm:gap-3">
+            <!-- Barre d'actions commune à toutes les pages : thème, boule à facettes, cloche, compte -->
+            <button data-theme-toggle type="button" aria-label="Changer de thème" title="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none"><i class="fa-regular fa-sun"></i></button>
+            <button data-disco-toggle type="button" aria-label="Boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors"></button>
+            <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
 <button aria-label="Ouvrir le menu" class="lg:hidden p-2 text-slate-600" onclick="toggleMobileSidebar()">
 <i class="fa-solid fa-bars text-xl"></i>
 </button>
