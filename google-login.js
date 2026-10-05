@@ -55,6 +55,9 @@
             '<button type="button" data-baguette title="Proposer un pseudo au hasard" aria-label="Proposer un pseudo au hasard" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg hover:bg-slate-100 text-base">🪄</button></div>' +
             '<p class="text-[10px] text-slate-400 mb-4">3 à 20 caractères : lettres, chiffres, _ et -</p>' +
             (window.EvcVille ? '<label class="block text-xs font-bold text-slate-700 mb-1">Votre ville <span class="font-normal text-slate-400">(facultatif)</span></label><div data-ville class="mb-4"></div>' : '') +
+            '<label class="block text-xs font-bold text-slate-700 mb-1">Date de naissance</label>' +
+            '<input data-naissance type="date" required class="w-full px-3 py-2.5 mb-1 rounded-xl border border-slate-200 text-sm bg-transparent">' +
+            '<p class="text-[10px] text-slate-400 mb-3">Vous devez avoir 18 ans ou plus.</p>' +
             '<label class="flex items-start gap-2 text-xs text-slate-600 mb-2 cursor-pointer"><input data-majeur type="checkbox" class="mt-0.5"> <span>Je certifie avoir <strong>18 ans ou plus</strong></span></label>' +
             '<label class="flex items-start gap-2 text-xs text-slate-600 mb-4 cursor-pointer"><input data-cgu type="checkbox" class="mt-0.5"> <span>J’accepte les <a href="cgu.html" target="_blank" class="text-brand-primary font-bold underline">CGU</a> et la <a href="confidentialite.html" target="_blank" class="text-brand-primary font-bold underline">politique de confidentialité</a></span></label>' +
             '<p data-err class="hidden text-xs text-rose-600 font-semibold mb-3"></p>' +
@@ -75,12 +78,17 @@
             e.preventDefault(); erreur('');
             var p = pseudo.value.trim();
             if (!/^[A-Za-z0-9_-]{3,20}$/.test(p)) return erreur('Pseudo : 3 à 20 caractères (lettres, chiffres, _ et -)');
+            var naissance = m.querySelector('[data-naissance]').value;
+            if (!naissance) return erreur('Veuillez indiquer votre date de naissance');
+            var nd = new Date(naissance), now = new Date(), age = now.getFullYear() - nd.getFullYear();
+            if (now.getMonth() < nd.getMonth() || (now.getMonth() === nd.getMonth() && now.getDate() < nd.getDate())) age--;
+            if (isNaN(nd) || age < 18) return erreur('Vous devez avoir 18 ans ou plus pour vous inscrire');
             if (!m.querySelector('[data-majeur]').checked) return erreur('Vous devez certifier avoir 18 ans ou plus');
             if (!m.querySelector('[data-cgu]').checked) return erreur('Vous devez accepter les CGU');
             var btn = f.querySelector('[type=submit]'); btn.disabled = true; btn.style.opacity = '.6';
             try {
                 var r = await apiCall('/auth/google/complete', { method: 'POST', body: JSON.stringify({
-                    ticket: d.ticket, username: p, adult: true, cgu: true, parrain: typeof opts.parrain === 'function' ? opts.parrain() : '', departement: departement, source: typeof evcSource === 'function' ? evcSource() : ''
+                    ticket: d.ticket, username: p, adult: true, cgu: true, birthdate: naissance, parrain: typeof opts.parrain === 'function' ? opts.parrain() : '', departement: departement, source: typeof evcSource === 'function' ? evcSource() : ''
                 }) });
                 m.remove();
                 connecte(r.user, true);
