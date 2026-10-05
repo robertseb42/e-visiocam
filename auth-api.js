@@ -106,9 +106,10 @@ async function login(username, password) {
     return data.user;
 }
 
-async function register(username, email, password, parrain) {
+async function register(username, email, password, parrain, departement) {
     const corps = { username: username, email: email, password: password };
     if (parrain) corps.parrain = String(parrain).slice(0, 30);
+    if (departement) corps.departement = String(departement).slice(0, 3);
     const data = await apiCall('/auth/register', {
         method: 'POST',
         body: JSON.stringify(corps)

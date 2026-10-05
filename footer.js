@@ -119,9 +119,12 @@
         }
 
         // 📷 Fiche membre + demandes de cam (notifications « X aimerait voir ta cam »)
+        if (!window.EVC_DEPARTEMENTS && !document.querySelector('script[src*="departements-data.js"]')) {
+            var dd = document.createElement('script'); dd.src = 'departements-data.js'; document.body.appendChild(dd);
+        }
         if (!document.querySelector('script[src*="membres-social.js"]')) {
             var ms = document.createElement('script');
-            ms.src = 'membres-social.js?v=1';
+            ms.src = 'membres-social.js?v=3';
             document.body.appendChild(ms);
         }
 

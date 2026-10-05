@@ -155,7 +155,7 @@
             if (!d || !d.user) return;
             const avant = JSON.stringify((user && user.avatar) || null), apres = JSON.stringify(d.user.avatar || null);
             const courant = getCurrentUser() || {};
-            saveUser(Object.assign({}, courant, { avatar: d.user.avatar || null }));
+            saveUser(Object.assign({}, courant, { avatar: d.user.avatar || null, departement: d.user.departement || null }));
             if (avant !== apres) initNavAuth();
         }).catch(function () {});
     }

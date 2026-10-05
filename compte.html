@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://geo.api.gouv.fr https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon compte — E-VISIOCAM</title>
@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js"></script>
+    <script src="departements-data.js"></script>
+    <script src="ville-departement.js"></script>
     <script src="legal-banner.js"></script>
     <script src="nav-auth.js" defer></script>
 
@@ -130,6 +132,11 @@
                             <option value="autre">⚧ Autre</option>
                         </select>
                     </div>
+                    <!-- 📍 Département (via la ville, qui n'est pas enregistrée) -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Ma ville <span class="font-normal text-slate-400">(seul le département est affiché)</span></label>
+                        <div id="villeBloc"></div>
+                    </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Date de naissance</label>
                         <input type="date" id="birthdateField"
@@ -240,6 +247,10 @@ async function loadProfile() {
         document.getElementById('emailField').value = u.email || '';
         document.getElementById('bioField').value = u.bio || '';
         document.getElementById('genderField').value = u.gender || '';   // ⚠️ AJOUT
+        if (!window.__evcVille) window.__evcVille = EvcVille.monter(document.getElementById('villeBloc'), {
+            label: 'Ma ville', classeChamp: 'w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary', valeur: u.departement || ''
+        });
+        else window.__evcVille.definir(u.departement || '');
         if (u.birthdate) document.getElementById('birthdateField').value = u.birthdate;
         updateBioCount();
 
@@ -374,7 +385,7 @@ async function saveProfile(e) {
     try {
         const data = await apiCall('/users/me', {
             method: 'PUT',
-            body: JSON.stringify({ bio, email, birthdate, gender })   // ⚠️ Ajout gender
+            body: JSON.stringify({ bio, email, birthdate, gender, departement: window.__evcVille ? window.__evcVille.valeur() : undefined })
         });
         saveUser(data.user);
         // Nouvelle adresse e-mail : elle ne s'applique qu'après le clic sur le lien envoyé

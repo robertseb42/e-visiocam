@@ -19,7 +19,11 @@
     function connecte() { return typeof getCurrentUser === 'function' && !!getCurrentUser(); }
     function base() { return (typeof API_URL === 'string' ? API_URL : 'https://api.e-visiocam.com/api'); }
     function photoDe(chemin) { return typeof urlAvatar === 'function' ? urlAvatar(chemin) : null; }
-    function el(tag, cls, texte) { var n = document.createElement(tag); if (cls) n.className = cls; if (texte !== undefined) n.textContent = texte; return n; }
+    // Avec la radio continue, la page tourne dans un cadre : les notifications et la fiche s'affichent
+    // dans la fenêtre principale, au-dessus de la radio (sinon la radio les cache)
+    function haut() { try { if (window.top !== window && window.top.document && window.top.document.body) return window.top.document; } catch (e) {} return document; }
+    function fenetre() { try { if (window.top !== window && window.top.document) return window.top; } catch (e) {} return window; }
+    function el(tag, cls, texte) { var n = haut().createElement(tag); if (cls) n.className = cls; if (texte !== undefined) n.textContent = texte; return n; }
     async function api(chemin, opts) {
         if (typeof apiCall === 'function') return apiCall(chemin, opts);
         var r = await fetch(base() + chemin, Object.assign({ credentials: 'include', headers: { 'Content-Type': 'application/json' } }, opts || {}));
@@ -50,7 +54,7 @@
         '.evs-btn.jaune{background:#ffe500;color:#111113}.evs-btn.rouge{background:#f43f5e;color:#fff}',
         '.evs-btn:disabled{opacity:.5;cursor:not-allowed}',
         '.evs-note{margin:10px 0 0;font-size:11.5px;opacity:.6}',
-        '.evs-pile{position:fixed;top:76px;right:16px;z-index:2147482500;display:flex;flex-direction:column;gap:10px;width:min(340px,calc(100vw - 32px))}',
+        '.evs-pile{position:fixed;top:78px;left:50%;transform:translateX(-50%);z-index:2147482500;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100vw - 32px))}',
         '.evs-carte{display:flex;gap:12px;align-items:flex-start;background:#1c1c20;color:#f5f5f7;border:1px solid #3b3b43;border-left:4px solid #ffe500;border-radius:16px;padding:12px 14px;box-shadow:0 14px 40px rgba(0,0,0,.45);font-family:Inter,system-ui,sans-serif;animation:evsIn .2s ease}',
         'html[data-theme="light"] .evs-carte{background:#fff;color:#14161c;border-color:#e2e8f0;border-left-color:#e91e63}',
         '.evs-carte.rouge{border-left-color:#f43f5e}',
@@ -64,8 +68,9 @@
         '@media (prefers-reduced-motion:reduce){.evs-voile,.evs-carte{animation:none}}'
     ].join('\n');
     function styles() {
-        if (document.getElementById('evs-styles')) return;
-        var s = document.createElement('style'); s.id = 'evs-styles'; s.textContent = css; document.head.appendChild(s);
+        var d = haut();
+        if (d.getElementById('evs-styles')) return;
+        var s = d.createElement('style'); s.id = 'evs-styles'; s.textContent = css; d.head.appendChild(s);
     }
     function mini(id, nom) {
         var m = el('div', 'evs-mini', (nom || '?').charAt(0).toUpperCase());
@@ -77,36 +82,52 @@
 
     // ---------- Petit message ----------
     function info(texte, type) {
-        if (typeof showToast === 'function') { try { showToast(texte, type || 'success'); return; } catch (e) {} }
-        styles();
+        styles();   // toujours dans la pile du haut (un toast de la page serait caché par la radio)
         var c = el('div', 'evs-carte' + (type === 'error' ? ' rouge' : ''));
         c.appendChild(el('div', 'evs-txt')).appendChild(el('p', '', texte));
         pile().appendChild(c);
-        setTimeout(function () { c.remove(); }, 5000);
+        setTimeout(function () { c.remove(); }, 6000);
     }
     function pile() {
-        var p = document.getElementById('evs-pile');
-        if (!p) { p = el('div', 'evs-pile'); p.id = 'evs-pile'; p.setAttribute('aria-live', 'polite'); document.body.appendChild(p); }
+        var d = haut(), p = d.getElementById('evs-pile');
+        if (!p) { p = el('div', 'evs-pile'); p.id = 'evs-pile'; p.setAttribute('aria-live', 'polite'); d.body.appendChild(p); }
         return p;
     }
+    // Sonnerie (jouée dans la fenêtre principale : c'est elle qui a le droit de faire du son, la radio y tourne)
     function son() {
         try {
-            var A = window.AudioContext || window.webkitAudioContext; if (!A) return;
-            var ctx = new A(), t = ctx.currentTime;
-            [880, 1320].forEach(function (f, i) {
-                var o = ctx.createOscillator(), g = ctx.createGain();
-                o.frequency.value = f; o.type = 'sine';
-                g.gain.setValueAtTime(0.0001, t + i * 0.12); g.gain.exponentialRampToValueAtTime(0.12, t + i * 0.12 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.12 + 0.25);
-                o.connect(g); g.connect(ctx.destination); o.start(t + i * 0.12); o.stop(t + i * 0.12 + 0.3);
-            });
-            setTimeout(function () { try { ctx.close(); } catch (e) {} }, 800);
+            var W = fenetre(), A = W.AudioContext || W.webkitAudioContext; if (!A) return;
+            var ctx = new A(), t;
+            if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
+            t = ctx.currentTime + 0.05;
+            for (var k = 0; k < 3; k++) {
+                [988, 1319, 1568].forEach(function (f, i) {
+                    var o = ctx.createOscillator(), g = ctx.createGain(), d = t + k * 0.55 + i * 0.11;
+                    o.frequency.value = f; o.type = 'triangle';
+                    g.gain.setValueAtTime(0.0001, d); g.gain.exponentialRampToValueAtTime(0.32, d + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, d + 0.32);
+                    o.connect(g); g.connect(ctx.destination); o.start(d); o.stop(d + 0.35);
+                });
+            }
+            setTimeout(function () { try { ctx.close(); } catch (e) {} }, 2200);
         } catch (e) {}
+        try { if (navigator.vibrate) navigator.vibrate([220, 120, 220]); } catch (e) {}
+    }
+    // L'onglet clignote tant qu'on n'y est pas revenu
+    var clignote = null;
+    function alerteTitre(texte) {
+        var d = haut(), titre = d.title, n = 0;
+        clearInterval(clignote);
+        clignote = setInterval(function () {
+            n++;
+            d.title = n % 2 ? texte : titre;
+            if (n > 20 || (n > 1 && d.hasFocus && d.hasFocus())) { clearInterval(clignote); d.title = titre; }
+        }, 900);
     }
 
     // ============================================================
     // FICHE MEMBRE
     // ============================================================
-    function fermerFiche() { var v = document.getElementById('evs-voile'); if (v) v.remove(); document.removeEventListener('keydown', echap); }
+    function fermerFiche() { var v = haut().getElementById('evs-voile'); if (v) v.remove(); haut().removeEventListener('keydown', echap); }
     function echap(e) { if (e.key === 'Escape') fermerFiche(); }
     async function ouvrirFiche(id) {
         if (!connecte()) { aller('login.html'); return; }
@@ -114,9 +135,9 @@
         var voile = el('div', 'evs-voile'); voile.id = 'evs-voile';
         var f = el('div', 'evs-fiche'); f.setAttribute('role', 'dialog'); f.setAttribute('aria-modal', 'true');
         f.appendChild(el('p', 'evs-sous', 'Chargement…'));
-        voile.appendChild(f); document.body.appendChild(voile);
+        voile.appendChild(f); haut().body.appendChild(voile);
         voile.addEventListener('click', function (e) { if (e.target === voile) fermerFiche(); });
-        document.addEventListener('keydown', echap);
+        haut().addEventListener('keydown', echap);
         var m;
         try { m = (await api('/models/profil/' + Number(id))).membre; }
         catch (e) { f.textContent = ''; f.appendChild(el('p', 'evs-sous', e.message || 'Fiche indisponible')); return; }
@@ -129,7 +150,7 @@
         f.appendChild(ph);
         var h = el('h2', 'evs-nom'); h.id = 'evs-nom';
         if (etat) h.appendChild(el('span', 'evs-point ' + etat));
-        h.appendChild(document.createTextNode(m.username));
+        h.appendChild(haut().createTextNode(m.username));
         f.setAttribute('aria-labelledby', 'evs-nom');
         f.appendChild(h);
         var roles = { model: '⭐ Modèle', moderator: '🛡️ Modérateur', super_admin: '👑 Équipe E-VISIOCAM' };
@@ -137,6 +158,7 @@
         var lignes = [m.isLive ? '🔴 En direct' : (m.online || m.moi ? '🟡 Connecté' : 'Hors ligne')];
         if (roles[m.role]) lignes.push(roles[m.role]);
         if (depuis) lignes.push('Membre depuis ' + depuis);
+        if (m.departement) lignes.push('📍 ' + m.departement + (window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[m.departement] ? ' · ' + window.EVC_DEPARTEMENTS[m.departement] : ''));
         f.appendChild(el('p', 'evs-sous', lignes.join(' · ')));
         var chips = [];
         if (m.insigne) chips.push(m.insigne.icone + ' ' + m.insigne.nom);
@@ -179,11 +201,11 @@
     function carteDemande(d) {
         if (affichees[d.id]) return;
         affichees[d.id] = true;
-        styles(); son();
+        styles(); son(); alerteTitre('📷 Demande de cam !');
         var c = el('div', 'evs-carte'); c.setAttribute('role', 'alertdialog');
         c.appendChild(mini(d.de.id, d.de.username));
         var t = el('div', 'evs-txt');
-        var p = el('p'); var b = el('b', '', d.de.username); p.appendChild(b); p.appendChild(document.createTextNode(' aimerait voir ta cam 📷'));
+        var p = el('p'); var b = el('b', '', d.de.username); p.appendChild(b); p.appendChild(haut().createTextNode(' aimerait voir ta cam 📷'));
         t.appendChild(p);
         t.appendChild(el('small', '', 'Si tu acceptes, tu lances un live privé rien que pour lui ou elle. Tu peux refuser sans te justifier.'));
         var r = el('div', 'evs-rang');
@@ -224,10 +246,10 @@
                 if (!s) return;
                 clearInterval(guettes[qui]); delete guettes[qui];
                 if (page === 'live.html') return;   // la page Live affiche déjà sa propre invitation
-                styles(); son();
+                styles(); son(); alerteTitre('🔒 ' + nom + ' t’a ouvert sa cam');
                 var c = el('div', 'evs-carte rouge'); c.appendChild(mini(qui, nom));
                 var t = el('div', 'evs-txt');
-                var p = el('p'); p.appendChild(el('b', '', nom)); p.appendChild(document.createTextNode(' t’a ouvert sa cam 🔒'));
+                var p = el('p'); p.appendChild(el('b', '', nom)); p.appendChild(haut().createTextNode(' t’a ouvert sa cam 🔒'));
                 t.appendChild(p); t.appendChild(el('small', '', 'Live privé : toi seul es invité.'));
                 var rg = el('div', 'evs-rang');
                 var go = el('button', 'evs-btn rouge', '🎥 Regarder'); go.type = 'button';
@@ -263,6 +285,10 @@
         s.on('cam:demande', function () { releve(); });
         s.on('cam:reponse', function () { releve(); });
     }
+
+    window.addEventListener('pagehide', function () {
+        try { var d = haut(); if (d === document) return; ['evs-pile', 'evs-voile'].forEach(function (id) { var n = d.getElementById(id); if (n) n.remove(); }); } catch (e) {}
+    });
 
     window.EvcFiche = { ouvrir: ouvrirFiche, fermer: fermerFiche };
     window.EvcCam = { demander: demander, releve: releve, brancher: brancher };

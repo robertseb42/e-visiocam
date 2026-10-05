@@ -54,6 +54,7 @@
             '<div class="relative mb-1"><input data-pseudo type="text" minlength="3" maxlength="20" required autocomplete="off" value="' + esc(d.suggestion || '') + '" class="w-full pl-3 pr-11 py-2.5 rounded-xl border border-slate-200 text-sm bg-transparent">' +
             '<button type="button" data-baguette title="Proposer un pseudo au hasard" aria-label="Proposer un pseudo au hasard" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg hover:bg-slate-100 text-base">🪄</button></div>' +
             '<p class="text-[10px] text-slate-400 mb-4">3 à 20 caractères : lettres, chiffres, _ et -</p>' +
+            (window.EvcVille ? '<label class="block text-xs font-bold text-slate-700 mb-1">Votre ville <span class="font-normal text-slate-400">(facultatif)</span></label><div data-ville class="mb-4"></div>' : '') +
             '<label class="flex items-start gap-2 text-xs text-slate-600 mb-2 cursor-pointer"><input data-majeur type="checkbox" class="mt-0.5"> <span>Je certifie avoir <strong>18 ans ou plus</strong></span></label>' +
             '<label class="flex items-start gap-2 text-xs text-slate-600 mb-4 cursor-pointer"><input data-cgu type="checkbox" class="mt-0.5"> <span>J’accepte les <a href="cgu.html" target="_blank" class="text-brand-primary font-bold underline">CGU</a> et la <a href="confidentialite.html" target="_blank" class="text-brand-primary font-bold underline">politique de confidentialité</a></span></label>' +
             '<p data-err class="hidden text-xs text-rose-600 font-semibold mb-3"></p>' +
@@ -62,6 +63,11 @@
         document.body.appendChild(m);
         var f = m.querySelector('form'), pseudo = m.querySelector('[data-pseudo]'), err = m.querySelector('[data-err]');
         var erreur = function (t) { err.textContent = t; err.classList.toggle('hidden', !t); };
+        var departement = '';
+        if (window.EvcVille && m.querySelector('[data-ville]')) EvcVille.monter(m.querySelector('[data-ville]'), {
+            label: 'Votre ville', classeChamp: 'w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-transparent',
+            onChange: function (c) { departement = c; }
+        });
         pseudo.focus(); pseudo.select();
         m.querySelector('[data-annuler]').onclick = function () { m.remove(); };
         m.querySelector('[data-baguette]').onclick = function () { baguette(pseudo); };
@@ -74,7 +80,7 @@
             var btn = f.querySelector('[type=submit]'); btn.disabled = true; btn.style.opacity = '.6';
             try {
                 var r = await apiCall('/auth/google/complete', { method: 'POST', body: JSON.stringify({
-                    ticket: d.ticket, username: p, adult: true, cgu: true, parrain: typeof opts.parrain === 'function' ? opts.parrain() : ''
+                    ticket: d.ticket, username: p, adult: true, cgu: true, parrain: typeof opts.parrain === 'function' ? opts.parrain() : '', departement: departement
                 }) });
                 m.remove();
                 connecte(r.user, true);
