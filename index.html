@@ -1,42 +1,38 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full cam-theme">
+
+<html class="h-full cam-theme" lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
-    <script src="theme.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat webcam gratuit entre adultes, salons en direct | E-VISIOCAM</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <meta name="theme-color" content="#111113">
-    <meta name="description" content="Chat vidéo et webcam gratuit entre adultes : salons en direct, musique, quiz et rencontres, par écrit ou en cam. Communauté française modérée, réservée aux majeurs.">
-    <link rel="canonical" href="https://www.e-visiocam.com/">
-    <meta name="rating" content="adult">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="E-VISIOCAM">
-    <meta property="og:locale" content="fr_FR">
-    <meta property="og:title" content="Chat webcam gratuit entre adultes, salons en direct | E-VISIOCAM">
-    <meta property="og:description" content="Chat vidéo et webcam gratuit entre adultes : salons en direct, musique, quiz et rencontres, par écrit ou en cam. Communauté française modérée, réservée aux majeurs.">
-    <meta property="og:url" content="https://www.e-visiocam.com/">
-    <meta property="og:image" content="https://www.e-visiocam.com/img/partage.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://www.e-visiocam.com/#site","name":"E-VISIOCAM","url":"https://www.e-visiocam.com/","inLanguage":"fr-FR","description":"Chat webcam gratuit entre adultes : salons en direct, musique et rencontres."},{"@type":"Organization","@id":"https://www.e-visiocam.com/#org","name":"E-VISIOCAM","url":"https://www.e-visiocam.com/","logo":"https://www.e-visiocam.com/apple-touch-icon.png","email":"contact@e-visiocam.com"}]}</script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="auth-api.js?v=2"></script>
-    <script src="legal-banner.js"></script>
-    <script src="nav-auth.js"></script>
-
-
-
-
-    <link rel="stylesheet" href="style.css?v=20261010-guides">
-
-    <style>
+<meta charset="utf-8"/>
+<!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+<meta content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<script src="theme.js"></script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chat webcam gratuit entre adultes, salons en direct | E-VISIOCAM</title>
+<link href="favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<meta content="#111113" name="theme-color"/>
+<meta content="Chat vidéo et webcam gratuit entre adultes : salons en direct, musique, quiz et rencontres, par écrit ou en cam. Communauté française modérée, réservée aux majeurs." name="description"/>
+<link href="https://www.e-visiocam.com/" rel="canonical"/>
+<meta content="adult" name="rating"/>
+<meta content="website" property="og:type"/>
+<meta content="E-VISIOCAM" property="og:site_name"/>
+<meta content="fr_FR" property="og:locale"/>
+<meta content="Chat webcam gratuit entre adultes, salons en direct | E-VISIOCAM" property="og:title"/>
+<meta content="Chat vidéo et webcam gratuit entre adultes : salons en direct, musique, quiz et rencontres, par écrit ou en cam. Communauté française modérée, réservée aux majeurs." property="og:description"/>
+<meta content="https://www.e-visiocam.com/" property="og:url"/>
+<meta content="https://www.e-visiocam.com/img/partage.jpg" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://www.e-visiocam.com/#site","name":"E-VISIOCAM","url":"https://www.e-visiocam.com/","inLanguage":"fr-FR","description":"Chat webcam gratuit entre adultes : salons en direct, musique et rencontres."},{"@type":"Organization","@id":"https://www.e-visiocam.com/#org","name":"E-VISIOCAM","url":"https://www.e-visiocam.com/","logo":"https://www.e-visiocam.com/apple-touch-icon.png","email":"contact@e-visiocam.com"}]}</script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="auth-api.js?v=2"></script>
+<script src="legal-banner.js"></script>
+<script src="nav-auth.js"></script>
+<link href="style.css?v=20261010-guides" rel="stylesheet"/>
+<style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
     /* 👥 Qui est là ? */
@@ -71,229 +67,210 @@
 
         /* La platine radio est stylée dans style.css (section « PLATINE RADIO E-VISIOCAM ») */
     </style>
-    <script src="maintenance.js" defer></script>
-    <link rel="stylesheet" href="tailwind.css?v=20261009">
-  <script src="persistent-radio-bootstrap.js"></script>
+<script defer="" src="maintenance.js"></script>
+<link href="tailwind.css?v=20261009" rel="stylesheet"/>
+<script src="persistent-radio-bootstrap.js"></script>
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
-
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <!-- Même grille que .cam-layout (padding + colonne sidebar w-64 + gouttière 24px)
+<!-- Même grille que .cam-layout (padding + colonne sidebar w-64 + gouttière 24px)
          pour que "Accueil" démarre pile sur le bord gauche du rectangle "Chat Cam En direct" -->
-    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
-        <div class="flex items-center lg:w-64 lg:shrink-0">
-            <a href="index.html" class="flex items-center gap-2">
-                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
-                    <i class="fa-solid font-bold text-lg fa-video"></i>
-                </div>
-                <span class="text-2xl font-black tracking-tight text-slate-900">
+<div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+<div class="flex items-center lg:w-64 lg:shrink-0">
+<a class="flex items-center gap-2" href="index.html">
+<div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+<i class="fa-solid font-bold text-lg fa-video"></i>
+</div>
+<span class="text-2xl font-black tracking-tight text-slate-900">
                     E-<span class="text-brand-primary">VISIOCAM</span>
-                </span>
-            </a>
-        </div>
-        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
-            <a href="index.html" class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold">Accueil</a>
-            <a href="live.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">En direct</a>
-            <a href="modeles.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Modèles</a>
-            <a href="salons.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Salons</a>
-            <a href="messages.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Messages</a>
-            <a href="credits.html" class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors">Récompenses</a>
-        </nav>
-
-        <div class="ml-auto flex items-center gap-3 sm:gap-5">
-            <div class="cam-search relative hidden sm:block w-48 md:w-64">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input aria-label="Rechercher un modèle" type="text" placeholder="Rechercher un modèle..."
-                    class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all">
-            </div>
-
-            <!-- Thème clair / sombre : un seul réglage pour toutes les pages du site -->
-            <button data-theme-toggle type="button" aria-label="Passer en thème clair" title="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none">☀️</button>
-            <!-- Boule à facettes : allumer / éteindre (choix gardé dans le navigateur) -->
-            <button data-disco-toggle type="button" aria-label="Éteindre la boule à facettes" title="Éteindre la boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors"></button>
-
-            <button data-nav-bell aria-label="Notifications" onclick="ouvrirNotifications()" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
-                <i class="fa-regular fa-bell text-lg"></i>
-                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
-            </button>
-
-            <div id="navAuth" class="flex items-center gap-2"></div>
-
-            <button aria-label="Ouvrir le menu" onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-slate-600">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-        </div>
-    </div>
+</span>
+</a>
+</div>
+<nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
+<a class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold" href="index.html">Accueil</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messages</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+</nav>
+<div class="ml-auto flex items-center gap-3 sm:gap-5">
+<div class="cam-search relative hidden sm:block w-48 md:w-64">
+<i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+<input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+</div>
+<!-- Thème clair / sombre : un seul réglage pour toutes les pages du site -->
+<button aria-label="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle="" title="Passer en thème clair" type="button">☀️</button>
+<!-- Boule à facettes : allumer / éteindre (choix gardé dans le navigateur) -->
+<button aria-label="Éteindre la boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-disco-toggle="" title="Éteindre la boule à facettes" type="button"></button>
+<button aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-nav-bell="" onclick="ouvrirNotifications()">
+<i class="fa-regular fa-bell text-lg"></i>
+<span class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white" data-nav-bell-badge="">0</span>
+</button>
+<div class="flex items-center gap-2" id="navAuth"></div>
+<button aria-label="Ouvrir le menu" class="lg:hidden p-2 text-slate-600" onclick="toggleMobileSidebar()">
+<i class="fa-solid fa-bars text-xl"></i>
+</button>
+</div>
+</div>
 </header>
-
 <div class="cam-layout max-w-[1700px] w-full mx-auto flex-1 flex p-3 md:p-6 gap-6">
-    <aside id="sidebar" class="hidden lg:flex flex-col w-64 shrink-0 gap-6">
-
-        <nav class="cam-sidenav bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80 flex flex-col gap-1 text-sm font-medium">
-            <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-pink-50 text-brand-primary font-semibold">
-                <i class="fa-solid fa-border-all w-5 text-center"></i><span>Toutes les caméras</span>
-            </a>
-            <a href="live.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
-                <i class="fa-solid fa-circle text-pink-500 text-xs w-5 text-center"></i><span>En direct</span>
-            </a>
-            <a href="modeles.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
-                <i class="fa-solid fa-star w-5 text-center text-amber-500"></i><span>Modèles</span>
-            </a>
-            <a href="salons.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
-                <i class="fa-solid fa-users w-5 text-center text-blue-500"></i><span>Salons</span>
-            </a>
-            <a href="messages.html" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
-                <div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-5 text-center"></i><span>Messages</span></div>
-            </a>
-            <a href="credits.html" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50">
-                <i class="fa-solid fa-gift w-5 text-center text-amber-500"></i><span>Mes récompenses</span>
-            </a>
-        </nav>
-
-        <!-- 📻 PLATINE RADIO E-VISIOCAM (styles : style.css → « PLATINE RADIO ») -->
-        <div id="radioWidget" class="evc-deck" aria-label="Radio">
-            <div class="evc-deck-head">
-                <span class="evc-deck-brand"><i></i>E-VISIOCAM <b>RADIO</b></span>
-                <span class="evc-deck-tag"><i></i>LIVE</span>
-            </div>
-
-            <div class="evc-deck-platter">
-                <div id="radioVinyl" class="evc-deck-vinyl">
-                    <div class="evc-deck-label"><i class="fa-solid fa-music"></i></div>
-                    <div class="evc-deck-spindle"></div>
-                </div>
-                <div id="radioTonearm" class="evc-deck-arm"><span class="evc-deck-weight"></span><span class="evc-deck-headshell"></span></div>
-                <span class="evc-deck-adapter"></span>
-                <span class="evc-deck-onair"><i></i>ON AIR</span>
-                <p class="hidden text-white text-xs" id="radioPlaceholder">📻 Sélectionne une radio</p>
-            </div>
-
-            <div id="radioAudioControls" class="evc-deck-controls" style="display: none;">
-                <div class="evc-deck-row">
-                    <button id="radioPlayBtn" type="button" onclick="togglePlay()" class="evc-deck-play" aria-label="Lecture / pause">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                    <input type="range" min="0" max="1" step="0.05" value="0.6" oninput="setVolume(this.value)" class="evc-deck-volume" aria-label="Volume">
-                </div>
-                <div class="evc-deck-row">
-                    <div class="evc-deck-group">
-                        <button type="button" onclick="prevRadio()" class="evc-deck-btn" aria-label="Radio précédente"><i class="fa-solid fa-backward-step"></i></button>
-                        <button type="button" onclick="nextRadio()" class="evc-deck-btn" aria-label="Radio suivante"><i class="fa-solid fa-forward-step"></i></button>
-                        <div class="evc-deck-speed" aria-hidden="true"><span>33</span><span>45</span></div>
-                    </div>
-                    <span class="evc-deck-status"><i></i><span id="radioStatus">PRÊT</span></span>
-                </div>
-                <p class="evc-deck-display" id="radioNowPlaying">---</p>
-            </div>
-        </div>
-    </aside>
-
-    <main class="flex-1 space-y-6">
-        <section class="cam-banner" aria-labelledby="cam-banner-title">
-            <div class="cam-banner-art" aria-hidden="true"></div>
-            <div class="cam-banner-content">
-                <h1 id="cam-banner-title">Chat webcam gratuit<br><span>entre adultes</span></h1>
-                <p><strong>Votre salon. Vos rencontres.</strong> Échangez par écrit ou en vidéo, à votre rythme.</p>
-                <div class="cam-banner-actions">
-                    <a href="salons.html" class="cam-banner-cta"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre un salon</a>
-                    <button type="button" onclick="goLive()" class="cam-banner-cta cam-banner-cta--ghost"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>Diffuser ma webcam</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 👥 Qui est là ? Les membres connectés en ce moment (photos pour les membres, nombre seul pour les visiteurs) -->
-        <section class="ev-qui" id="quiEstLa" aria-labelledby="quiTitre" hidden>
-            <div class="ev-qui-tete">
-                <h2 id="quiTitre"><span class="ev-qui-pulse" aria-hidden="true"></span>Qui est là ? <small id="quiNombre"></small></h2>
-                <a href="modeles.html" id="quiLien">Voir tout le monde <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-            </div>
-            <div class="ev-qui-liste" id="quiListe"></div>
-        </section>
-
-        <!-- Direct : message d'accueil, remplacé par la liste quand des caméras sont en ligne -->
-        <section class="ev-live" id="liveNow" aria-live="polite">
-            <div class="ev-live-icon" aria-hidden="true"><i class="fa-solid fa-video"></i></div>
-            <div class="ev-live-text">
-                <h2 id="liveTitle">Le direct commence avec vous</h2>
-                <p id="liveText">Aucune caméra en direct pour le moment. Rejoignez un salon pour discuter.</p>
-            </div>
-            <!-- Bouton affiché seulement quand des caméras sont en direct -->
-            <button type="button" id="liveAction" class="ev-btn-ghost" style="display:none"><i class="fa-solid fa-play" aria-hidden="true"></i>Regarder</button>
-        </section>
-
-        <section aria-labelledby="ambianceTitle">
-            <div class="ev-section-head">
-                <h2 id="ambianceTitle">Trouvez votre ambiance</h2>
-                <a href="salons.html">Tous les salons <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-            </div>
-            <div class="ev-ambiances" id="ambiances">
-                <article class="ev-ambiance">
-                    <img src="img/ambiance-lounge.jpg" alt="" loading="lazy" width="557" height="211">
-                    <div class="ev-ambiance-body">
-                        <h3>Le Lounge</h3>
-                        <p>Un espace convivial pour discuter de tout et faire de belles rencontres.</p>
-                        <a href="chat.html?theme=general" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
-                    </div>
-                </article>
-                <article class="ev-ambiance">
-                    <img src="img/ambiance-musique.jpg" alt="" loading="lazy" width="558" height="211">
-                    <div class="ev-ambiance-body">
-                        <h3>Musique &amp; détente</h3>
-                        <p>Partagez vos goûts musicaux et profitez d'une ambiance relax.</p>
-                        <a href="chat.html?theme=musique" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
-                    </div>
-                </article>
-                <article class="ev-ambiance">
-                    <img src="img/ambiance-rencontres.jpg" alt="" loading="lazy" width="557" height="211">
-                    <div class="ev-ambiance-body">
-                        <h3>Rencontres</h3>
-                        <p>Des échanges spontanés dans une ambiance ouverte.</p>
-                        <a href="chat.html?theme=francais" class="ev-btn"><i class="fa-solid fa-user-group" aria-hidden="true"></i>Rejoindre</a>
-                    </div>
-                </article>
-            </div>
-        </section>
-
-        <section class="ev-features" aria-labelledby="featuresTitle">
-            <h2 id="featuresTitle">À chacun sa façon de participer</h2>
-            <ul>
-                <li><i class="fa-regular fa-comment-dots" aria-hidden="true"></i><div><h3>Discutez librement</h3><p>Échangez par écrit avec la communauté dans les salons.</p></div></li>
-                <li><i class="fa-solid fa-video" aria-hidden="true"></i><div><h3>Activez votre caméra</h3><p>Passez en vidéo quand vous le souhaitez depuis un salon.</p></div></li>
-                <li><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><div><h3>Gardez le contrôle</h3><p>Choisissez quand et comment vous participez, à votre rythme.</p></div></li>
-            </ul>
-        </section>
-
-        <section class="ev-features ev-invite" aria-labelledby="inviteTitle">
-            <div class="ev-invite-grid">
-                <div>
-                    <h2 id="inviteTitle">🤝 Invitez vos amis, gagnez des crédits</h2>
-                    <p>Chaque ami qui s’inscrit avec votre lien et participe quelques jours vous rapporte des crédits de récompense. Votre lien personnel est dans <strong>Mes récompenses</strong>.</p>
-                    <a href="credits.html#parrainage" class="ev-btn"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i>Mon lien d’invitation</a>
-                </div>
-                <div>
-                    <h2>📚 Nouveau sur un chat webcam ?</h2>
-                    <ul class="ev-guides">
-                        <li><a href="guide-chat-webcam.html">Le guide pour bien débuter</a></li>
-                        <li><a href="securite-chat-webcam.html">Sécurité : 10 conseils essentiels</a></li>
-                        <li><a href="aide.html">Centre d’aide</a></li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- 🛡️ Recrutement des modérateurs bénévoles -->
-        <section class="ev-features ev-recrute" id="evRecrute" aria-labelledby="recruteTitle">
-            <div class="ev-recrute-in">
-                <div class="ev-recrute-ico" aria-hidden="true">🛡️</div>
-                <div class="ev-recrute-txt">
-                    <h2 id="recruteTitle">L’équipe recrute des modérateurs</h2>
-                    <p>Vous aimez l’ambiance du site et vous savez garder votre calme ? Aidez-nous à garder les salons agréables : accueil des nouveaux, signalements, respect des règles. Bénévole, avec un stage de 3 semaines pour bien démarrer.</p>
-                    <p class="ev-recrute-note" id="evRecruteNote">Compte de plus de 15 jours et aucune sanction depuis 90 jours.</p>
-                </div>
-                <a href="devenir-moderateur.html" class="ev-btn"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Devenir modérateur</a>
-            </div>
-        </section>
-    </main>
+<aside class="hidden lg:flex flex-col w-64 shrink-0 gap-6" id="sidebar">
+<nav class="cam-sidenav bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80 flex flex-col gap-1 text-sm font-medium">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-pink-50 text-brand-primary font-semibold" href="index.html">
+<i class="fa-solid fa-border-all w-5 text-center"></i><span>Toutes les caméras</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="live.html">
+<i class="fa-solid fa-circle text-pink-500 text-xs w-5 text-center"></i><span>En direct</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="modeles.html">
+<i class="fa-solid fa-star w-5 text-center text-amber-500"></i><span>Modèles</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="salons.html">
+<i class="fa-solid fa-users w-5 text-center text-blue-500"></i><span>Salons</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="messages.html">
+<div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-5 text-center"></i><span>Messages</span></div>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="credits.html">
+<i class="fa-solid fa-gift w-5 text-center text-amber-500"></i><span>Mes récompenses</span>
+</a>
+</nav>
+<!-- 📻 PLATINE RADIO E-VISIOCAM (styles : style.css → « PLATINE RADIO ») -->
+<div aria-label="Radio" class="evc-deck" id="radioWidget">
+<div class="evc-deck-head">
+<span class="evc-deck-brand"><i></i>E-VISIOCAM <b>RADIO</b></span>
+<span class="evc-deck-tag"><i></i>LIVE</span>
+</div>
+<div class="evc-deck-platter">
+<div class="evc-deck-vinyl" id="radioVinyl">
+<div class="evc-deck-label"><i class="fa-solid fa-music"></i></div>
+<div class="evc-deck-spindle"></div>
+</div>
+<div class="evc-deck-arm" id="radioTonearm"><span class="evc-deck-weight"></span><span class="evc-deck-headshell"></span></div>
+<span class="evc-deck-adapter"></span>
+<span class="evc-deck-onair"><i></i>ON AIR</span>
+<p class="hidden text-white text-xs" id="radioPlaceholder">📻 Sélectionne une radio</p>
+</div>
+<div class="evc-deck-controls" id="radioAudioControls" style="display: none;">
+<div class="evc-deck-row">
+<button aria-label="Lecture / pause" class="evc-deck-play" id="radioPlayBtn" onclick="togglePlay()" type="button">
+<i class="fa-solid fa-play"></i>
+</button>
+<input aria-label="Volume" class="evc-deck-volume" max="1" min="0" oninput="setVolume(this.value)" step="0.05" type="range" value="0.6"/>
+</div>
+<div class="evc-deck-row">
+<div class="evc-deck-group">
+<button aria-label="Radio précédente" class="evc-deck-btn" onclick="prevRadio()" type="button"><i class="fa-solid fa-backward-step"></i></button>
+<button aria-label="Radio suivante" class="evc-deck-btn" onclick="nextRadio()" type="button"><i class="fa-solid fa-forward-step"></i></button>
+<div aria-hidden="true" class="evc-deck-speed"><span>33</span><span>45</span></div>
+</div>
+<span class="evc-deck-status"><i></i><span id="radioStatus">PRÊT</span></span>
+</div>
+<p class="evc-deck-display" id="radioNowPlaying">---</p>
+</div>
+</div>
+</aside>
+<main class="flex-1 space-y-6">
+<section aria-labelledby="cam-banner-title" class="cam-banner">
+<div aria-hidden="true" class="cam-banner-art"></div>
+<div class="cam-banner-content">
+<h1 id="cam-banner-title">Chat webcam gratuit<br/><span>entre adultes</span></h1>
+<p><strong>Votre salon. Vos rencontres.</strong> Échangez par écrit ou en vidéo, à votre rythme.</p>
+<div class="cam-banner-actions">
+<a class="cam-banner-cta" href="salons.html"><i aria-hidden="true" class="fa-solid fa-user-group"></i>Rejoindre un salon</a>
+<button class="cam-banner-cta cam-banner-cta--ghost" onclick="goLive()" type="button"><i aria-hidden="true" class="fa-solid fa-tower-broadcast"></i>Diffuser ma webcam</button>
+</div>
+</div>
+</section>
+<!-- 👥 Qui est là ? Les membres connectés en ce moment (photos pour les membres, nombre seul pour les visiteurs) -->
+<section aria-labelledby="quiTitre" class="ev-qui" hidden="" id="quiEstLa">
+<div class="ev-qui-tete">
+<h2 id="quiTitre"><span aria-hidden="true" class="ev-qui-pulse"></span>Qui est là ? <small id="quiNombre"></small></h2>
+<a href="modeles.html" id="quiLien">Voir tout le monde <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+</div>
+<div class="ev-qui-liste" id="quiListe"></div>
+</section>
+<!-- Direct : message d'accueil, remplacé par la liste quand des caméras sont en ligne -->
+<section aria-live="polite" class="ev-live" id="liveNow">
+<div aria-hidden="true" class="ev-live-icon"><i class="fa-solid fa-video"></i></div>
+<div class="ev-live-text">
+<h2 id="liveTitle">Le direct commence avec vous</h2>
+<p id="liveText">Aucune caméra en direct pour le moment. Rejoignez un salon pour discuter.</p>
+</div>
+<!-- Bouton affiché seulement quand des caméras sont en direct -->
+<button class="ev-btn-ghost" id="liveAction" style="display:none" type="button"><i aria-hidden="true" class="fa-solid fa-play"></i>Regarder</button>
+</section>
+<section aria-labelledby="ambianceTitle">
+<div class="ev-section-head">
+<h2 id="ambianceTitle">Trouvez votre ambiance</h2>
+<a href="salons.html">Tous les salons <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+</div>
+<div class="ev-ambiances" id="ambiances">
+<article class="ev-ambiance">
+<img alt="" height="211" loading="lazy" src="img/ambiance-lounge.jpg" width="557"/>
+<div class="ev-ambiance-body">
+<h3>Le Lounge</h3>
+<p>Un espace convivial pour discuter de tout et faire de belles rencontres.</p>
+<a class="ev-btn" href="chat.html?theme=general"><i aria-hidden="true" class="fa-solid fa-user-group"></i>Rejoindre</a>
+</div>
+</article>
+<article class="ev-ambiance">
+<img alt="" height="211" loading="lazy" src="img/ambiance-musique.jpg" width="558"/>
+<div class="ev-ambiance-body">
+<h3>Musique &amp; détente</h3>
+<p>Partagez vos goûts musicaux et profitez d'une ambiance relax.</p>
+<a class="ev-btn" href="chat.html?theme=musique"><i aria-hidden="true" class="fa-solid fa-user-group"></i>Rejoindre</a>
+</div>
+</article>
+<article class="ev-ambiance">
+<img alt="" height="211" loading="lazy" src="img/ambiance-rencontres.jpg" width="557"/>
+<div class="ev-ambiance-body">
+<h3>Rencontres</h3>
+<p>Des échanges spontanés dans une ambiance ouverte.</p>
+<a class="ev-btn" href="chat.html?theme=francais"><i aria-hidden="true" class="fa-solid fa-user-group"></i>Rejoindre</a>
+</div>
+</article>
+</div>
+</section>
+<section aria-labelledby="featuresTitle" class="ev-features">
+<h2 id="featuresTitle">À chacun sa façon de participer</h2>
+<ul>
+<li><i aria-hidden="true" class="fa-regular fa-comment-dots"></i><div><h3>Discutez librement</h3><p>Échangez par écrit avec la communauté dans les salons.</p></div></li>
+<li><i aria-hidden="true" class="fa-solid fa-video"></i><div><h3>Activez votre caméra</h3><p>Passez en vidéo quand vous le souhaitez depuis un salon.</p></div></li>
+<li><i aria-hidden="true" class="fa-solid fa-shield-halved"></i><div><h3>Gardez le contrôle</h3><p>Choisissez quand et comment vous participez, à votre rythme.</p></div></li>
+</ul>
+</section>
+<section aria-labelledby="inviteTitle" class="ev-features ev-invite">
+<div class="ev-invite-grid">
+<div>
+<h2 id="inviteTitle">🤝 Invitez vos amis, gagnez des crédits</h2>
+<p>Chaque ami qui s’inscrit avec votre lien et participe quelques jours vous rapporte des crédits de récompense. Votre lien personnel est dans <strong>Mes récompenses</strong>.</p>
+<a class="ev-btn" href="credits.html#parrainage"><i aria-hidden="true" class="fa-solid fa-share-nodes"></i>Mon lien d’invitation</a>
+</div>
+<div>
+<h2>📚 Nouveau sur un chat webcam ?</h2>
+<ul class="ev-guides">
+<li><a href="guide-chat-webcam.html">Le guide pour bien débuter</a></li>
+<li><a href="securite-chat-webcam.html">Sécurité : 10 conseils essentiels</a></li>
+<li><a href="aide.html">Centre d’aide</a></li>
+</ul>
+</div>
+</div>
+</section>
+<!-- 🛡️ Recrutement des modérateurs bénévoles -->
+<section aria-labelledby="recruteTitle" class="ev-features ev-recrute" id="evRecrute">
+<div class="ev-recrute-in">
+<div aria-hidden="true" class="ev-recrute-ico">🛡️</div>
+<div class="ev-recrute-txt">
+<h2 id="recruteTitle">L’équipe recrute des modérateurs</h2>
+<p>Vous aimez l’ambiance du site et vous savez garder votre calme ? Aidez-nous à garder les salons agréables : accueil des nouveaux, signalements, respect des règles. Bénévole, avec un stage de 3 semaines pour bien démarrer.</p>
+<p class="ev-recrute-note" id="evRecruteNote">Compte de plus de 15 jours et aucune sanction depuis 90 jours.</p>
+</div>
+<a class="ev-btn" href="devenir-moderateur.html"><i aria-hidden="true" class="fa-solid fa-shield-halved"></i>Devenir modérateur</a>
+</div>
+</section>
+<section aria-labelledby="seo-discover-title" class="ev-features" id="seo-discover"><div class="ev-features-head"><h2 id="seo-discover-title">Découvrir le tchat webcam E-VISIOCAM</h2><p>Rejoignez les <a href="salons.html">salons de tchat webcam entre adultes</a>, consultez notre <a href="guide-chat-webcam.html">guide pour bien débuter</a> et découvrez les <a href="securite-chat-webcam.html">conseils de sécurité</a> avant votre première diffusion.</p></div></section></main>
 </div>
 <script>
 // Recrutement : caché pour l'équipe ; un visiteur non inscrit est invité à créer son compte d'abord
@@ -305,14 +282,13 @@
     if (!u) document.getElementById('evRecruteNote').innerHTML = 'Créez votre compte dès aujourd’hui : vous pourrez postuler après 15 jours d’ancienneté. <a href="register.html">S’inscrire</a>';
 })();
 </script>
-
 <script src="app.js"></script>
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
-<script src="banner.js" defer></script>
-<script src="site-search.js" defer></script>
-<script src="boule-facette.js?v=2" defer></script>
-<script src="couple-danse.js?v=4" defer></script>
+<script defer="" src="banner.js"></script>
+<script defer="" src="site-search.js"></script>
+<script defer="" src="boule-facette.js?v=2"></script>
+<script defer="" src="couple-danse.js?v=4"></script>
 <script>
 // Caméras en direct : le message d'accueil laisse la place au nombre de lives
 (async function () {
@@ -331,7 +307,6 @@
     } catch (e) { /* le message d'accueil reste affiché */ }
 })();
 </script>
-
 <script>
 // « Trouvez votre ambiance » : les salons choisis dans Gestion des salons (position + image d'en-tête).
 // Sans salon choisi (ou si l'API ne répond pas), les 3 cartes ci-dessus restent affichées.
@@ -396,6 +371,6 @@
     setInterval(charger, 60000);
 })();
 </script>
-<script src="footer.js" defer></script>
+<script defer="" src="footer.js"></script>
 </body>
 </html>
