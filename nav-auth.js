@@ -120,6 +120,12 @@
                             <a href="moderation.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                                 <i class="fa-solid fa-shield-halved w-4 text-blue-500"></i> Modération
                             </a>
+                            <a href="moderation-salons.html" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-lock w-4 text-slate-500"></i> Gestion des salons
+                                </div>
+                                <span id="navSalonsBadge" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+                            </a>
                         ` : ''}
                         ${user.role === 'super_admin' ? `
                             <a href="admin.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
@@ -352,6 +358,21 @@
             }
             if (!contactInterval) contactInterval = setInterval(refreshContactCount, 30000);
         }
+
+        // 🔒 Modérateurs et super admin : demandes d'accès aux salons privés en attente (menu du compte)
+        const u = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+        if (u && (u.role === 'moderator' || u.role === 'super_admin')) refreshSalonsCount();
+    }
+
+    async function refreshSalonsCount() {
+        try {
+            const list = await apiCall('/salons/access-requests');
+            const n = (list || []).filter(function (r) { return r.status === 'pending'; }).length;
+            const el = document.getElementById('navSalonsBadge');
+            if (!el) return;
+            el.textContent = n > 99 ? '99+' : String(n);
+            el.classList.toggle('hidden', n === 0);
+        } catch (err) {}
     }
 
     let contactInterval = null;

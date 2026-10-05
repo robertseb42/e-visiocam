@@ -18,7 +18,8 @@
         var boutons = document.querySelectorAll('[data-theme-toggle]');
         for (var i = 0; i < boutons.length; i++) {
             var b = boutons[i], clair = t === 'light';
-            b.textContent = clair ? '🌙' : '☀️';
+            // Icône dessinée (même style que la cloche) : l'émoji ☀️ s'affichait dans un carré bleu sous Windows
+            b.innerHTML = clair ? '<i class="fa-regular fa-moon"></i>' : '<i class="fa-regular fa-sun"></i>';
             b.title = clair ? 'Passer en thème sombre' : 'Passer en thème clair';
             b.setAttribute('aria-label', b.title);
             b.setAttribute('aria-pressed', clair ? 'true' : 'false');
