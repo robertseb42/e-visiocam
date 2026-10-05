@@ -924,15 +924,34 @@ function renderSalonCameras() {
 
 // 📷 Ma caméra persistante : affichée directement dans ma tuile (sans repasser par le réseau)
 function afficherMaCamera() {
-    try {
-        const S = window.top !== window && window.top.EvcCamSession;
-        const monFlux = S && S.getState().stream;
-        const myId = currentUser ? currentUser.id : 0;
-        if (monFlux) (salonStreams || []).filter(s => s.broadcasterId === myId).forEach(s => {
-            const v = document.getElementById('cam-' + s.streamId);
-            if (v && v.srcObject !== monFlux) { v.srcObject = monFlux; v.play().catch(() => {}); }
-        });
-    } catch (e) {}
+    let S = null;
+    try { S = window.top !== window ? window.top.EvcCamSession : null; } catch (e) {}
+    const etat = S ? S.getState() : null;
+    const myId = currentUser ? String(currentUser.id) : '';
+    (salonStreams || []).forEach(s => {
+        const estMoi = String(s.broadcasterId) === myId || !!(etat && etat.streamId && s.streamId === etat.streamId);
+        if (!estMoi) return;
+        const v = document.getElementById('cam-' + s.streamId);
+        if (!v) return;
+        v.muted = true;
+        if (etat && etat.stream) {
+            if (v._evcSource !== etat.stream || !v.srcObject) {
+                v._evcSource = etat.stream;
+                // Flux recréé dans la page (iPhone : plus fiable qu'un flux venu de la fenêtre parente)
+                try { v.srcObject = new MediaStream(etat.stream.getVideoTracks()); }
+                catch (e) { v.srcObject = etat.stream; }
+            }
+            v.play().catch(() => {});
+        }
+        // Sécurité : si l'image reste noire, on affiche ma caméra par le réseau, comme les autres la voient
+        clearTimeout(v._evcSecours);
+        v._evcSecours = setTimeout(() => {
+            if (!v.isConnected || v.videoWidth) return;
+            const sub = viewerPeerConnections[s.streamId];
+            if (sub && sub.evcStream) { v.srcObject = sub.evcStream; v.play().catch(() => {}); }
+            else if (!sub) startViewingStream(s.streamId);
+        }, 2500);
+    });
 }
 // Flux remplacé (ex. caméra récupérée après mise en veille sur iPhone) : on le remet dans ma tuile
 window.addEventListener('evc:cam', (ev) => {
