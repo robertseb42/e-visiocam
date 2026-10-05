@@ -37,7 +37,7 @@
             <span class="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
             <i class="fa-solid fa-radio text-brand-primary"></i>
             <span id="radioMiniName" class="text-xs font-bold text-slate-800 max-w-[100px] truncate">Radio</span>
-            <button onclick="event.stopPropagation(); togglePlay()" aria-label="Lecture / pause" class="w-7 h-7 rounded-full bg-brand-primary text-white flex items-center justify-center">
+            <button data-radio="mini-play" aria-label="Lecture / pause" class="w-7 h-7 rounded-full bg-brand-primary text-white flex items-center justify-center">
                 <i class="fa-solid fa-play text-xs" id="radioMiniPlayIcon"></i>
             </button>
         </div>
@@ -47,7 +47,7 @@
             <div class="evc-deck-head">
                 <span class="evc-deck-brand"><i></i>E-VISIOCAM <b>RADIO</b></span>
                 <span class="evc-deck-tag"><i></i>LIVE
-                    <button type="button" onclick="minimizeRadioWidget()" aria-label="Réduire la radio" title="Réduire"><i class="fa-solid fa-chevron-down"></i></button>
+                    <button type="button" data-radio="reduire" aria-label="Réduire la radio" title="Réduire"><i class="fa-solid fa-chevron-down"></i></button>
                 </span>
             </div>
 
@@ -65,10 +65,10 @@
 
             <div id="radioAudioControls" class="evc-deck-controls">
                 <div class="evc-deck-row">
-                    <button id="radioPlayBtn" type="button" onclick="togglePlay()" class="evc-deck-play" aria-label="Lecture / pause"><i class="fa-solid fa-play"></i></button>
-                    <button type="button" onclick="prevRadio()" class="evc-deck-btn" aria-label="Radio précédente"><i class="fa-solid fa-backward-step"></i></button>
-                    <button type="button" onclick="nextRadio()" class="evc-deck-btn" aria-label="Radio suivante"><i class="fa-solid fa-forward-step"></i></button>
-                    <input type="range" min="0" max="1" step="0.05" value="0.6" oninput="setVolume(this.value)" class="evc-deck-volume" aria-label="Volume">
+                    <button id="radioPlayBtn" type="button" data-radio="play" class="evc-deck-play" aria-label="Lecture / pause"><i class="fa-solid fa-play"></i></button>
+                    <button type="button" data-radio="prev" class="evc-deck-btn" aria-label="Radio précédente"><i class="fa-solid fa-backward-step"></i></button>
+                    <button type="button" data-radio="next" class="evc-deck-btn" aria-label="Radio suivante"><i class="fa-solid fa-forward-step"></i></button>
+                    <input type="range" min="0" max="1" step="0.05" value="0.6" data-radio="volume" class="evc-deck-volume" aria-label="Volume">
                 </div>
                 <div class="evc-deck-row">
                     <div class="evc-deck-speed" aria-hidden="true"><span>33</span><span>45</span></div>
@@ -83,6 +83,18 @@
     widget.style.cssText = 'position: fixed; right: 16px; bottom: 16px; z-index: 9999;';   // placée ensuite par app-shell.html (colonne de droite de l'accueil)
 
     document.body.appendChild(widget);
+
+    // Boutons branchés ici : les attributs onclick dans le HTML sont bloqués par la CSP stricte.
+    // Les fonctions sont lues au moment du clic : radio-widget.js peut les définir plus tard.
+    function surRadio(nom, type, action) {
+        widget.querySelector('[data-radio="' + nom + '"]').addEventListener(type, action);
+    }
+    surRadio('mini-play', 'click', function(e) { e.stopPropagation(); window.togglePlay(); });
+    surRadio('reduire', 'click', function() { window.minimizeRadioWidget(); });
+    surRadio('play', 'click', function() { window.togglePlay(); });
+    surRadio('prev', 'click', function() { window.prevRadio(); });
+    surRadio('next', 'click', function() { window.nextRadio(); });
+    surRadio('volume', 'input', function() { window.setVolume(this.value); });
 
     // Rotation du disque (mêmes règles que l'accueil)
     if (!document.getElementById('styleVinylSpin')) {

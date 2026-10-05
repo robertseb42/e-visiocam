@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nouveau mot de passe — E-VISIOCAM</title>
@@ -93,68 +93,7 @@
     </div>
 </main>
 
-<script>
-(function() {
-    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
-        window.location.href = 'login.html?redirect=nouveau-mdp.html';
-        return;
-    }
-
-    const user = getCurrentUser() || {};
-    document.getElementById('who').textContent = user.username || '—';
-
-    const pwd1 = document.getElementById('pwd1');
-    const pwd2 = document.getElementById('pwd2');
-    const regles = [
-        { el: 'r1', ok: v => v.length >= 8 },
-        { el: 'r2', ok: v => /[A-Z]/.test(v) },
-        { el: 'r3', ok: v => /[0-9]/.test(v) }
-    ];
-    function majRegles() {
-        regles.forEach(r => {
-            const li = document.getElementById(r.el);
-            const ok = r.ok(pwd1.value);
-            li.className = ok ? 'text-emerald-600 font-semibold' : 'text-slate-500';
-            li.querySelector('i').className = ok ? 'fa-solid fa-circle-check mr-1' : 'fa-solid fa-circle-xmark mr-1';
-        });
-    }
-    pwd1.addEventListener('input', majRegles);
-
-    function erreur(msg) {
-        const box = document.getElementById('errorBox');
-        if (!msg) { box.classList.add('hidden'); return; }
-        box.textContent = msg;
-        box.classList.remove('hidden');
-    }
-
-    document.getElementById('pwdForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        erreur('');
-        const mdp = pwd1.value;
-        if (regles.some(r => !r.ok(mdp))) return erreur('Le mot de passe ne respecte pas les trois règles.');
-        if (mdp !== pwd2.value) return erreur('Les deux mots de passe ne sont pas identiques.');
-
-        const btn = document.getElementById('submitBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1"></i> Enregistrement...';
-        try {
-            const data = await apiCall('/auth/change-password', { method: 'POST', body: JSON.stringify({ newPassword: mdp }) });
-            if (data && data.token) saveToken(data.token);
-            const frais = getCurrentUser() || user;
-            frais.must_change_password = 0;
-            saveUser(frais);
-            showToast('✅ Nouveau mot de passe enregistré');
-            setTimeout(() => { redirectByRole(frais); }, 900);
-        } catch (err) {
-            erreur(err.message || 'Enregistrement impossible');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> Enregistrer mon mot de passe';
-        }
-    });
-
-    majRegles();
-})();
-</script>
+<script src="pages/nouveau-mdp.js"></script>
 
 <script src="footer.js" defer></script>
 </body>

@@ -106,7 +106,7 @@
                     ⚠️ Cochez les 3 cases pour continuer
                 </button>
 
-                <button onclick="window.location.href='https://www.google.com'" style="
+                <button id="quitLegalBtn" style="
                     width: 100%; padding: 12px;
                     background: #f1f5f9; color: #64748b;
                     font-weight: 600; border: none;
@@ -182,6 +182,10 @@
             localStorage.setItem('evisiocam_legal_accepted', '1');
             localStorage.setItem('evisiocam_legal_date', new Date().toISOString());
             banner.remove();
+        });
+
+        banner.querySelector('#quitLegalBtn').addEventListener('click', () => {
+            window.location.href = 'https://www.google.com';
         });
     }
 

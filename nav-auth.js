@@ -81,7 +81,7 @@
 
         navAuth.innerHTML = `
             <div class="relative" id="userMenuWrapper">
-                <button onclick="toggleUserMenu(event)" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
+                <button data-user-menu-toggle class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <div class="relative">
                         ${photo ? `<img src="${photo}" alt="" class="w-9 h-9 rounded-full object-cover">` : `<div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${avatarDisplay}</div>`}
                         ${user.role === 'super_admin' ? `<span id="navContactDot" title="Messages contact non lus" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">0</span>` : ''}
@@ -134,13 +134,15 @@
                         ` : ''}
                     </div>
                     <div class="p-2 border-t border-slate-100">
-                        <button onclick="logout()" class="w-full flex items-center gap-3 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg">
+                        <button data-logout class="w-full flex items-center gap-3 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-lg">
                             <i class="fa-solid fa-arrow-right-from-bracket w-4"></i> Déconnexion
                         </button>
                     </div>
                 </div>
             </div>
         `;
+        navAuth.querySelector('[data-user-menu-toggle]').addEventListener('click', function(e) { window.toggleUserMenu(e); });
+        navAuth.querySelector('[data-logout]').addEventListener('click', function() { logout(); });
 
         startUnreadWatcher();
         verifierPhoto(user);
@@ -249,6 +251,10 @@
             window.location.href = 'messages.html';
         }
     };
+    // Branché ici plutôt qu'en attribut onclick dans chaque page (bloqué par la CSP stricte)
+    document.addEventListener('click', function(e) {
+        if (e.target.closest && e.target.closest('[data-nav-bell]')) window.ouvrirNotifications();
+    });
 
     // Petite carte « X est en direct » en bas à gauche, 12 secondes
     function alerteLive(d) {

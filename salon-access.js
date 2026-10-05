@@ -119,9 +119,14 @@ const SalonAccess = (() => {
     const emoji = (s && s.icon) || '💬', src = logoSrc(s);
     if (!src) return escHtml(emoji);
     return '<img src="' + escHtml(src) + '" alt="" loading="lazy" data-fb="' + escHtml(emoji) + '" style="width:' + taille + 'px;height:' + taille +
-      'px;object-fit:contain;border-radius:' + Math.round(taille / 5) + 'px;display:inline-block;vertical-align:middle" '
-      + 'onerror="this.replaceWith(document.createTextNode(this.dataset.fb))">';
+      'px;object-fit:contain;border-radius:' + Math.round(taille / 5) + 'px;display:inline-block;vertical-align:middle">';
   };
+  // Logo introuvable : on remet l'émoji. Écouté sur tout le document (phase de capture, l'événement
+  // « error » ne remonte pas) plutôt qu'en attribut onerror, bloqué par la CSP stricte.
+  document.addEventListener('error', function (e) {
+    var img = e.target;
+    if (img && img.tagName === 'IMG' && img.hasAttribute('data-fb')) img.replaceWith(document.createTextNode(img.dataset.fb));
+  }, true);
 
   // ---- Passer un salon en VIP, ou lui retirer le VIP (super administrateur)
   // BACK : PUT /api/salons/:slug/private  body { "isPrivate": true | false }

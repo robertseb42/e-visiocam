@@ -4,8 +4,9 @@
 <head>
 <meta charset="utf-8"/>
 <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-<meta content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<meta content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
 <script src="theme.js"></script>
+<script src="actions.js"></script>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Chat webcam gratuit entre adultes, salons en direct | E-VISIOCAM</title>
 <link href="favicon.svg" rel="icon" type="image/svg+xml"/>
@@ -103,12 +104,12 @@
 <button aria-label="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle="" title="Passer en thème clair" type="button">☀️</button>
 <!-- Boule à facettes : allumer / éteindre (choix gardé dans le navigateur) -->
 <button aria-label="Éteindre la boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-disco-toggle="" title="Éteindre la boule à facettes" type="button"></button>
-<button aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-nav-bell="" onclick="ouvrirNotifications()">
+<button aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-nav-bell="">
 <i class="fa-regular fa-bell text-lg"></i>
 <span class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white" data-nav-bell-badge="">0</span>
 </button>
 <div class="flex items-center gap-2" id="navAuth"></div>
-<button aria-label="Ouvrir le menu" class="lg:hidden p-2 text-slate-600" onclick="toggleMobileSidebar()">
+<button aria-label="Ouvrir le menu" class="lg:hidden p-2 text-slate-600" data-click="toggleMobileSidebar">
 <i class="fa-solid fa-bars text-xl"></i>
 </button>
 </div>
@@ -154,15 +155,15 @@
 </div>
 <div class="evc-deck-controls" id="radioAudioControls" style="display: none;">
 <div class="evc-deck-row">
-<button aria-label="Lecture / pause" class="evc-deck-play" id="radioPlayBtn" onclick="togglePlay()" type="button">
+<button aria-label="Lecture / pause" class="evc-deck-play" id="radioPlayBtn" data-click="togglePlay" type="button">
 <i class="fa-solid fa-play"></i>
 </button>
-<input aria-label="Volume" class="evc-deck-volume" max="1" min="0" oninput="setVolume(this.value)" step="0.05" type="range" value="0.6"/>
+<input aria-label="Volume" class="evc-deck-volume" max="1" min="0" data-input="setVolume" data-input-args='["$value"]' step="0.05" type="range" value="0.6"/>
 </div>
 <div class="evc-deck-row">
 <div class="evc-deck-group">
-<button aria-label="Radio précédente" class="evc-deck-btn" onclick="prevRadio()" type="button"><i class="fa-solid fa-backward-step"></i></button>
-<button aria-label="Radio suivante" class="evc-deck-btn" onclick="nextRadio()" type="button"><i class="fa-solid fa-forward-step"></i></button>
+<button aria-label="Radio précédente" class="evc-deck-btn" data-click="prevRadio" type="button"><i class="fa-solid fa-backward-step"></i></button>
+<button aria-label="Radio suivante" class="evc-deck-btn" data-click="nextRadio" type="button"><i class="fa-solid fa-forward-step"></i></button>
 <div aria-hidden="true" class="evc-deck-speed"><span>33</span><span>45</span></div>
 </div>
 <span class="evc-deck-status"><i></i><span id="radioStatus">PRÊT</span></span>
@@ -179,7 +180,7 @@
 <p><strong>Votre salon. Vos rencontres.</strong> Échangez par écrit ou en vidéo, à votre rythme.</p>
 <div class="cam-banner-actions">
 <a class="cam-banner-cta" href="salons.html"><i aria-hidden="true" class="fa-solid fa-user-group"></i>Rejoindre un salon</a>
-<button class="cam-banner-cta cam-banner-cta--ghost" onclick="goLive()" type="button"><i aria-hidden="true" class="fa-solid fa-tower-broadcast"></i>Diffuser ma webcam</button>
+<button class="cam-banner-cta cam-banner-cta--ghost" data-click="goLive" type="button"><i aria-hidden="true" class="fa-solid fa-tower-broadcast"></i>Diffuser ma webcam</button>
 </div>
 </div>
 </section>
@@ -272,16 +273,7 @@
 </section>
 <section aria-labelledby="seo-discover-title" class="ev-features" id="seo-discover"><div class="ev-features-head"><h2 id="seo-discover-title">Découvrir le tchat webcam E-VISIOCAM</h2><p>Rejoignez les <a href="salons.html">salons de tchat webcam entre adultes</a>, consultez notre <a href="guide-chat-webcam.html">guide pour bien débuter</a> et découvrez les <a href="securite-chat-webcam.html">conseils de sécurité</a> avant votre première diffusion.</p></div></section></main>
 </div>
-<script>
-// Recrutement : caché pour l'équipe ; un visiteur non inscrit est invité à créer son compte d'abord
-(function () {
-    var u = null; try { u = typeof getCurrentUser === 'function' ? getCurrentUser() : null; } catch (e) {}
-    var bloc = document.getElementById('evRecrute');
-    if (!bloc) return;
-    if (u && (u.role === 'moderator' || u.role === 'super_admin')) { bloc.hidden = true; return; }
-    if (!u) document.getElementById('evRecruteNote').innerHTML = 'Créez votre compte dès aujourd’hui : vous pourrez postuler après 15 jours d’ancienneté. <a href="register.html">S’inscrire</a>';
-})();
-</script>
+<script src="pages/index-recrutement.js"></script>
 <script src="app.js"></script>
 <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js"></script>
@@ -289,88 +281,9 @@
 <script defer="" src="site-search.js"></script>
 <script defer="" src="boule-facette.js?v=2"></script>
 <script defer="" src="couple-danse.js?v=4"></script>
-<script>
-// Caméras en direct : le message d'accueil laisse la place au nombre de lives
-(async function () {
-    try {
-        const r = await fetch(API_URL + '/streams', { credentials: 'include' });
-        if (!r.ok) return;
-        const streams = ((await r.json()).streams || []);
-        if (!streams.length) return;
-        const noms = streams.slice(0, 3).map(s => s.broadcasterUsername).filter(Boolean);
-        document.getElementById('liveTitle').textContent = streams.length + (streams.length > 1 ? ' caméras en direct' : ' caméra en direct');
-        document.getElementById('liveText').textContent = 'En ce moment : ' + noms.join(', ') + (streams.length > noms.length ? ' et ' + (streams.length - noms.length) + ' autre(s)' : '') + '.';
-        const btn = document.getElementById('liveAction');
-        btn.style.display = "";
-        btn.onclick = () => { window.location.href = 'live.html'; };
-        document.getElementById('liveNow').classList.add('is-live');
-    } catch (e) { /* le message d'accueil reste affiché */ }
-})();
-</script>
-<script>
-// « Trouvez votre ambiance » : les salons choisis dans Gestion des salons (position + image d'en-tête).
-// Sans salon choisi (ou si l'API ne répond pas), les 3 cartes ci-dessus restent affichées.
-(async function () {
-    const COVERS = ['img/ambiance-lounge.jpg', 'img/ambiance-musique.jpg', 'img/ambiance-rencontres.jpg'];
-    const base = API_URL.replace(/\/api\/?$/, '');
-    const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    function cover(s) {
-        if (s.coverUrl) return base + s.coverUrl;
-        if (s.slug === 'musique') return COVERS[1];
-        let h = 0; for (const c of String(s.slug)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-        return [COVERS[0], COVERS[2]][h % 2];
-    }
-    try {
-        const r = await fetch(API_URL + '/salons/home');
-        if (!r.ok) return;
-        const salons = ((await r.json()).salons || []);
-        if (!salons.length) return;
-        document.getElementById('ambiances').innerHTML = salons.map(s => {
-            const lien = s.isPrivate ? 'salons.html' : 'chat.html?theme=' + encodeURIComponent(s.slug);
-            return '<article class="ev-ambiance">' +
-                '<img src="' + esc(cover(s)) + '" alt="" loading="lazy" width="557" height="211">' +
-                '<div class="ev-ambiance-body">' +
-                    '<h3>' + esc(s.name) + (s.isPrivate ? ' <span class="ev-vip">VIP</span>' : '') + '</h3>' +
-                    '<p>' + esc(s.description || '') + '</p>' +
-                    '<a href="' + esc(lien) + '" class="ev-btn"><i class="fa-solid ' + (s.isPrivate ? 'fa-lock' : 'fa-user-group') + '" aria-hidden="true"></i>' + (s.isPrivate ? 'Demander l\'accès' : 'Rejoindre') + '</a>' +
-                '</div></article>';
-        }).join('');
-    } catch (e) { /* on garde les cartes par défaut */ }
-})();
-</script>
-<script>
-// 👥 « Qui est là ? » : membres connectés en ce moment (rafraîchi chaque minute)
-(function () {
-    const zone = document.getElementById('quiEstLa'), liste = document.getElementById('quiListe');
-    const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    async function charger() {
-        try {
-            const r = await fetch(API_URL + '/models/online', { credentials: 'include' });
-            if (!r.ok) return;
-            const d = await r.json();
-            if (!d.total) { zone.hidden = true; return; }
-            zone.hidden = false;
-            document.getElementById('quiNombre').textContent = d.total + ' connecté' + (d.total > 1 ? 's' : '');
-            if (!d.connecte) {
-                // Visiteur : on montre que c'est vivant, sans dévoiler les membres
-                const ombres = Array.from({ length: Math.min(d.total, 6) }, () => '<span class="ev-qui-ombre" aria-hidden="true"></span>').join('');
-                liste.innerHTML = '<div class="ev-qui-invite">' + ombres + '<p>' + d.total + ' membre' + (d.total > 1 ? 's sont' : ' est') + ' en ligne en ce moment.</p><a href="register.html" class="ev-btn">Rejoindre gratuitement</a></div>';
-                document.getElementById('quiLien').hidden = true;
-                return;
-            }
-            const photo = m => (typeof urlAvatar === 'function') ? urlAvatar(m.avatar) : null;
-            let html = d.membres.map(m => '<button type="button" class="ev-qui-m' + (m.isLive ? ' live' : '') + '" data-fiche="' + Number(m.id) + '" title="' + esc(m.username + (m.isLive ? ' — en direct' : ' — connecté')) + '">' +
-                '<span class="ev-qui-photo"><img src="' + esc(photo(m) || '') + '" alt="" loading="lazy">' + (m.isLive ? '<span class="ev-qui-live">LIVE</span>' : '') + '</span>' +
-                '<span class="ev-qui-nom">' + esc(m.moi ? 'Vous' : m.username) + '</span></button>').join('');
-            const autres = d.total - d.membres.length;
-            if (autres > 0) html += '<a href="modeles.html" class="ev-qui-m" style="text-decoration:none"><span class="ev-qui-photo" style="display:flex;align-items:center;justify-content:center;font-weight:900;background:var(--h-border)">+' + autres + '</span><span class="ev-qui-nom">autre' + (autres > 1 ? 's' : '') + '</span></a>';
-            liste.innerHTML = html;
-        } catch (e) { /* le bandeau reste caché */ }
-    }
-    charger();
-    setInterval(charger, 60000);
-})();
-</script>
+<script src="pages/index-cameras.js"></script>
+<script src="pages/index-ambiances.js"></script>
+<script src="pages/index-membres.js"></script>
 <script defer="" src="footer.js"></script>
 </body>
 </html>
