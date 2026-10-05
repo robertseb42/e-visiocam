@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (!currentUser) { window.location.href = 'login.html'; return; }
     
     chargerConfigPrive();
+    brancherSession();   // 📷 caméra déjà allumée ailleurs : on la retrouve
     var coche = document.getElementById('priveCheck');
     coche.addEventListener('change', function() {
         prive.actif = coche.checked;
@@ -361,7 +362,7 @@ function choisirInvites() {
             Object.keys(noms).forEach(function(k) { prive.names[k] = noms[k]; });
             if (isBroadcasting) {
                 var nouveaux = ids.filter(function(id) { return prive.invited.indexOf(id) === -1; });
-                if (nouveaux.length) socket.emit('live:invite', { streamId: currentBroadcastStreamId, invited: nouveaux });
+                if (nouveaux.length) { var S = sessionCam(); if (S) S.invite(nouveaux, noms); else socket.emit('live:invite', { streamId: currentBroadcastStreamId, invited: nouveaux }); }
             } else {
                 prive.invited = ids;
             }
@@ -567,36 +568,127 @@ function signalerSurveillance(nom, horsLive) {
     window.__bandeauSurv = setTimeout(function() { if (el && el.parentNode) el.parentNode.removeChild(el); }, 12000);
 }
 
+// 📷 Caméra persistante : quand la page tourne dans app-shell, la caméra et le live
+// appartiennent à la session (fenêtre parente) et survivent aux changements de page.
+// Sinon (page ouverte seule), l'ancien fonctionnement local est conservé.
+function sessionCam() {
+    try { return (window.top !== window && window.top.EvcCamSession) || null; } catch (e) { return null; }
+}
+
+var BTN_ON_CAM   = 'w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
+var BTN_OFF_LARGE = 'w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2';
+var BTN_STOP     = 'w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
+var BTN_LIVE_ON  = 'w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
+var BTN_LIVE_OFF = 'w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-50';
+var BTN_PETIT_ON  = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
+var BTN_PETIT_OFF = 'py-2 bg-slate-200 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center gap-1';
+
+function btn(id, disabled, cls) { var b = document.getElementById(id); b.disabled = disabled; b.className = cls; }
+
+function uiCameraActive() {
+    var video = document.getElementById('localVideo');
+    if (video.srcObject !== localStream) video.srcObject = localStream;
+    document.getElementById('localPlaceholder').style.display = 'none';
+    btn('startCamBtn', true, BTN_OFF_LARGE);
+    btn('stopCamBtn', false, BTN_STOP);
+    btn('startBroadcastBtn', false, BTN_LIVE_ON);
+    btn('toggleCameraBtn', false, BTN_PETIT_ON);
+    btn('toggleMicBtn', false, BTN_PETIT_ON);
+    document.getElementById('camStatusText').textContent = 'Active ✅';
+}
+
+function uiCameraInactive() {
+    document.getElementById('localVideo').srcObject = null;
+    document.getElementById('localPlaceholder').style.display = 'flex';
+    uiLiveArrete();
+    btn('startCamBtn', false, BTN_ON_CAM);
+    btn('stopCamBtn', true, BTN_OFF_LARGE);
+    btn('startBroadcastBtn', true, BTN_LIVE_OFF);
+    btn('toggleCameraBtn', true, BTN_PETIT_OFF);
+    btn('toggleMicBtn', true, BTN_PETIT_OFF);
+    document.getElementById('camStatusText').textContent = 'Inactif';
+}
+
+function uiLiveEnCours() {
+    document.getElementById('startBroadcastBtn').classList.add('hidden');
+    var stopBtn = document.getElementById('stopBroadcastBtn');
+    stopBtn.classList.remove('hidden');
+    btn('stopBroadcastBtn', false, BTN_STOP);
+    document.getElementById('broadcastBadge').classList.remove('hidden');
+    afficherPrive();
+}
+
+function uiLiveArrete() {
+    document.getElementById('startBroadcastBtn').classList.remove('hidden');
+    document.getElementById('stopBroadcastBtn').classList.add('hidden');
+    document.getElementById('broadcastBadge').classList.add('hidden');
+    afficherPrive();
+}
+
+function uiToggles() {
+    document.getElementById('toggleCameraText').textContent = myCameraOff ? 'Afficher cam' : 'Masquer cam';
+    document.getElementById('toggleMicText').textContent = myMicMuted ? 'Activer micro' : 'Couper micro';
+}
+
+// Remet la page dans l'état de la session (retour sur « En direct » avec la caméra déjà allumée)
+function appliquerEtatSession(e) {
+    if (!e) return;
+    var ancienLive = isBroadcasting;
+    localStream = e.stream || null;
+    isBroadcasting = !!e.broadcasting;
+    currentBroadcastStreamId = e.streamId || null;
+    myCameraOff = !!e.cameraOff;
+    myMicMuted = !!e.micMuted;
+    if (e.broadcasting) {
+        prive.actif = !!e.prive;
+        prive.invited = (e.invited || []).slice();
+        Object.keys(e.names || {}).forEach(function(k) { prive.names[k] = e.names[k]; });
+        if (e.salon) prive.salon = e.salon;
+    }
+    if (localStream) uiCameraActive(); else uiCameraInactive();
+    if (isBroadcasting) uiLiveEnCours(); else if (ancienLive || localStream) uiLiveArrete();
+    uiToggles();
+}
+
+function brancherSession() {
+    var S = sessionCam();
+    if (!S) return;
+    window.addEventListener('evc:cam', function(ev) {
+        var d = ev.detail || {};
+        if (d.type === 'state') appliquerEtatSession(d);
+        else if (d.type === 'log') log(d.message);
+        else if (d.type === 'error') { log('❌ ' + d.message); if (typeof showToast === 'function') showToast(d.message, 'error'); }
+        else if (d.type === 'invited') log('🔒 Invités : ' + (d.list || []).map(function(i) { return i.username; }).join(', '));
+    });
+    var e = S.getState();
+    if (e.active) {
+        appliquerEtatSession(e);
+        log(e.broadcasting ? '🔴 Live toujours en cours' : '✅ Caméra toujours active');
+    }
+}
+
 // ============================================================
 // CAMÉRA
 // ============================================================
 async function startCamera() {
+    var S = sessionCam();
     try {
         log('🎥 Demande d\'accès...');
-        localStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 1280, height: 720 },
-            audio: true
-        });
-        var video = document.getElementById('localVideo');
-        video.srcObject = localStream;
-        document.getElementById('localPlaceholder').style.display = 'none';
-
-        document.getElementById('startCamBtn').disabled = true;
-        document.getElementById('startCamBtn').className = 'w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2';
-        document.getElementById('stopCamBtn').disabled = false;
-        document.getElementById('stopCamBtn').className = 'w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
-        document.getElementById('startBroadcastBtn').disabled = false;
-        document.getElementById('startBroadcastBtn').className = 'w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
-        document.getElementById('toggleCameraBtn').disabled = false;
-        document.getElementById('toggleCameraBtn').className = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
-        document.getElementById('toggleMicBtn').disabled = false;
-        document.getElementById('toggleMicBtn').className = 'py-2 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1';
-        document.getElementById('camStatusText').textContent = 'Active ✅';
-        log('✅ Caméra activée');
-
-        // 📷 Caméra allumée : l'équipe (super admin / modérateurs) peut la voir
-        // même sans diffusion, pour vérifier un danger potentiel.
-        if (socket) socket.emit('camera:start', { streamId: currentBroadcastStreamId });
+        if (S) {
+            localStream = await S.start();    // réutilise le flux s'il existe déjà
+        } else {
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: { width: 1280, height: 720 },
+                audio: true
+            });
+        }
+        uiCameraActive();
+        if (!S) {
+            log('✅ Caméra activée');
+            // 📷 Caméra allumée : l'équipe (super admin / modérateurs) peut la voir
+            // même sans diffusion, pour vérifier un danger potentiel.
+            if (socket) socket.emit('camera:start', { streamId: currentBroadcastStreamId });
+        }
     } catch (err) {
         log('❌ ' + err.message);
         alert('Impossible d\'accéder à la caméra : ' + err.message);
@@ -604,40 +696,48 @@ async function startCamera() {
 }
 
 function stopCamera() {
-    if (isBroadcasting) stopBroadcast();
-    // 📷 Caméra éteinte : on prévient le serveur (fin de la surveillance possible)
-    if (socket) socket.emit('camera:stop');
-    if (localStream) {
-        localStream.getTracks().forEach(function(t) { t.stop(); });
-        localStream = null;
+    var S = sessionCam();
+    if (S) {
+        S.stop();
+    } else {
+        if (isBroadcasting) stopBroadcast();
+        // 📷 Caméra éteinte : on prévient le serveur (fin de la surveillance possible)
+        if (socket) socket.emit('camera:stop');
+        if (localStream) localStream.getTracks().forEach(function(t) { t.stop(); });
+        log('⏹️ Caméra arrêtée');
     }
-    document.getElementById('localVideo').srcObject = null;
-    document.getElementById('localPlaceholder').style.display = 'flex';
-    document.getElementById('broadcastBadge').classList.add('hidden');
-    document.getElementById('stopBroadcastBtn').classList.add('hidden');
-    document.getElementById('startBroadcastBtn').classList.remove('hidden');
-    document.getElementById('startCamBtn').disabled = false;
-    document.getElementById('startCamBtn').className = 'w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
-    document.getElementById('stopCamBtn').disabled = true;
-    document.getElementById('stopCamBtn').className = 'w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2';
-    document.getElementById('startBroadcastBtn').disabled = true;
-    document.getElementById('startBroadcastBtn').className = 'w-full py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2 opacity-50';
-    document.getElementById('toggleCameraBtn').disabled = true;
-    document.getElementById('toggleCameraBtn').className = 'py-2 bg-slate-200 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center gap-1';
-    document.getElementById('toggleMicBtn').disabled = true;
-    document.getElementById('toggleMicBtn').className = 'py-2 bg-slate-200 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center gap-1';
-    document.getElementById('camStatusText').textContent = 'Inactif';
-    log('⏹️ Caméra arrêtée');
+    localStream = null;
+    isBroadcasting = false;
+    currentBroadcastStreamId = null;
+    myCameraOff = false; myMicMuted = false;
+    uiCameraInactive();
+    uiToggles();
 }
 
 // ============================================================
 // BROADCAST
 // ============================================================
-function startBroadcast() {
+async function startBroadcast() {
     if (!localStream) { alert('Démarre la caméra d\'abord'); return; }
     if (prive.actif && !prive.invited.length) {
         alert('Choisissez au moins un invité pour démarrer un live privé.');
         choisirInvites();
+        return;
+    }
+    var S = sessionCam();
+    if (S) {
+        try {
+            btn('startBroadcastBtn', true, BTN_LIVE_OFF);
+            currentBroadcastStreamId = await S.startBroadcast({
+                private: prive.actif, invited: prive.invited, names: prive.names, salon: prive.salon
+            });
+            isBroadcasting = true;
+            uiLiveEnCours();
+        } catch (e) {
+            log('❌ ' + e.message);
+            btn('startBroadcastBtn', false, BTN_LIVE_ON);
+            if (typeof showToast === 'function') showToast(e.message, 'error');
+        }
         return;
     }
     isBroadcasting = true;
@@ -649,14 +749,8 @@ function startBroadcast() {
         if (prive.salon) donnees.salon = prive.salon;
     }
     socket.emit('live:start', donnees);
-    afficherPrive();
     publishViaSfu(currentBroadcastStreamId);
-    document.getElementById('startBroadcastBtn').classList.add('hidden');
-    var stopBtn = document.getElementById('stopBroadcastBtn');
-    stopBtn.classList.remove('hidden');
-    stopBtn.disabled = false;
-    stopBtn.className = 'w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
-    document.getElementById('broadcastBadge').classList.remove('hidden');
+    uiLiveEnCours();
     log('🔴 En direct !');
 }
 
@@ -676,22 +770,22 @@ async function publishViaSfu(streamId) {
 
 function stopBroadcast() {
     if (!isBroadcasting) return;
+    var S = sessionCam();
     isBroadcasting = false;
-    socket.emit('live:stop', { streamId: currentBroadcastStreamId });
-    if (sfuPublisher) { sfuPublisher.close(); sfuPublisher = null; }
-    
-    // Fermer toutes les connexions viewers
-    Object.keys(peerConnections).forEach(function(viewerId) {
-        try { peerConnections[viewerId].close(); } catch(e) {}
-        delete peerConnections[viewerId];
-    });
-    
-    document.getElementById('startBroadcastBtn').classList.remove('hidden');
-    document.getElementById('stopBroadcastBtn').classList.add('hidden');
-    document.getElementById('broadcastBadge').classList.add('hidden');
+    if (S) {
+        S.stopBroadcast();
+    } else {
+        socket.emit('live:stop', { streamId: currentBroadcastStreamId });
+        if (sfuPublisher) { sfuPublisher.close(); sfuPublisher = null; }
+        // Fermer toutes les connexions viewers
+        Object.keys(peerConnections).forEach(function(viewerId) {
+            try { peerConnections[viewerId].close(); } catch(e) {}
+            delete peerConnections[viewerId];
+        });
+        log('⏹️ Diffusion arrêtée');
+    }
     currentBroadcastStreamId = null;
-    afficherPrive();
-    log('⏹️ Diffusion arrêtée');
+    uiLiveArrete();
 }
 
 // ============================================================
@@ -699,19 +793,29 @@ function stopBroadcast() {
 // ============================================================
 function toggleMyCamera() {
     if (!localStream || !isBroadcasting) return;
-    myCameraOff = !myCameraOff;
-    localStream.getVideoTracks().forEach(function(t) { t.enabled = !myCameraOff; });
-    socket.emit('live:camera-toggle', { streamId: currentBroadcastStreamId });
-    document.getElementById('toggleCameraText').textContent = myCameraOff ? 'Afficher cam' : 'Masquer cam';
+    var S = sessionCam();
+    if (S) {
+        myCameraOff = S.toggleCamera().cameraOff;
+    } else {
+        myCameraOff = !myCameraOff;
+        localStream.getVideoTracks().forEach(function(t) { t.enabled = !myCameraOff; });
+        socket.emit('live:camera-toggle', { streamId: currentBroadcastStreamId });
+    }
+    uiToggles();
     log(myCameraOff ? '📷 Cam masquée' : '📷 Cam affichée');
 }
 
 function toggleMyMic() {
     if (!localStream || !isBroadcasting) return;
-    myMicMuted = !myMicMuted;
-    localStream.getAudioTracks().forEach(function(t) { t.enabled = !myMicMuted; });
-    socket.emit('live:mic-toggle', { streamId: currentBroadcastStreamId });
-    document.getElementById('toggleMicText').textContent = myMicMuted ? 'Activer micro' : 'Couper micro';
+    var S = sessionCam();
+    if (S) {
+        myMicMuted = S.toggleMic().micMuted;
+    } else {
+        myMicMuted = !myMicMuted;
+        localStream.getAudioTracks().forEach(function(t) { t.enabled = !myMicMuted; });
+        socket.emit('live:mic-toggle', { streamId: currentBroadcastStreamId });
+    }
+    uiToggles();
     log(myMicMuted ? '🔇 Micro coupé' : '🎤 Micro activé');
 }
 

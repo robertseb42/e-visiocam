@@ -918,7 +918,26 @@ function renderSalonCameras() {
             startViewingStream(s.streamId);
         }
     });
+
+    afficherMaCamera();
 }
+
+// 📷 Ma caméra persistante : affichée directement dans ma tuile (sans repasser par le réseau)
+function afficherMaCamera() {
+    try {
+        const S = window.top !== window && window.top.EvcCamSession;
+        const monFlux = S && S.getState().stream;
+        const myId = currentUser ? currentUser.id : 0;
+        if (monFlux) (salonStreams || []).filter(s => s.broadcasterId === myId).forEach(s => {
+            const v = document.getElementById('cam-' + s.streamId);
+            if (v && v.srcObject !== monFlux) { v.srcObject = monFlux; v.play().catch(() => {}); }
+        });
+    } catch (e) {}
+}
+// Flux remplacé (ex. caméra récupérée après mise en veille sur iPhone) : on le remet dans ma tuile
+window.addEventListener('evc:cam', (ev) => {
+    if (ev.detail && ev.detail.type === 'state') afficherMaCamera();
+});
 
 async function startViewingStream(streamId) {
     const stream = salonStreams.find(s => s.streamId === streamId);

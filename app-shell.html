@@ -28,7 +28,7 @@
   <script>window.__EVC_PERSISTENT_RADIO__ = true;</script>
 </head>
 <body>
-  <iframe id="evcPage" title="E-VISIOCAM"></iframe>
+  <iframe id="evcPage" title="E-VISIOCAM" allow="camera; microphone; autoplay; fullscreen"></iframe>
   <script>
     (function () {
       var p = new URLSearchParams(location.search).get('page') || 'index.html';
@@ -141,5 +141,10 @@
       }).observe(w, { subtree: true, attributes: true, attributeFilter: ['class'] });
     })();
   </script>
+  <!-- 📷 Caméra persistante : vit ici, comme la radio, pour survivre aux changements de page -->
+  <script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
+  <script src="auth-api.js"></script>
+  <script src="sfu-client.js"></script>
+  <script src="camera-session.js?v=1"></script>
 </body>
 </html>

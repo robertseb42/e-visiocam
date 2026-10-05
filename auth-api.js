@@ -138,6 +138,8 @@ async function renvoyerConfirmation(login) {
 }
 
 async function logout() {
+    // 📷 Déconnexion : on coupe la caméra persistante (et le live) avant tout
+    try { if (window.top.EvcCamSession) window.top.EvcCamSession.stop(); } catch (e) {}
     try { await apiCall('/auth/logout', { method: 'POST' }); } catch (e) {}
     clearToken(); clearUser();
     window.location.href = 'index.html';
