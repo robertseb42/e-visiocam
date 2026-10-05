@@ -80,9 +80,11 @@
       function placerRadio() {
         var w = document.getElementById('radioWidgetFloating');
         if (!w) return;
+        // Colonne de droite UNIQUEMENT sur l'accueil (qui publie __evcColonne : la radio y est placée
+        // bas, sous la boule à facettes). PARTOUT AILLEURS : coin bas-droit, pour ne jamais recouvrir
+        // le menu du compte qui s'ouvre en haut à droite. (La bulle « Besoin d'aide ? » va alors en bas à gauche.)
         var info = null;
         try { info = frame.contentWindow && frame.contentWindow.__evcColonne; } catch (e) {}
-        if (!info) info = colonneGenerique();
         // offsetWidth / offsetHeight : taille réelle sans l'effet du zoom (transform)
         var largeur = w.offsetWidth || 252, hauteur = w.offsetHeight || 360;
         if (info && info.largeur >= 150 && window.innerWidth >= 1024) {
