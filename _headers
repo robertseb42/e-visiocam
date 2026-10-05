@@ -1,0 +1,10 @@
+# En-têtes de sécurité HTTP (Netlify / Cloudflare Pages).
+# GitHub Pages n'applique PAS ce fichier : il ne sert que si tu migres l'hébergement.
+# L'anti-clickjacking sur GitHub Pages est assuré en attendant par le frame-buster inline dans chaque page.
+/*
+  X-Frame-Options: DENY
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), payment=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
