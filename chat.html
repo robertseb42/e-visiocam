@@ -67,6 +67,15 @@
         .membre-btn.actif { outline: 2px solid #9333ea; outline-offset: -2px; }
         :where(html:not([data-theme="light"])) .membre-btn:hover, :where(html:not([data-theme="light"])) .membre-btn.actif { background: rgba(147,51,234,.18) !important; }
         .dm-alerte { position: fixed; right: 16px; top: 76px; z-index: 80; max-width: 300px; cursor: pointer; }
+    
+        /* 📷 Pastille caméra sur mon avatar */
+        .pastille-macam{position:absolute;top:-6px;right:-8px;z-index:2;width:21px;height:21px;border-radius:50%;border:2px solid #1c1c20;background:#e91e63;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;line-height:1;cursor:pointer;padding:0;box-shadow:0 2px 6px #0006;transition:transform .15s}
+        .pastille-macam svg{width:11px;height:11px}
+        .pastille-macam:hover{transform:scale(1.15)}
+        .pastille-macam.on{background:#ef4444;animation:pastilleCam 1.6s infinite}
+        html[data-theme="light"] .pastille-macam{border-color:#fff}
+        @keyframes pastilleCam{0%{box-shadow:0 0 0 0 #ef444499}70%{box-shadow:0 0 0 6px #ef444400}100%{box-shadow:0 0 0 0 #ef444400}}
+        @media (prefers-reduced-motion:reduce){.pastille-macam.on{animation:none}}
     </style>
 
     <link rel="stylesheet" href="style.css?v=20261010-guides">
@@ -533,7 +542,7 @@ function dessinerMembres() {
             const avatar = '<span data-fiche="' + Number(u.id) + '" title="Voir la fiche de ' + escapeHtml(nom) + '" class="cursor-pointer relative w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[11px] font-bold shrink-0">' +
                 escapeHtml(nom[0].toUpperCase()) + (photo ? '<img src="' + escapeHtml(photo) + '" alt="" class="absolute inset-0 w-full h-full rounded-full object-cover" loading="lazy">' : '') + (nonLus ? '<span class="pb">' + (nonLus > 99 ? '99+' : nonLus) + '</span>' : '') + '</span>';
             const libelle = '<span class="font-medium text-slate-700 truncate flex-1">' + (ROLE_ICONS[u.role] || '') + ' ' + escapeHtml(nom) + insigneHtml(u.insigne) + (moi ? ' <span class="text-slate-400">(moi)</span>' : '') + '</span>';
-            if (moi) return '<div class="flex items-center gap-2 p-2 rounded-lg">' + avatar + libelle + live + '</div>';
+            if (moi) return '<div class="flex items-center gap-2 p-2 rounded-lg">' + avatar.replace(/<\/span>$/, pastilleMaCam() + '</span>') + libelle + live + '</div>';
             return '<button type="button" class="membre-btn w-full flex items-center gap-2 p-2 rounded-lg hover:bg-purple-50 text-left' + (actif ? ' actif bg-purple-50' : '') + '"' +
                 ' data-uid="' + Number(u.id) + '" data-n="' + escapeHtml(nom) + '" title="Écrire en privé à ' + escapeHtml(nom) + '">' +
                 avatar + libelle + live + '<i class="fa-regular fa-envelope text-purple-500" aria-hidden="true"></i></button>';
@@ -541,6 +550,35 @@ function dessinerMembres() {
     }
     majTotalNonLus();
 }
+
+// 📷 Petite pastille sur MON avatar : allume ma caméra en un appui (ex. vérification demandée par un modérateur)
+function etatMaCam() {
+    try { const S = window.top !== window ? window.top.EvcCamSession : null; return S ? S.getState() : null; } catch (e) { return null; }
+}
+function pastilleMaCam() {
+    const e = etatMaCam();
+    const on = !!(e && e.active);
+    const titre = e && e.broadcasting ? 'Ma caméra : en direct' : on ? 'Ma caméra est allumée' : 'Allumer ma caméra';
+    return '<button type="button" class="pastille-macam' + (on ? ' on' : '') + '" onclick="event.stopPropagation(); event.preventDefault(); demarrerMaCamAvatar();"'
+        + ' title="' + titre + '" aria-label="' + titre + '"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="13" height="12" rx="2.5" fill="currentColor"/><path d="M16 10.5l6-3.5v10l-6-3.5z" fill="currentColor"/></svg></button>';
+}
+async function demarrerMaCamAvatar() {
+    let S = null;
+    try { S = window.top !== window ? window.top.EvcCamSession : null; } catch (e) {}
+    if (!S) { location.href = 'live.html'; return; }        // page ouverte hors de l'appli
+    if (!S.getState().active) {
+        try { await S.start(); if (typeof showToast === 'function') showToast('Caméra activée'); }
+        catch (er) {
+            if (!er.evcGere && er.name !== 'Annule' && typeof showToast === 'function') showToast("Impossible d'activer la caméra", 'error');
+            return;
+        }
+    }
+    if (window.EvcMaCam) EvcMaCam.ouvrir();   // aperçu + « Diffuser dans le salon » / « Couper »
+}
+// La caméra change d'état : la pastille suit
+window.addEventListener('evc:cam', (ev) => {
+    if (ev.detail && ev.detail.type === 'state' && document.getElementById('onlineUsers') && membres.length) dessinerMembres();
+});
 
 function majTotalNonLus() {
     const total = Object.values(prive.nonLus).reduce((a, n) => a + (Number(n) || 0), 0);
