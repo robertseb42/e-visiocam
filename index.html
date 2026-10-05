@@ -40,6 +40,14 @@
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
     /* 👥 Qui est là ? */
+    /* 🛡️ Recrutement */
+    .ev-recrute-in{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    .ev-recrute-ico{font-size:40px;line-height:1;flex:none}
+    .ev-recrute-txt{flex:1;min-width:240px}
+    .ev-recrute-txt h2{margin:0 0 6px}
+    .ev-recrute-txt p{margin:0;color:var(--h-muted)}
+    .ev-recrute-note{margin-top:6px!important;font-size:13px}
+    .ev-recrute-note a{color:var(--h-yellow);font-weight:700}
     .ev-qui{padding:18px 22px;border-radius:18px;background:var(--h-panel);border:1px solid var(--h-border);color:var(--h-text)}
     .ev-qui-tete{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
     .ev-qui-tete h2{margin:0;font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
@@ -272,8 +280,31 @@
                 </div>
             </div>
         </section>
+
+        <!-- 🛡️ Recrutement des modérateurs bénévoles -->
+        <section class="ev-features ev-recrute" id="evRecrute" aria-labelledby="recruteTitle">
+            <div class="ev-recrute-in">
+                <div class="ev-recrute-ico" aria-hidden="true">🛡️</div>
+                <div class="ev-recrute-txt">
+                    <h2 id="recruteTitle">L’équipe recrute des modérateurs</h2>
+                    <p>Vous aimez l’ambiance du site et vous savez garder votre calme ? Aidez-nous à garder les salons agréables : accueil des nouveaux, signalements, respect des règles. Bénévole, avec un stage de 3 semaines pour bien démarrer.</p>
+                    <p class="ev-recrute-note" id="evRecruteNote">Compte de plus de 15 jours et aucune sanction depuis 90 jours.</p>
+                </div>
+                <a href="devenir-moderateur.html" class="ev-btn"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i>Devenir modérateur</a>
+            </div>
+        </section>
     </main>
 </div>
+<script>
+// Recrutement : caché pour l'équipe ; un visiteur non inscrit est invité à créer son compte d'abord
+(function () {
+    var u = null; try { u = typeof getCurrentUser === 'function' ? getCurrentUser() : null; } catch (e) {}
+    var bloc = document.getElementById('evRecrute');
+    if (!bloc) return;
+    if (u && (u.role === 'moderator' || u.role === 'super_admin')) { bloc.hidden = true; return; }
+    if (!u) document.getElementById('evRecruteNote').innerHTML = 'Créez votre compte dès aujourd’hui : vous pourrez postuler après 15 jours d’ancienneté. <a href="register.html">S’inscrire</a>';
+})();
+</script>
 
 <script src="app.js"></script>
 <script src="radio-widget.js"></script>

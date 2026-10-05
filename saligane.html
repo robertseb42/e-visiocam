@@ -79,6 +79,15 @@
     .sal-carte .ico { font-size:26px; line-height:1; margin-bottom:10px; }
     .sal-carte h3 { font-size:16px; font-weight:800; margin:0 0 6px; }
     .sal-carte p { margin:0; color:var(--s-muted); font-size:14px; line-height:1.5; }
+    .sal-modo { display:flex; gap:18px; align-items:center; flex-wrap:wrap; background:linear-gradient(135deg, color-mix(in srgb, var(--s-accent) 14%, var(--s-panel)), var(--s-panel)); border:1px solid color-mix(in srgb, var(--s-accent) 45%, var(--s-border)); border-radius:22px; padding:22px; margin-bottom:44px; }
+    .sal-modo-ico { font-size:44px; line-height:1; flex:none; }
+    .sal-modo-txt { flex:1; min-width:240px; }
+    .sal-modo-txt p { margin:0; color:var(--s-muted); line-height:1.55; }
+    .sal-modo-txt strong { color:var(--s-text); }
+    .sal-modo .sal-modo-note { margin-top:8px; font-size:13.5px; font-weight:700; color:var(--s-text); }
+    .sal-modo-actions { display:flex; flex-direction:column; gap:10px; }
+    .sal-modo-actions .sal-btn { font-size:15px; padding:12px 20px; justify-content:center; }
+    @media (max-width: 520px) { .sal-modo-actions { width:100%; } }
     .sal-faq { display:grid; gap:10px; margin-bottom:40px; }
     .sal-faq details { background:var(--s-panel); border:1px solid var(--s-border); border-radius:14px; padding:14px 16px; }
     .sal-faq summary { cursor:pointer; font-weight:800; }
@@ -113,6 +122,19 @@
             <div class="sal-carte"><div class="ico">📍</div><h3>Des gens près de chez vous</h3><p>Chaque profil affiche son département : (42), (69)… Votre ville, elle, n’est jamais enregistrée.</p></div>
             <div class="sal-carte"><div class="ico">🎶</div><h3>De l’ambiance</h3><p>Radio en continu, quiz, boule à facettes : le tchat reste un endroit où l’on passe un bon moment.</p></div>
         </div>
+
+        <section class="sal-modo" aria-labelledby="salModoTitre">
+            <div class="sal-modo-ico" aria-hidden="true">🛡️</div>
+            <div class="sal-modo-txt">
+                <h2 id="salModoTitre">Vous étiez un pilier de Saligane ?</h2>
+                <p>Les habitués des tchats savent mieux que personne ce qui fait une bonne ambiance. Notre équipe recrute des <strong>modérateurs bénévoles</strong> : accueillir les nouveaux, traiter les signalements, faire respecter les règles, avec un stage de 3 semaines pour bien démarrer.</p>
+                <p class="sal-modo-note">Créez votre compte aujourd’hui : vous pourrez postuler après 15 jours d’ancienneté, sans sanction.</p>
+            </div>
+            <div class="sal-modo-actions">
+                <a class="sal-btn" href="register.html" data-entrer><i class="fa-solid fa-user-plus"></i> Créer mon compte</a>
+                <a class="sal-btn sec" href="devenir-moderateur.html" data-entrer>Le rôle de modérateur</a>
+            </div>
+        </section>
 
         <h2>Vos questions</h2>
         <p class="sal-sous">Ce que les anciens de Saligane nous demandent le plus.</p>
