@@ -44,6 +44,8 @@
     .ev-membre.est-absent img{filter:saturate(.7) brightness(.8)}
     .ev-membre-bas{position:absolute;inset:auto 0 0 0;padding:28px 12px 10px;background:linear-gradient(to top,#000b,#0005 60%,transparent)}
     .ev-membre-nom{margin:0;display:flex;align-items:center;gap:7px;color:#fff;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #0008}
+    .ev-membre-pseudo{overflow:hidden;text-overflow:ellipsis;min-width:0}
+    .ev-membre-dep{flex:none;margin-left:-3px;font-weight:600;opacity:.85}
     .ev-point{flex:none;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 2px #0006}
     .ev-point-on{background:#ffe500}
     .ev-point-live{background:#f43f5e;animation:evPoint 1.4s ease-in-out infinite}
@@ -201,7 +203,7 @@ function carteMembre(m) {
              title="${escM(m.username + (m.moi ? ' (vous)' : (m.isLive ? ' — en direct' : (enLigne ? ' — connecté' : ' — hors ligne'))))}" ${actions ? 'tabindex="0"' : ''}>
             ${photo ? `<img src="${escM(photo)}" alt="" loading="lazy">` : ''}
             ${actions ? `<div class="ev-membre-actions">${actions}</div>` : ''}
-            <div class="ev-membre-bas"><p class="ev-membre-nom">${point}${escM(m.username)}</p></div>
+            <div class="ev-membre-bas"><p class="ev-membre-nom">${point}<span class="ev-membre-pseudo">${escM(m.username)}</span>${m.departement ? `<span class="ev-membre-dep">(${escM(m.departement)})</span>` : ''}</p></div>
         </div>`;
 }
 function rendreMembres() {
