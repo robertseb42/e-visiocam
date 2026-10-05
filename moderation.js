@@ -116,6 +116,11 @@ function initSocket() {
     socket.on('webrtc:answer', function(data) {
         var streamId = data.streamId || currentWatchedStream;
         var pc = moderationPeerConnections[streamId];
+        // Réponse sans identifiant : la connexion qui attend encore sa réponse
+        if (!data.streamId) Object.keys(moderationPeerConnections).forEach(function(id) {
+            var p = moderationPeerConnections[id];
+            if (p && p.signalingState === 'have-local-offer') { pc = p; streamId = id; }
+        });
         if (!pc) {
             console.warn('Aucune peerConnection pour streamId =', streamId);
             return;
@@ -123,11 +128,11 @@ function initSocket() {
         pc.setRemoteDescription(new RTCSessionDescription(data.answer))
             .then(function() {
                 console.log('Réponse WebRTC OK pour', streamId);
-                updateWatchStatus('Connexion établie');
+                majStatut(streamId, 'Connexion établie');
             })
             .catch(function(err) {
                 console.error('setRemoteDescription :', err);
-                updateWatchStatus('Erreur : ' + err.message);
+                majStatut(streamId, 'Erreur : ' + err.message);
             });
     });
 
@@ -140,9 +145,7 @@ function initSocket() {
     });
 
     socket.on('live:stopped', function(data) {
-        if (currentWatchedStream && data && data.streamId === currentWatchedStream) {
-            stopWatching();
-        }
+        if (data && vuesMod[data.streamId]) fermerVue(data.streamId, true);
         loadAllStreams();
     });
 
@@ -188,26 +191,51 @@ function renderReports() {
     }
     var html = '';
     allReports.forEach(function(r) {
+        // 🔒 Tous les champs issus d'un utilisateur sont échappés (XSS stocké possible sinon).
+        var cible = r.target_username ? escapeHtml(r.target_username) : ('Utilisateur #' + escapeHtml(r.target_id));
         html += '<div class="border-l-4 border-rose-300 bg-white border border-slate-200 rounded-xl p-4">';
         html += '<div class="flex items-start justify-between gap-4">';
         html += '<div class="flex-1">';
         html += '<div class="flex items-center gap-2 mb-1">';
         if (r.priority >= 4) html += '<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>';
-        html += '<span class="text-xs font-bold text-slate-900">' + (r.target_username || ('Utilisateur #' + r.target_id)) + '</span>';
+        html += '<span class="text-xs font-bold text-slate-900">' + cible + '</span>';
         html += '<span class="text-[10px] text-slate-400">' + new Date(r.created_at).toLocaleString('fr-FR') + '</span>';
         html += '</div>';
-        html += '<p class="text-xs text-slate-600 mb-1"><strong>Raison :</strong> ' + r.reason + '</p>';
+        html += '<p class="text-xs text-slate-600 mb-1"><strong>Raison :</strong> ' + reasonLabel(r.reason) + '</p>';
         if (r.description) html += '<p class="text-xs text-slate-500 italic">"' + escapeHtml(r.description) + '"</p>';
-        html += '<p class="text-[10px] text-slate-400 mt-1">Signale par ' + (r.reporter_name || 'Anonyme') + '</p>';
+        html += '<p class="text-[10px] text-slate-400 mt-1">Signale par ' + escapeHtml(r.reporter_name || 'Anonyme') + '</p>';
         html += '</div>';
         if (r.status === 'pending') {
-            html += '<button onclick="openActionModal(' + r.id + ', ' + (r.target_id || 0) + ', \'' + (r.target_username || '') + '\')" class="px-3 py-1.5 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-lg whitespace-nowrap">Traiter</button>';
+            // Pas d'onclick construit en chaîne : data-* + délégation d'événement (voir ci-dessous).
+            html += '<button type="button" class="rep-traiter px-3 py-1.5 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-lg whitespace-nowrap"'
+                + ' data-rep-id="' + escapeHtml(r.id) + '" data-target-id="' + escapeHtml(r.target_id || 0) + '" data-target-name="' + escapeHtml(r.target_username || '') + '">Traiter</button>';
         } else {
             html += '<span class="text-xs font-bold ' + (r.status === 'resolved' ? 'text-emerald-600' : 'text-slate-500') + '">' + (r.status === 'resolved' ? 'Traite' : 'Ignore') + '</span>';
         }
         html += '</div></div>';
     });
     list.innerHTML = html;
+    // Délégation : le bouton « Traiter » lit ses paramètres dans ses data-* (jamais de code dans l'attribut).
+    list.querySelectorAll('.rep-traiter').forEach(function(b) {
+        b.addEventListener('click', function() {
+            openActionModal(Number(b.dataset.repId), Number(b.dataset.targetId) || 0, b.dataset.targetName || '');
+        });
+    });
+}
+
+// Libellé lisible d'une raison (liste blanche miroir du backend) ; valeur inconnue => affichée échappée.
+function reasonLabel(reason) {
+    var labels = {
+        contenu_illegal: 'Contenu illégal',
+        mineur: 'Mineur',
+        violence: 'Violence',
+        harcelement: 'Harcèlement',
+        contenu_sexuel_non_consenti: 'Contenu sexuel non consenti',
+        spam: 'Spam',
+        comportement: 'Comportement',
+        autre: 'Autre'
+    };
+    return labels[reason] || escapeHtml(reason);
 }
 
 function filterReports(status, btn) {
@@ -283,13 +311,23 @@ function applyAction(reportId, targetId, action) {
 // ============================================================
 // SURVEILLANCE LIVE
 // ============================================================
+// ============================================================
+// SURVEILLANCE : plusieurs caméras regardées en même temps,
+// chacune directement dans sa vignette (mur de surveillance)
+// ============================================================
+var vuesMod = {};   // streamId -> { pc, video, statut, muet }
+
 function loadAllStreams() {
     return apiCall('/mod/streams/all').then(function(data) {
         moderationStreams = data.streams || [];
+        // Une caméra regardée a disparu de la liste : on ferme sa vue
+        Object.keys(vuesMod).forEach(function(id) {
+            if (!moderationStreams.some(function(s) { return s.streamId === id; })) fermerVue(id, true);
+        });
         renderModerationStreams();
         updateModerationStats();
     }).catch(function(err) {
-        document.getElementById('modStreamsGrid').innerHTML = '<p class="text-rose-500 col-span-full text-center py-8">' + err.message + '</p>';
+        document.getElementById('modStreamsGrid').innerHTML = '<p class="text-rose-500 col-span-full text-center py-8">' + escapeHtml(err.message) + '</p>';
     });
 }
 
@@ -308,54 +346,88 @@ function updateModerationStats() {
 
 function renderModerationStreams() {
     var grid = document.getElementById('modStreamsGrid');
+    // L'ancien grand lecteur n'est plus utilisé : tout se regarde dans les vignettes
+    var grand = document.getElementById('activeWatchContainer');
+    if (grand) grand.classList.add('hidden');
+
     if (moderationStreams.length === 0) {
-        grid.innerHTML = '<p class="text-slate-400 text-center py-8 col-span-full">Aucun live actif</p>';
+        grid.innerHTML = '<p class="text-slate-400 text-center py-8 col-span-full">Aucune caméra allumée</p>';
         return;
     }
-    var html = '';
+    // Mur compact : environ 5 caméras par ligne sur ordinateur, 2 sur téléphone
+    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(' + (window.innerWidth < 640 ? 150 : 200) + 'px, 1fr))';
+    grid.style.gap = '10px';
+    var nbVues = Object.keys(vuesMod).length;
+    var nonVues = moderationStreams.filter(function(s) { return !vuesMod[s.streamId] && !s.isCameraOff; }).length;
+    var barre = '';
+    if (nonVues > 1 && nbVues < MAX_VUES_MOD) barre += '<button onclick="toutVoir()" class="text-xs font-bold text-emerald-500 hover:underline"><i class="fa-solid fa-play"></i> Tout voir (' + Math.min(nonVues, MAX_VUES_MOD - nbVues) + ')</button>';
+    if (nbVues > 1) barre += '<button onclick="stopWatching()" class="text-xs font-bold text-rose-500 hover:underline"><i class="fa-solid fa-xmark"></i> Fermer les ' + nbVues + ' caméras</button>';
+    var html = barre ? '<div class="col-span-full flex justify-end gap-4" style="grid-column:1/-1">' + barre + '</div>' : '';
     moderationStreams.forEach(function(s) {
-        var isWatching = (currentWatchedStream === s.streamId);
+        var id = s.streamId;
+        var v = vuesMod[id];
         var username = s.broadcasterUsername || 'Inconnu';
-        html += '<div class="bg-slate-900 rounded-2xl overflow-hidden shadow-lg' + (isWatching ? ' ring-2 ring-emerald-500' : '') + '">';
-        html += '<div class="relative aspect-video bg-black flex items-center justify-center">';
-        if (s.isCameraOff) {
-            html += '<div class="text-white text-center"><i class="fa-solid fa-video-slash text-3xl mb-1"></i><p class="text-xs">Camera masquee</p></div>';
-        } else {
-            html += '<div class="text-slate-600 text-center"><i class="fa-solid fa-video text-4xl"></i></div>';
+        var horsLive = s.isBroadcasting === false;
+        html += '<div class="bg-slate-900 rounded-xl overflow-hidden shadow-lg' + (v ? ' ring-2 ring-emerald-500' : '') + '" data-carte="' + escapeHtml(id) + '">';
+        html += '<div class="relative aspect-video bg-black flex items-center justify-center" data-slot="' + escapeHtml(id) + '">';
+        if (!v) {
+            html += s.isCameraOff
+                ? '<div class="text-white text-center"><i class="fa-solid fa-video-slash text-3xl mb-1"></i><p class="text-xs">Camera masquee</p></div>'
+                : '<button onclick="watchStream(\'' + id + '\')" class="text-slate-500 hover:text-emerald-400 text-center"><i class="fa-solid fa-circle-play text-3xl"></i><p class="text-[10px] mt-1">Voir</p></button>';
         }
-        html += '<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full live-pulse">LIVE</div>';
-        if (s.salon) html += '<div class="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">' + escapeHtml(s.salon) + '</div>';
-        html += '<div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">' + (s.viewers || 0) + ' viewers</div>';
+        html += horsLive
+            ? '<div class="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:#475569">CAM HORS LIVE</div>'
+            : '<div class="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full live-pulse">LIVE</div>';
+        if (s.salon) html += '<div class="absolute top-2 right-2 z-10 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">' + escapeHtml(s.salon) + '</div>';
+        if (v) {
+            html += '<div class="absolute bottom-2 left-2 z-10 flex gap-1">'
+                + '<button onclick="basculerSon(\'' + id + '\')" title="Son" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid ' + (v.muet ? 'fa-volume-xmark' : 'fa-volume-high') + '"></i></button>'
+                + '<button onclick="pleinEcran(\'' + id + '\')" title="Plein écran" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid fa-expand"></i></button>'
+                + '<button onclick="fermerVue(\'' + id + '\')" title="Fermer" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid fa-xmark"></i></button></div>'
+                + '<div class="absolute bottom-2 right-2 z-10 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full" data-statut="' + escapeHtml(id) + '">' + escapeHtml(v.statut) + '</div>';
+        } else {
+            html += '<div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">' + (s.viewers || 0) + ' viewers</div>';
+        }
         html += '</div>';
-        html += '<div class="p-3 bg-slate-800 text-white">';
-        html += '<p class="font-bold text-sm mb-2">' + escapeHtml(username) + '</p>';
-        html += '<div class="grid grid-cols-3 gap-1.5">';
-        html += '<button onclick="watchStream(\'' + s.streamId + '\')" class="py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg">Voir</button>';
-        html += '<button onclick="forceStopStream(\'' + s.streamId + '\', \'' + escapeHtml(username) + '\')" class="py-2 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold rounded-lg">Stop</button>';
-        html += '<button onclick="quickBan(\'' + escapeHtml(username) + '\', ' + (s.broadcasterId || 0) + ')" class="py-2 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg">Ban</button>';
+        html += '<div class="bg-slate-800 text-white" style="padding:6px 8px 8px">';
+        html += '<p class="font-bold text-xs mb-1.5 truncate">' + escapeHtml(username) + '</p>';
+        html += '<div class="grid grid-cols-3 gap-1">';
+        html += v
+            ? '<button onclick="fermerVue(\'' + id + '\')" class="py-1 text-white text-[10px] font-bold rounded-lg" style="background:#475569">Fermer</button>'
+            : '<button onclick="watchStream(\'' + id + '\')" class="py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg">Voir</button>';
+        html += '<button onclick="forceStopStream(\'' + id + '\', \'' + escapeHtml(username).replace(/'/g, "\\'") + '\')" class="py-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold rounded-lg">Stop</button>';
+        html += '<button onclick="quickBan(\'' + escapeHtml(username).replace(/'/g, "\\'") + '\', ' + (s.broadcasterId || 0) + ')" class="py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg">Ban</button>';
         html += '</div></div></div>';
     });
     grid.innerHTML = html;
+    // On replace les vidéos déjà en cours dans leur vignette (elles ne sont pas recréées)
+    Object.keys(vuesMod).forEach(function(id) {
+        var slot = grid.querySelector('[data-slot="' + CSS.escape(id) + '"]');
+        var v = vuesMod[id];
+        if (slot && v) { slot.insertBefore(v.video, slot.firstChild); v.video.play().catch(function() {}); }
+    });
 }
 
+function majStatut(streamId, texte) {
+    var v = vuesMod[streamId];
+    if (!v) return;
+    v.statut = texte;
+    var el = document.querySelector('[data-statut="' + CSS.escape(streamId) + '"]');
+    if (el) el.textContent = texte;
+}
+// Ancien nom, gardé pour compatibilité
+function updateWatchStatus(text) { if (currentWatchedStream) majStatut(currentWatchedStream, text); }
+
 function watchStream(streamId) {
+    if (vuesMod[streamId]) return;
+    if (Object.keys(vuesMod).length >= MAX_VUES_MOD) {
+        if (typeof showToast === 'function') showToast(MAX_VUES_MOD + ' caméras maximum en même temps : fermez-en une', 'error');
+        return;
+    }
     var reason = prompt('Raison de la surveillance :', 'Surveillance de routine');
     if (reason === null) return;
     apiCall('/mod/streams/' + streamId + '/watch', { method: 'POST', body: JSON.stringify({ reason: reason }) })
-        .then(function(data) {
-            var info = data.stream || {};
-            currentWatchedStreamInfo = info;
-
-            document.getElementById('activeWatchContainer').classList.remove('hidden');
-            document.getElementById('activeWatchName').textContent = info.broadcasterUsername || 'Live ' + streamId;
-            document.getElementById('activeWatchPlaceholder').style.display = 'flex';
-            document.getElementById('activeWatchStatus').textContent = 'Connexion en cours...';
-            document.getElementById('activeWatchVideo').srcObject = null;
-
-            document.getElementById('activeWatchContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            return connectToStream(streamId, info);
-        })
+        .then(function(data) { return connectToStream(streamId, data.stream || {}); })
         .catch(function(err) {
             if (typeof showToast === 'function') showToast(err.message, 'error');
             else alert(err.message);
@@ -363,81 +435,95 @@ function watchStream(streamId) {
 }
 
 function connectToStream(streamId, streamInfo) {
-    if (currentWatchedStream && moderationPeerConnections[currentWatchedStream]) {
-        try { moderationPeerConnections[currentWatchedStream].close(); } catch(e) {}
-        delete moderationPeerConnections[currentWatchedStream];
-    }
-
+    fermerVue(streamId, true);
     currentWatchedStream = streamId;
+    var video = document.createElement('video');
+    video.autoplay = true; video.playsInline = true; video.muted = true;
+    video.className = 'absolute inset-0 w-full h-full object-cover';
     var pc = new RTCPeerConnection(rtcConfig);
     moderationPeerConnections[streamId] = pc;
+    vuesMod[streamId] = { pc: pc, video: video, statut: 'Connexion…', muet: true };
+    renderModerationStreams();
 
     pc.ontrack = function(event) {
-        console.log('Flux recu pour', streamId);
-        var videoEl = document.getElementById('activeWatchVideo');
-        if (videoEl) {
-            videoEl.srcObject = event.streams[0];
-            videoEl.play().catch(function(err) {
-                console.warn('Autoplay bloque :', err);
-            });
-        }
-        document.getElementById('activeWatchPlaceholder').style.display = 'none';
-        updateWatchStatus('En direct');
+        video.srcObject = event.streams[0] || new MediaStream([event.track]);
+        video.play().catch(function() {});
+        majStatut(streamId, 'En direct');
     };
-
     pc.onicecandidate = function(event) {
-        if (event.candidate && socket) {
-            socket.emit('webrtc:ice-candidate', {
-                candidate: event.candidate,
-                streamId: streamId
-            });
-        }
+        if (event.candidate && socket) socket.emit('webrtc:ice-candidate', { candidate: event.candidate, streamId: streamId });
     };
-
     pc.onconnectionstatechange = function() {
-        console.log('Etat surveillance [' + streamId + '] :', pc.connectionState);
-        updateWatchStatus(pc.connectionState);
-        if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
-            document.getElementById('activeWatchPlaceholder').style.display = 'flex';
-        }
+        var etats = { connected: 'En direct', connecting: 'Connexion…', disconnected: 'Coupure…', failed: 'Échec', closed: 'Fermé' };
+        majStatut(streamId, etats[pc.connectionState] || pc.connectionState);
     };
 
     socket.emit('live:join', { streamId: streamId, isModerator: true });
-
     return pc.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true })
+        .then(function(offer) { return pc.setLocalDescription(offer).then(function() { return offer; }); })
         .then(function(offer) {
-            return pc.setLocalDescription(offer).then(function() { return offer; });
-        })
-        .then(function(offer) {
-            if (socket) {
-                socket.emit('webrtc:offer', {
-                    offer: offer,
-                    streamId: streamId,
-                    isModerator: true
-                });
-            }
+            if (socket) socket.emit('webrtc:offer', { offer: offer, streamId: streamId, isModerator: true });
         });
 }
 
-function updateWatchStatus(text) {
-    var el = document.getElementById('activeWatchStatus');
-    if (el) el.textContent = text;
+var MAX_VUES_MOD = 12;   // au-delà, le navigateur et la connexion saturent
+
+// Ouvre d'un coup les caméras non regardées (une seule raison demandée, chaque consultation est enregistrée)
+function toutVoir() {
+    var aOuvrir = moderationStreams.filter(function(s) { return !vuesMod[s.streamId] && !s.isCameraOff; })
+        .slice(0, MAX_VUES_MOD - Object.keys(vuesMod).length);
+    if (!aOuvrir.length) return;
+    var reason = prompt('Raison de la surveillance (' + aOuvrir.length + ' caméras) :', 'Surveillance de routine');
+    if (reason === null) return;
+    aOuvrir.reduce(function(suite, s) {
+        return suite.then(function() {
+            return apiCall('/mod/streams/' + s.streamId + '/watch', { method: 'POST', body: JSON.stringify({ reason: reason }) })
+                .then(function(data) { return connectToStream(s.streamId, data.stream || {}); })
+                .catch(function() {});
+        });
+    }, Promise.resolve());
 }
 
-function stopWatching() {
-    if (currentWatchedStream) {
-        socket.emit('live:leave', { streamId: currentWatchedStream });
-        var pc = moderationPeerConnections[currentWatchedStream];
-        if (pc) {
-            try { pc.close(); } catch(e) {}
-            delete moderationPeerConnections[currentWatchedStream];
-        }
-        currentWatchedStream = null;
-        currentWatchedStreamInfo = null;
-    }
-    document.getElementById('activeWatchContainer').classList.add('hidden');
-    document.getElementById('activeWatchVideo').srcObject = null;
-    loadAllStreams();
+// Un seul son à la fois : activer le son d'une caméra coupe les autres
+function basculerSon(streamId) {
+    var cible = vuesMod[streamId];
+    if (!cible) return;
+    var activer = cible.muet;
+    Object.keys(vuesMod).forEach(function(id) {
+        var v = vuesMod[id];
+        v.muet = id === streamId ? !activer : true;
+        v.video.muted = v.muet;
+    });
+    if (activer) cible.video.play().catch(function() {});
+    renderModerationStreams();
+}
+
+function pleinEcran(streamId) {
+    var slot = document.querySelector('[data-slot="' + CSS.escape(streamId) + '"]');
+    if (slot && slot.requestFullscreen) slot.requestFullscreen().catch(function() {});
+    else if (vuesMod[streamId] && vuesMod[streamId].video.webkitEnterFullscreen) vuesMod[streamId].video.webkitEnterFullscreen();
+}
+
+function fermerVue(streamId, silencieux) {
+    var v = vuesMod[streamId];
+    if (!v) return;
+    if (socket) socket.emit('live:leave', { streamId: streamId });
+    try { v.pc.close(); } catch (e) {}
+    v.video.srcObject = null;
+    if (v.video.parentNode) v.video.parentNode.removeChild(v.video);
+    delete vuesMod[streamId];
+    delete moderationPeerConnections[streamId];
+    if (currentWatchedStream === streamId) currentWatchedStream = null;
+    if (!silencieux) renderModerationStreams();
+}
+
+// Sans précision : ferme toutes les caméras regardées
+function stopWatching(streamId) {
+    if (streamId) { fermerVue(streamId); return; }
+    Object.keys(vuesMod).forEach(function(id) { fermerVue(id, true); });
+    currentWatchedStream = null;
+    currentWatchedStreamInfo = null;
+    renderModerationStreams();
 }
 
 function forceStopStream(streamId, username) {
@@ -447,7 +533,7 @@ function forceStopStream(streamId, username) {
     apiCall('/mod/streams/' + streamId + '/stop', { method: 'POST', body: JSON.stringify({ reason: reason }) })
         .then(function() {
             if (typeof showToast === 'function') showToast('Live arrete', 'warning');
-            if (currentWatchedStream === streamId) stopWatching();
+            fermerVue(streamId, true);
             loadAllStreams();
         })
         .catch(function(err) {
@@ -460,6 +546,7 @@ function quickBan(username, userId) {
     if (!userId) { alert('ID utilisateur introuvable'); return; }
     EvcSanction.ouvrir({ id: userId, username: username, type: 'ban', onDone: loadAllStreams });
 }
+
 
 function loadViewLogs() {
     return apiCall('/mod/view-logs').then(function(data) {
