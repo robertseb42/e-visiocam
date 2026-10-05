@@ -106,10 +106,21 @@ async function login(username, password) {
     return data.user;
 }
 
+// ---------- PROVENANCE (ex. ancien domaine Saligane) ----------
+// Posée par saligane.html, gardée 30 jours, envoyée à l'inscription pour savoir ce que rapporte chaque domaine
+function evcSource() {
+    try {
+        var o = JSON.parse(localStorage.getItem('evc-source') || 'null');
+        if (o && o.s && Date.now() - o.t < 30 * 86400000) return String(o.s).slice(0, 30);
+    } catch (e) {}
+    return '';
+}
+
 async function register(username, email, password, parrain, departement) {
     const corps = { username: username, email: email, password: password };
     if (parrain) corps.parrain = String(parrain).slice(0, 30);
     if (departement) corps.departement = String(departement).slice(0, 3);
+    if (evcSource()) corps.source = evcSource();
     const data = await apiCall('/auth/register', {
         method: 'POST',
         body: JSON.stringify(corps)

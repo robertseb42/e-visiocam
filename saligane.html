@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com http://localhost:3000 ws://localhost:3000; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="theme.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saligane Tchat continue sur E-VISIOCAM</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#111113">
+    <meta name="description" content="Vous veniez sur Saligane Tchat ? Le tchat continue sur E-VISIOCAM : salons, webcam en direct et messages privés entre adultes, gratuit et modéré.">
+    <link rel="canonical" href="https://www.e-visiocam.com/saligane.html">
+    <meta name="rating" content="adult">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="E-VISIOCAM">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:title" content="Saligane Tchat continue sur E-VISIOCAM">
+    <meta property="og:description" content="Vous veniez sur Saligane Tchat ? Le tchat continue sur E-VISIOCAM : salons, webcam en direct et messages privés entre adultes, gratuit et modéré.">
+    <meta property="og:url" content="https://www.e-visiocam.com/saligane.html">
+    <meta property="og:image" content="https://www.e-visiocam.com/img/partage.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="auth-api.js?v=2"></script>
+    <link rel="stylesheet" href="style.css?v=20261010-guides">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
+  <script src="persistent-radio-bootstrap.js"></script>
+</head>
+<body class="min-h-full flex flex-col font-sans">
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <a href="index.html" class="flex items-center gap-2" data-entrer>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-primary to-purple-600 flex items-center justify-center text-white">
+                <i class="fa-solid fa-video"></i>
+            </div>
+            <span class="text-2xl font-black text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+        </a>
+        <a href="login.html" class="text-sm text-slate-600 hover:text-brand-primary font-semibold" data-entrer>
+            <i class="fa-solid fa-right-to-bracket mr-1"></i> Connexion
+        </a>
+    </div>
+</header>
+
+<style>
+    .sal { --s-bg:#111113; --s-panel:#1c1c20; --s-border:#343439; --s-text:#f5f5f7; --s-muted:#b1b1bd; --s-accent:#ffe500; --s-ink:#111113; --s-pink:#ff1680; }
+    html[data-theme="light"] .sal { --s-bg:#f1f5f9; --s-panel:#fff; --s-border:#e2e8f0; --s-text:#0f172a; --s-muted:#475569; --s-accent:#e91e63; --s-ink:#fff; --s-pink:#e91e63; }
+    .sal { background:var(--s-bg); color:var(--s-text); flex:1; }
+    .sal a { color:inherit; }
+    .sal-hero { position:relative; overflow:hidden; border-bottom:1px solid var(--s-border); }
+    .sal-hero::before { content:""; position:absolute; inset:0; background:url(img/hero-neon.jpg) center/cover no-repeat; opacity:.35; }
+    .sal-hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 30%, var(--s-bg)); }
+    html[data-theme="light"] .sal-hero::before { opacity:.18; }
+    .sal-hero-in { position:relative; z-index:1; max-width:880px; margin:0 auto; padding:72px 20px 56px; text-align:center; }
+    .sal-pastille { display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px; border:1px solid var(--s-border); background:color-mix(in srgb, var(--s-panel) 80%, transparent); font-size:13px; font-weight:700; color:var(--s-muted); }
+    .sal-pastille b { color:var(--s-text); }
+    .sal h1 { font-size:clamp(30px, 5.2vw, 52px); line-height:1.08; font-weight:900; margin:18px 0 14px; letter-spacing:-.02em; }
+    .sal h1 span { color:var(--s-accent); }
+    .sal-intro { font-size:clamp(16px, 2.2vw, 19px); color:var(--s-muted); max-width:640px; margin:0 auto 28px; line-height:1.55; }
+    .sal-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .sal-btn { display:inline-flex; align-items:center; gap:10px; padding:15px 26px; border-radius:16px; font-weight:900; font-size:17px; text-decoration:none; border:0; cursor:pointer; background:var(--s-accent); color:var(--s-ink) !important; box-shadow:0 10px 30px color-mix(in srgb, var(--s-accent) 30%, transparent); transition:transform .15s; }
+    .sal-btn:hover { transform:translateY(-2px); }
+    .sal-btn.sec { background:transparent; color:var(--s-text) !important; border:1px solid var(--s-border); box-shadow:none; font-size:15px; }
+    .sal-mini { margin-top:14px; font-size:13px; color:var(--s-muted); }
+    .sal-wrap { max-width:1000px; margin:0 auto; padding:40px 20px 56px; }
+    .sal h2 { font-size:24px; font-weight:900; margin:0 0 6px; }
+    .sal-sous { color:var(--s-muted); margin:0 0 20px; }
+    .sal-grille { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-bottom:44px; }
+    @media (max-width: 820px) { .sal-grille { grid-template-columns:1fr 1fr; } }
+    @media (max-width: 520px) { .sal-grille { grid-template-columns:1fr; } .sal-btn { width:100%; justify-content:center; } }
+    .sal-carte { background:var(--s-panel); border:1px solid var(--s-border); border-radius:18px; padding:18px; }
+    .sal-carte .ico { font-size:26px; line-height:1; margin-bottom:10px; }
+    .sal-carte h3 { font-size:16px; font-weight:800; margin:0 0 6px; }
+    .sal-carte p { margin:0; color:var(--s-muted); font-size:14px; line-height:1.5; }
+    .sal-faq { display:grid; gap:10px; margin-bottom:40px; }
+    .sal-faq details { background:var(--s-panel); border:1px solid var(--s-border); border-radius:14px; padding:14px 16px; }
+    .sal-faq summary { cursor:pointer; font-weight:800; }
+    .sal-faq p { margin:10px 0 0; color:var(--s-muted); line-height:1.55; font-size:14.5px; }
+    .sal-fin { text-align:center; background:var(--s-panel); border:1px solid var(--s-border); border-radius:22px; padding:30px 20px; }
+    .sal-fin p { color:var(--s-muted); margin:0 0 18px; }
+    .sal-18 { display:inline-block; margin-top:16px; font-size:12px; font-weight:800; padding:4px 10px; border-radius:999px; border:1px solid var(--s-border); color:var(--s-muted); }
+</style>
+
+<main class="sal">
+    <section class="sal-hero">
+        <div class="sal-hero-in">
+            <span class="sal-pastille">💬 Vous veniez sur <b>Saligane Tchat</b> ?</span>
+            <h1>Bienvenue sur <span>E-VISIOCAM</span>,<br>le tchat continue ici</h1>
+            <p class="sal-intro">Les adresses saligane-tchat.com et saligane-tchat.org mènent désormais à E-VISIOCAM, un tchat français gratuit entre adultes : salons de discussion, webcam en direct, messages privés et une équipe de modération présente.</p>
+            <div class="sal-actions">
+                <a class="sal-btn" href="index.html" data-entrer><i class="fa-solid fa-door-open"></i> Entrer sur E-VISIOCAM</a>
+                <a class="sal-btn sec" href="register.html" data-entrer><i class="fa-solid fa-user-plus"></i> Créer mon compte gratuit</a>
+            </div>
+            <p class="sal-mini">Gratuit · sans abonnement · inscription en 1 minute</p>
+        </div>
+    </section>
+
+    <div class="sal-wrap">
+        <h2>Ce que vous allez retrouver</h2>
+        <p class="sal-sous">L’esprit des tchats d’avant, avec tout ce qu’on attend aujourd’hui.</p>
+        <div class="sal-grille">
+            <div class="sal-carte"><div class="ico">💬</div><h3>Des salons animés</h3><p>Le Lounge, Rencontres, Musique &amp; détente : entrez et parlez avec ceux qui sont connectés.</p></div>
+            <div class="sal-carte"><div class="ico">🎥</div><h3>La webcam en direct</h3><p>Lancez votre cam dans un salon, regardez celle des autres, ou proposez un live privé à une seule personne.</p></div>
+            <div class="sal-carte"><div class="ico">✉️</div><h3>Messages privés</h3><p>Continuez la conversation en tête-à-tête, et demandez poliment sa cam à un membre : il accepte ou refuse.</p></div>
+            <div class="sal-carte"><div class="ico">🛡️</div><h3>Un tchat modéré</h3><p>Filtre automatique des insultes, bouton Signaler et une <a href="equipe.html">équipe de modérateurs</a> bénévoles.</p></div>
+            <div class="sal-carte"><div class="ico">📍</div><h3>Des gens près de chez vous</h3><p>Chaque profil affiche son département : (42), (69)… Votre ville, elle, n’est jamais enregistrée.</p></div>
+            <div class="sal-carte"><div class="ico">🎶</div><h3>De l’ambiance</h3><p>Radio en continu, quiz, boule à facettes : le tchat reste un endroit où l’on passe un bon moment.</p></div>
+        </div>
+
+        <h2>Vos questions</h2>
+        <p class="sal-sous">Ce que les anciens de Saligane nous demandent le plus.</p>
+        <div class="sal-faq">
+            <details><summary>Mon ancien compte Saligane fonctionne-t-il ?</summary><p>Non, les comptes de Saligane Tchat n’ont pas été repris. Créez un compte E-VISIOCAM en une minute : votre ancien pseudo est peut-être encore libre, essayez-le !</p></details>
+            <details><summary>Est-ce vraiment gratuit ?</summary><p>Oui. Salons, webcam, lives et messages privés sont gratuits, sans abonnement et sans carte bancaire.</p></details>
+            <details><summary>Qui peut s’inscrire ?</summary><p>Uniquement les personnes majeures (18 ans et plus). Les règles du site sont dans les <a href="cgu.html">conditions d’utilisation</a>.</p></details>
+            <details><summary>Comment retrouver mes amis de Saligane ?</summary><p>Partagez-leur l’adresse www.e-visiocam.com ou votre lien d’invitation (page <a href="credits.html">Récompenses</a>) : vous gagnez des crédits quand ils s’inscrivent.</p></details>
+        </div>
+
+        <div class="sal-fin">
+            <h2>On vous attend</h2>
+            <p>Des membres sont peut-être déjà en train de discuter dans les salons.</p>
+            <a class="sal-btn" href="index.html" data-entrer><i class="fa-solid fa-door-open"></i> Entrer sur E-VISIOCAM</a>
+            <div><span class="sal-18">🔞 Réservé aux personnes majeures</span></div>
+        </div>
+    </div>
+</main>
+
+<script>
+// Mesure de ce qu'apportent les anciens domaines (compteurs anonymes : visite / clic « Entrer » / inscription)
+(function () {
+    var d = '';
+    try { d = (new URLSearchParams(location.search).get('d') || '').toLowerCase(); } catch (e) {}
+    var source = d === 'com' ? 'saligane-com' : d === 'org' ? 'saligane-org' : 'saligane';
+    try { localStorage.setItem('evc-source', JSON.stringify({ s: source, t: Date.now() })); } catch (e) {}
+    var api = typeof API_URL !== 'undefined' ? API_URL : 'https://api.e-visiocam.com/api';
+    function envoyer(evenement) {
+        try {
+            return fetch(api + '/acquisition', { method: 'POST', keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source: source, evenement: evenement }) }).catch(function () {});
+        } catch (e) {}
+    }
+    // Une visite par navigateur et par jour
+    var cle = 'evc-saligane-vu-' + new Date().toISOString().slice(0, 10);
+    var dejaVu = false;
+    try { dejaVu = !!localStorage.getItem(cle); localStorage.setItem(cle, '1'); } catch (e) {}
+    if (!dejaVu) envoyer('visite');
+    document.querySelectorAll('[data-entrer]').forEach(function (a) {
+        a.addEventListener('click', function () { envoyer('entree'); });
+    });
+})();
+</script>
+
+<script src="footer.js" defer></script>
+</body>
+</html>

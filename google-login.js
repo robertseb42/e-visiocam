@@ -80,7 +80,7 @@
             var btn = f.querySelector('[type=submit]'); btn.disabled = true; btn.style.opacity = '.6';
             try {
                 var r = await apiCall('/auth/google/complete', { method: 'POST', body: JSON.stringify({
-                    ticket: d.ticket, username: p, adult: true, cgu: true, parrain: typeof opts.parrain === 'function' ? opts.parrain() : '', departement: departement
+                    ticket: d.ticket, username: p, adult: true, cgu: true, parrain: typeof opts.parrain === 'function' ? opts.parrain() : '', departement: departement, source: typeof evcSource === 'function' ? evcSource() : ''
                 }) });
                 m.remove();
                 connecte(r.user, true);
