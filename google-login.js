@@ -96,9 +96,20 @@
         } catch (e) { toast(e.message, 'error'); }
     }
 
+    // Le site est en thème sombre (color-scheme: dark) et le bouton Google en thème clair :
+    // le navigateur peindrait alors un fond BLANC derrière le cadre du bouton (rectangle blanc autour).
+    // On aligne le cadre sur le thème du bouton : son fond redevient transparent.
+    function styleCadre() {
+        if (document.getElementById('evc-google-cadre')) return;
+        var s = document.createElement('style'); s.id = 'evc-google-cadre';
+        s.textContent = 'iframe[src*="accounts.google.com"]{color-scheme:light;background:transparent!important}';
+        document.head.appendChild(s);
+    }
+
     async function monter(conteneur, o) {
         opts = o || {};
         if (!conteneur) return;
+        styleCadre();
         var bloc = conteneur.closest('[data-google-bloc]') || conteneur;
         try {
             var cfg = await apiCall('/auth/google/config');
