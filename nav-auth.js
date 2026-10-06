@@ -79,23 +79,25 @@
         // Photo de profil validée par la modération (sinon l'initiale colorée)
         const photo = (typeof urlAvatar === 'function' && user.avatar) ? urlAvatar(user.avatar.url) : null;
 
+        // Pseudo et adresse de la photo échappés : ils viennent du serveur et finissent dans du HTML
+        const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         navAuth.innerHTML = `
             <div class="relative" id="userMenuWrapper">
                 <button data-user-menu-toggle class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <div class="relative">
-                        ${photo ? `<img src="${photo}" alt="" class="w-9 h-9 rounded-full object-cover">` : `<div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${avatarDisplay}</div>`}
+                        ${photo ? `<img src="${esc(photo)}" alt="" class="w-9 h-9 rounded-full object-cover">` : `<div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${esc(avatarDisplay)}</div>`}
                         ${user.role === 'super_admin' ? `<span id="navContactDot" title="Messages contact non lus" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">0</span>` : ''}
                     </div>
-                    <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${user.username}</span>
+                    <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${esc(user.username)}</span>
                     <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
                 </button>
 
                 <div id="userMenuDropdown" style="z-index:10000" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50">
                     <div class="p-3 border-b border-slate-100 flex items-center gap-3">
-                        ${photo ? `<img src="${photo}" alt="" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold">${avatarDisplay}</div>`}
+                        ${photo ? `<img src="${esc(photo)}" alt="" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold">${esc(avatarDisplay)}</div>`}
                         <div class="flex-1 min-w-0">
                             <p class="text-xs text-slate-500">Connecté en tant que</p>
-                            <p class="text-sm font-bold text-slate-900 truncate">${user.username}</p>
+                            <p class="text-sm font-bold text-slate-900 truncate">${esc(user.username)}</p>
                         </div>
                     </div>
                     <div class="p-2">
