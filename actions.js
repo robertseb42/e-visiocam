@@ -36,7 +36,11 @@
         'openNewConvModal', 'closeNewConvModal', 'deleteCurrentConversation', 'closeConversation', 'sendMessage',
         // Live (caméras)
         'startCamera', 'stopCamera', 'startBroadcast', 'stopBroadcast', 'toggleMyCamera', 'toggleMyMic',
-        'remplirMur', 'viderMur', 'refreshStreams'
+        'remplirMur', 'viderMur', 'refreshStreams',
+        // Salon de chat
+        'ouvrirVolet', 'fermerVolet', 'ouvrirLivePrive', 'toggleCameraView', 'sendReaction',
+        'openGiftModal', 'closeGiftModal', 'confirmSendGift', 'openReportModal', 'closeReportModal', 'submitReport',
+        'fermerPrive', 'fermerCadenas'
     ]);
 
     var EVENEMENTS = ['click', 'submit', 'input', 'change'];
