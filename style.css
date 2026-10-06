@@ -634,3 +634,28 @@ html[data-theme="light"] .ev-live-alert a{background:#e91e63;color:#fff}
 /* Bandeau légal : la règle d'origine est en !important (le bouton a un style écrit dans le HTML) */
 :where(html:not([data-theme="light"])) body #legalOverlay #acceptLegalBtn:not(:disabled){
     background:var(--btn-brillant-fond)!important;box-shadow:var(--btn-brillant-ombre)!important;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+
+/* ---------- Style brillant : derniers boutons jaunes (aide, radio, menu latéral, alertes, fiches) ---------- */
+/* La bulle d'aide et les fiches membres injectent leur propre <style> après celui-ci :
+   ces sélecteurs sont plus précis (html:not(...) body …) pour passer devant. */
+html:not([data-theme="light"]) body .evc-as-bulle,
+html:not([data-theme="light"]) body .evc-as:is(.dans-colonne,.sous-radio) .evc-as-bulle,
+html:not([data-theme="light"]) body .evc-as-saisie button,
+html:not([data-theme="light"]) body .evc-as-form .env,
+html:not([data-theme="light"]) body .evs-btn.jaune,
+html:not([data-theme="light"]) body.cam-home .cam-sidenav a[href="index.html"],
+html:not([data-theme="light"]) body .evc-deck-play,
+html:not([data-theme="light"]) body #radioWidgetMinimized .bg-brand-primary,
+html:not([data-theme="light"]) body .ev-live-alert a{
+    background:var(--btn-brillant-fond);border-color:transparent;box-shadow:var(--btn-brillant-ombre);
+    color:#111113;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+html:not([data-theme="light"]) body .evc-as-bulle:hover,
+html:not([data-theme="light"]) body .evc-as:is(.dans-colonne,.sous-radio) .evc-as-bulle:hover,
+html:not([data-theme="light"]) body .evc-as-saisie button:hover,
+html:not([data-theme="light"]) body .evc-as-form .env:hover,
+html:not([data-theme="light"]) body .evs-btn.jaune:hover,
+html:not([data-theme="light"]) body.cam-home .cam-sidenav a[href="index.html"]:hover,
+html:not([data-theme="light"]) body .evc-deck-play:hover,
+html:not([data-theme="light"]) body #radioWidgetMinimized .bg-brand-primary:hover,
+html:not([data-theme="light"]) body .ev-live-alert a:hover{
+    background:var(--btn-brillant-fond-survol);box-shadow:var(--btn-brillant-ombre-survol)}
