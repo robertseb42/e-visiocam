@@ -142,6 +142,10 @@
         window.showTab = function (nom, bouton) { origine(nom, bouton); if (nom === 'candidatures') charger(); };
     }
     window.EvcCandidatures = { charger: charger };
+    // Bouton « Rafraichir » (data-recharger plutôt qu'un attribut onclick, bloqué par la CSP stricte)
+    document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('[data-recharger="candidatures"]')) charger();
+    });
     compter();
     bandeau();
 })();

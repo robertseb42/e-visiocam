@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
+    <script src="actions.js?v=csp2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modération — E-VISIOCAM</title>
     <meta name="description" content="Modération — E-VISIOCAM — E-VISIOCAM, chat et rencontres par webcam."/>
@@ -31,18 +32,7 @@
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
-<script>
-(function() {
-    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
-        window.location.href = 'login.html?redirect=moderation.html';
-        return;
-    }
-    if (typeof hasRole !== 'function' || !hasRole('moderator', 'super_admin')) {
-        document.documentElement.innerHTML = '<head><title>Acces refuse</title></head><body style="margin:0;"><div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f1f5f9;font-family:Inter,sans-serif;"><div style="background:white;border-radius:24px;padding:40px;text-align:center;max-width:420px;"><h1 style="font-size:22px;font-weight:900;color:#0f172a;">Acces refuse</h1><p style="font-size:13px;color:#64748b;">Reserve aux moderateurs.</p><a href="index.html" style="display:inline-block;padding:12px 24px;background:#e91e63;color:white;font-weight:bold;border-radius:12px;text-decoration:none;">Retour</a></div></div></body>';
-        throw new Error('Acces refuse');
-    }
-})();
-</script>
+<script src="pages/moderation-acces.js"></script>
 
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
@@ -126,31 +116,31 @@
 
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="flex border-b border-slate-100 overflow-x-auto scrollbar-none">
-            <button onclick="showTab('reports', this)" class="mod-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
+            <button data-click="showTab" data-click-args='["reports","$this"]' class="mod-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
                 <i class="fa-solid fa-flag mr-1"></i> Signalements
             </button>
-            <button onclick="showTab('surveillance', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <button data-click="showTab" data-click-args='["surveillance","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-video mr-1"></i> Surveillance Live
             </button>
-            <button onclick="showTab('words', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <button data-click="showTab" data-click-args='["words","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-ban mr-1"></i> Mots interdits
             </button>
-            <button onclick="showTab('users', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <button data-click="showTab" data-click-args='["users","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-users mr-1"></i> Utilisateurs
             </button>
-            <button id="appealsTabBtn" onclick="showTab('appeals', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <button id="appealsTabBtn" data-click="showTab" data-click-args='["appeals","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-scale-balanced mr-1"></i> Contestations
                 <span id="appealsBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
-            <button onclick="showTab('photos', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <button data-click="showTab" data-click-args='["photos","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-image-portrait mr-1"></i> Photos de profil
                 <span id="photosBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
-            <button onclick="showTab('candidatures', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <button data-click="showTab" data-click-args='["candidatures","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-user-plus mr-1"></i> Candidatures
                 <span id="candidaturesBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
-            <button onclick="showTab('viewlogs', this)" class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+            <button data-click="showTab" data-click-args='["viewlogs","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1"></i> Historique
             </button>
         </div>
@@ -158,11 +148,11 @@
         <div id="tab-reports" class="tab-content p-5">
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <div class="flex gap-1 text-xs font-semibold">
-                    <button onclick="filterReports('pending', this)" class="rep-filter px-3 py-1.5 rounded-full bg-rose-500 text-white font-bold">En attente</button>
-                    <button onclick="filterReports('resolved', this)" class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Traites</button>
-                    <button onclick="filterReports('ignored', this)" class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Ignores</button>
+                    <button data-click="filterReports" data-click-args='["pending","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-rose-500 text-white font-bold">En attente</button>
+                    <button data-click="filterReports" data-click-args='["resolved","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Traites</button>
+                    <button data-click="filterReports" data-click-args='["ignored","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Ignores</button>
                 </div>
-                <button onclick="loadReports()" class="text-xs text-brand-primary font-bold hover:underline">
+                <button data-click="loadReports" class="text-xs text-brand-primary font-bold hover:underline">
                     <i class="fa-solid fa-refresh"></i> Rafraichir
                 </button>
             </div>
@@ -177,7 +167,7 @@
                     <h3 class="font-bold text-slate-900">Surveillance des lives</h3>
                     <p class="text-xs text-slate-500 mt-1">Toutes les consultations sont enregistrees (RGPD).</p>
                 </div>
-                <button onclick="loadAllStreams()" class="text-xs text-brand-primary font-bold hover:underline">
+                <button data-click="loadAllStreams" class="text-xs text-brand-primary font-bold hover:underline">
                     <i class="fa-solid fa-refresh"></i> Rafraichir
                 </button>
             </div>
@@ -217,7 +207,7 @@
                             <p class="text-xs">Connexion en cours...</p>
                         </div>
                         <div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full live-pulse">EN DIRECT</div>
-                        <button onclick="stopWatching()" class="absolute top-2 right-2 bg-black/60 hover:bg-black/90 text-white text-xs font-bold px-3 py-1.5 rounded-full">
+                        <button data-click="stopWatching" class="absolute top-2 right-2 bg-black/60 hover:bg-black/90 text-white text-xs font-bold px-3 py-1.5 rounded-full">
                             <i class="fa-solid fa-xmark"></i> Fermer
                         </button>
                     </div>
@@ -241,7 +231,7 @@
         <div id="tab-words" class="tab-content p-5 hidden">
             <div class="bg-slate-50 rounded-xl p-4 mb-4">
                 <h3 class="font-bold text-slate-900 text-sm mb-3">Ajouter un mot interdit</h3>
-                <form onsubmit="addWord(event)" class="flex flex-col md:flex-row gap-2">
+                <form data-submit="addWord" data-submit-args='["$event"]' class="flex flex-col md:flex-row gap-2">
                     <input type="text" id="newWord" required placeholder="Mot a interdire"
                         class="flex-1 px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
                     <select id="newWordSeverity" class="px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
@@ -261,7 +251,7 @@
                 <p>Gravité 1-2 : le mot est remplacé par ★★★ et le message part. Gravité 3 : le message est bloqué et apparaît dans les messages signalés.
                 Gravité 4-5 : bloqué, signalé, et l'auteur ne peut plus écrire pendant 10 minutes. Le filtre reconnaît aussi les mots déguisés
                 (majuscules, accents, c0nn4rd, connaaard, c.o.n.n.a.r.d) sans bloquer les mots qui en contiennent un autre (« charme » ne déclenche pas « arme »).</p>
-                <form onsubmit="testerFiltre(event)" class="flex flex-col md:flex-row gap-2 mt-3">
+                <form data-submit="testerFiltre" data-submit-args='["$event"]' class="flex flex-col md:flex-row gap-2 mt-3">
                     <input type="text" id="testFiltreTexte" maxlength="500" placeholder="Tester une phrase (rien n'est envoyé)…"
                         class="flex-1 px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
                     <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold rounded-xl whitespace-nowrap">Tester</button>
@@ -276,8 +266,8 @@
                 <input type="text" id="searchUser" placeholder="Rechercher..."
                     class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
                 <div class="flex items-center gap-3">
-                    <button type="button" onclick="offrirA('')" class="px-3 py-1.5 rounded-xl text-xs font-bold" style="background:#ffe500;color:#111113"><i class="fa-solid fa-gift mr-1"></i> Offrir des crédits</button>
-                    <button onclick="loadUsers()" class="text-xs text-brand-primary font-bold hover:underline">
+                    <button type="button" data-click="offrirA" data-click-args='[""]' class="px-3 py-1.5 rounded-xl text-xs font-bold" style="background:#ffe500;color:#111113"><i class="fa-solid fa-gift mr-1"></i> Offrir des crédits</button>
+                    <button data-click="loadUsers" class="text-xs text-brand-primary font-bold hover:underline">
                         <i class="fa-solid fa-refresh"></i> Rafraichir
                     </button>
                 </div>
@@ -315,7 +305,7 @@
         <div id="tab-photos" class="tab-content p-5 hidden">
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <p class="text-xs text-slate-500">Une photo n'est visible des autres membres qu'après validation. Refusez toute nudité, tout mineur, toute autre personne sans accord, coordonnées ou publicité (CGU 3.1). Une photo refusée est supprimée.</p>
-                <button type="button" onclick="EvcPhotos.charger()" class="text-xs text-brand-primary font-bold hover:underline whitespace-nowrap"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
+                <button type="button" data-recharger="photos" class="text-xs text-brand-primary font-bold hover:underline whitespace-nowrap"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
             </div>
             <div id="photosListe" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"><p class="text-center text-slate-400 py-8 text-sm col-span-full">Chargement...</p></div>
         </div>
@@ -330,7 +320,7 @@
                         <option value="refused">Refusées</option>
                         <option value="withdrawn">Retirées</option>
                     </select>
-                    <button type="button" onclick="EvcCandidatures.charger()" class="text-xs text-brand-primary font-bold hover:underline"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
+                    <button type="button" data-recharger="candidatures" class="text-xs text-brand-primary font-bold hover:underline"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
                 </div>
             </div>
             <div id="stagiairesBloc" class="hidden mb-5"></div>
@@ -340,7 +330,7 @@
         <div id="tab-viewlogs" class="tab-content p-5 hidden">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-slate-900">Historique des surveillances</h3>
-                <button onclick="loadViewLogs()" class="text-xs text-brand-primary font-bold hover:underline">
+                <button data-click="loadViewLogs" class="text-xs text-brand-primary font-bold hover:underline">
                     <i class="fa-solid fa-refresh"></i> Rafraichir
                 </button>
             </div>
@@ -354,24 +344,12 @@
 <!-- ✅ LE SCRIPT EST MAINTENANT DANS UN FICHIER SÉPARÉ -->
 <script src="sanction-modal.js"></script>
 <script src="offrir-credits.js"></script>
-<script src="moderation.js"></script>
-<script src="moderation-photos.js"></script>
-<script src="moderation-equipe.js?v=1"></script>
+<script src="moderation.js?v=csp2"></script>
+<script src="moderation-photos.js?v=csp2"></script>
+<script src="moderation-equipe.js?v=csp2"></script>
 
 
-<script>
-// 🔒 Demandes d'accès aux salons privés en attente (super admin et modérateurs)
-(async function(){
-  try {
-    const list = await apiCall("/salons/access-requests");
-    const n = (list || []).filter(function(r){ return r.status === "pending"; }).length;
-    const lien = document.getElementById("demandesSalons");
-    if (!lien) return;
-    lien.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> ' + ("Gestion des salons")
-      + (n > 0 ? ' <span class="ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">' + n + "</span>" : "");
-  } catch (e) {}
-})();
-</script>
+<script src="pages/moderation-demandes.js"></script>
 <script src="site-search.js" defer></script>
 <script src="footer.js" defer></script>
 </body>

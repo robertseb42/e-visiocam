@@ -71,5 +71,9 @@
         }
     });
     window.EvcPhotos = { charger: charger };
+    // Bouton « Rafraichir » (data-recharger plutôt qu'un attribut onclick, bloqué par la CSP stricte)
+    document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('[data-recharger="photos"]')) charger();
+    });
     compter();
 })();

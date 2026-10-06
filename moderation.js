@@ -260,13 +260,13 @@ function openActionModal(reportId, targetId, targetName) {
     html += '<p class="text-xs text-slate-500 mb-4 text-center">Contre <strong>' + escapeHtml(targetName || 'Utilisateur #' + targetId) + '</strong></p>';
     window.__nomCibleSignalement = targetName || ('Utilisateur #' + targetId);
     html += '<div class="space-y-2">';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'warn\')" class="w-full p-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-left font-bold text-sm text-amber-900">Avertir</button>';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'mute\')" class="w-full p-3 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-left font-bold text-sm text-orange-900">Rendre muet… <span class="font-normal text-xs">(durée au choix)</span></button>';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'kick\')" class="w-full p-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-left font-bold text-sm text-rose-900">Expulser (kick)… <span class="font-normal text-xs">(durée au choix)</span></button>';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'ban\')" class="w-full p-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-left font-bold text-sm text-red-900">Bannir… <span class="font-normal text-xs">(jours ou définitif)</span></button>';
-    html += '<button onclick="applyAction(' + reportId + ', ' + targetId + ', \'ignore\')" class="w-full p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left font-bold text-sm text-slate-900">Ignorer</button>';
+    html += '<button data-mod="applyAction" data-mod-args="' + argsMod(reportId, targetId, 'warn') + '" class="w-full p-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-left font-bold text-sm text-amber-900">Avertir</button>';
+    html += '<button data-mod="applyAction" data-mod-args="' + argsMod(reportId, targetId, 'mute') + '" class="w-full p-3 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-200 text-left font-bold text-sm text-orange-900">Rendre muet… <span class="font-normal text-xs">(durée au choix)</span></button>';
+    html += '<button data-mod="applyAction" data-mod-args="' + argsMod(reportId, targetId, 'kick') + '" class="w-full p-3 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-left font-bold text-sm text-rose-900">Expulser (kick)… <span class="font-normal text-xs">(durée au choix)</span></button>';
+    html += '<button data-mod="applyAction" data-mod-args="' + argsMod(reportId, targetId, 'ban') + '" class="w-full p-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-left font-bold text-sm text-red-900">Bannir… <span class="font-normal text-xs">(jours ou définitif)</span></button>';
+    html += '<button data-mod="applyAction" data-mod-args="' + argsMod(reportId, targetId, 'ignore') + '" class="w-full p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-left font-bold text-sm text-slate-900">Ignorer</button>';
     html += '</div>';
-    html += '<button onclick="document.getElementById(\'actionModal\').remove()" class="w-full mt-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Annuler</button>';
+    html += '<button data-mod="fermerActionModal" class="w-full mt-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs">Annuler</button>';
     html += '</div>';
     modal.innerHTML = html;
     document.body.appendChild(modal);
@@ -360,8 +360,8 @@ function renderModerationStreams() {
     var nbVues = Object.keys(vuesMod).length;
     var nonVues = moderationStreams.filter(function(s) { return !vuesMod[s.streamId] && !s.isCameraOff; }).length;
     var barre = '';
-    if (nonVues > 1 && nbVues < MAX_VUES_MOD) barre += '<button onclick="toutVoir()" class="text-xs font-bold text-emerald-500 hover:underline"><i class="fa-solid fa-play"></i> Tout voir (' + Math.min(nonVues, MAX_VUES_MOD - nbVues) + ')</button>';
-    if (nbVues > 1) barre += '<button onclick="stopWatching()" class="text-xs font-bold text-rose-500 hover:underline"><i class="fa-solid fa-xmark"></i> Fermer les ' + nbVues + ' caméras</button>';
+    if (nonVues > 1 && nbVues < MAX_VUES_MOD) barre += '<button data-mod="toutVoir" class="text-xs font-bold text-emerald-500 hover:underline"><i class="fa-solid fa-play"></i> Tout voir (' + Math.min(nonVues, MAX_VUES_MOD - nbVues) + ')</button>';
+    if (nbVues > 1) barre += '<button data-mod="stopWatching" class="text-xs font-bold text-rose-500 hover:underline"><i class="fa-solid fa-xmark"></i> Fermer les ' + nbVues + ' caméras</button>';
     var html = barre ? '<div class="col-span-full flex justify-end gap-4" style="grid-column:1/-1">' + barre + '</div>' : '';
     moderationStreams.forEach(function(s) {
         var id = s.streamId;
@@ -373,7 +373,7 @@ function renderModerationStreams() {
         if (!v) {
             html += s.isCameraOff
                 ? '<div class="text-white text-center"><i class="fa-solid fa-video-slash text-3xl mb-1"></i><p class="text-xs">Camera masquee</p></div>'
-                : '<button onclick="watchStream(\'' + id + '\')" class="text-slate-500 hover:text-emerald-400 text-center"><i class="fa-solid fa-circle-play text-3xl"></i><p class="text-[10px] mt-1">Voir</p></button>';
+                : '<button data-mod="watchStream" data-mod-args="' + argsMod(id) + '" class="text-slate-500 hover:text-emerald-400 text-center"><i class="fa-solid fa-circle-play text-3xl"></i><p class="text-[10px] mt-1">Voir</p></button>';
         }
         html += horsLive
             ? '<div class="absolute top-2 left-2 z-10 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" style="background:#475569">CAM HORS LIVE</div>'
@@ -381,9 +381,9 @@ function renderModerationStreams() {
         if (s.salon) html += '<div class="absolute top-2 right-2 z-10 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">' + escapeHtml(s.salon) + '</div>';
         if (v) {
             html += '<div class="absolute bottom-2 left-2 z-10 flex gap-1">'
-                + '<button onclick="basculerSon(\'' + id + '\')" title="Son" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid ' + (v.muet ? 'fa-volume-xmark' : 'fa-volume-high') + '"></i></button>'
-                + '<button onclick="pleinEcran(\'' + id + '\')" title="Plein écran" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid fa-expand"></i></button>'
-                + '<button onclick="fermerVue(\'' + id + '\')" title="Fermer" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid fa-xmark"></i></button></div>'
+                + '<button data-mod="basculerSon" data-mod-args="' + argsMod(id) + '" title="Son" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid ' + (v.muet ? 'fa-volume-xmark' : 'fa-volume-high') + '"></i></button>'
+                + '<button data-mod="pleinEcran" data-mod-args="' + argsMod(id) + '" title="Plein écran" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid fa-expand"></i></button>'
+                + '<button data-mod="fermerVue" data-mod-args="' + argsMod(id) + '" title="Fermer" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid fa-xmark"></i></button></div>'
                 + '<div class="absolute bottom-2 right-2 z-10 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full" data-statut="' + escapeHtml(id) + '">' + escapeHtml(v.statut) + '</div>';
         } else {
             html += '<div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">' + (s.viewers || 0) + ' viewers</div>';
@@ -393,10 +393,10 @@ function renderModerationStreams() {
         html += '<p class="font-bold text-xs mb-1.5 truncate">' + escapeHtml(username) + '</p>';
         html += '<div class="grid grid-cols-3 gap-1">';
         html += v
-            ? '<button onclick="fermerVue(\'' + id + '\')" class="py-1 text-white text-[10px] font-bold rounded-lg" style="background:#475569">Fermer</button>'
-            : '<button onclick="watchStream(\'' + id + '\')" class="py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg">Voir</button>';
-        html += '<button onclick="forceStopStream(\'' + id + '\', \'' + escapeHtml(username).replace(/'/g, "\\'") + '\')" class="py-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold rounded-lg">Stop</button>';
-        html += '<button onclick="quickBan(\'' + escapeHtml(username).replace(/'/g, "\\'") + '\', ' + (s.broadcasterId || 0) + ')" class="py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg">Ban</button>';
+            ? '<button data-mod="fermerVue" data-mod-args="' + argsMod(id) + '" class="py-1 text-white text-[10px] font-bold rounded-lg" style="background:#475569">Fermer</button>'
+            : '<button data-mod="watchStream" data-mod-args="' + argsMod(id) + '" class="py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg">Voir</button>';
+        html += '<button data-mod="forceStopStream" data-mod-args="' + argsMod(id, username) + '" class="py-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold rounded-lg">Stop</button>';
+        html += '<button data-mod="quickBan" data-mod-args="' + argsMod(username, s.broadcasterId || 0) + '" class="py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg">Ban</button>';
         html += '</div></div></div>';
     });
     grid.innerHTML = html;
@@ -583,11 +583,10 @@ function renderWords() {
     var list = document.getElementById('wordsList');
     var html = '';
     allWords.forEach(function(w) {
-        var wordEscaped = escapeHtml(w.word).replace(/'/g, "\\'");
         html += '<div class="bg-slate-100 text-slate-700 rounded-xl p-3 flex items-center justify-between">';
         var effet = w.severity <= 2 ? 'masqué' : w.severity === 3 ? 'bloqué' : 'bloqué + muet';
         html += '<div><p class="font-bold text-sm">' + escapeHtml(w.word) + '</p><p class="text-[10px] opacity-70">Gravité ' + w.severity + '/5 · ' + effet + '</p></div>';
-        html += '<button onclick="deleteWord(\'' + wordEscaped + '\')" class="w-6 h-6 rounded-lg bg-white hover:bg-slate-200 flex items-center justify-center text-xs">X</button>';
+        html += '<button data-mod="deleteWord" data-mod-args="' + argsMod(w.word) + '" class="w-6 h-6 rounded-lg bg-white hover:bg-slate-200 flex items-center justify-center text-xs">X</button>';
         html += '</div>';
     });
     list.innerHTML = html;
@@ -659,19 +658,19 @@ function renderUsers(filter) {
         html += '<td class="py-3 px-2 text-xs">' + (roleLabels[u.role] || u.role) + '</td>';
         html += '<td class="py-3 px-2">' + EvcSanction.etiquette(u) + '</td>';
         html += '<td class="py-3 px-2 text-right whitespace-nowrap">';
-        if (peutOffrir) html += '<button onclick="offrirA(\'' + escapeHtml(u.username).replace(/'/g, "\\'") + '\')" title="Offrir des crédits" class="px-2 py-1 bg-yellow-100 text-amber-700 hover:bg-yellow-200 text-xs rounded-lg mr-1"><i class="fa-solid fa-gift"></i> Offrir</button>';
+        if (peutOffrir) html += '<button data-mod="offrirA" data-mod-args="' + argsMod(u.username) + '" title="Offrir des crédits" class="px-2 py-1 bg-yellow-100 text-amber-700 hover:bg-yellow-200 text-xs rounded-lg mr-1"><i class="fa-solid fa-gift"></i> Offrir</button>';
         if (canAct) {
             var actives = EvcSanction.enCours(u);
             var superA = moiAdmin;
-            html += '<button onclick="quickAction(' + u.id + ', \'warn\')" class="px-2 py-1 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg mr-1">Warn</button>';
+            html += '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'warn') + '" class="px-2 py-1 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg mr-1">Warn</button>';
             html += actives.indexOf('mute') !== -1
-                ? '<button onclick="EvcSanction.lever(' + u.id + ', \'mute\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Rendre la parole</button>'
-                : '<button onclick="quickAction(' + u.id + ', \'mute\')" class="px-2 py-1 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs rounded-lg mr-1">Mute</button>';
+                ? '<button data-mod="leverSanction" data-mod-args="' + argsMod(u.id, 'mute') + '" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Rendre la parole</button>'
+                : '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'mute') + '" class="px-2 py-1 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs rounded-lg mr-1">Mute</button>';
             html += actives.indexOf('kick') !== -1
-                ? '<button onclick="EvcSanction.lever(' + u.id + ', \'kick\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Lever l\'exclusion</button>'
-                : '<button onclick="quickAction(' + u.id + ', \'kick\')" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Kick</button>';
-            if (!isBanned) html += '<button onclick="quickAction(' + u.id + ', \'ban\')" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs rounded-lg">Ban</button>';
-            else if (superA) html += '<button onclick="EvcSanction.lever(' + u.id + ', \'ban\', loadUsers)" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg">Débannir</button>';
+                ? '<button data-mod="leverSanction" data-mod-args="' + argsMod(u.id, 'kick') + '" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Lever l\'exclusion</button>'
+                : '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'kick') + '" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Kick</button>';
+            if (!isBanned) html += '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'ban') + '" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs rounded-lg">Ban</button>';
+            else if (superA) html += '<button data-mod="leverSanction" data-mod-args="' + argsMod(u.id, 'ban') + '" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg">Débannir</button>';
         } else if (!peutOffrir) {
             html += '<span class="text-[10px] text-slate-400">-</span>';
         }
@@ -795,8 +794,8 @@ function loadAppeals() {
                 var bloque = a.type === 'ban' && !superA;
                 html += '<textarea id="note-' + a.id + '" rows="2" maxlength="2000" placeholder="Votre réponse motivée au membre (envoyée par e-mail)…" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none mb-2"></textarea>';
                 html += '<div class="flex flex-wrap gap-2">' +
-                    '<button onclick="deciderContestation(' + a.id + ', \'accepted\')"' + (bloque ? ' disabled title="Lever un bannissement : Super Admin"' : '') + ' class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40">Accepter et lever la sanction</button>' +
-                    '<button onclick="deciderContestation(' + a.id + ', \'rejected\')" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700">Refuser (maintenir)</button></div>';
+                    '<button data-mod="deciderContestation" data-mod-args="' + argsMod(a.id, 'accepted') + '"' + (bloque ? ' disabled title="Lever un bannissement : Super Admin"' : '') + ' class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40">Accepter et lever la sanction</button>' +
+                    '<button data-mod="deciderContestation" data-mod-args="' + argsMod(a.id, 'rejected') + '" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700">Refuser (maintenir)</button></div>';
             } else {
                 html += '<p class="text-xs ' + (a.status === 'accepted' ? 'text-emerald-700' : 'text-rose-700') + '"><strong>' + (a.status === 'accepted' ? 'Acceptée' : 'Refusée') + '</strong> par ' +
                     escapeHtml(a.decided_by || '?') + ' le ' + dateCourte(a.decided_at) + ' — « ' + escapeHtml(a.decision_note || '') + ' »</p>';
@@ -814,3 +813,25 @@ function deciderContestation(id, decision) {
         .then(function () { if (typeof showToast === 'function') showToast('Réponse envoyée au membre'); loadAppeals(); loadUsers(); })
         .catch(function (err) { if (typeof showToast === 'function') showToast(err.message, 'error'); });
 }
+
+// ---------- Boutons générés (signalements, caméras, mots interdits, membres, contestations) ----------
+// Remplacent des attributs onclick, bloqués par la CSP stricte. Les arguments sont en JSON dans
+// data-mod-args (argsMod) : un pseudo ou un mot avec une apostrophe ne casse plus le code.
+function argsMod() {
+    return JSON.stringify(Array.prototype.slice.call(arguments)).replace(/[&<>"']/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+}
+var ACTIONS_MOD = {
+    fermerActionModal: function() { document.getElementById('actionModal').remove(); },
+    leverSanction: function(id, type) { EvcSanction.lever(id, type, loadUsers); }
+};
+['applyAction', 'toutVoir', 'stopWatching', 'watchStream', 'basculerSon', 'pleinEcran', 'fermerVue', 'forceStopStream',
+ 'quickBan', 'deleteWord', 'offrirA', 'quickAction', 'deciderContestation'].forEach(function(nom) {
+    ACTIONS_MOD[nom] = function() { return window[nom].apply(null, arguments); };
+});
+document.addEventListener('click', function(e) {
+    var b = e.target.closest && e.target.closest('[data-mod]');
+    if (!b || !Object.prototype.hasOwnProperty.call(ACTIONS_MOD, b.dataset.mod)) return;
+    ACTIONS_MOD[b.dataset.mod].apply(null, JSON.parse(b.dataset.modArgs || '[]'));
+});

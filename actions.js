@@ -40,7 +40,10 @@
         // Salon de chat
         'ouvrirVolet', 'fermerVolet', 'ouvrirLivePrive', 'toggleCameraView', 'sendReaction',
         'openGiftModal', 'closeGiftModal', 'confirmSendGift', 'openReportModal', 'closeReportModal', 'submitReport',
-        'fermerPrive', 'fermerCadenas'
+        'fermerPrive', 'fermerCadenas',
+        // Modération
+        'showTab', 'filterReports', 'loadReports', 'loadAllStreams', 'stopWatching', 'addWord', 'testerFiltre',
+        'offrirA', 'loadUsers', 'loadViewLogs'
     ]);
 
     var EVENEMENTS = ['click', 'submit', 'input', 'change'];
