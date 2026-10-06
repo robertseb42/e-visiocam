@@ -33,7 +33,10 @@
         // Mon compte, récompenses, tableau de bord
         'saveProfile', 'changePassword', 'deleteAccount', 'loadTransactions', 'toggleLive',
         // Messagerie privée
-        'openNewConvModal', 'closeNewConvModal', 'deleteCurrentConversation', 'closeConversation', 'sendMessage'
+        'openNewConvModal', 'closeNewConvModal', 'deleteCurrentConversation', 'closeConversation', 'sendMessage',
+        // Live (caméras)
+        'startCamera', 'stopCamera', 'startBroadcast', 'stopBroadcast', 'toggleMyCamera', 'toggleMyMic',
+        'remplirMur', 'viderMur', 'refreshStreams'
     ]);
 
     var EVENEMENTS = ['click', 'submit', 'input', 'change'];
