@@ -144,6 +144,12 @@
             </div>
         `;
         navAuth.querySelector('[data-user-menu-toggle]').addEventListener('click', function(e) { window.toggleUserMenu(e); });
+        // La radio persistante vit dans app-shell, au-dessus de la page : elle passait devant le menu.
+        // On la masque tant que le menu est ouvert, quelle que soit la façon dont il s'ouvre ou se ferme.
+        const menu = navAuth.querySelector('#userMenuDropdown');
+        masquerRadio(false);
+        new MutationObserver(function() { masquerRadio(!menu.classList.contains('hidden')); })
+            .observe(menu, { attributes: true, attributeFilter: ['class'] });
         navAuth.querySelector('[data-logout]').addEventListener('click', function() { logout(); });
 
         startUnreadWatcher();
@@ -395,6 +401,12 @@
         if (nouveauMessage) animerCloche(true);
         dernierCompteVu = count;
     }
+
+    function masquerRadio(masquer) {
+        try { if (window.top !== window) window.top.document.documentElement.classList.toggle('evc-menu-compte', masquer); } catch (e) {}
+    }
+    // Clic sur un lien du menu : la page change, la radio doit réapparaître sur la suivante
+    window.addEventListener('pagehide', function() { masquerRadio(false); });
 
     window.toggleUserMenu = function(event) {
         event.stopPropagation();

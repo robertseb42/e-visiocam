@@ -33,13 +33,15 @@
     /* La radio : placée par le script ci-dessous (colonne de droite de l'accueil, sinon en bas à droite) */
     #radioWidgetFloating{transition:top .35s ease,left .35s ease,transform .35s ease;transform-origin:top left}
     #radioWidgetFloating.evc-coin{transform-origin:bottom right}
+    /* Menu du compte ouvert dans la page : la radio s'efface pour ne pas le recouvrir (nav-auth.js) */
+    html.evc-menu-compte #radioWidgetFloating{visibility:hidden}
     @media (prefers-reduced-motion:reduce){#radioWidgetFloating{transition:none}}
   </style>
   <script src="pages/app-shell-radio-persistante.js"></script>
 </head>
 <body>
   <iframe id="evcPage" title="E-VISIOCAM" allow="camera; microphone; autoplay; fullscreen"></iframe>
-  <script src="pages/app-shell.js"></script>
+  <script src="pages/app-shell.js?v=2"></script>
   <script src="radio-widget.js"></script>
   <script src="radio-widget-floating.js?v=csp1"></script>
   <script src="pages/app-shell-radio-placement.js"></script>

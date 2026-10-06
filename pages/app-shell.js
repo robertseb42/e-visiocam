@@ -75,6 +75,7 @@
       }
 
       frame.addEventListener('load', function () {
+        document.documentElement.classList.remove('evc-menu-compte');   // nouvelle page : menu du compte fermé
         var doc, win;
         try { doc = frame.contentDocument; win = frame.contentWindow; } catch (e) { return; }
         if (!doc) return;
