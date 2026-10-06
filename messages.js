@@ -8,6 +8,8 @@ var currentConversationId = null;
 var currentOtherUser = null;
 var conversations = [];
 var typingTimeout = null;
+var currentOtherOnline = false;   // l'autre membre est-il connecté ? (vérifié auprès du serveur)
+var presenceTimer = null;
 var userSearchTimeout = null;
 
 // ============================================================
@@ -189,6 +191,11 @@ async function openConversation(convId) {
 
         document.getElementById('chatUsername').textContent = data.otherUser.username;
         document.getElementById('chatAvatar').textContent = data.otherUser.username.charAt(0).toUpperCase();
+        currentOtherOnline = false;
+        document.getElementById('chatStatus').innerHTML = '';
+        majPresence();
+        clearInterval(presenceTimer);
+        presenceTimer = setInterval(majPresence, 60000);
 
         renderMessages(data.messages);
         if (socket) socket.emit('dm:read', { conversationId: convId });
@@ -202,6 +209,7 @@ async function openConversation(convId) {
 function closeConversation() {
     currentConversationId = null;
     currentOtherUser = null;
+    clearInterval(presenceTimer);
     document.getElementById('chatHeader').classList.add('hidden');
     document.getElementById('chatInputWrapper').classList.add('hidden');
     document.getElementById('messagesContainer').innerHTML =
@@ -298,13 +306,36 @@ function notifyTyping() {
     typingTimeout = setTimeout(function() {}, 1500);
 }
 
+// ---------- PRÉSENCE DE L'AUTRE MEMBRE ----------
+// Avant, « En ligne » était écrit en dur et s'affichait même pour un membre déconnecté.
+function afficherPresence() {
+    var status = document.getElementById('chatStatus');
+    if (!status) return;
+    status.className = 'text-xs flex items-center gap-1 ' + (currentOtherOnline ? 'text-emerald-600' : 'text-slate-400');
+    status.innerHTML = currentOtherOnline
+        ? '<span class="w-2 h-2 bg-emerald-500 rounded-full inline-block"></span><span>En ligne</span>'
+        : '<span class="w-2 h-2 bg-slate-300 rounded-full inline-block"></span><span>Hors ligne</span>';
+}
+
+async function majPresence() {
+    if (!currentOtherUser) return;
+    var id = currentOtherUser.id;
+    var enLigne = false;
+    try {
+        var data = await apiCall('/models/profil/' + id);
+        enLigne = !!(data && data.membre && data.membre.online);
+    } catch (e) {}   // membre introuvable ou suspendu : hors ligne
+    if (!currentOtherUser || currentOtherUser.id !== id) return;   // conversation changée entre-temps
+    currentOtherOnline = enLigne;
+    afficherPresence();
+}
+
 function showTypingIndicator(username) {
     var status = document.getElementById('chatStatus');
     if (!status) return;
     status.innerHTML = '<span class="w-2 h-2 bg-amber-500 rounded-full inline-block animate-pulse"></span><span class="text-amber-600">' + escapeHtml(username) + ' écrit...</span>';
-    setTimeout(function() {
-        status.innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full inline-block"></span><span>En ligne</span>';
-    }, 2000);
+    currentOtherOnline = true;   // il écrit : il est forcément connecté
+    setTimeout(afficherPresence, 2000);
 }
 
 // ============================================================
