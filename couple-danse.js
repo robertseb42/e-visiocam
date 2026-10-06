@@ -56,11 +56,14 @@
     el.id = 'evcCouple'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = html;
     document.body.appendChild(el);
 
-    // Place libre à gauche des salons (la colonne de gauche ne compte que si son contenu descend jusque-là)
+    // En bas à gauche, posé sur le pied de page (comme la radio à droite), dans la place libre à gauche
+    // du contenu (la colonne de gauche ne compte que si son contenu descend jusque-là)
     function placer() {
         var cible = document.getElementById('ambiances');
-        if (!cible || window.innerWidth < 1280) { el.style.display = 'none'; return; }
-        var r = cible.getBoundingClientRect(), haut = r.top + scrollY, gauche = 0;
+        var pied = document.querySelector('footer.ev-footer');
+        if (!cible || !pied || window.innerWidth < 1280) { el.style.display = 'none'; return; }
+        var r = cible.getBoundingClientRect(), gauche = 0;
+        var basPage = pied.getBoundingClientRect().top + scrollY;
         var aside = document.querySelector('aside');
         if (aside && getComputedStyle(aside).display !== 'none') {
             var bas = 0;
@@ -68,7 +71,8 @@
                 var b = n.getBoundingClientRect();
                 if (b.width && b.height && getComputedStyle(n).visibility !== 'hidden') bas = Math.max(bas, b.bottom + scrollY);
             });
-            if (bas > haut - 10) gauche = aside.getBoundingClientRect().right;
+            // hauteur maximale du couple (300 px de large) : si la colonne descend jusque-là, on se met à sa droite
+            if (bas > basPage - 300 * RATIO - 26) gauche = aside.getBoundingClientRect().right;
         }
         var place = r.left - gauche;
         var w = Math.min(300, place - 20);
@@ -76,7 +80,7 @@
         var h = w * RATIO;
         el.style.width = w + 'px'; el.style.height = h + 'px';
         el.style.left = Math.round(gauche + (place - w) / 2) + 'px';
-        el.style.top = Math.round(haut + Math.max(0, (r.height - h) / 2)) + 'px';
+        el.style.top = Math.round(basPage - h - 16) + 'px';
         el.style.display = 'block';
     }
     window.addEventListener('resize', placer);
