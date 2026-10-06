@@ -5,7 +5,7 @@
 // les plafonds réglés par le Super Admin (par envoi et par jour).
 // ============================================================
 (function () {
-    var esc = function (t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; };
+    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var toast = function (m, t) { if (typeof showToast === 'function') showToast(m, t); };
 
     function fermer() { var m = document.getElementById('evcOffrir'); if (m) m.remove(); }

@@ -13,7 +13,7 @@
 
     // ---------- Texte ----------
     var norm = function (s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
-    var esc = function (t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; };
+    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var VIDES = ('a au aux avec ce ces cet cette comment dans de des du elle en est et etre il ils je j la le les leur lui ma mais me mes moi mon ne nos notre nous on ou par pas peut pour qu que quel quelle quels qui sa se ses si son sur ta te tes toi ton tu un une vos votre vous y c d l m n s t ca cela faire fait veux voudrais peux puis-je puis est-ce bonjour salut svp stp merci aide aider help besoin probleme question site evisiocam visiocam quelqu quelque quelqu un personne avoir faire comme')
         .split(' ').reduce(function (o, m) { o[m] = 1; return o; }, {});
     var SYNONYMES = {

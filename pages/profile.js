@@ -16,14 +16,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         joinedText = 'Membre depuis ' + date;
     }
 
+    // Pseudo et bio échappés : la bio est un texte libre, elle ne doit jamais devenir du HTML
+    const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     document.getElementById('profileContent').innerHTML = `
         <div class="flex items-center gap-5 mb-6">
             <div class="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-4xl shrink-0">
-                ${(user.avatar && urlAvatar(user.avatar.url)) ? `<img src="${urlAvatar(user.avatar.url)}" alt="" style="width:100%;height:100%;object-fit:cover">` : user.username.charAt(0).toUpperCase()}
+                ${(user.avatar && urlAvatar(user.avatar.url)) ? `<img src="${urlAvatar(user.avatar.url)}" alt="" style="width:100%;height:100%;object-fit:cover">` : esc(user.username.charAt(0).toUpperCase())}
             </div>
             <div class="flex-1 min-w-0">
-                <h2 class="text-2xl font-bold text-slate-900 truncate">${user.username}</h2>
-                <p class="text-sm text-slate-500 mt-1">${roleLabels[user.role] || user.role}</p>
+                <h2 class="text-2xl font-bold text-slate-900 truncate">${esc(user.username)}</h2>
+                <p class="text-sm text-slate-500 mt-1">${esc(roleLabels[user.role] || user.role)}</p>
                 <p class="text-xs text-slate-400 mt-1">${joinedText}</p>
                 ${user.departement && window.evcDepartement ? `<p class="text-xs text-slate-500 mt-1">📍 ${evcDepartement(user.departement)}</p>` : ''}
             </div>
@@ -32,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         ${user.bio ? `
             <div class="p-4 bg-slate-50 rounded-xl mb-4">
                 <p class="text-xs font-bold text-slate-500 uppercase mb-2">Bio</p>
-                <p class="text-sm text-slate-700 whitespace-pre-line">${user.bio}</p>
+                <p class="text-sm text-slate-700 whitespace-pre-line">${esc(user.bio)}</p>
             </div>
         ` : ''}
 

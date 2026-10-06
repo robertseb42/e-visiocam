@@ -20,10 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function escapeHtml(text) {
-    if (text === null || text === undefined) return '';
-    var div = document.createElement('div');
-    div.textContent = String(text);
-    return div.innerHTML;
+    return String(text == null ? '' : text).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
 }
 
 // ---------- MODE MAINTENANCE ----------

@@ -17,7 +17,7 @@
             aide: 'Le membre reste connecté mais ne peut plus écrire, ni dans les salons ni en message privé.',
             durees: [[10, '10 minutes'], [60, '1 heure'], [1440, '24 heures'], [4320, '3 jours']], autre: true, defaut: 60 }
     };
-    var esc = function (t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; };
+    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var superAdmin = function () { try { return typeof isSuperAdmin === 'function' ? isSuperAdmin() : ((getCurrentUser() || {}).role === 'super_admin'); } catch (e) { return false; } };
     var toast = function (m, t) { if (typeof showToast === 'function') showToast(m, t); else alert(m); };
     var fin = function (iso) {

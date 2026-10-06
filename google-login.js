@@ -5,7 +5,7 @@
 // Premier passage : petite fenêtre pour choisir son pseudo et certifier être majeur.
 // ============================================================
 (function () {
-    var esc = function (t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; };
+    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var toast = function (m, t) { if (typeof showToast === 'function') showToast(m, t); };
     var opts = {};
 

@@ -629,7 +629,7 @@ function toggleMyMic() {
 // ============================================================
 // MUR DE CAMÉRAS : regarder plusieurs lives en même temps
 // ============================================================
-function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
 // Compatibilité : invitation à un live privé, ?join=…
 function joinStream(streamId, nom) { ajouterVue(streamId, nom); }
