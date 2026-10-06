@@ -31,7 +31,9 @@
         // Connexion, inscription, mot de passe
         'togglePassword', 'checkStrength',
         // Mon compte, récompenses, tableau de bord
-        'saveProfile', 'changePassword', 'deleteAccount', 'loadTransactions', 'toggleLive'
+        'saveProfile', 'changePassword', 'deleteAccount', 'loadTransactions', 'toggleLive',
+        // Messagerie privée
+        'openNewConvModal', 'closeNewConvModal', 'deleteCurrentConversation', 'closeConversation', 'sendMessage'
     ]);
 
     var EVENEMENTS = ['click', 'submit', 'input', 'change'];

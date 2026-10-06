@@ -143,7 +143,7 @@ function renderConversations(filter) {
         var lastMsg = c.lastMessage || 'Nouvelle conversation';
         if (lastMsg.length > 40) lastMsg = lastMsg.substring(0, 40) + '...';
 
-        html += '<div onclick="openConversation(' + c.id + ')" class="conv-item cursor-pointer p-3 border-b border-slate-50 ' + (isActive ? 'active' : '') + '">';
+        html += '<div data-conv-id="' + Number(c.id) + '" class="conv-item cursor-pointer p-3 border-b border-slate-50 ' + (isActive ? 'active' : '') + '">';
         html += '<div class="flex items-center gap-3">';
         html += '<div class="relative shrink-0">';
         html += '<div class="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold">' + initial + '</div>';
@@ -162,6 +162,10 @@ function renderConversations(filter) {
     });
 
     container.innerHTML = html;
+    // Clic branché ici : les attributs onclick sont bloqués par la CSP stricte
+    container.querySelectorAll('[data-conv-id]').forEach(function(el) {
+        el.addEventListener('click', function() { openConversation(Number(el.dataset.convId)); });
+    });
 }
 
 function filterConversations(e) {
@@ -334,7 +338,7 @@ async function searchUsers(q) {
         users.forEach(function(u) {
             var initial = u.username.charAt(0).toUpperCase();
             var roleLabel = u.role === 'model' ? '⭐ Modèle' : (u.role === 'super_admin' ? '👑 Admin' : (u.role === 'moderator' ? '🛡️ Modo' : ''));
-            html += '<div onclick="startConversationWith(' + u.id + ')" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 cursor-pointer transition-all">';
+            html += '<div data-user-id="' + Number(u.id) + '" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 cursor-pointer transition-all">';
             html += '<div class="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold shrink-0">' + initial + '</div>';
             html += '<div class="flex-1 min-w-0">';
             html += '<p class="font-bold text-sm text-slate-900">' + escapeHtml(u.username) + '</p>';
@@ -344,6 +348,9 @@ async function searchUsers(q) {
             html += '</div>';
         });
         results.innerHTML = html;
+        results.querySelectorAll('[data-user-id]').forEach(function(el) {
+            el.addEventListener('click', function() { startConversationWith(Number(el.dataset.userId)); });
+        });
     } catch (err) {
         results.innerHTML = '<p class="text-center text-rose-500 text-sm py-6">' + escapeHtml(err.message) + '</p>';
     }

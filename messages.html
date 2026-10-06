@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <script src="theme.js"></script>
+    <script src="actions.js?v=csp2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages — E-VISIOCAM</title>
     <meta name="description" content="Messages — E-VISIOCAM — E-VISIOCAM, chat et rencontres par webcam."/>
@@ -36,13 +37,7 @@
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
-<script>
-(function() {
-    if (typeof isLoggedIn !== 'function' || !isLoggedIn()) {
-        window.location.href = 'login.html?redirect=messages.html';
-    }
-})();
-</script>
+<script src="pages/messages-acces.js"></script>
 
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
@@ -82,7 +77,7 @@
         <h1 class="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
             <i class="fa-solid fa-comments text-brand-primary"></i> Messages
         </h1>
-        <button onclick="openNewConvModal()" class="px-4 py-2.5 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-xl shadow-lg shadow-pink-500/25 flex items-center gap-2 hover:opacity-90 transition-all">
+        <button data-click="openNewConvModal" class="px-4 py-2.5 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-xl shadow-lg shadow-pink-500/25 flex items-center gap-2 hover:opacity-90 transition-all">
             <i class="fa-solid fa-plus"></i>
             <span>Nouvelle conversation</span>
         </button>
@@ -115,10 +110,10 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button onclick="deleteCurrentConversation()" title="Supprimer" class="w-9 h-9 rounded-lg text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-all">
+                    <button data-click="deleteCurrentConversation" title="Supprimer" class="w-9 h-9 rounded-lg text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-all">
                         <i class="fa-solid fa-trash"></i>
                     </button>
-                    <button onclick="closeConversation()" class="w-9 h-9 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center transition-all">
+                    <button data-click="closeConversation" class="w-9 h-9 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center transition-all">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
@@ -138,7 +133,7 @@
                     <input type="text" id="messageInput" placeholder="Écrire un message..."
                         class="flex-1 px-4 py-3 bg-slate-100 rounded-2xl text-sm border border-transparent focus:border-brand-primary focus:bg-white focus:outline-none transition-all"
                         maxlength="2000">
-                    <button onclick="sendMessage()" class="w-12 h-12 rounded-2xl bg-gradient-to-r from-brand-primary to-rose-500 text-white flex items-center justify-center hover:opacity-90 transition-all shadow-lg shadow-pink-500/25">
+                    <button data-click="sendMessage" class="w-12 h-12 rounded-2xl bg-gradient-to-r from-brand-primary to-rose-500 text-white flex items-center justify-center hover:opacity-90 transition-all shadow-lg shadow-pink-500/25">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
@@ -152,7 +147,7 @@
     <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
         <div class="p-5 border-b border-slate-100 flex items-center justify-between">
             <h3 class="text-lg font-extrabold text-slate-900">Nouvelle conversation</h3>
-            <button onclick="closeNewConvModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center">
+            <button data-click="closeNewConvModal" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -168,7 +163,7 @@
         </div>
     </div>
 </div>
-<script src="messages.js"></script>
+<script src="messages.js?v=csp2"></script>
  <script src="radio-widget.js"></script>
 <script src="radio-widget-floating.js?v=csp1"></script>
 <script src="footer.js" defer></script>
