@@ -129,7 +129,9 @@
         '.evc-as-form{display:grid;gap:8px;margin-top:6px}',
         '.evc-as-form input,.evc-as-form textarea{width:100%;padding:9px 11px;border-radius:10px;border:1px solid var(--as-line);background:var(--as-bg);color:var(--as-text);font:13px Inter,system-ui,sans-serif;box-sizing:border-box}',
         '.evc-as-form textarea{min-height:84px;resize:vertical}',
-        '.evc-as-form label.ck{display:flex;gap:6px;align-items:flex-start;font-size:11.5px;color:var(--as-muted)}',
+        '.evc-as-form label.ck{display:flex;gap:8px;align-items:flex-start;font-size:11.5px;line-height:1.45;color:var(--as-muted)}',
+        // La règle « input » du formulaire (largeur 100 %) écrasait la case à cocher et repoussait le texte
+        '.evc-as-form label.ck input{width:auto;flex:none;margin:2px 0 0;padding:0}',
         '.evc-as-form .env{border:0;border-radius:10px;padding:10px;background:#ffe500;color:#111113;font:800 13px Inter,system-ui,sans-serif;cursor:pointer}',
         '.evc-as-form .err{color:#f43f5e;font-size:12px;font-weight:600}',
         '.evc-as-pied{font-size:10.5px;color:var(--as-muted);text-align:center;padding:0 10px 8px}',
@@ -308,7 +310,7 @@
             '<input name="email" type="email" maxlength="254" placeholder="Votre adresse e-mail" value="' + esc(u && u.email || '') + '" required aria-label="Votre adresse e-mail">' +
             '<textarea name="message" maxlength="1800" placeholder="Votre question, avec le plus de détails possible (page, heure, appareil…)" aria-label="Votre question">' + esc(resume) + '</textarea>' +
             '<input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">' +
-            '<label class="ck"><input type="checkbox" name="ok"> J’accepte que ma demande soit traitée selon la <a href="confidentialite.html" target="_blank">politique de confidentialité</a>.</label>' +
+            '<label class="ck"><input type="checkbox" name="ok"><span>J’accepte que ma demande soit traitée selon la <a href="confidentialite.html" target="_blank">politique de confidentialité</a>.</span></label>' +
             '<div class="err" hidden></div><button type="submit" class="env">Envoyer à l’équipe</button></form>', 'bot', true);
         var f = d.querySelector('form');
         f.onsubmit = envoyer;

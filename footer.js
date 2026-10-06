@@ -116,7 +116,7 @@
         var sansAssistant = ['chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
         if (sansAssistant.indexOf(page) === -1 && !document.querySelector('script[src*="assistant.js"]')) {
             var as = document.createElement('script');
-            as.src = 'assistant.js?v=4';
+            as.src = 'assistant.js?v=5';
             document.body.appendChild(as);
         }
 
