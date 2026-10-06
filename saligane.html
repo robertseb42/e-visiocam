@@ -65,6 +65,9 @@
     .sal-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
     .sal-btn { display:inline-flex; align-items:center; gap:10px; padding:15px 26px; border-radius:16px; font-weight:900; font-size:17px; text-decoration:none; border:0; cursor:pointer; background:var(--s-accent); color:var(--s-ink) !important; box-shadow:0 10px 30px color-mix(in srgb, var(--s-accent) 30%, transparent); transition:transform .15s; }
     .sal-btn:hover { transform:translateY(-2px); }
+    /* Même bouton « brillant » que le reste du site (variables dans style.css), en thème sombre */
+    html:not([data-theme="light"]) .sal-btn:not(.sec) { background:var(--btn-brillant-fond); box-shadow:var(--btn-brillant-ombre); text-shadow:0 1px 0 rgba(255,255,255,.35); }
+    html:not([data-theme="light"]) .sal-btn:not(.sec):hover { background:var(--btn-brillant-fond-survol); box-shadow:var(--btn-brillant-ombre-survol); }
     .sal-btn.sec { background:transparent; color:var(--s-text) !important; border:1px solid var(--s-border); box-shadow:none; font-size:15px; }
     .sal-mini { margin-top:14px; font-size:13px; color:var(--s-muted); }
     .sal-wrap { max-width:1000px; margin:0 auto; padding:40px 20px 56px; }
@@ -92,6 +95,19 @@
     .sal-faq p { margin:10px 0 0; color:var(--s-muted); line-height:1.55; font-size:14.5px; }
     .sal-fin { text-align:center; background:var(--s-panel); border:1px solid var(--s-border); border-radius:22px; padding:30px 20px; }
     .sal-fin p { color:var(--s-muted); margin:0 0 18px; }
+    /* Le tchat en direct : chiffres réels (masqué tant qu'ils ne sont pas chargés, ou s'ils sont à zéro) */
+    .sal-direct { display:inline-flex; align-items:center; gap:10px 16px; flex-wrap:wrap; justify-content:center; margin:0 0 20px; padding:8px 16px; border-radius:999px; border:1px solid var(--s-border); background:color-mix(in srgb, var(--s-panel) 85%, transparent); font-size:14px; font-weight:800; }
+    .sal-direct[hidden] { display:none; }
+    .sal-direct .pt { display:inline-block; width:9px; height:9px; border-radius:50%; background:#22c55e; margin-right:6px; animation:salPouls 1.8s ease-out infinite; }
+    @keyframes salPouls { 0% { box-shadow:0 0 0 0 rgba(34,197,94,.6); } 100% { box-shadow:0 0 0 9px rgba(34,197,94,0); } }
+    @media (prefers-reduced-motion: reduce) { .sal-direct .pt { animation:none; } }
+    .sal-salons[hidden] { display:none; }
+    .sal-salon { background:var(--s-panel); border:1px solid var(--s-border); border-radius:18px; overflow:hidden; display:flex; flex-direction:column; }
+    .sal-salon img { width:100%; height:120px; object-fit:cover; display:block; }
+    .sal-salon-txt { padding:14px 16px 16px; display:flex; flex-direction:column; gap:8px; flex:1; }
+    .sal-salon h3 { font-size:16px; font-weight:800; margin:0; }
+    .sal-salon p { margin:0; color:var(--s-muted); font-size:14px; line-height:1.5; flex:1; }
+    .sal-salon .sal-btn { font-size:14px; padding:10px 16px; align-self:flex-start; }
     .sal-18 { display:inline-block; margin-top:16px; font-size:12px; font-weight:800; padding:4px 10px; border-radius:999px; border:1px solid var(--s-border); color:var(--s-muted); }
 </style>
 <main class="sal">
@@ -99,15 +115,21 @@
 <div class="sal-hero-in">
 <span class="sal-pastille">💬 Vous veniez sur <b>Saligane Tchat</b> ?</span>
 <h1>Vous recherchez un tchat après Saligane ? Découvrez E-VISIOCAM</h1>
+<p class="sal-direct" id="salDirect" hidden aria-live="polite"></p>
 <p class="sal-intro">Les adresses saligane-tchat.com et saligane-tchat.org mènent désormais à E-VISIOCAM, un tchat français gratuit entre adultes : salons de discussion, webcam en direct, messages privés et une équipe de modération présente.</p>
 <div class="sal-actions">
-<a class="sal-btn" data-entrer="" href="index.html"><i class="fa-solid fa-door-open"></i> Entrer sur E-VISIOCAM</a>
-<a class="sal-btn sec" data-entrer="" href="register.html"><i class="fa-solid fa-user-plus"></i> Créer mon compte gratuit</a>
+<a class="sal-btn" data-entrer="" href="register.html"><i class="fa-solid fa-user-plus"></i> Créer mon compte gratuit</a>
+<a class="sal-btn sec" data-entrer="" href="index.html"><i class="fa-solid fa-door-open"></i> Visiter d’abord</a>
 </div>
 <p class="sal-mini">Gratuit · sans abonnement · inscription en 1 minute</p>
 </div>
 </section>
 <div class="sal-wrap">
+<section aria-labelledby="salSalonsTitre" class="sal-salons" hidden id="salSalons">
+<h2 id="salSalonsTitre">Les salons en ce moment</h2>
+<p class="sal-sous">Choisissez votre ambiance : vous y serez en moins d’une minute.</p>
+<div class="sal-grille" id="salSalonsListe"></div>
+</section>
 <h2>Ce que vous allez retrouver</h2>
 <p class="sal-sous">L’esprit des tchats d’avant, avec tout ce qu’on attend aujourd’hui.</p>
 <div class="sal-grille">
@@ -146,7 +168,7 @@
 </div>
 </div>
 <p class="sal-note"><a href="salons.html">Découvrir les salons de tchat webcam E-VISIOCAM</a> ou consulter notre <a href="guide-chat-webcam.html">guide pour bien débuter</a>.</p></main>
-<script src="pages/saligane.js"></script>
+<script src="pages/saligane.js?v=2"></script>
 <script defer="" src="footer.js?v=2"></script>
 </body>
 </html>
