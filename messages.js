@@ -222,7 +222,7 @@ function closeConversation() {
 // ============================================================
 async function deleteCurrentConversation() {
     if (!currentConversationId || !currentOtherUser) return;
-    if (!confirm('Supprimer la conversation avec ' + currentOtherUser.username + ' ?\n\nTous les messages seront effacés.')) return;
+    if (!confirm('Supprimer la conversation avec ' + currentOtherUser.username + ' ?\n\nElle disparaîtra de votre liste. ' + currentOtherUser.username + ' la conserve de son côté.')) return;
 
     try {
         await apiCall('/messages/' + currentConversationId, { method: 'DELETE' });

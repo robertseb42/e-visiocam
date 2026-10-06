@@ -197,7 +197,9 @@ function renderReports() {
         html += '<div class="flex items-start justify-between gap-4">';
         html += '<div class="flex-1">';
         html += '<div class="flex items-center gap-2 mb-1">';
-        if (r.priority >= 4) html += '<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>';
+        // Priorité 6 : au moins 5 membres différents ont signalé cette personne en 7 jours (plus de suspension automatique)
+        if (r.priority >= 6) html += '<span class="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" title="Au moins 5 membres différents l’ont signalé en 7 jours">⚠ 5+ SIGNALEMENTS</span>';
+        else if (r.priority >= 4) html += '<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>';
         html += '<span class="text-xs font-bold text-slate-900">' + cible + '</span>';
         html += '<span class="text-[10px] text-slate-400">' + new Date(r.created_at).toLocaleString('fr-FR') + '</span>';
         html += '</div>';
