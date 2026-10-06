@@ -87,6 +87,11 @@ async function apiCall(endpoint, options) {
         clearToken(); clearUser();
         throw new Error(data.error || 'Session expirée');
     }
+    // Mot de passe temporaire donné par un administrateur : le serveur refuse tout le reste
+    // tant qu'il n'est pas remplacé, on envoie le membre le choisir
+    if (response.status === 403 && data && data.mustChangePassword && !/nouveau-mdp\.html$/.test(location.pathname)) {
+        window.location.href = 'nouveau-mdp.html';
+    }
     if (!response.ok) {
         const err = new Error(data.error || 'Erreur');
         err.status = response.status; err.data = data;   // ex. data.needVerification à la connexion
