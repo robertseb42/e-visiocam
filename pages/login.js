@@ -69,7 +69,10 @@
 
             // Récupérer le paramètre redirect (si présent)
             const params = new URLSearchParams(window.location.search);
-            const redirect = params.get('redirect');
+            // Seulement une page du site (« nom.html?… ») : un lien piégé ?redirect=https://autre-site
+            // renverrait le membre, à peine connecté, vers une fausse page. Même règle que google-login.js.
+            const demande = params.get('redirect');
+            const redirect = demande && /^[a-z0-9_-]+\.html([?#].*)?$/i.test(demande) ? demande : null;
 
             // Mot de passe réinitialisé par un administrateur : nouveau mot de passe obligatoire
             if (Number(user.must_change_password) === 1) {
