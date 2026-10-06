@@ -6,6 +6,20 @@
 // change toutes les pages, y compris celles déjà ouvertes dans d'autres onglets.
 // Tout bouton portant l'attribut data-theme-toggle bascule le thème.
 // ============================================================
+
+// Anti-clickjacking : chargé en premier sur toutes les pages, ce fichier empêche un autre site
+// d'afficher une page d'E-VISIOCAM dans un cadre invisible pour faire cliquer le visiteur à son insu.
+// Le cadre de notre propre app-shell.html (même site) reste autorisé. GitHub Pages ne permet pas
+// d'envoyer l'en-tête frame-ancestors, d'où ce contrôle en JavaScript.
+(function () {
+    if (window.top === window.self) return;
+    var memeSite = false;
+    try { memeSite = window.top.location.origin === window.location.origin; } catch (e) {}   // autre site : accès refusé
+    if (memeSite) return;
+    document.documentElement.style.display = 'none';
+    try { window.top.location = window.location.href; } catch (e) {}
+})();
+
 (function () {
     'use strict';
     var KEY = 'evc-theme';
