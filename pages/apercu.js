@@ -15,12 +15,14 @@
     }
     function presents(s) { return s.presents > 0 ? s.presents + (s.presents > 1 ? ' présents' : ' présent') : ''; }
 
-    // Par défaut : le salon où l'on parle le plus récemment (sinon le plus fréquenté)
+    // Par défaut : le salon où les VRAIS membres parlent le plus (pas celui où l'animateur a parlé
+    // en dernier), puis le plus récent entre membres, puis le plus fréquenté
     function salonParDefaut() {
+        function membres(s) { return s.messages.filter(function (m) { return !m.animateur; }); }
+        function dernierMembre(s) { var m = membres(s); return m.length ? m[m.length - 1].id : 0; }
         var tri = salons.slice().sort(function (a, b) {
-            var da = a.messages.length ? a.messages[a.messages.length - 1].id : 0;
-            var db = b.messages.length ? b.messages[b.messages.length - 1].id : 0;
-            return (db - da) || (b.presents - a.presents);
+            return (membres(b).length - membres(a).length) || (dernierMembre(b) - dernierMembre(a)) ||
+                (b.presents - a.presents) || (b.messages.length - a.messages.length);
         });
         return tri[0] ? tri[0].slug : null;
     }

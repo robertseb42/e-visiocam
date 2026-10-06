@@ -55,6 +55,21 @@
         zone.hidden = false;
     });
 
+    // « Voir le tchat en direct » seulement s'il y a de vrais échanges : un aperçu où seul l'animateur parle
+    // donnerait l'impression d'un site vide. Sinon le bouton reste « Visiter d'abord » (accueil).
+    var SEUIL_MESSAGES_MEMBRES = 5;
+    lire('/salons/apercu').then(function (data) {
+        var n = 0;
+        ((data && data.salons) || []).forEach(function (s) {
+            (s.messages || []).forEach(function (m) { if (!m.animateur) n++; });
+        });
+        if (n < SEUIL_MESSAGES_MEMBRES) return;
+        var b = document.getElementById('salBtnApercu');
+        if (!b) return;
+        b.href = 'apercu.html';
+        b.innerHTML = '<i class="fa-solid fa-eye"></i> Voir le tchat en direct';
+    });
+
     // Salons du moment (ceux choisis dans « Gestion des salons »), avec la même image qu'à l'accueil
     var COUVERTURES = ['img/ambiance-lounge.jpg', 'img/ambiance-musique.jpg', 'img/ambiance-rencontres.jpg'];
     var base = api.replace(/\/api\/?$/, '');
