@@ -43,7 +43,12 @@
         'fermerPrive', 'fermerCadenas',
         // Modération
         'showTab', 'filterReports', 'loadReports', 'loadAllStreams', 'stopWatching', 'addWord', 'testerFiltre',
-        'offrirA', 'loadUsers', 'loadViewLogs'
+        'offrirA', 'loadUsers', 'loadViewLogs',
+        // Administration
+        'toggleMaintenance', 'lancerSauvegarde', 'telechargerSauvegarde', 'chargerStats', 'exporterStats',
+        'handlePromoteMod', 'chargerRecompenses', 'offrirCredits', 'enregistrerAnimateur', 'enregistrerRecompenses',
+        'remettreDefautRecompenses', 'openRadioModal', 'closeRadioModal', 'saveRadio', 'setContactBox',
+        'loadContactMessages', 'closeModal', 'copyTempPassword'
     ]);
 
     var EVENEMENTS = ['click', 'submit', 'input', 'change'];
