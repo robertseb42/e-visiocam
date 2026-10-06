@@ -1,5 +1,5 @@
 // ============================================================
-// E-VISIOCAM — le couple qui danse (accueil, à gauche de « Trouvez votre ambiance »)
+// E-VISIOCAM — le couple qui danse (accueil, en bas à gauche de l'écran, à la hauteur de la radio)
 // Cinq images détourées enchaînées en fondu (boucle de 8 s), sur une petite piste disco
 // comme le danseur : il l'attend → elle court vers lui → elle s'élance → il l'attrape →
 // il la hisse en l'air (le porté) → pause, et ça recommence.
@@ -14,7 +14,7 @@
     var etapes = [['dd-homme', 'ecHomme'], ['dd-court', 'ecCourt'], ['dd-saut', 'ecSaut'], ['dd-prise', 'ecPrise'], ['dd-porte', 'ecPorte']];
     var css = document.createElement('style');
     css.textContent =
-        '#evcCouple{position:absolute;z-index:4;pointer-events:none;display:none}' +
+        '#evcCouple{position:fixed;z-index:4;pointer-events:none;display:none}' +
         'html:not(.evc-disco) #evcCouple{display:none!important}' +
         // Piste disco (mêmes dalles colorées que le danseur), sous le danseur
         '#evcCouple .ec-piste{position:absolute;left:24%;width:52%;bottom:-6%;height:24%;overflow:visible}' +
@@ -56,33 +56,51 @@
     el.id = 'evcCouple'; el.setAttribute('aria-hidden', 'true'); el.innerHTML = html;
     document.body.appendChild(el);
 
-    // En bas à gauche, posé sur le pied de page (comme la radio à droite), dans la place libre à gauche
-    // du contenu (la colonne de gauche ne compte que si son contenu descend jusque-là)
+    // Fixé en bas à gauche de l'écran (il reste visible quand on fait défiler la page), le bas aligné
+    // sur celui de la radio, dans la place libre à gauche du contenu. La colonne de gauche ne compte
+    // que si son contenu visible descend jusqu'au couple.
+    function basRadio() {
+        var p = null;
+        try { if (window.top !== window) p = window.top.__evcRadioPlace; } catch (e) {}
+        if (p && p.colonne && p.height) return p.top + p.height;   // radio dans la colonne de droite (accueil)
+        return window.innerHeight - 16;                             // radio dans le coin bas-droit
+    }
     function placer() {
         var cible = document.getElementById('ambiances');
-        var pied = document.querySelector('footer.ev-footer');
-        if (!cible || !pied || window.innerWidth < 1280) { el.style.display = 'none'; return; }
+        if (!cible || window.innerWidth < 1280) { el.style.display = 'none'; return; }
         var r = cible.getBoundingClientRect(), gauche = 0;
-        var basPage = pied.getBoundingClientRect().top + scrollY;
+        var bas = Math.min(basRadio(), window.innerHeight - 16);
         var aside = document.querySelector('aside');
         if (aside && getComputedStyle(aside).display !== 'none') {
-            var bas = 0;
+            var basAside = 0;
             Array.prototype.forEach.call(aside.querySelectorAll('*'), function (n) {
                 var b = n.getBoundingClientRect();
-                if (b.width && b.height && getComputedStyle(n).visibility !== 'hidden') bas = Math.max(bas, b.bottom + scrollY);
+                if (b.width && b.height && getComputedStyle(n).visibility !== 'hidden') basAside = Math.max(basAside, b.bottom);
             });
             // hauteur maximale du couple (300 px de large) : si la colonne descend jusque-là, on se met à sa droite
-            if (bas > basPage - 300 * RATIO - 26) gauche = aside.getBoundingClientRect().right;
+            if (basAside > bas - 300 * RATIO - 10) gauche = aside.getBoundingClientRect().right;
         }
-        var place = r.left - gauche;
+        // Ne jamais déborder sur le texte du pied de page, qui commence parfois plus à gauche que le contenu
+        var droite = r.left;
+        var pied = document.querySelector('footer.ev-footer .ev-footer-inner');
+        if (pied) droite = Math.min(droite, pied.getBoundingClientRect().left + (parseFloat(getComputedStyle(pied).paddingLeft) || 0));
+        var place = droite - gauche;
         var w = Math.min(300, place - 20);
         if (w < 130) { el.style.display = 'none'; return; }
         var h = w * RATIO;
         el.style.width = w + 'px'; el.style.height = h + 'px';
         el.style.left = Math.round(gauche + (place - w) / 2) + 'px';
-        el.style.top = Math.round(basPage - h - 16) + 'px';
+        el.style.top = Math.round(bas - h) + 'px';
         el.style.display = 'block';
     }
+    var prevu = false;
+    function placerBientot() {
+        if (prevu) return;
+        prevu = true;
+        requestAnimationFrame(function () { prevu = false; placer(); });
+    }
+    window.addEventListener('scroll', placerBientot, { passive: true });   // la colonne de gauche défile
+    window.addEventListener('evc:radio-placee', placer);                   // la radio vient d'être (re)placée
     window.addEventListener('resize', placer);
     window.addEventListener('load', placer);
     setTimeout(placer, 300); setTimeout(placer, 1500); setTimeout(placer, 4000);   // après le chargement des salons et du bandeau « Qui est là ? »
