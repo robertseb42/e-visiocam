@@ -7,7 +7,6 @@ var currentUser = null;
 var currentConversationId = null;
 var currentOtherUser = null;
 var conversations = [];
-var typingTimeout = null;
 var currentOtherOnline = false;   // l'autre membre est-il connecté ? (vérifié auprès du serveur)
 var presenceTimer = null;
 var userSearchTimeout = null;
@@ -299,11 +298,13 @@ async function sendMessage() {
 // ============================================================
 // TYPING
 // ============================================================
+// Au plus un signal toutes les 2 secondes (avant : un par touche, ce qui surchargeait le serveur)
+var derniereFrappe = 0;
 function notifyTyping() {
     if (!socket || !currentConversationId) return;
-    clearTimeout(typingTimeout);
+    if (Date.now() - derniereFrappe < 2000) return;
+    derniereFrappe = Date.now();
     socket.emit('dm:typing', { conversationId: currentConversationId });
-    typingTimeout = setTimeout(function() {}, 1500);
 }
 
 // ---------- PRÉSENCE DE L'AUTRE MEMBRE ----------
