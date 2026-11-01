@@ -323,6 +323,7 @@
                     withCredentials: true,
                     transports: ['websocket', 'polling']
                 });
+                if (window.evcSurveillerSession) window.evcSurveillerSession(unreadSocket);   // fin de session (mot de passe changé, déconnexion…)
 
                 unreadSocket.on('dm:unread-count', function(data) {
                     if (data && typeof data.count === 'number') {

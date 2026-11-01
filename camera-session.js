@@ -88,6 +88,7 @@
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000
         });
+        if (window.evcSurveillerSession) window.evcSurveillerSession(socket);   // fin de session (mot de passe changé, déconnexion…)
 
         socket.on('connect', function () {
             if (stream) socket.emit('camera:start', { streamId: streamId });

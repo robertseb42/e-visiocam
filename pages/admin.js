@@ -823,6 +823,7 @@ function startContactInbox() {
     const brancher = () => {
         if (typeof io === 'undefined' || window._contactSocket) return;
         window._contactSocket = io('https://api.e-visiocam.com', { withCredentials: true, transports: ['websocket', 'polling'] });
+        if (window.evcSurveillerSession) window.evcSurveillerSession(window._contactSocket);   // fin de session (mot de passe changé, déconnexion…)
         window._contactSocket.on('contact:unread-count', data => {
             if (!data || typeof data.count !== 'number') return;
             const arrive = setContactUnread(data.count);

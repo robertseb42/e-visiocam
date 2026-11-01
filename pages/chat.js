@@ -401,6 +401,7 @@ function initSocket() {
     socket = io('https://api.e-visiocam.com', { 
     withCredentials: true 
 });
+    if (window.evcSurveillerSession) window.evcSurveillerSession(socket);   // fin de session (mot de passe changé, déconnexion…)
     if (typeof EvcQuiz !== 'undefined') EvcQuiz.brancher(socket);   // 🧠 résultats du quiz de l'animateur
     if (typeof EvcCam !== 'undefined') EvcCam.brancher(socket);     // 📷 demandes de cam reçues tout de suite
 

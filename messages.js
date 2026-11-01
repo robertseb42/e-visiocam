@@ -77,6 +77,7 @@ function initSocket() {
         withCredentials: true,
         transports: ['websocket', 'polling']
     });
+    if (window.evcSurveillerSession) window.evcSurveillerSession(socket);   // fin de session (mot de passe changé, déconnexion…)
 
     socket.on('connect', function() {
         console.log('✅ Socket connecté');

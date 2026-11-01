@@ -104,6 +104,7 @@ function initSocket() {
         transports: ['websocket', 'polling'],
         reconnection: true
     });
+    if (window.evcSurveillerSession) window.evcSurveillerSession(socket);   // fin de session (mot de passe changé, déconnexion…)
 
     socket.on('connect', function() {
         console.log('Socket modérateur connecté :', socket.id);

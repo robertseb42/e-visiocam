@@ -188,6 +188,7 @@ function initSocket() {
         reconnectionAttempts: Infinity,
         reconnectionDelay: 1000
     });
+    if (window.evcSurveillerSession) window.evcSurveillerSession(socket);   // fin de session (mot de passe changé, déconnexion…)
 
     if (typeof EvcCam !== 'undefined') EvcCam.brancher(socket);   // 📷 demandes de cam reçues tout de suite
     socket.on('connect', function() {

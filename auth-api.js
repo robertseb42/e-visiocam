@@ -250,3 +250,45 @@ function goProfile() {
         }
     } catch (e) {}
 })();
+
+// ============================================================
+// FIN DE SESSION EN TEMPS RÉEL
+// Le serveur coupe la connexion temps réel quand la session n'est plus valable
+// (déconnexion dans un autre onglet, mot de passe changé, droits modifiés, compte supprimé).
+// Si la session de CE navigateur est toujours bonne (ex. on vient de changer son propre
+// mot de passe ici), on se reconnecte sans rien dire ; sinon on prévient et on renvoie
+// vers la connexion. À appeler sur chaque socket : evcSurveillerSession(socket).
+// ============================================================
+function evcSurveillerSession(socket) {
+    if (!socket || socket._evcSession) return;
+    socket._evcSession = true;
+    socket.on('session:fin', function (d) {
+        var raison = d && d.raison;
+        if (raison === 'sanction') return;   // déjà géré par la fenêtre de sanction
+        var message = (d && d.message) || 'Votre session a pris fin.';
+        function bandeau() {
+            if (document.getElementById('evcSessionFin')) return;
+            var el = document.createElement('div');
+            el.id = 'evcSessionFin';
+            el.setAttribute('role', 'alert');
+            el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;padding:12px 16px;text-align:center;font-weight:600;background:#1e293b;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+            el.textContent = message;
+            (document.body || document.documentElement).appendChild(el);
+        }
+        fetch(API_URL + '/auth/me', { credentials: 'include' }).then(function (r) {
+            if (r.ok && raison !== 'role') {
+                // Session toujours valable dans ce navigateur : reconnexion silencieuse
+                setTimeout(function () { try { socket.connect(); } catch (e) {} }, 1000);
+            } else if (r.ok) {
+                bandeau();
+                setTimeout(function () { window.location.reload(); }, 2500);
+            } else {
+                bandeau();
+                try { clearToken(); clearUser(); } catch (e) {}
+                var page = window.location.pathname.split('/').pop() || 'index.html';
+                setTimeout(function () { window.location.href = 'login.html?redirect=' + encodeURIComponent(page + window.location.search); }, 2500);
+            }
+        }).catch(function () {});
+    });
+}
+window.evcSurveillerSession = evcSurveillerSession;
