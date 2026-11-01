@@ -6,7 +6,15 @@
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const skipPages = ['cgu.html', 'confidentialite.html', 'a-propos.html', 'contact.html', 'mentions-legales.html', 'cookies.html', 'rgpd.html'];
     if (skipPages.includes(currentPage)) return;
-    if (localStorage.getItem('evisiocam_legal_accepted') === '1') return;
+    // Confirmation d'âge valable 1 an (durée annoncée dans la page Cookies), puis redemandée
+    try {
+        if (localStorage.getItem('evisiocam_legal_accepted') === '1') {
+            var dateOk = Date.parse(localStorage.getItem('evisiocam_legal_date') || '');
+            if (!isNaN(dateOk) && Date.now() - dateOk < 365 * 86400000) return;
+            if (isNaN(dateOk)) { localStorage.setItem('evisiocam_legal_date', new Date().toISOString()); return; }   // ancienne confirmation sans date : on compte à partir d'aujourd'hui
+            localStorage.removeItem('evisiocam_legal_accepted');
+        }
+    } catch (e) {}
 
     function createBanner() {
         const banner = document.createElement('div');

@@ -5,9 +5,20 @@
     var d = '';
     try { d = (new URLSearchParams(location.search).get('d') || '').toLowerCase(); } catch (e) {}
     var source = d === 'com' ? 'saligane-com' : d === 'org' ? 'saligane-org' : 'saligane';
-    try { localStorage.setItem('evc-source', JSON.stringify({ s: source, t: Date.now() })); } catch (e) {}
+    // Le visiteur peut refuser cette mesure (page Cookies) : alors rien n'est gardé ni envoyé
+    var refus = false;
+    try { refus = localStorage.getItem('evc-source-refus') === '1'; } catch (e) {}
+    try {
+        if (!refus) localStorage.setItem('evc-source', JSON.stringify({ s: source, t: Date.now() }));
+        // Anciennes clés « déjà vu » des jours précédents : inutile de les garder
+        for (var i = localStorage.length - 1; i >= 0; i--) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf('evc-saligane-vu-') === 0 && k !== 'evc-saligane-vu-' + new Date().toISOString().slice(0, 10)) localStorage.removeItem(k);
+        }
+    } catch (e) {}
     var api = typeof API_URL !== 'undefined' ? API_URL : 'https://api.e-visiocam.com/api';
     function envoyer(evenement) {
+        if (refus) return;
         try {
             return fetch(api + '/acquisition', { method: 'POST', keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ source: source, evenement: evenement }) }).catch(function () {});
         } catch (e) {}

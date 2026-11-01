@@ -84,11 +84,12 @@
         <h2>1. Qu'est-ce qu'un cookie ?</h2>
         <p>Un cookie est un petit fichier texte stocké sur votre appareil lors de la visite d'un site web. Il permet de mémoriser vos préférences et d'améliorer votre expérience.</p>
 
-        <h2>2. Cookies utilisés sur E-VISIOCAM</h2>
+        <h2>2. Cookies et stockage utilisés sur E-VISIOCAM</h2>
+        <p>Certaines informations sont gardées dans votre navigateur (« stockage local ») plutôt que dans un cookie : elles sont listées ici aussi, avec les mêmes règles.</p>
         <table>
             <thead>
                 <tr>
-                    <th>Cookie</th>
+                    <th>Nom</th>
                     <th>Type</th>
                     <th>Finalité</th>
                     <th>Durée</th>
@@ -110,25 +111,47 @@
                 <tr>
                     <td><code>evisiocam_legal_accepted</code></td>
                     <td>Essentiel</td>
-                    <td>Confirmation +18 ans</td>
+                    <td>Confirmation +18 ans (avec sa date : <code>evisiocam_legal_date</code>)</td>
                     <td>1 an</td>
+                </tr>
+                <tr>
+                    <td><code>evcRadioOuvert</code></td>
+                    <td>Préférence</td>
+                    <td>Mémorise si le lecteur radio est ouvert ou réduit</td>
+                    <td>Jusqu'à suppression</td>
+                </tr>
+                <tr>
+                    <td><code>evc-source</code></td>
+                    <td>Mesure d'audience</td>
+                    <td>Seulement si vous arrivez par un de nos anciens domaines (Saligane) : retient ce domaine pour savoir combien d'inscriptions il apporte</td>
+                    <td>30 jours</td>
                 </tr>
             </tbody>
         </table>
 
-        <h2>3. Cookies essentiels uniquement</h2>
-        <p>E-VISIOCAM utilise <strong>uniquement des cookies essentiels</strong> au fonctionnement du site :</p>
+        <h2>3. Ce que nous utilisons (et ce que nous n'utilisons pas)</h2>
+        <p>E-VISIOCAM utilise des cookies et stockages <strong>essentiels</strong> au fonctionnement du site :</p>
         <ul>
             <li>Authentification de votre session</li>
             <li>Mémorisation de votre confirmation d'âge</li>
             <li>Sécurité (anti-CSRF)</li>
+            <li>Vos préférences d'affichage</li>
         </ul>
-        <p><strong>Aucun cookie publicitaire, de tracking ou analytique n'est utilisé.</strong></p>
+        <p>Une seule <strong>mesure d'audience interne</strong> s'y ajoute : quand vous arrivez par un de nos anciens domaines (Saligane), le site retient ce domaine pendant 30 jours. Si vous créez un compte pendant ce délai, ce domaine est noté sur votre compte, et nous ne nous en servons que pour des statistiques globales (nombre de visites et d'inscriptions par domaine). Rien n'est partagé avec un tiers ni utilisé pour de la publicité.</p>
+        <p><strong>Aucun cookie publicitaire, aucun traceur d'un autre site, aucun outil d'analyse externe.</strong></p>
+
+        <h3 id="mesure" style="font-weight:700;margin-top:1.25rem;margin-bottom:.5rem;color:#0f172a">Refuser la mesure de provenance</h3>
+        <p>Vous pouvez la refuser à tout moment ; le site fonctionne exactement de la même façon.</p>
+        <p id="evcMesureEtat" role="status" aria-live="polite"></p>
+        <p>
+            <button id="evcRefusMesure" type="button" class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">Refuser la mesure de provenance</button>
+            <button id="evcAccepterMesure" type="button" hidden class="px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700">Réactiver la mesure</button>
+        </p>
 
         <h2>4. Vos droits</h2>
         <p>Conformément au RGPD, vous pouvez :</p>
         <ul>
-            <li>Refuser les cookies non-essentiels</li>
+            <li>Refuser la mesure de provenance (bouton ci-dessus)</li>
             <li>Supprimer les cookies à tout moment</li>
             <li>Configurer votre navigateur pour bloquer les cookies</li>
         </ul>
@@ -149,7 +172,7 @@
 
 <script src="footer.js?v=2" defer></script>
 
-<script src="auth-api.js?v=4" defer></script>
+<script src="auth-api.js?v=5" defer></script>
 <script src="nav-auth.js?v=5" defer></script>
 <script src="site-search.js" defer></script>
 </body>

@@ -113,13 +113,42 @@ async function login(username, password) {
 
 // ---------- PROVENANCE (ex. ancien domaine Saligane) ----------
 // Posée par saligane.html, gardée 30 jours, envoyée à l'inscription pour savoir ce que rapporte chaque domaine
+// Le visiteur peut refuser cette mesure depuis la page Cookies (voir evcBrancherMesure plus bas)
 function evcSource() {
     try {
+        if (localStorage.getItem('evc-source-refus') === '1') return '';
         var o = JSON.parse(localStorage.getItem('evc-source') || 'null');
         if (o && o.s && Date.now() - o.t < 30 * 86400000) return String(o.s).slice(0, 30);
+        if (o) localStorage.removeItem('evc-source');   // expirée : effacée, pas seulement ignorée
     } catch (e) {}
     return '';
 }
+
+// ---------- Page Cookies : refuser / réactiver la mesure de provenance ----------
+// Branché sur les boutons #evcRefusMesure et #evcAccepterMesure s'ils existent (aucun script inline).
+function evcBrancherMesure() {
+    var refuser = document.getElementById('evcRefusMesure');
+    var accepter = document.getElementById('evcAccepterMesure');
+    var etat = document.getElementById('evcMesureEtat');
+    if (!refuser || !accepter) return;
+    function afficher() {
+        var r = false;
+        try { r = localStorage.getItem('evc-source-refus') === '1'; } catch (e) {}
+        if (etat) etat.textContent = r ? 'Mesure refusée sur ce navigateur.' : 'Mesure active sur ce navigateur.';
+        refuser.hidden = r; accepter.hidden = !r;
+    }
+    refuser.addEventListener('click', function () {
+        try { localStorage.setItem('evc-source-refus', '1'); localStorage.removeItem('evc-source'); } catch (e) {}
+        afficher();
+    });
+    accepter.addEventListener('click', function () {
+        try { localStorage.removeItem('evc-source-refus'); } catch (e) {}
+        afficher();
+    });
+    afficher();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', evcBrancherMesure);
+else evcBrancherMesure();
 
 async function register(username, email, password, parrain, departement, birthdate) {
     const corps = { username: username, email: email, password: password };
