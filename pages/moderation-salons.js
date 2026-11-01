@@ -115,7 +115,7 @@ function ligneSalon(s) {
 }
 
 // Image d'en-tête affichée : celle du salon, sinon l'image par défaut (même règle que l'accueil)
-const COVERS_DEFAUT = ['img/ambiance-lounge.jpg', 'img/ambiance-musique.jpg', 'img/ambiance-rencontres.jpg'];
+const COVERS_DEFAUT = ['img/ambiance-lounge.webp', 'img/ambiance-musique.webp', 'img/ambiance-rencontres.webp'];
 const API_BASE = (typeof API_URL === 'string' ? API_URL : 'https://api.e-visiocam.com/api').replace(/\/api\/?$/, '');
 function coverSrc(s) {
     if (s && s.coverUrl) return API_BASE + s.coverUrl;

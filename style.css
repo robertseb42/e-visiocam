@@ -395,7 +395,7 @@ html[data-theme="light"] .ev-footer-logo{background:linear-gradient(135deg,#e91e
 .cam-home{--h-panel:#1c1c20;--h-border:#2f2f36;--h-text:#f5f5f7;--h-muted:#b1b1bd;--h-yellow:#ffe500;--h-pink:#ff1680;--h-btn-text:#111113}
 html[data-theme="light"] .cam-home{--h-panel:#fff;--h-border:#e2e8f0;--h-text:#0f172a;--h-muted:#64748b;--h-yellow:#e91e63;--h-pink:#e91e63;--h-btn-text:#fff}
 /* Bannière */
-.cam-banner-art{background-image:url("img/hero-neon.jpg"),linear-gradient(115deg,#141416 0%,#111113 45%,#1c1218 100%);background-size:auto 100%,cover;background-position:right center,center;background-repeat:no-repeat}
+.cam-banner-art{background-image:url("img/hero-neon.webp"),linear-gradient(115deg,#141416 0%,#111113 45%,#1c1218 100%);background-size:auto 100%,cover;background-position:right center,center;background-repeat:no-repeat}
 .cam-banner:after{background:linear-gradient(90deg,#0d0b0e 0%,#0d0b0e 34%,rgba(13,11,14,.85) 44%,rgba(13,11,14,0) 62%)}
 .cam-banner h1{font-size:clamp(32px,3.6vw,54px);font-weight:900;letter-spacing:-1.5px;line-height:1}
 .cam-banner p{font-size:15px;color:#e4e1e4;max-width:440px;margin:14px 0 22px}

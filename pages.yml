@@ -1,5 +1,6 @@
 # Déploiement GitHub Pages filtré : publie uniquement le site, PAS les tests ni les sources de build.
 # Pour l'activer : Settings → Pages → "Build and deployment" → Source = "GitHub Actions".
+# (Ce fichier doit être dans .github/workflows/ pour que GitHub le lise : à la racine, il était ignoré.)
 name: Deploy site (filtré)
 
 on:
@@ -36,7 +37,14 @@ jobs:
             --exclude 'tailwind/' \
             --exclude 'tailwind.config.js' \
             --exclude 'input.css' \
-            --exclude 'README.md'
+            --exclude 'outils/' \
+            --exclude 'pages.yml' \
+            --exclude '*.md' \
+            --exclude '/ambiance-lounge.jpg' \
+            --exclude '/ambiance-musique.jpg' \
+            --exclude '/ambiance-rencontres.jpg' \
+            --exclude '/hero-neon.jpg' \
+            --exclude '/partage.jpg'
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

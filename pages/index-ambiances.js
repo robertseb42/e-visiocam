@@ -2,7 +2,7 @@
 // « Trouvez votre ambiance » : les salons choisis dans Gestion des salons (position + image d'en-tête).
 // Sans salon choisi (ou si l'API ne répond pas), les 3 cartes ci-dessus restent affichées.
 (async function () {
-    const COVERS = ['img/ambiance-lounge.jpg', 'img/ambiance-musique.jpg', 'img/ambiance-rencontres.jpg'];
+    const COVERS = ['img/ambiance-lounge.webp', 'img/ambiance-musique.webp', 'img/ambiance-rencontres.webp'];
     const base = API_URL.replace(/\/api\/?$/, '');
     const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     function cover(s) {

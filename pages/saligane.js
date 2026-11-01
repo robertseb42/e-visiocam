@@ -82,7 +82,7 @@
     });
 
     // Salons du moment (ceux choisis dans « Gestion des salons »), avec la même image qu'à l'accueil
-    var COUVERTURES = ['img/ambiance-lounge.jpg', 'img/ambiance-musique.jpg', 'img/ambiance-rencontres.jpg'];
+    var COUVERTURES = ['img/ambiance-lounge.webp', 'img/ambiance-musique.webp', 'img/ambiance-rencontres.webp'];
     var base = api.replace(/\/api\/?$/, '');
     function couverture(s) {
         if (s.coverUrl) return base + s.coverUrl;

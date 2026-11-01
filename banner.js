@@ -18,7 +18,7 @@
         const config=await response.json();interval=config.intervalMs || 6000;
         for (const s of config.slides || []) await add(new URL(s.url,API_URL).href,s.focal,s.mobileFocal);
     } catch(e) { console.warn('Décor : fond de secours affiché.'); }
-    if (!slides.length) { for (const src of ['img/hero-neon.jpg','img/ambiance-musique.jpg','img/ambiance-lounge.jpg']) await add(src); }   // fonds de secours (les anciens banner-1..3.jpg n'existaient pas)
+    if (!slides.length) { for (const src of ['img/hero-neon.webp','img/ambiance-musique.webp','img/ambiance-lounge.webp']) await add(src); }   // fonds de secours (les anciens banner-1..3.jpg n'existaient pas)
     if (!slides.length) return;
     hero.classList.add('has-banner-slides');
     slides.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label','Afficher le fond '+(i+1));b.onclick=()=>{show(i);schedule()};dots.append(b);});
