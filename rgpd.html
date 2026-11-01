@@ -143,6 +143,11 @@
                     <td class="p-3 border-b border-slate-100 text-sm">Oui (intérêt légitime)</td>
                 </tr>
                 <tr>
+                    <td class="p-3 border-b border-slate-100 text-sm">Journal de sécurité anti-fraude : empreinte de l'adresse IP et empreinte du navigateur (hachées), date de connexion</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Empêcher le contournement d'un bannissement et les abus (comptes multiples, envois massifs)</td>
+                    <td class="p-3 border-b border-slate-100 text-sm">Oui (intérêt légitime)</td>
+                </tr>
+                <tr>
                     <td class="p-3 border-b border-slate-100 text-sm">Gains et dépenses de crédits, temps d'activité</td>
                     <td class="p-3 border-b border-slate-100 text-sm">Calcul des récompenses, niveaux et badges, classement mensuel (pseudo seulement)</td>
                     <td class="p-3 border-b border-slate-100 text-sm">Oui (si vous participez au site)</td>
@@ -154,6 +159,10 @@
                 </tr>
             </tbody>
         </table>
+
+        <h3>Journal de sécurité anti-fraude</h3>
+        <p>À chaque connexion, inscription ou ouverture du tchat (au plus une fois par heure), nous enregistrons une <strong>empreinte</strong> de votre adresse IP et une empreinte de votre navigateur, calculées par hachage (HMAC-SHA-256 avec une clé secrète) : <strong>votre adresse IP n'est jamais conservée en clair</strong>. Ces empreintes servent uniquement à repérer les comptes utilisés depuis une même connexion, pour <strong>empêcher le contournement d'un bannissement</strong> et les abus (création de comptes en série pour les bonus, envois massifs de messages). Base légale : notre <strong>intérêt légitime</strong> à protéger les membres et le service (article 6.1.f du RGPD). Elles sont <strong>effacées automatiquement après 90 jours</strong>.</p>
+        <p><strong>Aucune décision automatique :</strong> une connexion partagée (réseau mobile, wifi public, famille) peut relier des personnes différentes. Ces indices ne déclenchent jamais de sanction à eux seuls ; ils sont examinés par un membre de l'équipe de modération, qui décide. Vous pouvez exercer vos droits d'accès et d'opposition à l'adresse ci-dessous.</p>
 
         <h2>2. Vos droits RGPD</h2>
         <p>Conformément aux articles 15 à 22 du RGPD, vous disposez des droits suivants :</p>
@@ -196,6 +205,7 @@
             <li><strong>Données de compte :</strong> tant que le compte est actif</li>
             <li><strong>Après suppression :</strong> 30 jours (sauvegardes techniques), puis effacement définitif</li>
             <li><strong>Logs de connexion :</strong> 12 mois (obligation légale)</li>
+            <li><strong>Journal de sécurité anti-fraude (empreintes hachées) :</strong> 90 jours, puis effacement automatique</li>
         </ul>
 
         <h2>4. Partage des données</h2>

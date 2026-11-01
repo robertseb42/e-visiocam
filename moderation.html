@@ -28,6 +28,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261101-webp">
     <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="fiche-membre.css?v=2">
     <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -139,6 +140,10 @@
             <button data-click="showTab" data-click-args='["candidatures","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-user-plus mr-1"></i> Candidatures
                 <span id="candidaturesBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button id="alertesTabBtn" data-click="showTab" data-click-args='["alertes","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i> Alertes
+                <span id="alertesBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
             </button>
             <button data-click="showTab" data-click-args='["viewlogs","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list mr-1"></i> Historique
@@ -327,6 +332,41 @@
             <div id="candidaturesListe" class="space-y-3"><p class="text-center text-slate-400 py-8 text-sm">Chargement...</p></div>
         </div>
 
+        <div id="tab-alertes" class="tab-content p-5 hidden">
+            <div class="evm">
+                <div class="evm-barre">
+                    <div class="evm-titre">
+                        <h3>Alertes automatiques</h3>
+                        <p>Des signaux à vérifier, jamais des preuves : rien n'est sanctionné automatiquement. Ouvrez la fiche avant de décider.</p>
+                    </div>
+                    <button type="button" id="alRafraichir" class="evm-btn evm-btn-ghost"><i class="fa-solid fa-refresh" aria-hidden="true"></i> Rafraîchir</button>
+                </div>
+                <div class="evm-filtres">
+                    <label class="evm-champ" for="alStatut">Statut
+                        <select id="alStatut">
+                            <option value="ouvertes">Ouvertes</option>
+                            <option value="nouvelle">Nouvelles</option>
+                            <option value="vue">Vues</option>
+                            <option value="traitee">Traitées</option>
+                            <option value="">Toutes</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ" for="alType">Type
+                        <select id="alType">
+                            <option value="">Tous les types</option>
+                            <option value="contournement">Contournement de sanction</option>
+                            <option value="rafale_mp">Rafale de messages privés</option>
+                            <option value="signalements_multiples">Signalements multiples</option>
+                            <option value="multi_comptes_bonus">Comptes multiples (bonus)</option>
+                        </select>
+                    </label>
+                </div>
+                <p class="evm-resume" id="alResume" aria-live="polite"></p>
+                <div id="alListe"></div>
+                <nav class="evm-pages" id="alPages" aria-label="Pages des alertes"></nav>
+            </div>
+        </div>
+
         <div id="tab-viewlogs" class="tab-content p-5 hidden">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-slate-900">Historique des surveillances</h3>
@@ -342,9 +382,11 @@
 </main>
 
 <!-- ✅ LE SCRIPT EST MAINTENANT DANS UN FICHIER SÉPARÉ -->
-<script src="sanction-modal.js?v=2"></script>
+<script src="sanction-modal.js?v=3"></script>
 <script src="offrir-credits.js?v=2"></script>
-<script src="moderation.js?v=7"></script>
+<script src="fiche-membre.js?v=2"></script>
+<script src="moderation.js?v=8"></script>
+<script src="moderation-alertes.js?v=2"></script>
 <script src="moderation-photos.js?v=csp2-b"></script>
 <script src="moderation-equipe.js?v=csp2"></script>
 

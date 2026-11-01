@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         b.addEventListener('click', function () { appealStatus = b.dataset.appealStatus; loadAppeals(); });
     });
     if (location.hash === '#contestations') showTab('appeals', document.getElementById('appealsTabBtn'));
+    if (location.hash === '#alertes') showTab('alertes', document.getElementById('alertesTabBtn'));
+    // 🗂️ Fiche membre partagée avec le panneau Admin (fiche-membre.js), lue ici via /api/mod
+    if (window.EvcFicheMembre) EvcFicheMembre.configurer({ api: '/mod', rafraichir: function () { loadUsers(); loadReports(); loadStats(); } });
 
     var s = document.getElementById('searchUser');
     if (s) {
@@ -165,6 +168,11 @@ function initSocket() {
     socket.on('mod:cameras-changees', function() {
         loadAllStreams();
     });
+
+    // 🚨 Nouvelle alerte automatique (contournement, rafale de MP…)
+    socket.on('mod:alerte', function(data) {
+        if (window.EvcAlertes) EvcAlertes.nouvelle(data);
+    });
 }
 
 // ============================================================
@@ -201,6 +209,8 @@ function renderReports() {
     allReports.forEach(function(r) {
         // 🔒 Tous les champs issus d'un utilisateur sont échappés (XSS stocké possible sinon).
         var cible = r.target_username ? escapeHtml(r.target_username) : ('Utilisateur #' + escapeHtml(r.target_id));
+        // Pseudo cliquable : ouvre la fiche membre (notes internes, comptes liés…)
+        if (r.target_id) cible = boutonFiche(r.target_id, cible, 'text-xs font-bold text-slate-900');
         html += '<div class="border-l-4 border-rose-300 bg-white border border-slate-200 rounded-xl p-4">';
         html += '<div class="flex items-start justify-between gap-4">';
         html += '<div class="flex-1">';
@@ -208,13 +218,13 @@ function renderReports() {
         // Priorité 6 : au moins 5 membres différents ont signalé cette personne en 7 jours (plus de suspension automatique)
         if (r.priority >= 6) html += '<span class="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" title="Au moins 5 membres différents l’ont signalé en 7 jours">⚠ 5+ SIGNALEMENTS</span>';
         else if (r.priority >= 4) html += '<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>';
-        html += '<span class="text-xs font-bold text-slate-900">' + cible + '</span>';
+        html += r.target_id ? cible : '<span class="text-xs font-bold text-slate-900">' + cible + '</span>';
         html += '<span class="text-[10px] text-slate-400">' + dateServeurMod(r.created_at).toLocaleString('fr-FR') + '</span>';
         html += '</div>';
         html += '<p class="text-xs text-slate-600 mb-1"><strong>Raison :</strong> ' + reasonLabel(r.reason) + '</p>';
         if (r.description) html += '<p class="text-xs text-slate-500 italic">"' + escapeHtml(r.description) + '"</p>';
         html += preuveHtml(r, false);
-        html += '<p class="text-[10px] text-slate-400 mt-1">Signalé par ' + escapeHtml(r.reporter_name || 'Anonyme') + '</p>';
+        html += '<p class="text-[10px] text-slate-400 mt-1">Signalé par ' + (r.reporter_id && r.reporter_name ? boutonFiche(r.reporter_id, escapeHtml(r.reporter_name), 'text-[10px] font-bold text-slate-500') : escapeHtml(r.reporter_name || 'Anonyme')) + '</p>';
         html += '</div>';
         if (r.status === 'pending') {
             // Pas d'onclick construit en chaîne : data-* + délégation d'événement (voir ci-dessous).
@@ -427,7 +437,9 @@ function renderModerationStreams() {
         }
         html += '</div>';
         html += '<div class="bg-slate-800 text-white" style="padding:6px 8px 8px">';
-        html += '<p class="font-bold text-xs mb-1.5 truncate">' + escapeHtml(username) + '</p>';
+        html += s.broadcasterId
+            ? '<p class="mb-1.5 truncate">' + boutonFiche(s.broadcasterId, escapeHtml(username), 'font-bold text-xs text-white') + '</p>'
+            : '<p class="font-bold text-xs mb-1.5 truncate">' + escapeHtml(username) + '</p>';
         html += '<div class="grid grid-cols-3 gap-1">';
         html += v
             ? '<button data-mod="fermerVue" data-mod-args="' + argsMod(id) + '" class="py-1 text-white text-[10px] font-bold rounded-lg" style="background:#475569">Fermer</button>'
@@ -691,10 +703,11 @@ function renderUsers(filter) {
         var peutOffrir = !isBanned && (moiAdmin || (!isMe && u.role !== 'moderator' && !cibleAdmin));
         html += '<tr class="border-b border-slate-50 hover:bg-slate-50/50">';
         html += '<td class="py-3 px-2 text-slate-500 font-mono text-xs">#' + u.id + '</td>';
-        html += '<td class="py-3 px-2 font-bold text-slate-900">' + escapeHtml(u.username) + (isMe ? ' (moi)' : '') + '</td>';
+        html += '<td class="py-3 px-2">' + boutonFiche(u.id, escapeHtml(u.username), 'font-bold text-slate-900') + (isMe ? ' (moi)' : '') + '</td>';
         html += '<td class="py-3 px-2 text-xs">' + (roleLabels[u.role] || u.role) + '</td>';
         html += '<td class="py-3 px-2">' + EvcSanction.etiquette(u) + '</td>';
         html += '<td class="py-3 px-2 text-right whitespace-nowrap">';
+        html += '<button type="button" data-fiche-membre="' + Number(u.id) + '" class="px-2 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs rounded-lg mr-1">Fiche</button>';
         if (peutOffrir) html += '<button data-mod="offrirA" data-mod-args="' + argsMod(u.username) + '" title="Offrir des crédits" class="px-2 py-1 bg-yellow-100 text-amber-700 hover:bg-yellow-200 text-xs rounded-lg mr-1"><i class="fa-solid fa-gift"></i> Offrir</button>';
         if (canAct) {
             var actives = EvcSanction.enCours(u);
@@ -763,7 +776,8 @@ function showTab(name, btn) {
     if (name === 'words') loadWords();
     if (name === 'appeals') loadAppeals();
     if (name === 'photos' && window.EvcPhotos) window.EvcPhotos.charger();
-    try { history.replaceState(null, '', name === 'appeals' ? '#contestations' : location.pathname); } catch (e) {}
+    if (name === 'alertes' && window.EvcAlertes) window.EvcAlertes.charger();
+    try { history.replaceState(null, '', name === 'appeals' ? '#contestations' : name === 'alertes' ? '#alertes' : location.pathname); } catch (e) {}
 }
 
 function escapeHtml(text) {
@@ -825,7 +839,7 @@ function loadAppeals() {
         var superA = typeof isSuperAdmin === 'function' && isSuperAdmin();
         list.innerHTML = appealsCache.map(function (a) {
             var html = '<div class="rounded-2xl border border-slate-200 p-4">';
-            html += '<div class="flex flex-wrap items-center justify-between gap-2 mb-2"><p class="font-bold text-slate-900">' + escapeHtml(a.username) +
+            html += '<div class="flex flex-wrap items-center justify-between gap-2 mb-2"><p class="font-bold text-slate-900">' + (a.user_id ? boutonFiche(a.user_id, escapeHtml(a.username), 'font-bold text-slate-900') : escapeHtml(a.username)) +
                 ' <span class="font-normal text-slate-500 text-sm">conteste : ' + escapeHtml(a.mesure) + ' (' + escapeHtml(a.duree) + ')</span></p>' +
                 '<span class="text-[11px] text-slate-400">reçue le ' + dateCourte(a.created_at) + '</span></div>';
             html += '<p class="text-xs text-slate-500 mb-2">Sanction du ' + dateCourte(a.sanction_le) + ' par <strong>' + escapeHtml(a.by_name || '?') + '</strong>' +
@@ -855,6 +869,19 @@ function deciderContestation(id, decision) {
         .then(function () { if (typeof showToast === 'function') showToast('Réponse envoyée au membre'); loadAppeals(); loadUsers(); })
         .catch(function (err) { if (typeof showToast === 'function') showToast(err.message, 'error'); });
 }
+
+// ---------- Fiche membre (fiche-membre.js) ----------
+// Pseudo cliquable : <button data-fiche-membre="id">, branché par délégation (pas de code dans l'attribut).
+// « html » est déjà échappé par l'appelant.
+function boutonFiche(id, html, classes) {
+    return '<button type="button" data-fiche-membre="' + Number(id) + '" title="Voir la fiche" class="' + (classes || '') + ' hover:underline" style="background:none;border:0;padding:0;cursor:pointer;text-align:left">' + html + '</button>';
+}
+document.addEventListener('click', function(e) {
+    var b = e.target.closest && e.target.closest('[data-fiche-membre]');
+    if (!b || !window.EvcFicheMembre) return;
+    e.preventDefault();
+    EvcFicheMembre.ouvrir(Number(b.getAttribute('data-fiche-membre')), { api: '/mod', depuis: b });
+});
 
 // ---------- Boutons générés (signalements, caméras, mots interdits, membres, contestations) ----------
 // Remplacent des attributs onclick, bloqués par la CSP stricte. Les arguments sont en JSON dans
