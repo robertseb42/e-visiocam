@@ -401,6 +401,9 @@
         mettreAJourCloche(count);
         if (nouveauMessage) animerCloche(true);
         dernierCompteVu = count;
+        // Partagé avec la barre du bas (mobile-nav.js) : dernier compte connu + événement à chaque mise à jour
+        window.__evcDmNonLus = count;
+        try { window.dispatchEvent(new CustomEvent('evc:dm-non-lus', { detail: { count: count } })); } catch (e) {}
     }
 
     function masquerRadio(masquer) {

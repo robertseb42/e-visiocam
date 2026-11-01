@@ -133,7 +133,7 @@
         // Barre de navigation mobile (même dossier que ce fichier)
         if (!document.querySelector('script[src*="mobile-nav.js"]')) {
             var sc = document.createElement('script');
-            sc.src = 'mobile-nav.js';
+            sc.src = 'mobile-nav.js?v=2';
             document.body.appendChild(sc);
         }
     }

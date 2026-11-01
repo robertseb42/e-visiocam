@@ -22,6 +22,8 @@ var vues = {};
 var MAX_VUES = window.matchMedia('(max-width: 767px)').matches ? 4 : 6;
 var focusVue = null;          // live agrandi dans le mur
 var dernieresCams = [];       // dernière liste reçue du serveur
+var nbSpectateurs = 0;        // 👁 combien de membres regardent MON live
+var listeRecue = false;       // la liste des lives est arrivée au moins une fois
 
 // ⚠️ rtcConfig GLOBAL - AVEC TURN CLOUDFLARE PAR DÉFAUT
 var rtcConfig = {
@@ -77,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     currentUser = getCurrentUser();
     if (!currentUser) { window.location.href = 'login.html'; return; }
     
+    brancherCarteMaCam();
     chargerConfigPrive();
     brancherSession();   // 📷 caméra déjà allumée ailleurs : on la retrouve
     var coche = document.getElementById('priveCheck');
@@ -93,6 +96,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         var noms = prive.invited.map(function(id) { return prive.names[id] || ('#' + id); }).join(', ');
         log('📷 Demande acceptée : live privé pour ' + noms + '. Cliquez sur « Démarrer mon live » quand vous êtes prêt.');
         try { history.replaceState(null, '', 'live.html'); } catch (e) {}
+        ouvrirMaCam(true);
         setTimeout(function() { startCamera(); var b = document.getElementById('startBroadcastBtn'); if (b) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 500);
         if (typeof showToast === 'function') showToast('Live privé prêt pour ' + noms + ' : autorisez la caméra puis cliquez sur « Démarrer mon live »', 'success');
     }
@@ -100,6 +104,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.querySelectorAll('.murMax').forEach(function(el) { el.textContent = MAX_VUES; });
     document.getElementById('filtreCams').addEventListener('input', dessinerCams);
     document.getElementById('activeStreams').addEventListener('click', function(e) {
+        var m = e.target.closest('[data-ma-cam]');
+        if (m) { ouvrirMaCam(true, true); return; }
         var b = e.target.closest('[data-stream]');
         if (b) basculerVue(b.dataset.stream, b.dataset.nom);
     });
@@ -129,9 +135,10 @@ var joinDemande = null;     // live à rejoindre dès la connexion (?join=...)
 
 function chargerConfigPrive() {
     var params = new URLSearchParams(window.location.search);
-    if (params.get('join')) joinDemande = { id: params.get('join'), from: params.get('from') || 'Live privé' };
+    if (params.get('join')) { joinDemande = { id: params.get('join'), from: params.get('from') || 'Live privé' }; ouvrirMaCam(true); }
     if (params.get('prive') !== '1') return;
     prive.actif = true;
+    ouvrirMaCam(true);   // live privé préparé depuis un salon : les commandes sont tout de suite là
     try {
         var cfg = JSON.parse(sessionStorage.getItem('evc-live-prive') || 'null');
         sessionStorage.removeItem('evc-live-prive');
@@ -240,6 +247,13 @@ function initSocket() {
         log('⏹️ ' + data.broadcasterUsername + ' a arrêté');
         refreshStreams();
         if (data && vues[data.streamId]) leaveStream(data.streamId);
+    });
+
+    // 👁 Combien de membres regardent mon live (le serveur l'envoie au socket qui diffuse)
+    socket.on('live:viewer-count', function(d) {
+        if (sessionCam() || !isBroadcasting || !d) return;   // avec l'appli, la caméra persistante s'en charge
+        if (d.streamId && d.streamId !== currentBroadcastStreamId) return;   // compte d'un live que je regarde
+        majSpectateurs(d.count);
     });
 
     socket.on('live:joined', function(data) {
@@ -390,6 +404,54 @@ function sessionCam() {
     try { return (window.top !== window && window.top.EvcCamSession) || null; } catch (e) { return null; }
 }
 
+// ============================================================
+// 📷 CARTE « DIFFUSER MA CAMÉRA » : compacte par défaut sur téléphone (les lives des autres d'abord),
+// dépliée sur ordinateur, et toujours dépliée dès que la caméra sert (allumée, live, invitation…)
+// ============================================================
+function ouvrirMaCam(ouvrir, defiler) {
+    var t = document.getElementById('maCamToggle');
+    var c = document.getElementById('maCamControls');
+    if (!t || !c) return;
+    c.classList.toggle('hidden', !ouvrir);
+    t.setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+    if (ouvrir && defiler) {
+        var carte = document.getElementById('maCamCarte');
+        if (carte) carte.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        var b = document.getElementById('startCamBtn');
+        if (b && !b.disabled) setTimeout(function() { try { b.focus({ preventScroll: true }); } catch (e) {} }, 300);
+    }
+}
+
+function brancherCarteMaCam() {
+    var t = document.getElementById('maCamToggle');
+    if (!t) return;
+    t.addEventListener('click', function() {
+        var ouvert = t.getAttribute('aria-expanded') === 'true';
+        // Caméra allumée ou live en cours : on peut replier, mais le résumé (statut, 👁) reste affiché
+        ouvrirMaCam(!ouvert);
+    });
+    ouvrirMaCam(window.matchMedia('(min-width: 1024px)').matches);
+}
+
+function majTitreMaCam() {
+    var t = document.getElementById('maCamTitre');
+    if (t) t.textContent = isBroadcasting ? 'Mon live' : (localStream ? 'Ma caméra' : 'Diffuser ma caméra');
+}
+
+// 👁 N à côté du badge EN DIRECT (remis à zéro quand le live s'arrête)
+function majSpectateurs(n) {
+    nbSpectateurs = Math.max(0, Number(n) || 0);
+    var b = document.getElementById('viewerCountBadge');
+    if (b) {
+        var txt = nbSpectateurs + ' spectateur' + (nbSpectateurs > 1 ? 's' : '');
+        b.textContent = '👁 ' + nbSpectateurs;
+        b.setAttribute('aria-label', txt);
+        b.title = txt;
+        b.classList.toggle('hidden', !isBroadcasting);
+    }
+    dessinerCams();
+}
+
 var BTN_ON_CAM   = 'w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
 var BTN_OFF_LARGE = 'w-full py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-sm cursor-not-allowed flex items-center justify-center gap-2';
 var BTN_STOP     = 'w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2';
@@ -410,6 +472,7 @@ function uiCameraActive() {
     btn('toggleCameraBtn', false, BTN_PETIT_ON);
     btn('toggleMicBtn', false, BTN_PETIT_ON);
     document.getElementById('camStatusText').textContent = 'actif ✅';
+    majTitreMaCam();
 }
 
 function uiCameraInactive() {
@@ -422,6 +485,7 @@ function uiCameraInactive() {
     btn('toggleCameraBtn', true, BTN_PETIT_OFF);
     btn('toggleMicBtn', true, BTN_PETIT_OFF);
     document.getElementById('camStatusText').textContent = 'inactif';
+    majTitreMaCam();
 }
 
 function uiLiveEnCours() {
@@ -431,6 +495,9 @@ function uiLiveEnCours() {
     btn('stopBroadcastBtn', false, BTN_STOP);
     document.getElementById('broadcastBadge').classList.remove('hidden');
     afficherPrive();
+    ouvrirMaCam(true);
+    majTitreMaCam();
+    majSpectateurs(nbSpectateurs);
 }
 
 function uiLiveArrete() {
@@ -438,6 +505,8 @@ function uiLiveArrete() {
     document.getElementById('stopBroadcastBtn').classList.add('hidden');
     document.getElementById('broadcastBadge').classList.add('hidden');
     afficherPrive();
+    majTitreMaCam();
+    majSpectateurs(0);
 }
 
 function uiToggles() {
@@ -449,11 +518,13 @@ function uiToggles() {
 function appliquerEtatSession(e) {
     if (!e) return;
     var ancienLive = isBroadcasting;
+    var avaitCam = !!localStream;
     localStream = e.stream || null;
     isBroadcasting = !!e.broadcasting;
     currentBroadcastStreamId = e.streamId || null;
     myCameraOff = !!e.cameraOff;
     myMicMuted = !!e.micMuted;
+    nbSpectateurs = e.broadcasting ? (Number(e.viewers) || 0) : 0;
     if (e.broadcasting) {
         prive.actif = !!e.prive;
         prive.invited = (e.invited || []).slice();
@@ -461,6 +532,7 @@ function appliquerEtatSession(e) {
         if (e.salon) prive.salon = e.salon;
     }
     if (localStream) uiCameraActive(); else uiCameraInactive();
+    if (localStream && !avaitCam) ouvrirMaCam(true);   // caméra allumée (ici, dans un salon…) : commandes visibles
     if (isBroadcasting) uiLiveEnCours(); else if (ancienLive || localStream) uiLiveArrete();
     uiToggles();
 }
@@ -498,6 +570,7 @@ async function startCamera() {
             });
         }
         uiCameraActive();
+        ouvrirMaCam(true);
         if (!S) {
             log('✅ Caméra activée');
             // 📷 Caméra allumée : l'équipe (super admin / modérateurs) peut la voir
@@ -684,6 +757,11 @@ async function ajouterVue(streamId, nom) {
     el.addEventListener('dblclick', function(e) { if (!e.target.closest('[data-a]')) { focusVue = focusVue === streamId ? null : streamId; majMur(); } });
     document.getElementById('mur').appendChild(el);
     majMur(); dessinerCams();
+    if (seul) {
+        var sec = document.getElementById('murSection');
+        var r = sec.getBoundingClientRect();
+        if (r.top < 0 || r.top > window.innerHeight * 0.5) sec.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
 
     socket.emit('live:join', { streamId: streamId });
     log('👁️ Connexion à ' + nom + '...');
@@ -767,6 +845,7 @@ function majMur() {
     var mur = document.getElementById('mur');
     mur.className = 'grid gap-3 ' + (n <= 1 ? 'grid-cols-1' : n <= 4 ? 'grid-cols-2' : 'grid-cols-2 xl:grid-cols-3');
     document.getElementById('murVide').classList.toggle('hidden', n > 0);
+    document.getElementById('murSection').classList.toggle('hidden', n === 0);
     Object.values(vues).forEach(function(v) {
         var f = focusVue === v.streamId && n > 1;
         v.el.classList.toggle('col-span-full', f);
@@ -776,7 +855,16 @@ function majMur() {
     });
     document.getElementById('murCompteur').textContent = n + ' / ' + MAX_VUES;
     document.getElementById('btnVider').classList.toggle('hidden', n === 0);
-    document.getElementById('btnRemplir').classList.toggle('hidden', n >= MAX_VUES);
+    majRemplir();
+}
+
+// « Remplir le mur » : seulement s'il reste de la place ET au moins une caméra pas encore ouverte
+function majRemplir() {
+    var b = document.getElementById('btnRemplir');
+    if (!b) return;
+    var libres = MAX_VUES - Object.keys(vues).length;
+    var dispo = camsFiltrees().filter(function(c) { return !vues[c.streamId]; }).length;
+    b.classList.toggle('hidden', libres <= 0 || dispo < (Object.keys(vues).length ? 1 : 2));
 }
 
 // ============================================================
@@ -801,12 +889,35 @@ function dessinerCams() {
     var container = document.getElementById('activeStreams');
     var liste = camsFiltrees();
     var plein = Object.keys(vues).length >= MAX_VUES;
+    majRemplir();
+    if (!listeRecue) return;   // « Recherche des caméras… » jusqu'à la première réponse
+    // Mon propre live n'est pas dans la liste (on ne se regarde pas soi-même) : il est rappelé en tête
+    var moi = isBroadcasting ?
+        '<button type="button" data-ma-cam="1" class="w-full text-left p-3 rounded-xl border border-brand-primary bg-pink-50 ring-1 ring-brand-primary flex items-center gap-3 col-span-full">' +
+            '<span class="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-rose-600 text-white flex items-center justify-center shrink-0" aria-hidden="true"><i class="fa-solid fa-tower-broadcast"></i></span>' +
+            '<span class="flex-1 min-w-0"><span class="block font-bold text-slate-900 text-sm">Vous êtes en direct' + (prive.actif ? ' (live privé)' : '') + '</span>' +
+            '<span class="block text-[11px] text-slate-500">' + nbSpectateurs + ' spectateur' + (nbSpectateurs > 1 ? 's' : '') + ' en ce moment</span></span>' +
+            '<span class="shrink-0 text-[11px] font-bold px-2 py-1 rounded-full bg-slate-900 text-white" aria-hidden="true">👁 ' + nbSpectateurs + '</span>' +
+            '<span class="shrink-0 text-[11px] font-bold px-2 py-1 rounded-full bg-brand-primary text-white">Gérer</span>' +
+        '</button>' : '';
     if (!liste.length) {
-        container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4 col-span-full">' +
-            (dernieresCams.length && document.getElementById('filtreCams').value ? 'Aucune caméra ne correspond à la recherche' : 'Aucune caméra en direct pour le moment') + '</p>';
+        if (dernieresCams.length && document.getElementById('filtreCams').value) {
+            container.innerHTML = moi + '<p class="text-xs text-slate-400 text-center py-4 col-span-full">Aucune caméra ne correspond à la recherche</p>';
+            return;
+        }
+        container.innerHTML = moi +
+            '<div class="col-span-full text-center py-8 px-4">' +
+                '<div class="w-12 h-12 mx-auto mb-3 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xl" aria-hidden="true"><i class="fa-solid fa-video-slash"></i></div>' +
+                '<p class="font-bold text-slate-900 text-sm">' + (isBroadcasting ? 'Personne d\'autre n\'est en direct pour le moment' : 'Personne n\'est en direct pour le moment') + '</p>' +
+                '<p class="text-xs text-slate-500 mt-1">Lancez votre caméra ou rejoignez un salon : les lives apparaissent ici dès qu\'ils commencent.</p>' +
+                '<div class="flex items-center justify-center gap-2 flex-wrap mt-4">' +
+                    (isBroadcasting ? '' : '<button type="button" data-ma-cam="1" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold"><i class="fa-solid fa-video" aria-hidden="true"></i> Diffuser ma caméra</button>') +
+                    '<a href="salons.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 text-slate-600 hover:text-brand-primary text-xs font-bold"><i class="fa-solid fa-comments" aria-hidden="true"></i> Rejoindre un salon</a>' +
+                '</div>' +
+            '</div>';
         return;
     }
-    container.innerHTML = liste.map(function(s) {
+    container.innerHTML = moi + liste.map(function(s) {
         var nom = String(s.broadcasterUsername || '?');
         var affichee = !!vues[s.streamId];
         var bloque = !affichee && plein;
@@ -829,6 +940,7 @@ async function refreshStreams() {
         var response = await fetch('https://api.e-visiocam.com/api/streams', { credentials: 'include' });
         var data = await response.json();
         dernieresCams = data.streams || [];
+        listeRecue = true;
         document.getElementById('liveCount').textContent = camsFiltrees().length;
         // Un live qui n'existe plus quitte le mur
         Object.keys(vues).forEach(function(id) {

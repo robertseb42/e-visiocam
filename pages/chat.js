@@ -605,8 +605,11 @@ function renderSalonCameras() {
                 ` : ''}
 
                 <!-- LIVE badge -->
-                <div class="absolute top-1.5 left-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                    <span class="w-1 h-1 bg-white rounded-full live-pulse"></span> LIVE
+                <div class="absolute top-1.5 left-1.5 flex items-center gap-1">
+                    <span class="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <span class="w-1 h-1 bg-white rounded-full live-pulse"></span> LIVE
+                    </span>
+                    ${isMe ? mesSpectateursHtml(s.viewers) : ''}
                 </div>
 
                 <!-- Son button -->
@@ -647,6 +650,22 @@ function renderSalonCameras() {
     afficherMaCamera();
 }
 
+// 👁 Sur MA tuile : combien de membres me regardent (suivi en direct par la caméra persistante)
+function mesSpectateurs(defaut) {
+    const e = etatMaCam();
+    return e && e.broadcasting && typeof e.viewers === 'number' ? e.viewers : (Number(defaut) || 0);
+}
+function mesSpectateursHtml(defaut) {
+    const n = mesSpectateurs(defaut);
+    const txt = n + ' spectateur' + (n > 1 ? 's' : '');
+    return '<span data-mes-spectateurs class="bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded" role="status" aria-label="' + txt + '" title="' + txt + '">👁 ' + n + '</span>';
+}
+function majMesSpectateurs() {
+    const n = mesSpectateurs(0);
+    const txt = n + ' spectateur' + (n > 1 ? 's' : '');
+    document.querySelectorAll('[data-mes-spectateurs]').forEach(el => { el.textContent = '👁 ' + n; el.setAttribute('aria-label', txt); el.title = txt; });
+}
+
 // 📷 Ma caméra allumée mais pas (encore) dans la liste du serveur : je la vois quand même en petit,
 // avec son état. Cette vignette n'existe que sur MON écran, les autres membres ne la voient pas.
 function majTuileLocale() {
@@ -674,7 +693,7 @@ function majTuileLocale() {
         grid.prepend(tuile);
     }
     const etiquette = e.broadcasting
-        ? '<div class="absolute top-1.5 left-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">● EN DIRECT</div>'
+        ? '<div class="absolute top-1.5 left-1.5 flex items-center gap-1"><span class="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">● EN DIRECT</span>' + mesSpectateursHtml(0) + '</div>'
         : '<div class="absolute top-1.5 left-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded" style="background:#6b7280">🔒 Visible modération</div>';
     const action = e.broadcasting ? '' :
         '<button type="button" data-chat-action="diffuser" class="absolute top-1.5 right-1.5 text-white text-[10px] font-bold px-2 py-1 rounded-md" style="background:#e11d48">🔴 Diffuser</button>';
@@ -745,6 +764,7 @@ window.addEventListener('evc:cam', (ev) => {
     if (!ev.detail || ev.detail.type !== 'state') return;
     majTuileLocale();
     afficherMaCamera();
+    majMesSpectateurs();
     // Diffusion lancée ou arrêtée (ici ou ailleurs) : on redemande la liste au serveur
     if (ev.detail.broadcasting !== window.__evcEtaitEnDirect) {
         window.__evcEtaitEnDirect = ev.detail.broadcasting;

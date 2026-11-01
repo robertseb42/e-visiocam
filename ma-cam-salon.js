@@ -31,7 +31,9 @@
             '#maCamPanneau .ecran{position:relative;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px}',
             '#maCamPanneau video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}',
             '#maCamPanneau .vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b8b95;font-size:13px;text-align:center;padding:10px}',
-            '#maCamPanneau .pastille{position:absolute;top:8px;left:8px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:3px 7px;border-radius:6px}',
+            '#maCamPanneau .badges{position:absolute;top:8px;left:8px;display:flex;gap:6px;align-items:center}',
+            '#maCamPanneau .pastille{background:#ef4444;color:#fff;font-size:10px;font-weight:800;padding:3px 7px;border-radius:6px}',
+            '#maCamPanneau .spectateurs{background:#000000b3;color:#fff;font-size:10px;font-weight:800;padding:3px 7px;border-radius:6px}',
             '#maCamPanneau .info{font-size:12.5px;line-height:1.5;opacity:.8;margin:0 0 12px}',
             '#maCamPanneau .boutons{display:grid;gap:8px}',
             '#maCamPanneau .ligne{display:grid;grid-template-columns:1fr 1fr;gap:8px}',
@@ -47,6 +49,8 @@
         document.head.appendChild(css);
     }
 
+    function spectateurs(n) { n = Number(n) || 0; return n + ' spectateur' + (n > 1 ? 's' : ''); }
+
     function fermer() { var el = document.getElementById('maCamPanneau'); if (el) el.remove(); }
 
     function dessiner() {
@@ -58,7 +62,8 @@
             + '<div class="haut"><h2>📷 Ma caméra</h2><button class="x" data-fermer aria-label="Fermer">×</button></div>'
             + '<div class="ecran"><video autoplay muted playsinline></video>'
             + (e.active ? '' : '<div class="vide">Caméra éteinte</div>')
-            + (e.broadcasting ? '<div class="pastille">● EN DIRECT</div>' : '') + '</div>';
+            + (e.broadcasting ? '<div class="badges"><span class="pastille">● EN DIRECT</span>'
+                + '<span class="spectateurs" role="status" aria-label="' + spectateurs(e.viewers) + '" title="' + spectateurs(e.viewers) + '">👁 ' + (Number(e.viewers) || 0) + '</span></div>' : '') + '</div>';
 
         if (!e.active) {
             html += '<p class="info">Une fois allumée, votre caméra est visible par l\'équipe de modération (par exemple pour une vérification d\'identité). Les autres membres ne la voient que si vous diffusez.</p>'
@@ -68,7 +73,7 @@
                 + '<div class="boutons"><button class="b live" data-diffuser>🔴 Diffuser dans le salon</button>'
                 + '<button class="b gris" data-couper>Couper ma caméra</button></div>';
         } else {
-            html += '<p class="info">Vous êtes en direct : les membres vous voient.</p>'
+            html += '<p class="info">Vous êtes en direct : les membres vous voient' + ((Number(e.viewers) || 0) ? ' (' + spectateurs(e.viewers) + ' en ce moment)' : '') + '.</p>'
                 + '<div class="boutons"><div class="ligne">'
                 + '<button class="b gris" data-masquer>' + (e.cameraOff ? '👁️ Afficher cam' : '🙈 Masquer cam') + '</button>'
                 + '<button class="b gris" data-micro>' + (e.micMuted ? '🎤 Activer micro' : '🔇 Couper micro') + '</button></div>'

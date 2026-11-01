@@ -15,7 +15,7 @@
 //   .stopBroadcast()
 //   .toggleCamera() / .toggleMic()  -> état
 //   .invite(ids, names)
-//   .getState()
+//   .getState()            -> { active, stream, broadcasting, streamId, viewers (👁), … }
 // Et reçoivent l'événement window « evc:cam » (detail.type : state | log | invited | error)
 // ============================================================
 (function () {
@@ -33,6 +33,7 @@
     var options = null;            // options du live en cours (privé, invités, salon)
     var cameraOff = false;
     var micMuted = false;
+    var viewers = 0;               // 👁 nombre de spectateurs de mon live (envoyé par le serveur)
     var invited = [];
     var names = {};
     var peers = {};                // viewerSocketId -> RTCPeerConnection
@@ -62,6 +63,7 @@
             streamId: streamId,
             cameraOff: cameraOff,
             micMuted: micMuted,
+            viewers: broadcasting ? viewers : 0,
             prive: !!(options && options.private),
             salon: options && options.salon || null,
             invited: invited.slice(),
@@ -120,6 +122,16 @@
             invited = ((d && d.invited) || []).map(function (i) { return i.id; });
             ((d && d.invited) || []).forEach(function (i) { names[i.id] = i.username; });
             notifier('invited', { invited: invited.slice(), names: Object.assign({}, names), list: (d && d.invited) || [] });
+            changement();
+        });
+
+        // 👁 Un spectateur arrive ou repart : le compte suit sur toutes les pages (En direct, salon…)
+        socket.on('live:viewer-count', function (d) {
+            if (!broadcasting || !d) return;
+            if (d.streamId && d.streamId !== streamId) return;
+            var n = Math.max(0, Number(d.count) || 0);
+            if (n === viewers) return;
+            viewers = n;
             changement();
         });
 
@@ -316,6 +328,7 @@
         if (options.names) Object.keys(options.names).forEach(function (k) { names[k] = options.names[k]; });
 
         broadcasting = true;
+        viewers = 0;
         streamId = s.id;
         var donnees = { streamId: streamId };
         if (options.private) {
@@ -347,6 +360,7 @@
     function fermerLive(prevenir) {
         if (!broadcasting) return;
         broadcasting = false;
+        viewers = 0;
         if (prevenir && socket && socket.connected) socket.emit('live:stop', { streamId: streamId });
         if (sfu) { sfu.close(); sfu = null; }
         Object.keys(peers).forEach(function (k) { try { peers[k].close(); } catch (e) {} delete peers[k]; });

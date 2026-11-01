@@ -136,6 +136,15 @@
 }
     });
 
+    // ---------- LIEN « CRÉER UN COMPTE » : on garde la page demandée (ex. le salon à rejoindre) ----------
+    (function () {
+        const demande = new URLSearchParams(window.location.search).get('redirect');
+        const lien = document.getElementById('lienInscription');
+        if (lien && demande && /^[a-z0-9_-]+\.html([?#].*)?$/i.test(demande)) {
+            lien.href = 'register.html?redirect=' + encodeURIComponent(demande);
+        }
+    })();
+
     // ---------- SI DÉJÀ CONNECTÉ, REDIRIGER ----------
     if (isLoggedIn()) {
         const user = getCurrentUser();

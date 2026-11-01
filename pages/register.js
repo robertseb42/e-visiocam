@@ -16,6 +16,19 @@
         document.getElementById('parrainBox').classList.remove('hidden');
     })();
 
+    // ---------- PAGE DEMANDÉE AVANT L'INSCRIPTION : register.html?redirect=chat.html?theme=… ----------
+    // Seulement une page du site (même règle que pages/login.js et google-login.js)
+    function lireRedirection() {
+        const d = new URLSearchParams(location.search).get('redirect');
+        return d && /^[a-z0-9_-]+\.html([?#].*)?$/i.test(d) ? d : '';
+    }
+    (function () {
+        const r = lireRedirection();
+        if (!r) return;
+        // « Se connecter » / « J'ai confirmé, me connecter » : la connexion ramènera au même endroit
+        document.querySelectorAll('[data-lien-connexion]').forEach(a => { a.href = 'login.html?redirect=' + encodeURIComponent(r); });
+    })();
+
     // ---------- FORCE DU MOT DE PASSE ----------
     function checkStrength() {
         const pwd = document.getElementById('password').value;
@@ -130,7 +143,9 @@
                 return;
             }
             showToast(`Bienvenue ${user.username} ! 🎉`, 'success');
-            setTimeout(() => redirectByRole(user), 800);
+            // Étape d'accueil (salon, photo, crédits offerts) ; elle mène ensuite à la page demandée
+            const r = lireRedirection();
+            setTimeout(() => { window.location.href = 'bienvenue.html' + (r ? '?redirect=' + encodeURIComponent(r) : ''); }, 800);
         } catch (err) {
             showError(err.message);
             btn.disabled = false;

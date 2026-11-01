@@ -24,8 +24,11 @@
         try { sessionStorage.removeItem('evc-parrain'); } catch (e) {}
         toast(nouveau ? 'Bienvenue ' + user.username + ' ! 🎉' : 'Bon retour ' + user.username + ' 👋', 'success');
         var dest = new URLSearchParams(location.search).get('redirect');
+        var destOk = dest && /^[a-z0-9_-]+\.html([?#].*)?$/i.test(dest);
         setTimeout(function () {
-            if (dest && /^[a-z0-9_-]+\.html([?#].*)?$/i.test(dest)) location.href = dest;
+            // Nouveau compte : étape d'accueil (bienvenue.html), qui mène ensuite à la page demandée
+            if (nouveau) location.href = 'bienvenue.html' + (destOk ? '?redirect=' + encodeURIComponent(dest) : '');
+            else if (destOk) location.href = dest;
             else if (typeof redirectByRole === 'function') redirectByRole(user);
             else location.href = 'index.html';
         }, 700);
