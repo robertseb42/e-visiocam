@@ -62,7 +62,15 @@
         }
         annoncer({ colonne: false });
         w.classList.add('evc-coin');
-        w.style.cssText = 'position:fixed;z-index:9999;left:auto;top:auto;right:16px;bottom:16px;transform:' + (window.innerWidth < 640 ? 'scale(.85)' : 'none');
+        // Mobile : la barre de navigation du bas (dans la page affichée) ne doit jamais être recouverte
+        var bas = 16;
+        try {
+          var nav = frame.contentDocument && frame.contentDocument.querySelector('.ev-mnav');
+          if (nav && frame.contentWindow.getComputedStyle(nav).display !== 'none') {
+            bas = Math.round(nav.getBoundingClientRect().height) + 12;
+          }
+        } catch (e) {}
+        w.style.cssText = 'position:fixed;z-index:9999;left:auto;top:auto;right:' + (window.innerWidth < 480 ? 12 : 16) + 'px;bottom:' + bas + 'px;transform:' + (window.innerWidth < 640 ? 'scale(.85)' : 'none');
       }
 
       // ---------- Le cadre suit le thème et la boule ; l'adresse suit la page ----------

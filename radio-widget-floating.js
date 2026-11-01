@@ -127,7 +127,9 @@
         memoireOuverte(true);
     };
 
-    var ouverte = true;
+    // Sur téléphone, la platine ouverte prend la moitié de l'écran : réduite par défaut
+    // (le membre peut l'ouvrir, et son choix est retenu pour les pages suivantes)
+    var ouverte = window.innerWidth >= 640;
     try {
         var memorisee = localStorage.getItem('evcRadioOuvert');
         if (memorisee !== null) ouverte = memorisee === '1';
