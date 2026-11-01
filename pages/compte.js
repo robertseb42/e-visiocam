@@ -12,7 +12,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     await loadProfile();
+    loadCredits();
 });
+
+// ---------- SOLDE DE CRÉDITS ----------
+// Même source que la page Récompenses : GET /credits/balance → { balance }
+// (/users/me ne renvoie pas le solde : le compteur restait donc à 0)
+async function loadCredits() {
+    const el = document.getElementById('statCredits');
+    if (!el) return;
+    try {
+        const b = await apiCall('/credits/balance');
+        el.textContent = new Intl.NumberFormat('fr-FR').format(Number(b.balance) || 0);
+    } catch (e) {
+        el.textContent = '—';
+    }
+}
 
 // ---------- CHARGER LE PROFIL ----------
 async function loadProfile() {
@@ -34,7 +49,7 @@ async function loadProfile() {
         document.getElementById('displayRole').innerText = roleLabels[u.role] || u.role;
 
         if (u.created_at) {
-            const date = new Date(u.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
+            const date = new Date(String(u.created_at).replace(' ', 'T') + (/[TZ]|[+-]\d\d:?\d\d$/.test(String(u.created_at)) || !/[ T]/.test(String(u.created_at)) ? '' : 'Z')).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
             document.getElementById('displayJoined').innerText = 'Membre depuis ' + date;
         }
 
@@ -81,7 +96,7 @@ async function afficherPhoto(etat) {
     const st = (etat && etat.status) || 'none';
     document.getElementById('photoRetirer').hidden = st === 'none';
     document.getElementById('photoGalerieZone').hidden = st === 'none';
-    document.getElementById('photoGalerie').checked = !etat || etat.galerie !== false;
+    document.getElementById('photoGalerie').checked = !!(etat && etat.galerie === true);   // galerie : seulement si le membre l'a choisi
     document.getElementById('photoChangerTexte').textContent = st === 'none' ? 'Ajouter une photo' : 'Changer la photo';
     info.hidden = st !== 'pending';
     info.textContent = st === 'pending' ? '⏳ En attente de validation : pour l’instant, vous seul la voyez.' : '';

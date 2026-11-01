@@ -209,18 +209,18 @@ function renderReports() {
         if (r.priority >= 6) html += '<span class="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full" title="Au moins 5 membres différents l’ont signalé en 7 jours">⚠ 5+ SIGNALEMENTS</span>';
         else if (r.priority >= 4) html += '<span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">URGENT</span>';
         html += '<span class="text-xs font-bold text-slate-900">' + cible + '</span>';
-        html += '<span class="text-[10px] text-slate-400">' + new Date(r.created_at).toLocaleString('fr-FR') + '</span>';
+        html += '<span class="text-[10px] text-slate-400">' + dateServeurMod(r.created_at).toLocaleString('fr-FR') + '</span>';
         html += '</div>';
         html += '<p class="text-xs text-slate-600 mb-1"><strong>Raison :</strong> ' + reasonLabel(r.reason) + '</p>';
         if (r.description) html += '<p class="text-xs text-slate-500 italic">"' + escapeHtml(r.description) + '"</p>';
-        html += '<p class="text-[10px] text-slate-400 mt-1">Signale par ' + escapeHtml(r.reporter_name || 'Anonyme') + '</p>';
+        html += '<p class="text-[10px] text-slate-400 mt-1">Signalé par ' + escapeHtml(r.reporter_name || 'Anonyme') + '</p>';
         html += '</div>';
         if (r.status === 'pending') {
             // Pas d'onclick construit en chaîne : data-* + délégation d'événement (voir ci-dessous).
             html += '<button type="button" class="rep-traiter px-3 py-1.5 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-lg whitespace-nowrap"'
                 + ' data-rep-id="' + escapeHtml(r.id) + '" data-target-id="' + escapeHtml(r.target_id || 0) + '" data-target-name="' + escapeHtml(r.target_username || '') + '">Traiter</button>';
         } else {
-            html += '<span class="text-xs font-bold ' + (r.status === 'resolved' ? 'text-emerald-600' : 'text-slate-500') + '">' + (r.status === 'resolved' ? 'Traite' : 'Ignore') + '</span>';
+            html += '<span class="text-xs font-bold ' + (r.status === 'resolved' ? 'text-emerald-600' : 'text-slate-500') + '">' + (r.status === 'resolved' ? 'Traité' : 'Ignoré') + '</span>';
         }
         html += '</div></div>';
     });
@@ -382,7 +382,7 @@ function renderModerationStreams() {
         html += '<div class="relative aspect-video bg-black flex items-center justify-center" data-slot="' + escapeHtml(id) + '">';
         if (!v) {
             html += s.isCameraOff
-                ? '<div class="text-white text-center"><i class="fa-solid fa-video-slash text-3xl mb-1"></i><p class="text-xs">Camera masquee</p></div>'
+                ? '<div class="text-white text-center"><i class="fa-solid fa-video-slash text-3xl mb-1"></i><p class="text-xs">Caméra masquée</p></div>'
                 : '<button data-mod="watchStream" data-mod-args="' + argsMod(id) + '" class="text-slate-500 hover:text-emerald-400 text-center"><i class="fa-solid fa-circle-play text-3xl"></i><p class="text-[10px] mt-1">Voir</p></button>';
         }
         html += horsLive
@@ -396,7 +396,7 @@ function renderModerationStreams() {
                 + '<button data-mod="fermerVue" data-mod-args="' + argsMod(id) + '" title="Fermer" class="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white text-xs"><i class="fa-solid fa-xmark"></i></button></div>'
                 + '<div class="absolute bottom-2 right-2 z-10 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full" data-statut="' + escapeHtml(id) + '">' + escapeHtml(v.statut) + '</div>';
         } else {
-            html += '<div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">' + (s.viewers || 0) + ' viewers</div>';
+            html += '<div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">' + (s.viewers || 0) + ((s.viewers || 0) > 1 ? ' spectateurs' : ' spectateur') + '</div>';
         }
         html += '</div>';
         html += '<div class="bg-slate-800 text-white" style="padding:6px 8px 8px">';
@@ -405,8 +405,8 @@ function renderModerationStreams() {
         html += v
             ? '<button data-mod="fermerVue" data-mod-args="' + argsMod(id) + '" class="py-1 text-white text-[10px] font-bold rounded-lg" style="background:#475569">Fermer</button>'
             : '<button data-mod="watchStream" data-mod-args="' + argsMod(id) + '" class="py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg">Voir</button>';
-        html += '<button data-mod="forceStopStream" data-mod-args="' + argsMod(id, username) + '" class="py-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold rounded-lg">Stop</button>';
-        html += '<button data-mod="quickBan" data-mod-args="' + argsMod(username, s.broadcasterId || 0) + '" class="py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg">Ban</button>';
+        html += '<button data-mod="forceStopStream" data-mod-args="' + argsMod(id, username) + '" class="py-1 bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold rounded-lg">Arrêter</button>';
+        html += '<button data-mod="quickBan" data-mod-args="' + argsMod(username, s.broadcasterId || 0) + '" class="py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-lg">Bannir</button>';
         html += '</div></div></div>';
     });
     grid.innerHTML = html;
@@ -539,10 +539,10 @@ function stopWatching(streamId) {
 function forceStopStream(streamId, username) {
     var reason = prompt('Raison :', 'Violation des CGU');
     if (reason === null) return;
-    if (!confirm('Arreter le live de ' + username + ' ?')) return;
+    if (!confirm('Arrêter le live de ' + username + ' ?')) return;
     apiCall('/mod/streams/' + streamId + '/stop', { method: 'POST', body: JSON.stringify({ reason: reason }) })
         .then(function() {
-            if (typeof showToast === 'function') showToast('Live arrete', 'warning');
+            if (typeof showToast === 'function') showToast('Live arrêté', 'warning');
             fermerVue(streamId, true);
             loadAllStreams();
         })
@@ -569,9 +569,9 @@ function loadViewLogs() {
         var html = '';
         logs.forEach(function(l) {
             html += '<div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">';
-            html += '<div class="flex-1"><p class="text-sm text-slate-900"><strong>' + escapeHtml(l.moderator_username || '?') + '</strong> a surveille <strong>' + escapeHtml(l.target_username || 'N/A') + '</strong></p>';
+            html += '<div class="flex-1"><p class="text-sm text-slate-900"><strong>' + escapeHtml(l.moderator_username || '?') + '</strong> a surveillé <strong>' + escapeHtml(l.target_username || 'N/A') + '</strong></p>';
             html += '<p class="text-xs text-slate-500 mt-0.5">' + escapeHtml(l.reason || 'Sans raison') + '</p>';
-            html += '<p class="text-[10px] text-slate-400 mt-1">' + new Date(l.created_at).toLocaleString('fr-FR') + '</p></div>';
+            html += '<p class="text-[10px] text-slate-400 mt-1">' + dateServeurMod(l.created_at).toLocaleString('fr-FR') + '</p></div>';
             html += '<span class="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-700">' + escapeHtml(l.action || '') + '</span>';
             html += '</div>';
         });
@@ -608,7 +608,7 @@ function addWord(e) {
     var severity = parseInt(document.getElementById('newWordSeverity').value);
     apiCall('/mod/banned-words', { method: 'POST', body: JSON.stringify({ word: word, severity: severity }) })
         .then(function() {
-            if (typeof showToast === 'function') showToast('Mot ajoute');
+            if (typeof showToast === 'function') showToast('Mot ajouté');
             document.getElementById('newWord').value = '';
             return loadWords();
         })
@@ -622,7 +622,7 @@ function deleteWord(word) {
     if (!confirm('Supprimer "' + word + '" ?')) return;
     apiCall('/mod/banned-words/' + encodeURIComponent(word), { method: 'DELETE' })
         .then(function() {
-            if (typeof showToast === 'function') showToast('Mot supprime');
+            if (typeof showToast === 'function') showToast('Mot supprimé');
             return loadWords();
         })
         .catch(function(err) {
@@ -652,7 +652,7 @@ function renderUsers(filter) {
         tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-slate-400 text-sm">Aucun utilisateur</td></tr>';
         return;
     }
-    var roleLabels = { super_admin: 'Admin', moderator: 'Modo', model: 'Modele', user: 'User' };
+    var roleLabels = { super_admin: 'Admin', moderator: 'Modo', model: 'Modèle', user: 'Membre' };
     var html = '';
     filtered.forEach(function(u) {
         var isBanned = u.status === 'banned';
@@ -672,14 +672,14 @@ function renderUsers(filter) {
         if (canAct) {
             var actives = EvcSanction.enCours(u);
             var superA = moiAdmin;
-            html += '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'warn') + '" class="px-2 py-1 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg mr-1">Warn</button>';
+            html += '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'warn') + '" class="px-2 py-1 bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs rounded-lg mr-1">Avertir</button>';
             html += actives.indexOf('mute') !== -1
                 ? '<button data-mod="leverSanction" data-mod-args="' + argsMod(u.id, 'mute') + '" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Rendre la parole</button>'
-                : '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'mute') + '" class="px-2 py-1 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs rounded-lg mr-1">Mute</button>';
+                : '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'mute') + '" class="px-2 py-1 bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs rounded-lg mr-1">Rendre muet</button>';
             html += actives.indexOf('kick') !== -1
                 ? '<button data-mod="leverSanction" data-mod-args="' + argsMod(u.id, 'kick') + '" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg mr-1">Lever l\'exclusion</button>'
-                : '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'kick') + '" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Kick</button>';
-            if (!isBanned) html += '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'ban') + '" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs rounded-lg">Ban</button>';
+                : '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'kick') + '" class="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs rounded-lg mr-1">Expulser</button>';
+            if (!isBanned) html += '<button data-mod="quickAction" data-mod-args="' + argsMod(u.id, 'ban') + '" class="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs rounded-lg">Bannir</button>';
             else if (superA) html += '<button data-mod="leverSanction" data-mod-args="' + argsMod(u.id, 'ban') + '" class="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs rounded-lg">Débannir</button>';
         } else if (!peutOffrir) {
             html += '<span class="text-[10px] text-slate-400">-</span>';
@@ -709,7 +709,7 @@ function quickAction(userId, action) {
         return;
     } else { return; }
     promise.then(function() {
-        if (typeof showToast === 'function') showToast('Action effectuee');
+        if (typeof showToast === 'function') showToast('Action effectuée');
         return loadUsers();
     }).catch(function(err) {
         if (typeof showToast === 'function') showToast(err.message, 'error');
@@ -769,8 +769,16 @@ function compterContestations() {
     }).catch(function () {});
 }
 
+// Dates SQLite (« 2026-11-01 19:21:00 ») : UTC sans fuseau → on ajoute « Z ».
+// Les valeurs déjà ISO (avec Z ou décalage) et les nombres passent telles quelles.
+function dateServeurMod(v) {
+    if (typeof v !== 'string') return new Date(v);
+    var s = v.trim().replace(' ', 'T');
+    return new Date(/(Z|[+-]\d\d:?\d\d)$/i.test(s) || !/T/.test(s) ? s : s + 'Z');
+}
+
 function dateCourte(t) {
-    var d = typeof t === 'string' && !/[TZ]/.test(t) ? new Date(t.replace(' ', 'T') + 'Z') : new Date(t);
+    var d = dateServeurMod(t);
     return d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 

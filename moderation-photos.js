@@ -5,6 +5,13 @@
 (function () {
     var apercus = [];
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    // Date SQLite (UTC sans fuseau) → heure locale
+    function quand(v) {
+        if (!v) return '';
+        var s = String(v).trim().replace(' ', 'T');
+        var d = new Date(/(Z|[+-]\d\d:?\d\d)$/i.test(s) || !/T/.test(s) ? s : s + 'Z');
+        return isNaN(d) ? String(v).slice(0, 16) : d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
     function badge(n) {
         var b = document.getElementById('photosBadge');
         if (!b) return;
@@ -35,7 +42,7 @@
                 return '<div class="rounded-2xl border border-slate-200 p-3 text-center bg-slate-50" data-photo="' + Number(a.userId) + '">' +
                     '<img alt="Photo de ' + esc(a.username) + '" class="w-full aspect-square rounded-xl object-cover bg-slate-200 mb-2">' +
                     '<p class="text-sm font-bold text-slate-900 truncate">' + esc(a.username) + '</p>' +
-                    '<p class="text-[10px] text-slate-400 mb-2">' + esc(String(a.updatedAt || '').slice(0, 16)) + '</p>' +
+                    '<p class="text-[10px] text-slate-400 mb-2">' + esc(quand(a.updatedAt)) + '</p>' +
                     '<div class="flex gap-2">' +
                         '<button type="button" data-ok class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600"><i class="fa-solid fa-check"></i> Valider</button>' +
                         '<button type="button" data-non class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-600"><i class="fa-solid fa-xmark"></i> Refuser</button>' +

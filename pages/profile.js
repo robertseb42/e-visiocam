@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     let joinedText = '';
     if (user.created_at) {
-        const date = new Date(user.created_at).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
+        const date = new Date(String(user.created_at).replace(' ', 'T') + (/[TZ]|[+-]\d\d:?\d\d$/.test(String(user.created_at)) || !/[ T]/.test(String(user.created_at)) ? '' : 'Z')).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
         joinedText = 'Membre depuis ' + date;
     }
 

@@ -113,11 +113,12 @@
         try { localStorage.setItem('evcRadioOuvert', valeur ? '1' : '0'); } catch (e) {}
     }
 
-    window.minimizeRadioWidget = function() {
+    // sansMemoire : réduction automatique (page de chat…) qui ne change pas le choix du membre
+    window.minimizeRadioWidget = function(sansMemoire) {
         document.getElementById('radioWidgetExpanded').classList.add('hidden');
         document.getElementById('radioWidgetMinimized').classList.remove('hidden');
         document.getElementById('radioWidgetMinimized').classList.add('flex');
-        memoireOuverte(false);
+        if (sansMemoire !== true) memoireOuverte(false);
     };
 
     window.expandRadioWidget = function() {

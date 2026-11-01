@@ -7,6 +7,7 @@
       if (!/^[a-z0-9_-]+(?:\.html)?(?:[?#].*)?$/i.test(p)) p = 'index.html';
       var frame = document.getElementById('evcPage');
       var observeur = null;
+      var observeurPage = null;
 
       // ---------- Placement de la radio ----------
       // Sur l'accueil, la page publie « __evcColonne » : centre et haut de la colonne libre de droite
@@ -70,7 +71,40 @@
             bas = Math.round(nav.getBoundingClientRect().height) + 12;
           }
         } catch (e) {}
-        w.style.cssText = 'position:fixed;z-index:9999;left:auto;top:auto;right:' + (window.innerWidth < 480 ? 12 : 16) + 'px;bottom:' + bas + 'px;transform:' + (window.innerWidth < 640 ? 'scale(.85)' : 'none');
+        // Zone de saisie en bas de page (chat, messages privés…) : la radio se range AU-DESSUS,
+        // pour ne plus cacher le bouton « Envoyer » ni la fin du champ de texte
+        var saisie = zoneSaisie();
+        if (saisie) bas = Math.max(bas, Math.round(window.innerHeight - saisie.top) + 8);
+        // Fenêtre modale ouverte dans la page (contrôle 18+, signalement…) : la radio s'efface
+        var cache = fenetreModaleOuverte();
+        w.style.cssText = 'position:fixed;z-index:9999;left:auto;top:auto;right:' + (window.innerWidth < 480 ? 12 : 16) + 'px;bottom:' + bas + 'px;transform:' + (window.innerWidth < 640 ? 'scale(.85)' : 'none') + (cache ? ';visibility:hidden' : '');
+      }
+
+      // Champ de saisie visible dans le bas de l'écran (le plus haut s'il y en a plusieurs)
+      function zoneSaisie() {
+        try {
+          var doc = frame.contentDocument, win = frame.contentWindow;
+          if (!doc) return null;
+          var champs = doc.querySelectorAll('form textarea, form input[type="text"], form input:not([type])');
+          var haut = null;
+          for (var i = 0; i < champs.length; i++) {
+            var f = champs[i].closest('form') || champs[i];
+            var r = f.getBoundingClientRect();
+            if (!r.width || !r.height || win.getComputedStyle(f).visibility === 'hidden') continue;
+            if (r.bottom > window.innerHeight - 220 && r.top < window.innerHeight) haut = haut === null ? r.top : Math.min(haut, r.top);
+          }
+          return haut === null ? null : { top: haut };
+        } catch (e) { return null; }
+      }
+      function fenetreModaleOuverte() {
+        try {
+          var doc = frame.contentDocument;
+          if (!doc) return false;
+          if (doc.getElementById('legalOverlay')) return true;
+          var m = doc.querySelectorAll('[aria-modal="true"], [role="dialog"]');
+          for (var i = 0; i < m.length; i++) { var r = m[i].getBoundingClientRect(); if (r.width && r.height) return true; }
+          return false;
+        } catch (e) { return false; }
       }
 
       // ---------- Le cadre suit le thème et la boule ; l'adresse suit la page ----------
@@ -101,6 +135,16 @@
         observeur = new MutationObserver(synchroniser);
         observeur.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
         try { win.addEventListener('evc:colonne', placerRadio); win.addEventListener('resize', placerRadio); } catch (e) {}
+        // Pages avec une zone de saisie (chat, messages) : radio réduite d'office, sans changer le choix mémorisé
+        setTimeout(function () { if (zoneSaisie() && window.minimizeRadioWidget) window.minimizeRadioWidget(true); placerRadio(); }, 700);
+        // Une fenêtre qui s'ouvre ou se ferme dans la page (18+, signalement…) : la radio se replace
+        if (observeurPage) observeurPage.disconnect();
+        var enAttente = false;
+        observeurPage = new MutationObserver(function () {
+          if (enAttente) return; enAttente = true;
+          requestAnimationFrame(function () { enAttente = false; placerRadio(); });
+        });
+        try { observeurPage.observe(doc.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'open'] }); } catch (e) {}
         setTimeout(placerRadio, 50); setTimeout(placerRadio, 600); setTimeout(placerRadio, 1800);
       });
       window.addEventListener('resize', placerRadio);

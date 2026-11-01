@@ -88,13 +88,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('privePick').addEventListener('click', choisirInvites);
     afficherPrive();
     // 📷 Demande de cam acceptée : le live privé est prêt (le demandeur est le seul invité),
-    // on allume la caméra ; c'est le membre qui clique lui-même sur « Lancer le live »
+    // on allume la caméra ; c'est le membre qui clique lui-même sur « Démarrer mon live »
     if (prive.actif && new URLSearchParams(location.search).get('auto') === '1') {
         var noms = prive.invited.map(function(id) { return prive.names[id] || ('#' + id); }).join(', ');
-        log('📷 Demande acceptée : live privé pour ' + noms + '. Cliquez sur « Lancer le live » quand vous êtes prêt.');
+        log('📷 Demande acceptée : live privé pour ' + noms + '. Cliquez sur « Démarrer mon live » quand vous êtes prêt.');
         try { history.replaceState(null, '', 'live.html'); } catch (e) {}
         setTimeout(function() { startCamera(); var b = document.getElementById('startBroadcastBtn'); if (b) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 500);
-        if (typeof showToast === 'function') showToast('Live privé prêt pour ' + noms + ' : autorisez la caméra puis cliquez sur « Lancer le live »', 'success');
+        if (typeof showToast === 'function') showToast('Live privé prêt pour ' + noms + ' : autorisez la caméra puis cliquez sur « Démarrer mon live »', 'success');
     }
 
     document.querySelectorAll('.murMax').forEach(function(el) { el.textContent = MAX_VUES; });
@@ -409,7 +409,7 @@ function uiCameraActive() {
     btn('startBroadcastBtn', false, BTN_LIVE_ON);
     btn('toggleCameraBtn', false, BTN_PETIT_ON);
     btn('toggleMicBtn', false, BTN_PETIT_ON);
-    document.getElementById('camStatusText').textContent = 'Active ✅';
+    document.getElementById('camStatusText').textContent = 'actif ✅';
 }
 
 function uiCameraInactive() {
@@ -421,7 +421,7 @@ function uiCameraInactive() {
     btn('startBroadcastBtn', true, BTN_LIVE_OFF);
     btn('toggleCameraBtn', true, BTN_PETIT_OFF);
     btn('toggleMicBtn', true, BTN_PETIT_OFF);
-    document.getElementById('camStatusText').textContent = 'Inactif';
+    document.getElementById('camStatusText').textContent = 'inactif';
 }
 
 function uiLiveEnCours() {
@@ -534,7 +534,7 @@ function stopCamera() {
 // BROADCAST
 // ============================================================
 async function startBroadcast() {
-    if (!localStream) { alert('Démarre la caméra d\'abord'); return; }
+    if (!localStream) { alert('Démarrez d\'abord la caméra'); return; }
     if (prive.actif && !prive.invited.length) {
         alert('Choisissez au moins un invité pour démarrer un live privé.');
         choisirInvites();

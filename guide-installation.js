@@ -77,7 +77,7 @@
         el.setAttribute('role', 'dialog');
         el.setAttribute('aria-label', 'Installer l\'appli E-VISIOCAM');
         el.innerHTML = '<div class="carte"><div class="tete"><img src="icon-192.png" alt=""><div>'
-            + '<h2>Installe l\'appli E-VISIOCAM</h2><p>Accès en un appui depuis ton écran d\'accueil, en plein écran.</p></div></div>'
+            + '<h2>Installez l\'appli E-VISIOCAM</h2><p>Accès en un appui depuis votre écran d\'accueil, en plein écran.</p></div></div>'
             + html + '<div class="boutons">' + actions + '</div></div>';
         document.body.appendChild(el);
         var b;
@@ -100,15 +100,15 @@
         } catch (er) {}
     }
     function guideAndroid() {
-        afficher('<p style="margin-top:4px">Un seul appui suffit, l\'icône apparaîtra sur ton écran d\'accueil.</p>',
+        afficher('<p style="margin-top:4px">Un seul appui suffit, l\'icône apparaîtra sur votre écran d\'accueil.</p>',
             '<button class="secondaire" data-plus-tard>Plus tard</button><button class="principal" data-installer>Installer</button>');
     }
     // Android sans bouton automatique (navigateur qui ne le propose pas, ou déjà refusé)
     function guideAndroidManuel() {
         afficher('<ol>'
-            + '<li><span class="num">1</span><span>Appuie sur le menu ' + '<span class="ico">⋮</span> en haut à droite</span></li>'
-            + '<li><span class="num">2</span><span>Choisis « Installer l\'application » ou « Ajouter à l\'écran d\'accueil »</span></li>'
-            + '<li><span class="num">3</span><span>Confirme avec « Installer »</span></li>'
+            + '<li><span class="num">1</span><span>Appuyez sur le menu ' + '<span class="ico">⋮</span> en haut à droite</span></li>'
+            + '<li><span class="num">2</span><span>Choisissez « Installer l\'application » ou « Ajouter à l\'écran d\'accueil »</span></li>'
+            + '<li><span class="num">3</span><span>Confirmez avec « Installer »</span></li>'
             + '</ol>', '<button class="secondaire" data-plus-tard>Plus tard</button><button class="principal" data-fermer>J\'ai compris</button>');
     }
 
@@ -116,9 +116,9 @@
     function guideIOS() {
         var ou = autreNavIOS ? 'en haut à droite, dans la barre d\'adresse' : 'en bas de l\'écran';
         var el = afficher('<ol>'
-            + '<li><span class="num">1</span><span>Appuie sur ' + ICONE_PARTAGER + ' ' + ou + '<br><small style="opacity:.7">Pas visible ? Appuie d\'abord sur ' + ICONE_POINTS + '</small></span></li>'
-            + '<li><span class="num">2</span><span>Fais défiler et choisis ' + ICONE_PLUS + ' « Sur l\'écran d\'accueil »</span></li>'
-            + '<li><span class="num">3</span><span>Appuie sur « Ajouter » en haut à droite</span></li>'
+            + '<li><span class="num">1</span><span>Appuyez sur ' + ICONE_PARTAGER + ' ' + ou + '<br><small style="opacity:.7">Pas visible ? Appuyez d\'abord sur ' + ICONE_POINTS + '</small></span></li>'
+            + '<li><span class="num">2</span><span>Faites défiler et choisissez ' + ICONE_PLUS + ' « Sur l\'écran d\'accueil »</span></li>'
+            + '<li><span class="num">3</span><span>Appuyez sur « Ajouter » en haut à droite</span></li>'
             + '</ol>', '<button class="secondaire" data-plus-tard>Plus tard</button><button class="principal" data-fermer>J\'ai compris</button>');
         // Sur iPhone avec Safari, le bouton est en bas : petite flèche pour guider le regard
         if (!autreNavIOS && !/iPad/.test(ua) && !(navigator.platform === 'MacIntel')) {
@@ -131,9 +131,9 @@
     // ---------- navigateur intégré (Facebook, Instagram…) ----------
     function guideIntegre() {
         var nav = iOS ? 'Safari' : 'Chrome';
-        afficher('<p style="margin-top:4px">Tu es dans le navigateur d\'une autre appli : l\'installation et la caméra n\'y fonctionnent pas bien.</p>'
-            + '<ol><li><span class="num">1</span><span>Appuie sur ' + ICONE_POINTS + ' ou sur le menu de cette appli</span></li>'
-            + '<li><span class="num">2</span><span>Choisis « Ouvrir dans ' + nav + ' » ou « Ouvrir dans le navigateur »</span></li></ol>',
+        afficher('<p style="margin-top:4px">Vous êtes dans le navigateur d\'une autre appli : l\'installation et la caméra n\'y fonctionnent pas bien.</p>'
+            + '<ol><li><span class="num">1</span><span>Appuyez sur ' + ICONE_POINTS + ' ou sur le menu de cette appli</span></li>'
+            + '<li><span class="num">2</span><span>Choisissez « Ouvrir dans ' + nav + ' » ou « Ouvrir dans le navigateur »</span></li></ol>',
             '<button class="secondaire" data-plus-tard>Plus tard</button><button class="principal" data-fermer>J\'ai compris</button>');
     }
 

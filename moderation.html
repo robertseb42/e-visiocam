@@ -17,9 +17,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
-    <script src="auth-api.js?v=5"></script>
+    <script src="auth-api.js?v=6"></script>
     <script src="nav-auth.js?v=5" defer></script>
-    <script src="legal-banner.js?v=2"></script>
+    <script src="legal-banner.js?v=3"></script>
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
@@ -32,7 +32,7 @@
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
-<script src="pages/moderation-acces.js"></script>
+<script src="pages/moderation-acces.js?v=2"></script>
 
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
@@ -69,7 +69,7 @@
 
 <main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
     <div class="mb-6">
-        <h1 class="text-3xl font-extrabold text-slate-900">Espace Moderateur</h1>
+        <h1 class="text-3xl font-extrabold text-slate-900">Espace Modérateur</h1>
         <p class="text-sm text-slate-500 mt-1">Surveillance, signalements et sanctions</p>
     </div>
     <style>#bandeauStagiaire{background:#fffbeb;border:1px solid #fde68a;color:#78350f}:where(html:not([data-theme="light"])) #bandeauStagiaire{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45);color:#fde68a}#bandeauStagiaire strong{color:inherit}</style>
@@ -88,7 +88,7 @@
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-slate-500 font-medium">Traites</p>
+                    <p class="text-xs text-slate-500 font-medium">Traités</p>
                     <p class="text-2xl font-black text-emerald-600 mt-1" id="statResolved">—</p>
                 </div>
                 <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
@@ -149,11 +149,11 @@
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <div class="flex gap-1 text-xs font-semibold">
                     <button data-click="filterReports" data-click-args='["pending","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-rose-500 text-white font-bold">En attente</button>
-                    <button data-click="filterReports" data-click-args='["resolved","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Traites</button>
-                    <button data-click="filterReports" data-click-args='["ignored","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Ignores</button>
+                    <button data-click="filterReports" data-click-args='["resolved","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Traités</button>
+                    <button data-click="filterReports" data-click-args='["ignored","$this"]' class="rep-filter px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200">Ignorés</button>
                 </div>
                 <button data-click="loadReports" class="text-xs text-brand-primary font-bold hover:underline">
-                    <i class="fa-solid fa-refresh"></i> Rafraichir
+                    <i class="fa-solid fa-refresh"></i> Rafraîchir
                 </button>
             </div>
             <div id="reportsList" class="space-y-3">
@@ -165,10 +165,10 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="font-bold text-slate-900">Surveillance des lives</h3>
-                    <p class="text-xs text-slate-500 mt-1">Toutes les consultations sont enregistrees (RGPD).</p>
+                    <p class="text-xs text-slate-500 mt-1">Toutes les consultations sont enregistrées (RGPD).</p>
                 </div>
                 <button data-click="loadAllStreams" class="text-xs text-brand-primary font-bold hover:underline">
-                    <i class="fa-solid fa-refresh"></i> Rafraichir
+                    <i class="fa-solid fa-refresh"></i> Rafraîchir
                 </button>
             </div>
 
@@ -182,11 +182,11 @@
                     <p class="text-xl font-black text-blue-600" id="modStatViewers">—</p>
                 </div>
                 <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
-                    <p class="text-xs text-slate-500">Cam. masquees</p>
+                    <p class="text-xs text-slate-500">Cam. masquées</p>
                     <p class="text-xl font-black text-amber-600" id="modStatHidden">—</p>
                 </div>
                 <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
-                    <p class="text-xs text-slate-500">Micros coupes</p>
+                    <p class="text-xs text-slate-500">Micros coupés</p>
                     <p class="text-xl font-black text-orange-600" id="modStatMuted">—</p>
                 </div>
             </div>
@@ -232,7 +232,7 @@
             <div class="bg-slate-50 rounded-xl p-4 mb-4">
                 <h3 class="font-bold text-slate-900 text-sm mb-3">Ajouter un mot interdit</h3>
                 <form data-submit="addWord" data-submit-args='["$event"]' class="flex flex-col md:flex-row gap-2">
-                    <input type="text" id="newWord" required placeholder="Mot a interdire"
+                    <input type="text" id="newWord" required placeholder="Mot à interdire"
                         class="flex-1 px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
                     <select id="newWordSeverity" class="px-3 py-2 bg-white text-sm rounded-xl border border-slate-200 focus:border-brand-primary focus:outline-none">
                         <option value="1">1 — mot masqué</option>
@@ -268,7 +268,7 @@
                 <div class="flex items-center gap-3">
                     <button type="button" data-click="offrirA" data-click-args='[""]' class="px-3 py-1.5 rounded-xl text-xs font-bold" style="background:#ffe500;color:#111113"><i class="fa-solid fa-gift mr-1"></i> Offrir des crédits</button>
                     <button data-click="loadUsers" class="text-xs text-brand-primary font-bold hover:underline">
-                        <i class="fa-solid fa-refresh"></i> Rafraichir
+                        <i class="fa-solid fa-refresh"></i> Rafraîchir
                     </button>
                 </div>
             </div>
@@ -278,7 +278,7 @@
                         <tr class="border-b border-slate-100 text-left text-xs text-slate-500 uppercase font-bold">
                             <th class="py-3 px-2">ID</th>
                             <th class="py-3 px-2">Pseudo</th>
-                            <th class="py-3 px-2">Role</th>
+                            <th class="py-3 px-2">Rôle</th>
                             <th class="py-3 px-2">Statut</th>
                             <th class="py-3 px-2 text-right">Actions</th>
                         </tr>
@@ -305,7 +305,7 @@
         <div id="tab-photos" class="tab-content p-5 hidden">
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <p class="text-xs text-slate-500">Une photo n'est visible des autres membres qu'après validation. Refusez toute nudité, tout mineur, toute autre personne sans accord, coordonnées ou publicité (CGU 3.1). Une photo refusée est supprimée.</p>
-                <button type="button" data-recharger="photos" class="text-xs text-brand-primary font-bold hover:underline whitespace-nowrap"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
+                <button type="button" data-recharger="photos" class="text-xs text-brand-primary font-bold hover:underline whitespace-nowrap"><i class="fa-solid fa-refresh"></i> Rafraîchir</button>
             </div>
             <div id="photosListe" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"><p class="text-center text-slate-400 py-8 text-sm col-span-full">Chargement...</p></div>
         </div>
@@ -320,7 +320,7 @@
                         <option value="refused">Refusées</option>
                         <option value="withdrawn">Retirées</option>
                     </select>
-                    <button type="button" data-recharger="candidatures" class="text-xs text-brand-primary font-bold hover:underline"><i class="fa-solid fa-refresh"></i> Rafraichir</button>
+                    <button type="button" data-recharger="candidatures" class="text-xs text-brand-primary font-bold hover:underline"><i class="fa-solid fa-refresh"></i> Rafraîchir</button>
                 </div>
             </div>
             <div id="stagiairesBloc" class="hidden mb-5"></div>
@@ -331,7 +331,7 @@
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-slate-900">Historique des surveillances</h3>
                 <button data-click="loadViewLogs" class="text-xs text-brand-primary font-bold hover:underline">
-                    <i class="fa-solid fa-refresh"></i> Rafraichir
+                    <i class="fa-solid fa-refresh"></i> Rafraîchir
                 </button>
             </div>
             <div id="viewLogsList" class="space-y-2 max-h-[500px] overflow-y-auto">
@@ -343,14 +343,14 @@
 
 <!-- ✅ LE SCRIPT EST MAINTENANT DANS UN FICHIER SÉPARÉ -->
 <script src="sanction-modal.js"></script>
-<script src="offrir-credits.js"></script>
-<script src="moderation.js?v=5"></script>
-<script src="moderation-photos.js?v=csp2"></script>
+<script src="offrir-credits.js?v=2"></script>
+<script src="moderation.js?v=6"></script>
+<script src="moderation-photos.js?v=csp2-b"></script>
 <script src="moderation-equipe.js?v=csp2"></script>
 
 
 <script src="pages/moderation-demandes.js"></script>
 <script src="site-search.js" defer></script>
-<script src="footer.js?v=2" defer></script>
+<script src="footer.js?v=3" defer></script>
 </body>
 </html>

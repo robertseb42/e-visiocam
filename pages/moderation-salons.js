@@ -9,7 +9,9 @@ let filtre = '';
 
 const toast = m => (window.showToast ? showToast(m) : alert(m));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const when = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+// Dates SQLite (UTC sans fuseau) → on ajoute « Z » si aucun fuseau n'est indiqué
+const dateServeurSalons = v => { if (typeof v !== 'string') return new Date(v); const s = v.trim().replace(' ', 'T'); return new Date(/(Z|[+-]\d\d:?\d\d)$/i.test(s) || !/T/.test(s) ? s : s + 'Z'); };
+const when = d => dateServeurSalons(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
 
 function badges(s) {
     let b = '';

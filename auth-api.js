@@ -213,10 +213,16 @@ function showToast(msg, type) {
         document.body.appendChild(toast);
     }
     const colors = { success: '#10b981', error: '#e11d48', info: '#3b82f6', warning: '#f59e0b' };
+    const icons = { success: '✓', error: '✕', info: 'i', warning: '!' };
+    if (!colors[type]) type = 'success';
     const icon = document.createElement('div');
-    icon.style.cssText = 'width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;';
-    icon.style.background = colors[type] || colors.success;
-    icon.textContent = '✓';
+    icon.style.cssText = 'width:24px;height:24px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;';
+    icon.style.background = colors[type];
+    icon.textContent = icons[type];
+    icon.setAttribute('aria-hidden', 'true');
+    // Erreur : liseré rouge et annonce immédiate aux lecteurs d'écran
+    toast.style.borderLeft = type === 'error' ? '4px solid ' + colors.error : '';
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
     const text = document.createElement('span');
     text.textContent = String(msg == null ? '' : msg);
     toast.replaceChildren(icon, text);
@@ -225,7 +231,7 @@ function showToast(msg, type) {
     window._toastTimer = setTimeout(function() {
         toast.style.transform = 'translateY(100px)';
         toast.style.opacity = '0';
-    }, 3000);
+    }, type === 'error' ? 5000 : 3000);
 }
 
 // ============================================================

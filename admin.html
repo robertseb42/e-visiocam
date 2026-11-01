@@ -16,10 +16,10 @@
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="auth-api.js?v=5"></script>
-    <script src="legal-banner.js?v=2"></script>
+    <script src="auth-api.js?v=6"></script>
+    <script src="legal-banner.js?v=3"></script>
     <script src="sanction-modal.js"></script>
-    <script src="offrir-credits.js"></script>
+    <script src="offrir-credits.js?v=2"></script>
     <script src="https://api.e-visiocam.com/socket.io/socket.io.js" defer></script>
     <script src="nav-auth.js?v=5" defer></script>
 
@@ -42,7 +42,7 @@
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
 
-<script src="pages/admin-acces.js"></script>
+<script src="pages/admin-acces.js?v=2"></script>
 
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <!-- En-tête commun du site (même logo et même menu que l'accueil) -->
@@ -395,7 +395,7 @@
                     <input type="text" id="rwaOffreNom" list="rwaMembres" placeholder="Pseudo du membre" required maxlength="30" autocomplete="off">
                     <datalist id="rwaMembres"></datalist>
                     <input type="number" id="rwaOffreMontant" min="1" max="5000" step="1" placeholder="Crédits" required style="width:110px">
-                    <input type="text" id="rwaOffreRaison" placeholder="Petit mot affiché au membre (ex. : merci pour ta bonne humeur)" required maxlength="120" style="flex:1;min-width:220px">
+                    <input type="text" id="rwaOffreRaison" placeholder="Petit mot affiché au membre (ex. : merci pour votre bonne humeur)" required maxlength="120" style="flex:1;min-width:220px">
                     <button type="submit" class="rwa-btn"><i class="fa-solid fa-gift mr-1"></i> Offrir</button>
                 </form>
                 <p class="text-xs" style="color:var(--a-muted);margin-top:6px">Le membre est prévenu tout de suite et voit votre petit mot dans son historique. Les crédits offerts comptent pour son niveau. 5 000 crédits au plus par envoi. Les modérateurs peuvent aussi offrir des crédits, dans les limites fixées dans les Réglages ci-dessous.</p>
@@ -574,11 +574,11 @@
     </div>
 </div>
 
-<script src="pages/admin.js?v=2"></script>
+<script src="pages/admin.js?v=3"></script>
 
 
 <script src="pages/admin-demandes.js"></script>
 <script src="admin-provenance.js?v=1"></script>
-<script src="footer.js?v=2" defer></script>
+<script src="footer.js?v=3" defer></script>
 </body>
 </html>

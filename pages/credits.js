@@ -129,12 +129,12 @@ async function loadClassement() {
 
 // Partage du lien d'invitation : WhatsApp, Telegram, X, e-mail, ou le menu de partage du téléphone
 function preparerPartage(lien) {
-    const texte = 'Rejoins-moi sur E-VISIOCAM : salons, radio, quiz musicaux et chat webcam entre adultes. Inscription gratuite :';
+    const texte = 'Rejoignez-moi sur E-VISIOCAM : salons, radio, quiz musicaux et chat webcam entre adultes. Inscription gratuite :';
     const t = encodeURIComponent(texte), l = encodeURIComponent(lien);
     document.getElementById('partageWhatsapp').href = 'https://wa.me/?text=' + t + '%20' + l;
     document.getElementById('partageTelegram').href = 'https://t.me/share/url?url=' + l + '&text=' + t;
     document.getElementById('partageX').href = 'https://x.com/intent/post?text=' + t + '&url=' + l;
-    document.getElementById('partageMail').href = 'mailto:?subject=' + encodeURIComponent('Rejoins-moi sur E-VISIOCAM') + '&body=' + t + '%0A%0A' + l;
+    document.getElementById('partageMail').href = 'mailto:?subject=' + encodeURIComponent('Rejoignez-moi sur E-VISIOCAM') + '&body=' + t + '%0A%0A' + l;
     const natif = document.getElementById('partageNatif');
     if (navigator.share) {
         natif.hidden = false;

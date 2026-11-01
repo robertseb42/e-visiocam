@@ -79,10 +79,10 @@
         return new Promise(function (resolve) {
             var el = fenetre(
                 '<div class="grand" aria-hidden="true">📷</div>'
-                + '<h2>Ton téléphone va te demander l\'accès</h2>'
-                + '<p>Pour allumer ta caméra, ' + (iOS ? 'ton iPhone' : 'ton téléphone') + ' va afficher une question pour la <b>caméra</b> et le <b>micro</b>.</p>'
-                + '<p>Appuie sur <span class="faux">Autoriser</span> pour que ça fonctionne.</p>'
-                + '<p style="font-size:12px;opacity:.65;margin:0">Tu pourras couper ta caméra à tout moment.</p>',
+                + '<h2>Votre téléphone va vous demander l\'accès</h2>'
+                + '<p>Pour allumer votre caméra, ' + (iOS ? 'votre iPhone' : 'votre téléphone') + ' va afficher une question pour la <b>caméra</b> et le <b>micro</b>.</p>'
+                + '<p>Appuyez sur <span class="faux">Autoriser</span> pour que ça fonctionne.</p>'
+                + '<p style="font-size:12px;opacity:.65;margin:0">Vous pourrez couper votre caméra à tout moment.</p>',
                 '<button class="secondaire" data-non>Annuler</button><button class="principal" data-oui>Continuer</button>');
             el.querySelector('[data-oui]').onclick = function () { fermer(); resolve(true); };
             el.querySelector('[data-non]').onclick = function () { fermer(); resolve(false); };
@@ -92,33 +92,33 @@
     // ---------- APRÈS un refus ou un problème ----------
     function etapesRefus() {
         if (iOS && installee()) return [
-            'Ferme complètement l\'appli : fais glisser le bas de l\'écran vers le haut, puis balaie E-VISIOCAM vers le haut',
-            'Rouvre l\'appli et rallume ta caméra',
-            'Cette fois, appuie sur <span class="faux">Autoriser</span>',
-            'Toujours bloqué ? Ouvre <b>Réglages</b> → <b>Apps</b> → <b>Safari</b> → <b>Caméra</b> et <b>Micro</b> → choisis « Demander » ou « Autoriser »'
+            'Fermez complètement l\'appli : faites glisser le bas de l\'écran vers le haut, puis balayez E-VISIOCAM vers le haut',
+            'Rouvrez l\'appli et rallumez votre caméra',
+            'Cette fois, appuyez sur <span class="faux">Autoriser</span>',
+            'Toujours bloqué ? Ouvrez <b>Réglages</b> → <b>Apps</b> → <b>Safari</b> → <b>Caméra</b> et <b>Micro</b> → choisissez « Demander » ou « Autoriser »'
         ];
         if (iOS) return [
-            'Appuie sur l\'icône à gauche de l\'adresse du site (<b>aA</b> ou <b>☰</b>)',
-            'Choisis « <b>Réglages du site web</b> »',
-            'Mets <b>Caméra</b> et <b>Micro</b> sur « Autoriser »',
-            'Reviens ici et appuie sur « Réessayer »'
+            'Appuyez sur l\'icône à gauche de l\'adresse du site (<b>aA</b> ou <b>☰</b>)',
+            'Choisissez « <b>Réglages du site web</b> »',
+            'Mettez <b>Caméra</b> et <b>Micro</b> sur « Autoriser »',
+            'Revenez ici et appuyez sur « Réessayer »'
         ];
         if (android && installee()) return [
-            'Garde le doigt appuyé sur l\'icône E-VISIOCAM de ton écran d\'accueil',
-            'Appuie sur <b>ⓘ</b> (Infos sur l\'appli) puis <b>Autorisations</b>',
-            'Mets <b>Caméra</b> et <b>Micro</b> sur « Autoriser »',
-            'Reviens ici et appuie sur « Réessayer »'
+            'Gardez le doigt appuyé sur l\'icône E-VISIOCAM de votre écran d\'accueil',
+            'Appuyez sur <b>ⓘ</b> (Infos sur l\'appli) puis <b>Autorisations</b>',
+            'Mettez <b>Caméra</b> et <b>Micro</b> sur « Autoriser »',
+            'Revenez ici et appuyez sur « Réessayer »'
         ];
         if (android) return [
-            'Appuie sur l\'icône à gauche de l\'adresse du site (cadenas ou réglages)',
-            'Appuie sur <b>Autorisations</b>',
-            'Mets <b>Caméra</b> et <b>Micro</b> sur « Autoriser »',
-            'Reviens ici et appuie sur « Réessayer »'
+            'Appuyez sur l\'icône à gauche de l\'adresse du site (cadenas ou réglages)',
+            'Appuyez sur <b>Autorisations</b>',
+            'Mettez <b>Caméra</b> et <b>Micro</b> sur « Autoriser »',
+            'Revenez ici et appuyez sur « Réessayer »'
         ];
         return [
-            'Clique sur l\'icône à gauche de l\'adresse du site (cadenas ou réglages)',
-            'Autorise la <b>Caméra</b> et le <b>Micro</b> pour ce site',
-            'Reviens ici et clique sur « Réessayer »'
+            'Cliquez sur l\'icône à gauche de l\'adresse du site (cadenas ou réglages)',
+            'Autorisez la <b>Caméra</b> et le <b>Micro</b> pour ce site',
+            'Revenez ici et cliquez sur « Réessayer »'
         ];
     }
 
@@ -130,18 +130,18 @@
             texte = 'Pas de souci, ça se répare en quelques secondes :';
             etapes = etapesRefus();
         } else if (nom === 'NotReadableError' || nom === 'TrackStartError' || nom === 'AbortError') {
-            titre = 'Ta caméra est déjà utilisée';
-            texte = 'Une autre appli utilise sans doute ta caméra (FaceTime, WhatsApp, Snapchat, un appel en cours…).';
-            etapes = ['Ferme cette autre appli ou raccroche l\'appel', 'Reviens ici et appuie sur « Réessayer »'];
+            titre = 'Votre caméra est déjà utilisée';
+            texte = 'Une autre appli utilise sans doute votre caméra (FaceTime, WhatsApp, Snapchat, un appel en cours…).';
+            etapes = ['Fermez cette autre appli ou raccrochez l\'appel', 'Revenez ici et appuyez sur « Réessayer »'];
         } else if (nom === 'NotFoundError' || nom === 'DevicesNotFoundError') {
             titre = 'Aucune caméra trouvée';
-            texte = 'Ton appareil ne semble pas avoir de caméra disponible, ou elle est désactivée.';
+            texte = 'Votre appareil ne semble pas avoir de caméra disponible, ou elle est désactivée.';
         } else if (nom === 'NonDisponible') {
             titre = 'Caméra indisponible ici';
-            texte = 'Ce navigateur ne permet pas d\'utiliser la caméra. Ouvre E-VISIOCAM dans ' + (iOS ? 'Safari' : 'Chrome') + ', ou installe l\'appli.';
+            texte = 'Ce navigateur ne permet pas d\'utiliser la caméra. Ouvrez E-VISIOCAM dans ' + (iOS ? 'Safari' : 'Chrome') + ', ou installez l\'appli.';
         } else {
             titre = 'La caméra n\'a pas pu démarrer';
-            texte = 'Réessaie dans un instant. Si ça continue, ferme et rouvre l\'appli.';
+            texte = 'Réessayez dans un instant. Si ça continue, fermez et rouvrez l\'appli.';
         }
         var liste = etapes ? '<ol>' + etapes.map(function (t, i) { return '<li><span class="num">' + (i + 1) + '</span><span>' + t + '</span></li>'; }).join('') + '</ol>' : '';
         var el = fenetre(

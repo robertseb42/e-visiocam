@@ -422,10 +422,18 @@ function initSocket() {
         chargerNonLusPrives();
     });
 
-    socket.on('connect_error', (err) => {
+    // Connexion perdue : on le dit tout de suite (avant : « Connecté » restait affiché, puis « xhr poll error »)
+    socket.on('disconnect', () => {
         const status = document.getElementById('connectionStatus');
+        if (!status) return;
+        status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-amber-100 text-amber-700';
+        status.textContent = '🟠 Reconnexion…';
+    });
+    socket.on('connect_error', () => {
+        const status = document.getElementById('connectionStatus');
+        if (!status) return;
         status.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-rose-100 text-rose-700';
-        status.textContent = '❌ ' + err.message;
+        status.textContent = '❌ Connexion impossible — nouvel essai…';
     });
 
     // Messages
@@ -433,16 +441,17 @@ function initSocket() {
         const container = document.getElementById('chatMessages');
         container.innerHTML = '';
         if (messages.length === 0) {
-            container.innerHTML = '<div class="text-center text-xs text-slate-400 py-4">Aucun message. Soyez le premier !</div>';
+            container.innerHTML = '<div id="chatVide" class="text-center text-xs text-slate-400 py-4">Aucun message. Soyez le premier !</div>';
             return;
         }
         messages.forEach(renderMessage);
-        scrollToBottom();
+        scrollToBottom(true);
     });
 
     socket.on('chat:message', (msg) => {
         renderMessage(msg);
-        scrollToBottom();
+        // Son propre message : toujours visible ; ceux des autres : sans arracher la lecture en cours
+        scrollToBottom(!!(currentUser && msg.user_id === currentUser.id), true);
     });
 
     // Membres du salon (le serveur envoie la liste à chaque arrivée / départ)
@@ -478,7 +487,7 @@ function initSocket() {
         div.className = 'text-center text-xs text-slate-400 py-2 italic';
         div.textContent = '— ' + data.text + ' —';
         container.appendChild(div);
-        scrollToBottom();
+        scrollToBottom(false, false);
     });
 
     socket.on('salon:error', data => showToast((data && data.message) || 'Accès au salon refusé', 'error'));
@@ -545,8 +554,17 @@ function initSocket() {
         text.textContent = String(data.username || '') + ' a envoyé ' + String(data.gift || '') + ' ' + String(data.giftName || '') +
             (data.receiver ? ' à ' + String(data.receiver) : '');
         div.appendChild(text);
+        // Le petit mot joint au cadeau (avant : saisi mais jamais affiché)
+        const mot = String(data.message || '').trim().slice(0, 200);
+        if (mot) {
+            const p = document.createElement('p');
+            p.className = 'text-xs text-white italic mt-1 drop-shadow'; p.style.opacity = '.9';
+            p.textContent = '« ' + mot + ' »';
+            div.appendChild(p);
+        }
+        const vide = document.getElementById('chatVide'); if (vide) vide.remove();
         container.appendChild(div);
-        scrollToBottom();
+        scrollToBottom(!!(currentUser && data.username === currentUser.username), true);
     });
 }
 
@@ -683,7 +701,7 @@ async function diffuserDepuisTuile(bouton) {
     bouton.disabled = true; bouton.textContent = '…';
     try {
         await S.startBroadcast({ private: false });
-        if (typeof showToast === 'function') showToast('Tu es en direct dans le salon');
+        if (typeof showToast === 'function') showToast('Vous êtes en direct dans le salon');
         setTimeout(refreshSalonStreams, 1500);   // le serveur ajoute le live à la liste
     } catch (er) {
         bouton.disabled = false; bouton.textContent = '🔴 Diffuser';
@@ -815,6 +833,8 @@ function sendMessage(e) {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
     if (!text || !socket) return;
+    // Hors connexion : on garde le texte au lieu de l'effacer sans l'envoyer
+    if (!socket.connected) { showToast('Connexion perdue : message non envoyé, il est gardé dans la zone de saisie.', 'error'); return; }
     socket.emit('chat:message', { text: text, salon: currentSalon });
     input.value = '';
 }
@@ -822,7 +842,8 @@ function sendMessage(e) {
 function renderMessage(msg) {
     const container = document.getElementById('chatMessages');
     const isMe = currentUser && msg.user_id === currentUser.id;
-    const time = new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const time = heurePrivee(msg.created_at);   // heure du serveur en UTC → heure locale (avant : 1 à 2 h de décalage)
+    const vide = document.getElementById('chatVide'); if (vide) vide.remove();
     const icons = { super_admin: '👑', moderator: '🔵', model: '🟢', user: '⚪' };
     const icon = icons[msg.role] || '';
     const div = document.createElement('div');
@@ -879,9 +900,40 @@ function showEmojiFloat(emoji) {
     setTimeout(() => el.remove(), 2000);
 }
 
-function scrollToBottom() {
+// Défilement : on ne descend tout en bas que si le membre y est déjà (ou pour ses propres messages).
+// S'il lit plus haut, une pastille « ↓ N nouveaux messages » le prévient sans le déplacer.
+let nouveauxNonVus = 0;
+function pastilleNouveaux() {
     const c = document.getElementById('chatMessages');
-    setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
+    let b = document.getElementById('chatNouveaux');
+    if (!b && c && c.parentNode) {
+        b = document.createElement('button');
+        b.id = 'chatNouveaux';
+        b.type = 'button';
+        b.hidden = true;
+        b.className = 'text-xs font-bold px-3 py-1.5 rounded-full shadow-lg';
+        b.style.cssText = 'position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:5;background:#ffe500;color:#111113';
+        if (getComputedStyle(c.parentNode).position === 'static') c.parentNode.style.position = 'relative';
+        c.parentNode.appendChild(b);
+        b.addEventListener('click', () => scrollToBottom(true));
+        c.addEventListener('scroll', () => { if (c.scrollHeight - c.scrollTop - c.clientHeight < 120) { nouveauxNonVus = 0; b.hidden = true; } });
+    }
+    return b;
+}
+function scrollToBottom(force, compter) {
+    const c = document.getElementById('chatMessages');
+    if (!c) return;
+    const enBas = c.scrollHeight - c.scrollTop - c.clientHeight < 120;
+    const b = pastilleNouveaux();
+    if (force || enBas) {
+        nouveauxNonVus = 0;
+        if (b) b.hidden = true;
+        setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
+    } else if (compter && b) {
+        nouveauxNonVus++;
+        b.textContent = '↓ ' + nouveauxNonVus + (nouveauxNonVus > 1 ? ' nouveaux messages' : ' nouveau message');
+        b.hidden = false;
+    }
 }
 
 function escapeHtml(text) {

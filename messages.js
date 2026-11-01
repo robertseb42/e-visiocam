@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var champ = document.getElementById('messageInput');
             if (!champ) return;
             if (demande === 'cam' && !champ.value) {
-                champ.value = '📷 Salut ! Ça te dirait d’allumer ta cam ? Si tu es d’accord, tu peux m’inviter dans un live privé. Pas de souci si tu préfères pas 😊';
+                champ.value = '📷 Bonjour ! Ça vous dirait d’allumer votre cam ? Si vous êtes d’accord, vous pouvez m’inviter dans un live privé. Pas de souci si vous préférez ne pas le faire 😊';
             }
             champ.focus();
             try { champ.setSelectionRange(champ.value.length, champ.value.length); } catch (e) {}
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
             clearTimeout(userSearchTimeout);
             var q = e.target.value.trim();
             if (q.length < 2) {
-                document.getElementById('userSearchResults').innerHTML = '<p class="text-center text-slate-400 text-sm py-6">Tape au moins 2 lettres pour chercher</p>';
+                document.getElementById('userSearchResults').innerHTML = '<p class="text-center text-slate-400 text-sm py-6">Tapez au moins 2 lettres pour chercher</p>';
                 return;
             }
             userSearchTimeout = setTimeout(function() { searchUsers(q); }, 300);
@@ -220,7 +220,7 @@ function closeConversation() {
     document.getElementById('chatHeader').classList.add('hidden');
     document.getElementById('chatInputWrapper').classList.add('hidden');
     document.getElementById('messagesContainer').innerHTML =
-        '<div class="h-full flex items-center justify-center text-center text-slate-400"><div><i class="fa-solid fa-comments text-5xl mb-3 text-slate-300"></i><p class="text-sm">Sélectionne une conversation pour commencer</p></div></div>';
+        '<div class="h-full flex items-center justify-center text-center text-slate-400"><div><i class="fa-solid fa-comments text-5xl mb-3 text-slate-300"></i><p class="text-sm">Sélectionnez une conversation pour commencer</p></div></div>';
     renderConversations();
 }
 
@@ -248,7 +248,7 @@ async function deleteCurrentConversation() {
 function renderMessages(messages) {
     var container = document.getElementById('messagesContainer');
     if (messages.length === 0) {
-        container.innerHTML = '<div class="h-full flex items-center justify-center text-slate-400 text-sm"><p>Aucun message. Commence la conversation !</p></div>';
+        container.innerHTML = '<div class="h-full flex items-center justify-center text-slate-400 text-sm"><p>Aucun message. Commencez la conversation !</p></div>';
         return;
     }
     var html = '';
@@ -258,6 +258,8 @@ function renderMessages(messages) {
 
 function appendMessage(message) {
     var container = document.getElementById('messagesContainer');
+    // Déjà affiché (réponse de l'API puis écho du serveur temps réel) : pas de doublon
+    if (message && message.id != null && container.querySelector('[data-msg-id="' + Number(message.id) + '"]')) return;
     if (container.querySelector('.h-full')) container.innerHTML = '';
     container.insertAdjacentHTML('beforeend', buildMessageHtml(message));
     scrollToBottom();
@@ -268,7 +270,7 @@ function buildMessageHtml(m) {
     var initial = (m.sender_username || '?').charAt(0).toUpperCase();
 
     var html = '';
-    html += '<div class="flex items-end gap-2 ' + (isMine ? 'flex-row-reverse' : '') + '">';
+    html += '<div class="flex items-end gap-2 ' + (isMine ? 'flex-row-reverse' : '') + '"' + (m.id != null ? ' data-msg-id="' + Number(m.id) + '"' : '') + '>';
     html += '<div class="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-xs shrink-0">' + initial + '</div>';
     html += '<div class="max-w-[70%]">';
     html += '<div class="px-4 py-2.5 rounded-2xl text-sm break-words ' + (isMine ? 'msg-bubble-sent rounded-br-sm' : 'msg-bubble-received rounded-bl-sm') + '">';
@@ -290,13 +292,17 @@ async function sendMessage() {
     input.value = '';
 
     try {
-        if (socket) {
+        if (socket && socket.connected) {
             socket.emit('dm:send', { conversationId: currentConversationId, content: content });
         } else {
-            await apiCall('/messages/' + currentConversationId, {
+            // Sans temps réel : l'API renvoie { message } (201) — on l'affiche tout de suite chez l'expéditeur
+            var convId = currentConversationId;
+            var res = await apiCall('/messages/' + convId, {
                 method: 'POST',
                 body: JSON.stringify({ content: content })
             });
+            if (res && res.message && convId === currentConversationId) appendMessage(res.message);
+            loadConversations();
         }
     } catch (err) {
         alert('Erreur envoi : ' + err.message);
@@ -353,7 +359,7 @@ function showTypingIndicator(username) {
 function openNewConvModal() {
     document.getElementById('newConvModal').classList.remove('hidden');
     document.getElementById('userSearchInput').value = '';
-    document.getElementById('userSearchResults').innerHTML = '<p class="text-center text-slate-400 text-sm py-6">Tape au moins 2 lettres pour chercher</p>';
+    document.getElementById('userSearchResults').innerHTML = '<p class="text-center text-slate-400 text-sm py-6">Tapez au moins 2 lettres pour chercher</p>';
     setTimeout(function() { document.getElementById('userSearchInput').focus(); }, 100);
 }
 

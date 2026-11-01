@@ -60,7 +60,11 @@
 
     function showError(msg) {
         document.getElementById('errorText').textContent = msg;
-        document.getElementById('errorBox').classList.remove('hidden');
+        const box = document.getElementById('errorBox');
+        box.classList.remove('hidden');
+        // Sur téléphone, la zone d'erreur est en haut du formulaire, hors de l'écran : on l'amène sous les yeux
+        try { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { box.scrollIntoView(); }
+        box.focus({ preventScroll: true });
     }
 
     // Âge en années révolues à partir d'une date ISO (YYYY-MM-DD)

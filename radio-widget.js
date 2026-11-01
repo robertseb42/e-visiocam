@@ -148,7 +148,7 @@ function resumeRadio() {
         }).catch(function() {
             audioEl.muted = true;
             audioEl.play().catch(function() {});
-            updateRadioStatus('CLIQUE ▶');
+            updateRadioStatus('CLIQUEZ ▶');
         });
     }
 }
@@ -165,7 +165,7 @@ function keepPlayingMuted() {
             updateTonearm(true);
             updateRadioStatus('SON COUPÉ · CLIQUEZ');
         }).catch(function() {
-            updateRadioStatus('CLIQUE ▶');
+            updateRadioStatus('CLIQUEZ ▶');
         });
     }
     armResume();

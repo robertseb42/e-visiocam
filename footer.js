@@ -120,7 +120,7 @@
             document.body.appendChild(as);
         }
 
-        // 📷 Fiche membre + demandes de cam (notifications « X aimerait voir ta cam »)
+        // 📷 Fiche membre + demandes de cam (notifications « X aimerait voir votre cam »)
         if (!window.EVC_DEPARTEMENTS && !document.querySelector('script[src*="departements-data.js"]')) {
             var dd = document.createElement('script'); dd.src = 'departements-data.js'; document.body.appendChild(dd);
         }

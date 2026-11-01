@@ -5,6 +5,14 @@
 let allUsers = [];
 let currentUser = null;
 
+// Dates SQLite (« 2026-11-01 19:21:00 ») : UTC sans fuseau → on ajoute « Z ».
+// Les valeurs déjà ISO (avec Z ou décalage) et les nombres passent telles quelles.
+function dateServeur(v) {
+    if (typeof v !== 'string') return new Date(v);
+    const s = v.trim().replace(' ', 'T');
+    return new Date(/(Z|[+-]\d\d:?\d\d)$/i.test(s) || !/T/.test(s) ? s : s + 'Z');
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     currentUser = getCurrentUser();
     if (currentUser) {
@@ -153,7 +161,7 @@ async function loadLogs() {
             return;
         }
         list.innerHTML = logs.map(log => {
-            const date = new Date(log.created_at).toLocaleString('fr-FR');
+            const date = dateServeur(log.created_at).toLocaleString('fr-FR');
             return '<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50">' +
                 '<span class="text-xs font-bold uppercase text-slate-600">' + escapeHtml(log.type) + '</span>' +
                 '<div class="flex-1">' +
@@ -390,7 +398,7 @@ async function loadRadios() {
         if (stat) stat.textContent = radios.length;
 
         if (radios.length === 0) {
-            list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Aucune radio. Clique sur "Ajouter une radio" !</p>';
+            list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Aucune radio. Cliquez sur « Ajouter une radio » !</p>';
             return;
         }
 
@@ -701,7 +709,7 @@ async function chargerRecompenses() {
         document.getElementById('rwaOffreMontant').focus();
         document.getElementById('rwaOffre').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }));
-    const quandM = t => new Date(String(t).replace(' ', 'T') + (/[TZ]/.test(t) ? '' : 'Z')).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const quandM = t => dateServeur(t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     document.getElementById('rwaManuels').innerHTML = (d.manuels || []).length ? d.manuels.map(m =>
         '<tr><td><b>' + escapeHtml(m.username) + '</b></td><td style="font-weight:800;color:' + (m.amount > 0 ? '#059669' : '#e11d48') + '">' + (m.amount > 0 ? '+' : '') + m.amount + '</td><td>' +
         (m.type === 'retrait' ? '⛔ ' : '🎁 ') + escapeHtml(m.description || '') + '</td><td>' + (m.parRole === 'moderator' ? '🔵 ' : m.par ? '👑 ' : '') + escapeHtml(m.par || '—') + '</td><td>' + escapeHtml(quandM(m.created_at)) + '</td></tr>').join('')
@@ -866,7 +874,7 @@ async function loadContactMessages() {
 }
 
 function contactDate(s) {
-    const d = new Date(String(s).replace(' ', 'T') + 'Z');   // SQLite : UTC sans fuseau
+    const d = dateServeur(s);   // SQLite : UTC sans fuseau
     return isNaN(d) ? s : d.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
 }
 

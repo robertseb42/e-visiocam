@@ -180,7 +180,7 @@
                     acceptBtn.style.color = '#94a3b8';
                     acceptBtn.style.cursor = 'not-allowed';
                     const remaining = Array.from(checkboxes).filter(c => !c.checked).length;
-                    acceptBtn.innerText = '⚠️ Cochez les ' + remaining + ' case' + (remaining > 1 ? 's' : '') + ' restante' + (remaining > 1 ? 's' : '');
+                    acceptBtn.innerText = remaining > 1 ? '⚠️ Cochez les ' + remaining + ' cases restantes' : '⚠️ Cochez la case restante';
                 }
             });
         });

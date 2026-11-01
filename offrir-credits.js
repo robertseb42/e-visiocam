@@ -28,7 +28,7 @@
             '<input data-montant type="number" min="1" max="5000" step="1" required placeholder="Nombre de crédits" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm mb-1 bg-transparent">' +
             '<p data-quota class="text-[11px] text-slate-500 mb-3">&nbsp;</p>' +
             '<label class="block text-xs font-bold text-slate-700 mb-1">Petit mot (visible par le membre)</label>' +
-            '<input data-raison type="text" maxlength="120" required placeholder="Ex. : merci pour ta bonne humeur dans le salon" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm mb-4 bg-transparent">' +
+            '<input data-raison type="text" maxlength="120" required placeholder="Ex. : merci pour votre bonne humeur dans le salon" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm mb-4 bg-transparent">' +
             '<div class="flex gap-2"><button type="button" data-annuler class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold">Annuler</button>' +
             '<button type="submit" class="flex-1 py-2.5 rounded-xl text-sm font-bold" style="background:#ffe500;color:#111113">Offrir</button></div></form>';
         document.body.appendChild(m);

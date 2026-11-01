@@ -309,7 +309,7 @@
 
     // ---------- live ----------
     async function startBroadcast(opts) {
-        if (!stream) throw new Error('Démarre la caméra d\'abord');
+        if (!stream) throw new Error('Démarrez d\'abord la caméra');
         var s = await socketPret();
         options = Object.assign({}, opts || {});
         if (Array.isArray(options.invited)) invited = options.invited.slice();

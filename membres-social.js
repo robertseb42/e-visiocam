@@ -7,7 +7,7 @@
 // Les demandes reçues et les réponses arrivent toutes les 15 s (et tout de suite si la page
 // a une connexion temps réel) sous forme de cartes en haut à droite.
 // Accepter ouvre la page Live avec un live privé préparé : seul le demandeur est invité,
-// et c'est le membre qui clique lui-même sur « Lancer le live ».
+// et c'est le membre qui clique lui-même sur « Démarrer mon live ».
 // Tout le texte venant des membres est inséré avec textContent (jamais de HTML).
 // ============================================================
 (function () {
@@ -205,9 +205,9 @@
         var c = el('div', 'evs-carte'); c.setAttribute('role', 'alertdialog');
         c.appendChild(mini(d.de.id, d.de.username));
         var t = el('div', 'evs-txt');
-        var p = el('p'); var b = el('b', '', d.de.username); p.appendChild(b); p.appendChild(haut().createTextNode(' aimerait voir ta cam 📷'));
+        var p = el('p'); var b = el('b', '', d.de.username); p.appendChild(b); p.appendChild(haut().createTextNode(' aimerait voir votre cam 📷'));
         t.appendChild(p);
-        t.appendChild(el('small', '', 'Si tu acceptes, tu lances un live privé rien que pour lui ou elle. Tu peux refuser sans te justifier.'));
+        t.appendChild(el('small', '', 'Si vous acceptez, vous lancez un live privé rien que pour lui ou elle. Vous pouvez refuser sans vous justifier.'));
         var r = el('div', 'evs-rang');
         var oui = el('button', 'evs-btn jaune', 'Accepter'); oui.type = 'button';
         var non = el('button', 'evs-btn', 'Refuser'); non.type = 'button';
@@ -246,11 +246,11 @@
                 if (!s) return;
                 clearInterval(guettes[qui]); delete guettes[qui];
                 if (page === 'live.html') return;   // la page Live affiche déjà sa propre invitation
-                styles(); son(); alerteTitre('🔒 ' + nom + ' t’a ouvert sa cam');
+                styles(); son(); alerteTitre('🔒 ' + nom + ' vous a ouvert sa cam');
                 var c = el('div', 'evs-carte rouge'); c.appendChild(mini(qui, nom));
                 var t = el('div', 'evs-txt');
-                var p = el('p'); p.appendChild(el('b', '', nom)); p.appendChild(haut().createTextNode(' t’a ouvert sa cam 🔒'));
-                t.appendChild(p); t.appendChild(el('small', '', 'Live privé : toi seul es invité.'));
+                var p = el('p'); p.appendChild(el('b', '', nom)); p.appendChild(haut().createTextNode(' vous a ouvert sa cam 🔒'));
+                t.appendChild(p); t.appendChild(el('small', '', 'Live privé : vous êtes le seul invité.'));
                 var rg = el('div', 'evs-rang');
                 var go = el('button', 'evs-btn rouge', '🎥 Regarder'); go.type = 'button';
                 go.onclick = function () { aller('live.html?join=' + encodeURIComponent(s.streamId) + '&from=' + encodeURIComponent(nom)); };

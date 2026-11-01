@@ -61,14 +61,14 @@
             + (e.broadcasting ? '<div class="pastille">● EN DIRECT</div>' : '') + '</div>';
 
         if (!e.active) {
-            html += '<p class="info">Une fois allumée, ta caméra est visible par l\'équipe de modération (par exemple pour une vérification d\'identité). Les autres membres ne la voient que si tu diffuses.</p>'
+            html += '<p class="info">Une fois allumée, votre caméra est visible par l\'équipe de modération (par exemple pour une vérification d\'identité). Les autres membres ne la voient que si vous diffusez.</p>'
                 + '<div class="boutons"><button class="b" data-allumer>Activer ma caméra</button></div>';
         } else if (!e.broadcasting) {
-            html += '<p class="info">Ta caméra est allumée et visible par l\'équipe de modération. Les membres du salon ne la voient pas encore.</p>'
+            html += '<p class="info">Votre caméra est allumée et visible par l\'équipe de modération. Les membres du salon ne la voient pas encore.</p>'
                 + '<div class="boutons"><button class="b live" data-diffuser>🔴 Diffuser dans le salon</button>'
                 + '<button class="b gris" data-couper>Couper ma caméra</button></div>';
         } else {
-            html += '<p class="info">Tu es en direct : les membres te voient.</p>'
+            html += '<p class="info">Vous êtes en direct : les membres vous voient.</p>'
                 + '<div class="boutons"><div class="ligne">'
                 + '<button class="b gris" data-masquer>' + (e.cameraOff ? '👁️ Afficher cam' : '🙈 Masquer cam') + '</button>'
                 + '<button class="b gris" data-micro>' + (e.micMuted ? '🎤 Activer micro' : '🔇 Couper micro') + '</button></div>'
@@ -93,7 +93,7 @@
         });
         sur('data-diffuser', async function () {
             this.disabled = true; this.textContent = 'Lancement…';
-            try { await S.startBroadcast({ private: false }); toast('Tu es en direct dans le salon'); }
+            try { await S.startBroadcast({ private: false }); toast('Vous êtes en direct dans le salon'); }
             catch (er) { toast(er.message || 'Diffusion impossible', 'error'); }
             dessiner();
         });
