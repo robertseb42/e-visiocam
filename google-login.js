@@ -62,7 +62,7 @@
             '<input data-naissance type="date" required class="w-full px-3 py-2.5 mb-1 rounded-xl border border-slate-200 text-sm bg-transparent">' +
             '<p class="text-[10px] text-slate-400 mb-3">Vous devez avoir 18 ans ou plus.</p>' +
             '<label class="flex items-start gap-2 text-xs text-slate-600 mb-2 cursor-pointer"><input data-majeur type="checkbox" class="mt-0.5"> <span>Je certifie avoir <strong>18 ans ou plus</strong></span></label>' +
-            '<label class="flex items-start gap-2 text-xs text-slate-600 mb-4 cursor-pointer"><input data-cgu type="checkbox" class="mt-0.5"> <span>J’accepte les <a href="cgu.html" target="_blank" class="text-brand-primary font-bold underline">CGU</a> et la <a href="confidentialite.html" target="_blank" class="text-brand-primary font-bold underline">politique de confidentialité</a></span></label>' +
+            '<label class="flex items-start gap-2 text-xs text-slate-600 mb-4 cursor-pointer"><input data-cgu type="checkbox" class="mt-0.5"> <span>J’accepte les <a href="cgu.html" target="_blank" class="text-brand-primary font-bold underline">CGU</a> et la <a href="rgpd.html" target="_blank" class="text-brand-primary font-bold underline">politique de confidentialité</a></span></label>' +
             '<p data-err class="hidden text-xs text-rose-600 font-semibold mb-3"></p>' +
             '<div class="flex gap-2"><button type="button" data-annuler class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold">Annuler</button>' +
             '<button type="submit" class="flex-1 py-2.5 rounded-xl text-sm font-bold" style="background:#ffe500;color:#111113">Créer mon compte</button></div></form>';

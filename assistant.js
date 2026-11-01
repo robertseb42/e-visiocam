@@ -310,7 +310,7 @@
             '<input name="email" type="email" maxlength="254" placeholder="Votre adresse e-mail" value="' + esc(u && u.email || '') + '" required aria-label="Votre adresse e-mail">' +
             '<textarea name="message" maxlength="1800" placeholder="Votre question, avec le plus de détails possible (page, heure, appareil…)" aria-label="Votre question">' + esc(resume) + '</textarea>' +
             '<input name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">' +
-            '<label class="ck"><input type="checkbox" name="ok"><span>J’accepte que ma demande soit traitée selon la <a href="confidentialite.html" target="_blank">politique de confidentialité</a>.</span></label>' +
+            '<label class="ck"><input type="checkbox" name="ok"><span>J’accepte que ma demande soit traitée selon la <a href="rgpd.html" target="_blank">politique de confidentialité</a>.</span></label>' +
             '<div class="err" hidden></div><button type="submit" class="env">Envoyer à l’équipe</button></form>', 'bot', true);
         var f = d.querySelector('form');
         f.onsubmit = envoyer;

@@ -97,7 +97,7 @@
                         ">
                         <span style="font-size: 13px; color: #334155; line-height: 1.5;">
                             J'accepte les <a href="cgu.html" target="_blank" style="color: #e91e63; text-decoration: underline; font-weight: bold;">CGU</a>
-                            et la <a href="confidentialite.html" target="_blank" style="color: #e91e63; text-decoration: underline; font-weight: bold;">politique de confidentialité</a>.
+                            et la <a href="rgpd.html" target="_blank" style="color: #e91e63; text-decoration: underline; font-weight: bold;">politique de confidentialité</a>.
                         </span>
                     </label>
                 </div>
@@ -138,7 +138,7 @@
                     ">
                         <a href="mentions-legales.html" target="_blank" style="color: #64748b; text-decoration: underline;">Mentions légales</a>
                         <a href="cgu.html" target="_blank" style="color: #64748b; text-decoration: underline;">CGU</a>
-                        <a href="confidentialite.html" target="_blank" style="color: #64748b; text-decoration: underline;">Confidentialité</a>
+                        <a href="rgpd.html" target="_blank" style="color: #64748b; text-decoration: underline;">Confidentialité</a>
                         <a href="cookies.html" target="_blank" style="color: #64748b; text-decoration: underline;">Cookies</a>
                         <a href="rgpd.html" target="_blank" style="color: #e91e63; text-decoration: underline; font-weight: bold;">RGPD</a>
                     </div>

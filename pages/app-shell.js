@@ -128,7 +128,11 @@
         try {
           document.title = doc.title || 'E-VISIOCAM';
           var page = (win.location.pathname.split('/').pop() || 'index.html') + win.location.search + win.location.hash;
-          history.replaceState(null, '', 'app-shell.html?page=' + encodeURIComponent(page));
+          // Adresse propre (/salons.html, /chat.html?theme=…) au lieu de app-shell.html?page=… :
+          // les liens copiés et partagés pointent vers la vraie page, que Google peut indexer.
+          // Un rechargement repasse par la page, qui renvoie aussitôt dans ce cadre.
+          var propre = page.replace(/^index\.html(?=$|[?#])/, '');
+          history.replaceState(null, '', '/' + propre);
         } catch (e) {}
         synchroniser();
         if (observeur) observeur.disconnect();

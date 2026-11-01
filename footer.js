@@ -12,9 +12,8 @@
         { titre: 'Informations légales', liens: [
             ['mentions-legales.html', 'Mentions légales'],
             ['cgu.html', 'Conditions générales (CGU)'],
-            ['confidentialite.html', 'Politique de confidentialité'],
-            ['cookies.html', 'Cookies'],
-            ['rgpd.html', 'Vos droits RGPD']
+            ['rgpd.html', 'Confidentialité et vos droits (RGPD)'],
+            ['cookies.html', 'Cookies']
         ]},
         { titre: 'E-VISIOCAM', liens: [
             ['a-propos.html', 'À propos'],
@@ -116,7 +115,7 @@
         var sansAssistant = ['chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
         if (sansAssistant.indexOf(page) === -1 && !document.querySelector('script[src*="assistant.js"]')) {
             var as = document.createElement('script');
-            as.src = 'assistant.js?v=5';
+            as.src = 'assistant.js?v=6';
             document.body.appendChild(as);
         }
 
