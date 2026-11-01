@@ -19,7 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js?v=7"></script>
     <script src="legal-banner.js?v=4" defer></script>
-    <script src="sanction-modal.js"></script>
+    <script src="sanction-modal.js?v=2"></script>
     <script src="offrir-credits.js?v=2"></script>
     <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js" defer></script>
     <script src="nav-auth.js?v=6" defer></script>
@@ -37,6 +37,140 @@
         .evc-tip b { font-weight: 700; }
         .stats-periode.actif { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
         :where(html:not([data-theme="light"])) .stats-periode.actif { background: #2c2c33; color: #f5f5f6; }
+    </style>
+    <style>
+        /* ===== Gestion des membres : liste, fiche (tiroir), menus, journal ===== */
+        .evm, .evm-tiroir, .evm-dialogue, .evm-menu {
+            --m-panel:#fff; --m-soft:#f8fafc; --m-line:#e2e8f0; --m-text:#0f172a; --m-muted:#64748b; --m-hover:#f1f5f9;
+            --m-accent:#e91e63; --m-accent-txt:#fff; --m-jaune:#ffe500; --m-ok:#059669; --m-warn:#b45309; --m-danger:#e11d48;
+            --m-ok-bg:#ecfdf5; --m-warn-bg:#fffbeb; --m-danger-bg:#fff1f2; --m-info-bg:#eff6ff; --m-info:#1d4ed8;
+            color: var(--m-text);
+        }
+        :where(html:not([data-theme="light"])) :is(.evm, .evm-tiroir, .evm-dialogue, .evm-menu) {
+            --m-panel:var(--ev-panel,#1c1c20); --m-soft:var(--ev-field,#25252b); --m-line:var(--ev-border,#3b3b43); --m-text:var(--ev-text,#f5f5f7);
+            --m-muted:var(--ev-muted,#b1b1bd); --m-hover:var(--ev-hover,#303037); --m-accent:#ffe500; --m-accent-txt:#111113;
+            --m-ok:#34d399; --m-warn:#fbbf24; --m-danger:#fb7185; --m-ok-bg:#05966922; --m-warn-bg:#f59e0b22; --m-danger-bg:#e11d4822; --m-info-bg:#3b82f622; --m-info:#93c5fd;
+        }
+        .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+        .evm-barre { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .evm-recherche { position:relative; flex:1 1 260px; max-width:420px; }
+        .evm-recherche i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--m-muted); font-size:13px; }
+        .evm-recherche input { width:100%; padding:10px 12px 10px 34px; border-radius:12px; border:1px solid var(--m-line); background:var(--m-soft); color:var(--m-text); font-size:14px; }
+        .evm input:focus-visible, .evm select:focus-visible, .evm button:focus-visible, .evm-tiroir :focus-visible, .evm-dialogue :focus-visible, .evm-menu :focus-visible { outline:2px solid var(--m-accent); outline-offset:2px; }
+        .evm-actions-haut { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+        .evm-btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:8px 12px; min-height:36px; border-radius:10px; border:1px solid transparent; font-size:12px; font-weight:800; cursor:pointer; white-space:nowrap; line-height:1.1; }
+        .evm-btn:disabled { opacity:.55; cursor:not-allowed; }
+        .evm-btn-jaune { background:#ffe500; color:#111113; }
+        .evm-btn-ghost { background:transparent; border-color:var(--m-line); color:var(--m-text); }
+        .evm-btn-ghost:hover { background:var(--m-hover); }
+        .evm-btn-danger { background:var(--m-danger); color:#fff; }
+        :where(html:not([data-theme="light"])) .evm-btn-danger { background:#e11d48; }
+        .evm-btn-primaire { background:var(--m-accent); color:var(--m-accent-txt); }
+        .evm-btn-icone { width:36px; padding:0; }
+        .evm-lien { background:none; border:0; color:var(--m-muted); font-size:12px; font-weight:700; text-decoration:underline; cursor:pointer; padding:6px; }
+        .evm-filtres { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; padding:12px; border:1px solid var(--m-line); border-radius:14px; background:var(--m-soft); margin-bottom:10px; }
+        .evm-champ { display:flex; flex-direction:column; gap:4px; font-size:11px; font-weight:700; color:var(--m-muted); }
+        .evm-champ select, .evm-champ input { padding:7px 9px; border-radius:9px; border:1px solid var(--m-line); background:var(--m-panel); color:var(--m-text); font-size:13px; min-width:130px; }
+        .evm-puces { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+        .evm-puce { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; border:1px solid var(--m-line); background:var(--m-panel); font-size:12px; font-weight:600; cursor:pointer; user-select:none; }
+        .evm-puce:has(input:checked) { border-color:var(--m-accent); box-shadow:inset 0 0 0 1px var(--m-accent); }
+        .evm-resume { font-size:12px; color:var(--m-muted); margin:6px 2px 8px; }
+        .evm-tableau { border:1px solid var(--m-line); border-radius:14px; overflow:hidden; }
+        .evm-table { width:100%; border-collapse:collapse; font-size:13px; }
+        .evm-table th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--m-muted); padding:10px; border-bottom:1px solid var(--m-line); background:var(--m-soft); font-weight:800; }
+        .evm-table td { padding:10px; border-bottom:1px solid var(--m-line); vertical-align:middle; }
+        .evm-table tbody tr:last-child td { border-bottom:0; }
+        .evm-ligne { cursor:pointer; }
+        .evm-ligne:hover { background:var(--m-hover); }
+        .evm-vide { text-align:center; color:var(--m-muted); padding:28px 10px !important; }
+        .evm-membre { display:flex; gap:10px; align-items:center; min-width:0; }
+        .evm-av { width:36px; height:36px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:14px; background:var(--m-hover); color:var(--m-text); overflow:hidden; }
+        .evm-av img { width:100%; height:100%; object-fit:cover; }
+        .evm-nom { font-weight:800; font-size:14px; }
+        .evm-sous { font-size:11px; color:var(--m-muted); overflow-wrap:anywhere; }
+        .evm-badges { display:flex; flex-wrap:wrap; gap:4px; margin-top:3px; }
+        .evm-badge { display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px; background:var(--m-hover); color:var(--m-text); white-space:nowrap; }
+        .evm-b-ok { background:var(--m-ok-bg); color:var(--m-ok); }
+        .evm-b-warn { background:var(--m-warn-bg); color:var(--m-warn); }
+        .evm-b-danger { background:var(--m-danger-bg); color:var(--m-danger); }
+        .evm-b-info { background:var(--m-info-bg); color:var(--m-info); }
+        .evm-num { font-variant-numeric:tabular-nums; font-weight:700; }
+        .evm-boutons { display:flex; gap:6px; justify-content:flex-end; align-items:center; }
+        .evm-pages { display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; margin-top:12px; font-size:12px; color:var(--m-muted); }
+        .evm-pages select { padding:6px 8px; border-radius:9px; border:1px solid var(--m-line); background:var(--m-panel); color:var(--m-text); font-size:12px; }
+        .evm-titre h3 { font-weight:800; font-size:15px; }
+        .evm-titre p { font-size:12px; color:var(--m-muted); margin:2px 0 10px; }
+        .evm-journal td { font-size:12px; }
+        .evm-details { color:var(--m-muted); font-size:11px; margin-top:2px; }
+        /* Mobile : chaque ligne devient une carte */
+        @media (max-width: 767px) {
+            .evm-tableau { border:0; overflow:visible; }
+            .evm-table thead { display:none; }
+            .evm-table, .evm-table tbody, .evm-table tr, .evm-table td { display:block; width:100%; }
+            .evm-table tr { border:1px solid var(--m-line); border-radius:14px; margin-bottom:10px; background:var(--m-panel); padding:4px 0; }
+            .evm-table td { border:0; padding:6px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+            .evm-table td[data-label]::before { content:attr(data-label); font-size:11px; font-weight:700; color:var(--m-muted); flex:none; }
+            .evm-table td.evm-td-membre { display:block; padding-top:10px; }
+            .evm-table td.evm-td-actions { justify-content:stretch; padding-bottom:10px; }
+            .evm-td-actions .evm-boutons { width:100%; }
+            .evm-td-actions .evm-btn:not(.evm-btn-icone) { flex:1; }
+            .evm-journal td { display:block; }
+            .evm-journal td[data-label]::before { display:block; margin-bottom:2px; }
+            .evm-filtres { padding:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+            .evm-puces { grid-column:1 / -1; }
+            .evm-champ { flex:1 1 140px; min-width:0; }
+            .evm-champ select, .evm-champ input { min-width:0; width:100%; }
+            .evm-recherche { max-width:none; }
+        }
+        /* Tiroir de la fiche : 480 px à droite sur ordinateur, plein écran sur mobile */
+        .evm-voile { position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:80; }
+        .evm-tiroir { position:fixed; top:0; right:0; bottom:0; width:min(480px, 100vw); background:var(--m-panel); z-index:81; display:flex; flex-direction:column; box-shadow:-12px 0 40px rgba(0,0,0,.3); border-left:1px solid var(--m-line); }
+        @media (max-width: 640px) { .evm-tiroir { width:100vw; border-left:0; } }
+        .evm-tiroir-tete { display:flex; gap:12px; align-items:center; padding:14px 16px; border-bottom:1px solid var(--m-line); }
+        .evm-tiroir-tete h2 { font-size:18px; font-weight:900; line-height:1.2; overflow-wrap:anywhere; }
+        .evm-tiroir-corps { flex:1; overflow-y:auto; padding:6px 16px 24px; overscroll-behavior:contain; }
+        .evm-tiroir-pied { display:flex; gap:8px; padding:12px 16px; border-top:1px solid var(--m-line); flex-wrap:wrap; }
+        .evm-tiroir-pied .evm-btn { flex:1; }
+        .evm-nav-sections { display:flex; gap:6px; overflow-x:auto; padding:10px 16px; border-bottom:1px solid var(--m-line); scrollbar-width:none; }
+        .evm-nav-sections a { font-size:11px; font-weight:800; padding:5px 10px; border-radius:999px; border:1px solid var(--m-line); color:var(--m-text); text-decoration:none; white-space:nowrap; }
+        .evm-section { padding-top:14px; scroll-margin-top:8px; }
+        .evm-section h3 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; font-weight:900; color:var(--m-muted); margin-bottom:8px; }
+        .evm-dl { display:grid; grid-template-columns:minmax(110px, 40%) 1fr; gap:6px 12px; font-size:13px; }
+        .evm-dl dt { color:var(--m-muted); font-size:12px; }
+        .evm-dl dd { margin:0; overflow-wrap:anywhere; }
+        .evm-carte { border:1px solid var(--m-line); border-radius:12px; padding:10px 12px; background:var(--m-soft); margin-bottom:8px; font-size:12px; }
+        .evm-carte p { overflow-wrap:anywhere; }
+        .evm-chiffres { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:8px; }
+        .evm-chiffres div { border:1px solid var(--m-line); border-radius:12px; padding:8px 10px; background:var(--m-soft); }
+        .evm-chiffres b { display:block; font-size:18px; font-weight:900; font-variant-numeric:tabular-nums; }
+        .evm-chiffres span { display:block; font-size:11px; line-height:1.3; color:var(--m-muted); }
+        .evm-liste { list-style:none; margin:0; padding:0; font-size:12px; }
+        .evm-liste li { padding:7px 0; border-bottom:1px solid var(--m-line); display:flex; gap:8px; justify-content:space-between; }
+        .evm-liste li:last-child { border-bottom:0; }
+        .evm-liste .evm-g { min-width:0; overflow-wrap:anywhere; }
+        .evm-liste .evm-d { flex:none; color:var(--m-muted); font-size:11px; text-align:right; }
+        .evm-preuve { margin-top:6px; padding:6px 8px; border-left:3px solid var(--m-warn); background:var(--m-panel); border-radius:6px; white-space:pre-wrap; }
+        .evm-photo { width:72px; height:72px; border-radius:14px; object-fit:cover; background:var(--m-hover); }
+        .evm-note-form textarea { width:100%; min-height:72px; padding:8px 10px; border-radius:10px; border:1px solid var(--m-line); background:var(--m-panel); color:var(--m-text); font-size:13px; resize:vertical; }
+        .evm-aide { font-size:11px; color:var(--m-muted); }
+        /* Menu « … » */
+        .evm-menu { position:fixed; z-index:85; min-width:230px; background:var(--m-panel); border:1px solid var(--m-line); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,.28); padding:6px; }
+        .evm-menu button { display:flex; width:100%; gap:10px; align-items:center; padding:9px 10px; border-radius:8px; border:0; background:none; color:var(--m-text); font-size:13px; font-weight:600; text-align:left; cursor:pointer; }
+        .evm-menu button:hover, .evm-menu button:focus { background:var(--m-hover); }
+        .evm-menu button i { width:16px; text-align:center; color:var(--m-muted); }
+        .evm-menu .evm-m-danger, .evm-menu .evm-m-danger i { color:var(--m-danger); }
+        .evm-menu hr { border:0; border-top:1px solid var(--m-line); margin:4px 0; }
+        /* Fenêtre de motif (rôle, mot de passe, suppression) */
+        .evm-dialogue { position:fixed; inset:0; z-index:90; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(15,23,42,.6); }
+        .evm-dialogue form { background:var(--m-panel); color:var(--m-text); border-radius:20px; width:100%; max-width:440px; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,.35); max-height:92vh; overflow-y:auto; border:1px solid var(--m-line); }
+        .evm-dialogue h2 { font-size:17px; font-weight:900; margin-bottom:4px; }
+        .evm-dialogue p { font-size:12px; color:var(--m-muted); margin-bottom:12px; }
+        .evm-dialogue label { display:block; font-size:12px; font-weight:800; margin-bottom:4px; }
+        .evm-dialogue input, .evm-dialogue select, .evm-dialogue textarea { width:100%; padding:9px 11px; border-radius:10px; border:1px solid var(--m-line); background:var(--m-soft); color:var(--m-text); font-size:14px; margin-bottom:4px; }
+        .evm-dialogue .evm-err { color:var(--m-danger); font-size:12px; min-height:16px; margin-bottom:8px; }
+        .evm-dialogue .evm-boutons { justify-content:stretch; }
+        .evm-dialogue .evm-boutons .evm-btn { flex:1; min-height:42px; font-size:13px; }
+        body.evm-bloque { overflow:hidden; }
     </style>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
@@ -208,6 +342,9 @@
             <button data-click="showTab" data-click-args='["logs","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-list mr-1"></i> Logs
             </button>
+            <button id="auditTabBtn" data-click="showTab" data-click-args='["audit","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-clipboard-list mr-1"></i> Journal des actions
+            </button>
             <button id="contactTabBtn" data-click="showTab" data-click-args='["contact","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-envelope mr-1"></i> Messages contact
                 <span id="contactTabBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
@@ -302,38 +439,68 @@
         </div>
 
         <div id="tab-users" class="tab-content p-5 hidden">
-            <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
-                <input type="text" id="searchUser" placeholder="Rechercher..."
-                    class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
-                <div class="flex items-center gap-3">
-                    <button type="button" data-click="offrirA" data-click-args='[""]' class="px-3 py-1.5 rounded-xl text-xs font-bold" style="background:#ffe500;color:#111113"><i class="fa-solid fa-gift mr-1"></i> Offrir des crédits</button>
-                    <span class="text-xs text-slate-500" id="userCount">Chargement...</span>
-                    <button data-click="loadUsers" class="text-xs text-brand-primary hover:underline font-bold">
-                        <i class="fa-solid fa-refresh"></i> Rafraîchir
-                    </button>
+            <div class="evm">
+                <div class="evm-barre">
+                    <label class="evm-recherche">
+                        <span class="sr-only">Rechercher un membre (pseudo, e-mail ou numéro)</span>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="evmQ" placeholder="Pseudo, e-mail ou #numéro" autocomplete="off" maxlength="100">
+                    </label>
+                    <div class="evm-actions-haut">
+                        <button type="button" data-click="offrirA" data-click-args='[""]' class="evm-btn evm-btn-jaune"><i class="fa-solid fa-gift" aria-hidden="true"></i> Offrir des crédits</button>
+                        <button type="button" id="evmRafraichir" class="evm-btn evm-btn-ghost"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Rafraîchir</button>
+                    </div>
                 </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-100 text-left text-xs text-slate-500 uppercase font-bold">
-                            <th class="py-3 px-2">ID</th>
-                            <th class="py-3 px-2">Utilisateur</th>
-                            <th class="py-3 px-2">Email</th>
-                            <th class="py-3 px-2">Rôle</th>
-                            <th class="py-3 px-2">Statut</th>
-                            <th class="py-3 px-2 text-right" title="Réinitialiser le mot de passe d'un compte">
-                                Actions
-                                <i class="fa-solid fa-key text-brand-primary ml-1" title="Réinitialiser un mot de passe (🔑 sur chaque ligne)"></i>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTable">
-                        <tr><td colspan="6" class="py-8 text-center text-slate-400">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
-                        </td></tr>
-                    </tbody>
-                </table>
+                <div class="evm-filtres" role="group" aria-label="Filtres">
+                    <label class="evm-champ">Rôle
+                        <select id="evmRole">
+                            <option value="">Tous</option><option value="user">Membre</option><option value="model">Modèle</option>
+                            <option value="moderator">Modérateur</option><option value="super_admin">Super Admin</option><option value="bot">Animateur (IA)</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Statut
+                        <select id="evmStatut">
+                            <option value="">Tous</option><option value="actif">Actif</option><option value="muet">Muet</option>
+                            <option value="exclu">Exclu</option><option value="banni">Banni</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Inscription
+                        <select id="evmInscrits">
+                            <option value="">Toutes</option><option value="7j">7 derniers jours</option><option value="30j">30 derniers jours</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Trier par
+                        <select id="evmTri">
+                            <option value="inscription">Date d'inscription</option><option value="derniere_connexion">Dernière connexion</option>
+                            <option value="signalements">Signalements</option><option value="credits">Crédits</option><option value="pseudo">Pseudo</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Ordre
+                        <select id="evmOrdre">
+                            <option value="">Par défaut</option><option value="desc">Décroissant</option><option value="asc">Croissant</option>
+                        </select>
+                    </label>
+                    <div class="evm-puces">
+                        <label class="evm-puce"><input type="checkbox" id="evmEnLigne"> 🟢 En ligne</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmSignale"> ⚠️ Signalés (3+)</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmNonVerifie"> ✉️ E-mail non vérifié</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmPhoto"> 📷 Photo en attente</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmInactifs"> 💤 Inactifs 30 j</label>
+                        <button type="button" id="evmReset" class="evm-lien">Effacer les filtres</button>
+                    </div>
+                </div>
+                <p class="evm-resume" id="userCount" aria-live="polite">Chargement...</p>
+                <div class="evm-tableau">
+                    <table class="evm-table">
+                        <thead>
+                            <tr><th scope="col">Membre</th><th scope="col">Rôle</th><th scope="col">Statut</th><th scope="col">Dernière activité</th><th scope="col">Crédits</th><th scope="col"><span class="sr-only">Actions</span></th></tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr><td colspan="6" class="evm-vide"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <nav class="evm-pages" id="evmPages" aria-label="Pages de la liste des membres"></nav>
             </div>
         </div>
 
@@ -464,6 +631,31 @@
             </div>
         </div>
 
+        <div id="tab-audit" class="tab-content p-5 hidden">
+            <div class="evm">
+                <div class="evm-titre">
+                    <div>
+                        <h3>Journal des actions de l'équipe</h3>
+                        <p>Chaque sanction, changement de rôle, suppression, réinitialisation, crédit offert et note interne, avec son auteur et son motif.</p>
+                    </div>
+                </div>
+                <form id="evaFiltres" class="evm-filtres" role="search" aria-label="Filtrer le journal">
+                    <label class="evm-champ">Auteur<input type="text" id="evaActeur" placeholder="Pseudo ou #numéro" maxlength="60" autocomplete="off"></label>
+                    <label class="evm-champ">Membre visé<input type="text" id="evaCible" placeholder="Pseudo ou #numéro" maxlength="60" autocomplete="off"></label>
+                    <label class="evm-champ">Action<select id="evaAction"><option value="">Toutes</option></select></label>
+                    <div class="evm-puces"><button type="submit" class="evm-btn evm-btn-jaune">Filtrer</button><button type="button" id="evaReset" class="evm-lien">Effacer</button></div>
+                </form>
+                <p class="evm-resume" id="evaResume" aria-live="polite"></p>
+                <div class="evm-tableau">
+                    <table class="evm-table evm-journal">
+                        <thead><tr><th scope="col">Date</th><th scope="col">Auteur</th><th scope="col">Action</th><th scope="col">Membre</th><th scope="col">Motif et détails</th></tr></thead>
+                        <tbody id="evaListe"><tr><td colspan="5" class="evm-vide">Chargement...</td></tr></tbody>
+                    </table>
+                </div>
+                <nav class="evm-pages" id="evaPages" aria-label="Pages du journal"></nav>
+            </div>
+        </div>
+
         <div id="tab-contact" class="tab-content p-5 hidden">
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <div>
@@ -553,7 +745,7 @@
 </div>
 
 <!-- 🔑 Mot de passe réinitialisé : affiché à l'administrateur une seule fois -->
-<div id="pwdModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+<div id="pwdModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4" style="z-index:95" role="dialog" aria-modal="true" aria-label="Mot de passe temporaire">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
         <button data-click="closeModal" data-click-args='["pwdModal"]' aria-label="Fermer" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
         <h3 class="text-xl font-extrabold text-slate-900 mb-1"><i class="fa-solid fa-key text-brand-primary mr-2"></i>Mot de passe réinitialisé</h3>
@@ -574,7 +766,8 @@
     </div>
 </div>
 
-<script src="pages/admin.js?v=3"></script>
+<script src="pages/admin.js?v=4"></script>
+<script src="pages/admin-membres.js?v=2"></script>
 
 
 <script src="pages/admin-demandes.js"></script>

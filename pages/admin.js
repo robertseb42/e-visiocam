@@ -135,19 +135,18 @@ async function telechargerSauvegarde() {
 }
 
 // ---------- CHARGER LES UTILISATEURS ----------
+// allUsers : liste complète (compteurs du haut, onglet Modération, choix du membre à qui offrir des crédits).
+// Le tableau de l'onglet Utilisateurs est filtré, trié et paginé par le serveur : voir pages/admin-membres.js.
 async function loadUsers() {
-    const tbody = document.getElementById('usersTable');
-    tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</td></tr>';
-
     try {
         const data = await apiCall('/admin/users');
         allUsers = data.users;
         updateStats();
-        renderUsers();
         renderMods();
     } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-rose-500">' + escapeHtml(err.message) + '</td></tr>';
+        showToast(err.message, 'error');
     }
+    if (window.EvcMembres) EvcMembres.charger();
 }
 
 // ---------- CHARGER LES LOGS ----------
@@ -191,71 +190,6 @@ const roleBadges = {
     bot:         '<span class="bg-yellow-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-bold">🤖 Animateur (IA)</span>'
 };
 
-function renderUsers(filter = '') {
-    filter = filter.toLowerCase();
-    const filtered = allUsers.filter(u =>
-        u.username.toLowerCase().includes(filter) ||
-        (u.email && u.email.toLowerCase().includes(filter))
-    );
-    const tbody = document.getElementById('usersTable');
-
-    if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-400 text-sm">Aucun utilisateur</td></tr>';
-        document.getElementById('userCount').innerText = '0 utilisateur';
-        return;
-    }
-
-    tbody.innerHTML = filtered.map(u => {
-        const isBanned = u.status === 'banned';
-        const isMe = currentUser && u.id === currentUser.id;
-        const canAct = !isMe;
-
-        let actions = '<div class="flex justify-end gap-1 flex-wrap">';
-        // 🎁 Offrir des crédits (possible aussi pour soi-même et l'équipe : Super Admin)
-        if (!isBanned) actions += '<button data-adm="offrirA" data-adm-args="' + argsAdm(u.username) + '" title="Offrir des crédits" class="w-7 h-7 rounded-lg bg-yellow-100 text-amber-700 hover:bg-yellow-200 text-xs"><i class="fa-solid fa-gift"></i></button>';
-        // 🔑 Réinitialisation du mot de passe : possible sur n'importe quel compte
-        actions += '<button data-adm="handleResetPassword" data-adm-args="' + argsAdm(u.id, u.username) + '" title="Réinitialiser le mot de passe" class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 hover:bg-amber-200 text-xs"><i class="fa-solid fa-key"></i></button>';
-        if (canAct && u.role === 'user') {
-            actions += '<button data-adm="handlePromoteMod" data-adm-args="' + argsAdm(u.id) + '" title="Nommer modérateur" class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 text-xs"><i class="fa-solid fa-user-shield"></i></button>';
-        }
-        if (canAct && u.role === 'moderator') {
-            actions += '<button data-adm="handleRevokeMod" data-adm-args="' + argsAdm(u.id) + '" title="Révoquer modérateur" class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 text-xs"><i class="fa-solid fa-user-minus"></i></button>';
-        }
-        // Sanctions avec durée au choix (mute / kick / ban), ou levée si elles sont en cours
-        const enCours = canAct ? EvcSanction.enCours(u) : [];
-        if (canAct) {
-            actions += enCours.includes('mute')
-                ? '<button data-adm="leverSanction" data-adm-args="' + argsAdm(u.id, 'mute') + '" title="Rendre la parole" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-microphone"></i></button>'
-                : '<button data-adm="handleSanction" data-adm-args="' + argsAdm(u.id, 'mute') + '" title="Rendre muet (durée au choix)" class="w-7 h-7 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs"><i class="fa-solid fa-microphone-slash"></i></button>';
-            actions += enCours.includes('kick')
-                ? '<button data-adm="leverSanction" data-adm-args="' + argsAdm(u.id, 'kick') + '" title="Lever l\'exclusion" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-door-open"></i></button>'
-                : '<button data-adm="handleSanction" data-adm-args="' + argsAdm(u.id, 'kick') + '" title="Expulser (durée au choix)" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 text-xs"><i class="fa-solid fa-right-from-bracket"></i></button>';
-        }
-        if (canAct && !isBanned) {
-            actions += '<button data-adm="handleSanction" data-adm-args="' + argsAdm(u.id, 'ban') + '" title="Bannir (jours ou définitif)" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs"><i class="fa-solid fa-ban"></i></button>';
-        }
-        if (canAct && isBanned) {
-            actions += '<button data-adm="leverSanction" data-adm-args="' + argsAdm(u.id, 'ban') + '" title="Débannir" class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-xs"><i class="fa-solid fa-check"></i></button>';
-        }
-        if (canAct) {
-            actions += '<button data-adm="handleDelete" data-adm-args="' + argsAdm(u.id) + '" title="Supprimer" class="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs"><i class="fa-solid fa-trash"></i></button>';
-        }
-        actions += '</div>';
-
-        return '<tr class="border-b border-slate-50 hover:bg-slate-50/50">' +
-            '<td class="py-3 px-2 text-slate-500 font-mono text-xs">#' + u.id + '</td>' +
-            '<td class="py-3 px-2 font-bold text-slate-900">' + escapeHtml(u.username) + (isMe ? ' <span class="text-[10px] text-brand-primary">(moi)</span>' : '') + '</td>' +
-            '<td class="py-3 px-2 text-slate-500 text-xs">' + escapeHtml(u.email || '—') + '</td>' +
-            '<td class="py-3 px-2">' + (roleBadges[u.role] || escapeHtml(u.role)) + '</td>' +
-            '<td class="py-3 px-2">' + EvcSanction.etiquette(u) +
-                (Number(u.must_change_password) === 1 ? ' <span class="text-amber-600 text-[10px] font-bold" title="Mot de passe réinitialisé : à changer à la prochaine connexion">🔑 à changer</span>' : '') + '</td>' +
-            '<td class="py-3 px-2 text-right">' + actions + '</td>' +
-            '</tr>';
-    }).join('');
-
-    document.getElementById('userCount').innerText = filtered.length + ' utilisateur(s)';
-}
-
 function renderMods() {
     const mods = allUsers.filter(u => u.role === 'moderator' || u.role === 'super_admin');
     document.getElementById('modsList').innerHTML = mods.length === 0
@@ -280,23 +214,15 @@ function renderMods() {
 }
 
 // ---------- ACTIONS ----------
-async function handlePromoteMod(userId) {
+// Changement de rôle : motif obligatoire (fenêtre de pages/admin-membres.js), tracé dans le journal des actions
+function handlePromoteMod(userId) {
     const id = userId || parseInt(document.getElementById('promoteModSelect').value);
     if (!id) return showToast('Choisissez un utilisateur', 'error');
-    try {
-        await apiCall('/admin/users/' + id + '/role', { method: 'POST', body: JSON.stringify({ role: 'moderator' }) });
-        showToast('🔵 Utilisateur promu modérateur !');
-        await loadUsers();
-    } catch (err) { showToast(err.message, 'error'); }
+    EvcMembres.changerRole(id, 'moderator');
 }
 
-async function handleRevokeMod(userId) {
-    if (!confirm('Révoquer ce modérateur ?')) return;
-    try {
-        await apiCall('/admin/users/' + userId + '/role', { method: 'POST', body: JSON.stringify({ role: 'user' }) });
-        showToast('Modérateur révoqué', 'warning');
-        await loadUsers();
-    } catch (err) { showToast(err.message, 'error'); }
+function handleRevokeMod(userId) {
+    EvcMembres.changerRole(userId, 'user');
 }
 
 function handleSanction(userId, type) {
@@ -314,13 +240,8 @@ async function handleUnban(userId) {
     } catch (err) { showToast(err.message, 'error'); }
 }
 
-async function handleDelete(userId) {
-    if (!confirm('⚠️ Supprimer définitivement ce compte ?')) return;
-    try {
-        await apiCall('/admin/users/' + userId, { method: 'DELETE' });
-        showToast('🗑️ Compte supprimé', 'warning');
-        await loadUsers();
-    } catch (err) { showToast(err.message, 'error'); }
+function handleDelete(userId) {
+    EvcMembres.supprimer(userId);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -342,18 +263,12 @@ function closeModal(id) {
 
 let tempPassword = '';
 
-async function handleResetPassword(userId, username) {
-    if (!confirm('Réinitialiser le mot de passe de « ' + username + ' » ?\n\n'
-        + 'Un mot de passe temporaire va être créé. Le membre devra en choisir un nouveau '
-        + 'à sa prochaine connexion, et ses sessions ouvertes seront déconnectées.')) return;
+// Motif obligatoire : demandé dans une fenêtre, puis afficherMotDePasseTemporaire() montre le résultat
+function handleResetPassword(userId, username) {
+    EvcMembres.reinitialiserMdp(userId, username);
+}
 
-    let data;
-    try {
-        data = await apiCall('/admin/users/' + userId + '/reset-password', { method: 'POST' });
-    } catch (err) {
-        showToast(err.message || 'Réinitialisation impossible', 'error');
-        return;
-    }
+async function afficherMotDePasseTemporaire(data, username) {
 
     // Le mot de passe est déjà changé côté serveur et n'est affiché qu'une seule fois :
     // quoi qu'il arrive ensuite, il ne doit jamais être perdu.
@@ -662,6 +577,8 @@ function showTab(name, btn) {
     if (name === 'rewards') chargerRecompenses();
     if (name === 'stats') chargerStats();
     if (name === 'logs') loadLogs();
+    if (name === 'users' && window.EvcMembres) EvcMembres.charger();
+    if (name === 'audit' && window.EvcMembres) EvcMembres.chargerJournal();
     if (name === 'contact') loadContactMessages();
     if (location.hash !== '#' + name && name === 'contact') history.replaceState(null, '', '#contact');
 }
@@ -972,8 +889,6 @@ async function deleteContact(id) {
     } catch (err) { showToast(err.message, 'error'); }
 }
 
-// ---------- RECHERCHE ----------
-document.getElementById('searchUser').addEventListener('input', e => renderUsers(e.target.value));
 
 // ---------- Boutons générés (membres, radios, récompenses, messages de contact) ----------
 // Remplacent des attributs onclick, bloqués par la CSP stricte. Les arguments sont en JSON dans
