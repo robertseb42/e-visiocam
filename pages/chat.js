@@ -411,6 +411,7 @@ function initSocket() {
     if (window.evcSurveillerSession) window.evcSurveillerSession(socket);   // fin de session (mot de passe changé, déconnexion…)
     if (typeof EvcQuiz !== 'undefined') EvcQuiz.brancher(socket);   // 🧠 résultats du quiz de l'animateur
     if (typeof EvcCam !== 'undefined') EvcCam.brancher(socket);     // 📷 demandes de cam reçues tout de suite
+    if (window.EvcSecurite) EvcSecurite.brancher(socket);           // 🚫 liste des membres bloqués à jour
 
     socket.on('connect', () => {
         const status = document.getElementById('connectionStatus');
@@ -878,10 +879,16 @@ function renderMessage(msg) {
         container.appendChild(div);
         return;
     }
+    // 🚫 Membre bloqué : ses messages ne s'affichent pas (le serveur filtre déjà l'historique)
+    if (!isMe && window.EvcSecurite && EvcSecurite.estBloque(msg.user_id)) return;
+    if (!isMe) div.setAttribute('data-evc-auteur', Number(msg.user_id));
+    // Pseudo → fiche du membre (Message, Demander la cam, Voir le profil, Signaler, Bloquer) ; 🚩 → signaler ce message
+    const signalerMsg = (!isMe && msg.id) ? '<button type="button" class="evc-flag ml-auto" data-evc-signaler="message" data-msg-id="' + Number(msg.id) + '" data-source="salon" data-uid="' + Number(msg.user_id) + '" data-nom="' + escapeHtml(msg.username) + '"' +
+        (msg.role === 'moderator' || msg.role === 'super_admin' ? ' data-peut-bloquer="0"' : '') + ' title="Signaler ce message" aria-label="Signaler ce message de ' + escapeHtml(msg.username) + '">🚩</button>' : '';
     div.innerHTML = '<div class="' + (isMe ? 'flex justify-end' : '') + '">' +
         '<div class="' + (isMe ? 'bg-brand-primary text-white rounded-2xl rounded-tr-sm px-4 py-2 max-w-md' : 'max-w-md') + '">' +
-            (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><button type="button" data-uid="' + Number(msg.user_id) + '" data-n="' + escapeHtml(msg.username) + '" title="Écrire en privé" class="text-xs font-bold text-slate-700 hover:text-purple-600">' + icon + ' ' + escapeHtml(msg.username) + insigneHtml(msg.insigne) + '</button><span class="text-[10px] text-slate-400">' + time + '</span></div>' : '') +
-            '<p class="text-sm ' + (isMe ? '' : 'text-slate-700') + '">' + escapeHtml(msg.text) + '</p>' +
+            (!isMe ? '<div class="flex items-center gap-2 mb-0.5"><button type="button" data-fiche="' + Number(msg.user_id) + '" title="Voir la fiche de ' + escapeHtml(msg.username) + '" class="text-xs font-bold text-slate-700 hover:text-purple-600">' + icon + ' ' + escapeHtml(msg.username) + insigneHtml(msg.insigne) + '</button><span class="text-[10px] text-slate-400">' + time + '</span>' + signalerMsg + '</div>' : '') +
+            '<p class="text-sm ' + (isMe ? '' : 'text-slate-700') + '"' + (isMe ? '' : ' data-evc-texte') + '>' + escapeHtml(msg.text) + '</p>' +
         '</div>' +
     '</div>';
     container.appendChild(div);

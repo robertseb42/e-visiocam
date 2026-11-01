@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://geo.api.gouv.fr https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <script src="persistent-radio-bootstrap.js"></script>
     <script src="theme.js?v=2"></script>
     <script src="actions.js?v=csp2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,20 +13,21 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#111113">
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="auth-api.js?v=6"></script>
+    <script src="auth-api.js?v=7"></script>
     <script src="departements-data.js"></script>
     <script src="ville-departement.js"></script>
-    <script src="legal-banner.js?v=4"></script>
+    <script src="legal-banner.js?v=4" defer></script>
     <script src="nav-auth.js?v=6" defer></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
-  <script src="persistent-radio-bootstrap.js"></script>
+  
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -191,6 +193,33 @@
                 </form>
             </div>
 
+            <!-- 🔔 Notifications push (push-client.js) -->
+            <section id="pushZone" class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm" aria-labelledby="pushTitre">
+                <h3 id="pushTitre" class="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-brand-primary" aria-hidden="true"></i> Notifications
+                </h3>
+                <p class="text-xs text-slate-500 mb-4">
+                    Soyez prévenu sur cet appareil, même quand le site est fermé. Par discrétion, le contenu de vos messages n'est jamais affiché dans la notification.
+                </p>
+                <p id="pushMessage" class="text-xs mb-3 p-3 rounded-xl bg-slate-50 text-slate-600" role="status" aria-live="polite" hidden></p>
+                <div id="pushReglages" class="space-y-3 mb-4" hidden>
+                    <label class="flex items-center gap-3 text-sm text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="pushDm" class="rounded" checked> Messages privés
+                    </label>
+                    <label class="flex items-center gap-3 text-sm text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="pushLive" class="rounded" checked> Favoris en direct
+                    </label>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <button type="button" id="pushActiver" hidden class="px-5 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm disabled:opacity-50">
+                        <i class="fa-solid fa-bell" aria-hidden="true"></i> Activer les notifications
+                    </button>
+                    <button type="button" id="pushDesactiver" hidden class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm disabled:opacity-50">
+                        <i class="fa-regular fa-bell-slash" aria-hidden="true"></i> Désactiver
+                    </button>
+                </div>
+            </section>
+
             <!-- Zone dangereuse -->
             <div class="bg-white rounded-2xl p-6 border-2 border-rose-200 shadow-sm">
                 <h3 class="font-bold text-rose-600 mb-4 flex items-center gap-2">
@@ -210,6 +239,7 @@
 </main>
 
 <script src="pages/compte.js?v=2"></script>
+<script src="push-client.js?v=2"></script>
 
 <script src="footer.js?v=5" defer></script>
 

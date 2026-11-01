@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <h2 class="text-2xl font-bold text-slate-900 truncate">${esc(user.username)}</h2>
                 <p class="text-sm text-slate-500 mt-1">${esc(roleLabels[user.role] || user.role)}</p>
                 <p class="text-xs text-slate-400 mt-1">${joinedText}</p>
+                <p class="text-xs mt-1"><a class="text-brand-primary font-bold" href="membre.html?u=${encodeURIComponent(user.username)}">Voir mon profil public</a></p>
                 ${user.departement && window.evcDepartement ? `<p class="text-xs text-slate-500 mt-1">📍 ${evcDepartement(user.departement)}</p>` : ''}
             </div>
         </div>

@@ -9,6 +9,13 @@
 // ============================================================
 (function () {
     'use strict';
+    // ⏱️ Décor seulement : créé une fois la page chargée, quand le navigateur est libre (premier affichage plus rapide)
+    function auRepos() {
+        if (window.requestIdleCallback) requestIdleCallback(init, { timeout: 1500 }); else setTimeout(init, 200);
+    }
+    if (document.readyState === 'complete') auRepos(); else window.addEventListener('load', auRepos, { once: true });
+
+    function init() {
     if (document.getElementById('evcCouple')) return;
     var RATIO = 370 / 520, T = '8s';
     var etapes = [['dd-homme', 'ecHomme'], ['dd-court', 'ecCourt'], ['dd-saut', 'ecSaut'], ['dd-prise', 'ecPrise'], ['dd-porte', 'ecPorte']];
@@ -47,7 +54,7 @@
         '<rect class="ec-dalle c" x="-52" y="2" width="50" height="50" rx="5"/><rect class="ec-dalle d" x="2" y="2" width="50" height="50" rx="5"/></g></g>' +
         '<ellipse cx="100" cy="50" rx="92" ry="26" fill="url(#ecSpot)"/></svg>';
     etapes.forEach(function (e) {
-        html += '<img class="ec-img' + (e[0] === 'dd-porte' ? ' fixe' : '') + '" src="' + e[0] + '.webp?v=4" alt="" width="520" height="370" decoding="async" style="animation-name:' + e[1] + '">';
+        html += '<img class="ec-img' + (e[0] === 'dd-porte' ? ' fixe' : '') + '" src="' + e[0] + '.webp?v=4" alt="" width="520" height="370" loading="lazy" decoding="async" style="animation-name:' + e[1] + '">';
     });
     [[64, 2, 0], [92, 8, -.25], [24, 6, -.5], [80, 22, -.75]].forEach(function (e) {
         html += '<span class="ec-eclat" style="--x:' + e[0] + '%;--y:' + e[1] + '%;--r:' + e[2] + 's"></span>';
@@ -102,8 +109,9 @@
     window.addEventListener('scroll', placerBientot, { passive: true });   // la colonne de gauche défile
     window.addEventListener('evc:radio-placee', placer);                   // la radio vient d'être (re)placée
     window.addEventListener('resize', placer);
-    window.addEventListener('load', placer);
+    placer();   // créé après « load » : on se place tout de suite
     setTimeout(placer, 300); setTimeout(placer, 1500); setTimeout(placer, 4000);   // après le chargement des salons et du bandeau « Qui est là ? »
     if (window.ResizeObserver) new ResizeObserver(placer).observe(document.body);
     if (window.MutationObserver) new MutationObserver(placer).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    }
 })();

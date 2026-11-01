@@ -61,7 +61,7 @@
         '<rect class="dalle a" x="-52" y="-52" width="50" height="50" rx="5"/><rect class="dalle b" x="2" y="-52" width="50" height="50" rx="5"/>' +
         '<rect class="dalle c" x="-52" y="2" width="50" height="50" rx="5"/><rect class="dalle d" x="2" y="2" width="50" height="50" rx="5"/></g></g>' +
         '<ellipse cx="100" cy="72" rx="80" ry="22" fill="url(#dzSpot)"/></svg>' +
-        '<div class="sens"><div class="gars"><img src="danseur-disco.webp" alt="" width="342" height="520" decoding="async"></div></div>';
+        '<div class="sens"><div class="gars"><img src="danseur-disco.webp" alt="" width="342" height="520" loading="lazy" decoding="async"></div></div>';
 
     var boule, reflets, cb, cr, ctxB, ctxR, angle = 0, temps = 0, dernier = 0, raf = 0;
     var dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -339,9 +339,25 @@
     function appliquer() {
         document.documentElement.classList.toggle('evc-disco', actif);
         majBoutons();
-        if (actif) { if (!boule) creer(); else taille(); demarrer(); }
+        if (actif) { if (!boule) creerPlusTard(); else { taille(); demarrer(); } }
         else if (raf) { cancelAnimationFrame(raf); raf = 0; }
         setTimeout(placerDanseur, 50);   // boule allumée ou éteinte : la colonne (danseur, radio) se réorganise
+    }
+    // ⏱️ Décor seulement : la boule, ses reflets et le danseur sont créés une fois la page chargée,
+    // quand le navigateur est libre, pour ne pas ralentir le premier affichage (surtout sur téléphone)
+    var creationPrevue = false;
+    function creerPlusTard() {
+        if (creationPrevue) return;
+        creationPrevue = true;
+        function go() {
+            if (boule) return;
+            if (!actif) { creationPrevue = false; return; }   // éteinte entre-temps : on recréera au prochain allumage
+            creer(); demarrer(); placerDanseur();
+        }
+        function auRepos() {
+            if (window.requestIdleCallback) requestIdleCallback(go, { timeout: 1500 }); else setTimeout(go, 200);
+        }
+        if (document.readyState === 'complete') auRepos(); else window.addEventListener('load', auRepos, { once: true });
     }
     function basculer() {
         actif = !actif;

@@ -1,0 +1,46 @@
+/* ============================================================
+   Profil d'un membre (membre.html) — thème sombre par défaut, thème clair via html[data-theme="light"]
+   ============================================================ */
+.mb-carte{padding:24px 20px;overflow:hidden}
+.mb-tete{display:flex;align-items:center;gap:20px}
+.mb-photo{position:relative;width:112px;height:112px;flex:none;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,#ff1680,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900}
+.mb-photo img{width:100%;height:100%;object-fit:cover}
+.mb-photo.on{box-shadow:0 0 0 4px #22c55e}
+.mb-photo.live{box-shadow:0 0 0 4px #f43f5e,0 0 26px rgba(244,63,94,.45)}
+.mb-nom{margin:0;font-size:26px;font-weight:900;line-height:1.2;word-break:break-word}
+.mb-lignes{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;opacity:.85}
+.mb-point{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;background:#8b8b96}
+.mb-point.on{background:#22c55e}.mb-point.live{background:#f43f5e}
+.mb-role{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:rgba(127,127,127,.16)}
+.mb-role.equipe{background:rgba(255,229,0,.18);color:#ffe500}
+html[data-theme="light"] .mb-role.equipe{background:#fef3c7;color:#92400e}
+.mb-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.mb-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(127,127,127,.15)}
+.mb-bio{margin-top:18px;padding:14px 16px;border-radius:14px;background:rgba(127,127,127,.1);font-size:14px;line-height:1.6;white-space:pre-line;word-break:break-word}
+.mb-bio h2{margin:0 0 6px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.65}
+.mb-live{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:18px;padding:12px 14px;border-radius:14px;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.35);font-size:14px;font-weight:700}
+.mb-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.mb-btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 14px;border-radius:14px;border:1px solid transparent;font:800 14px/1.2 Inter,system-ui,sans-serif;cursor:pointer;text-decoration:none;text-align:center;background:rgba(127,127,127,.15);color:inherit}
+.mb-btn:hover{background:rgba(127,127,127,.25)}
+.mb-btn:disabled{opacity:.5;cursor:not-allowed}
+.mb-btn.principal{grid-column:1/-1;background:#ffe500;color:#111113}
+.mb-btn.principal:hover{background:#fff04a}
+html[data-theme="light"] .mb-btn.principal{background:#e91e63;color:#fff}
+html[data-theme="light"] .mb-btn.principal:hover{background:#d81b60}
+.mb-btn.rouge{background:#f43f5e;color:#fff}.mb-btn.rouge:hover{background:#e11d48}
+.mb-btn.discret{background:transparent;border-color:rgba(127,127,127,.35);font-weight:700}
+.mb-btn.actif{color:#f43f5e}
+.mb-securite{display:flex;gap:10px;margin-top:10px}
+.mb-securite .mb-btn{flex:1;min-height:40px;font-size:13px}
+.mb-note{margin:10px 0 0;font-size:12px;opacity:.65;text-align:center}
+.mb-vide{padding:36px 8px;text-align:center}
+.mb-vide p{margin:0 0 6px}
+.mb-vide .mb-icone{font-size:44px;margin-bottom:10px}
+@media (max-width:480px){
+  .mb-carte{padding:20px 16px}
+  .mb-tete{flex-direction:column;text-align:center;gap:12px}
+  .mb-lignes,.mb-badges{justify-content:center}
+  .mb-photo{width:104px;height:104px;font-size:42px}
+  .mb-nom{font-size:23px}
+  .mb-actions{grid-template-columns:1fr}
+}

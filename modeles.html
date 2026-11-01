@@ -5,6 +5,7 @@
 <meta charset="utf-8"/>
 <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
 <meta content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<script src="persistent-radio-bootstrap.js"></script>
 <script src="theme.js?v=2"></script>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Modèles et profils webcam en direct | E-VISIOCAM</title>
@@ -15,6 +16,8 @@
 <meta content="Découvrez les modèles et membres de la communauté E-VISIOCAM, suivez leurs profils et retrouvez leurs lives webcam lorsqu’ils sont en direct." name="description"/>
 <link href="https://www.e-visiocam.com/modeles.html" rel="canonical"/>
 <meta content="adult" name="rating"/>
+<!-- Pas encore de modèle : page masquée de Google tant qu'elle est vide (retirer cette ligne + la remettre dans sitemap.xml quand il y aura des modèles) -->
+<meta content="noindex, follow" name="robots"/>
 <meta content="website" property="og:type"/>
 <meta content="E-VISIOCAM" property="og:site_name"/>
 <meta content="fr_FR" property="og:locale"/>
@@ -28,13 +31,12 @@
 <script src="app.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" rel="stylesheet" crossorigin="anonymous"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<script src="auth-api.js?v=6"></script>
+<script src="auth-api.js?v=7"></script>
 <script defer="" src="nav-auth.js?v=6"></script>
-<script src="legal-banner.js?v=4"></script>
+<script src="legal-banner.js?v=4" defer></script>
 <link href="style.css?v=20261101-webp" rel="stylesheet"/>
 <script defer="" src="maintenance.js"></script>
 <link href="tailwind.css?v=20261009" rel="stylesheet"/>
-<script src="persistent-radio-bootstrap.js"></script>
 <style>
     /* Galerie des membres : photo carrée, pseudo seul ; point rouge = en direct, jaune = connecté */
     .ev-membres{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}

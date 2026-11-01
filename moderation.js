@@ -213,6 +213,7 @@ function renderReports() {
         html += '</div>';
         html += '<p class="text-xs text-slate-600 mb-1"><strong>Raison :</strong> ' + reasonLabel(r.reason) + '</p>';
         if (r.description) html += '<p class="text-xs text-slate-500 italic">"' + escapeHtml(r.description) + '"</p>';
+        html += preuveHtml(r, false);
         html += '<p class="text-[10px] text-slate-400 mt-1">Signalé par ' + escapeHtml(r.reporter_name || 'Anonyme') + '</p>';
         html += '</div>';
         if (r.status === 'pending') {
@@ -231,6 +232,30 @@ function renderReports() {
             openActionModal(Number(b.dataset.repId), Number(b.dataset.targetId) || 0, b.dataset.targetName || '');
         });
     });
+}
+
+// 🧾 Preuve d'un message signalé : texte, auteur, date et lieu relus en base par le SERVEUR au moment
+// du signalement (le message reste lisible ici même s'il est supprimé ou masqué ensuite). Tout est échappé.
+function preuveHtml(r, complet) {
+    if (!r || !r.evidence_source || r.evidence_text == null) return '';
+    var ctx = null;
+    try { ctx = r.evidence_context ? JSON.parse(r.evidence_context) : null; } catch (e) { ctx = null; }
+    var lieu = r.evidence_source === 'prive' ? 'Message privé' : ('Salon : ' + escapeHtml((ctx && ctx.salon) || '?'));
+    var quand = r.evidence_at ? dateServeurMod(r.evidence_at).toLocaleString('fr-FR') : '';
+    var auteur = escapeHtml(r.target_username || ('Membre #' + (r.evidence_author_id || '?')));
+    var html = '<div class="mt-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-left">';
+    html += '<p class="text-[10px] font-bold text-slate-500 mb-1">💬 Message signalé · ' + lieu + (quand ? ' · ' + escapeHtml(quand) : '') + '</p>';
+    if (complet && ctx && Array.isArray(ctx.avant) && ctx.avant.length) {
+        html += '<div class="mb-1">';
+        ctx.avant.forEach(function (l) {
+            html += '<p class="text-[11px] text-slate-500 break-words"><strong>' + escapeHtml(l && l.auteur) + ' :</strong> ' + escapeHtml(l && l.texte) + '</p>';
+        });
+        html += '</div>';
+    }
+    html += '<p class="text-xs text-slate-900 break-words whitespace-pre-line"><strong>' + auteur + ' :</strong> ' + escapeHtml(r.evidence_text) + '</p>';
+    if (!complet && ctx && Array.isArray(ctx.avant) && ctx.avant.length) html += '<p class="text-[10px] text-slate-400 mt-1">+ ' + ctx.avant.length + ' message(s) de contexte dans « Traiter »</p>';
+    html += '</div>';
+    return html;
 }
 
 // Libellé lisible d'une raison (liste blanche miroir du backend) ; valeur inconnue => affichée échappée.
@@ -268,6 +293,8 @@ function openActionModal(reportId, targetId, targetName) {
     var html = '<div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">';
     html += '<h3 class="text-lg font-extrabold text-slate-900 mb-4 text-center">Traiter le signalement</h3>';
     html += '<p class="text-xs text-slate-500 mb-4 text-center">Contre <strong>' + escapeHtml(targetName || 'Utilisateur #' + targetId) + '</strong></p>';
+    var rapport = (allReports || []).find(function (x) { return Number(x.id) === Number(reportId); });
+    if (rapport && rapport.evidence_source) html += '<div class="mb-4">' + preuveHtml(rapport, true) + '</div>';
     window.__nomCibleSignalement = targetName || ('Utilisateur #' + targetId);
     html += '<div class="space-y-2">';
     html += '<button data-mod="applyAction" data-mod-args="' + argsMod(reportId, targetId, 'warn') + '" class="w-full p-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-left font-bold text-sm text-amber-900">Avertir</button>';

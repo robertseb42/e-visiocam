@@ -55,6 +55,20 @@ document.addEventListener('DOMContentLoaded', function() {
         msgInput.addEventListener('input', notifyTyping);
     }
 
+    // 🚩 Signaler / 🚫 Bloquer le membre de la conversation ouverte (voir securite-membres.js)
+    var btnSig = document.getElementById('btnSignalerConv');
+    if (btnSig) btnSig.addEventListener('click', function () {
+        if (currentOtherUser && window.EvcSecurite) EvcSecurite.signaler({ type: 'user', userId: currentOtherUser.id, username: currentOtherUser.username, peutBloquer: !estEquipe(currentOtherUser) });
+    });
+    var btnBl = document.getElementById('btnBloquerConv');
+    if (btnBl) btnBl.addEventListener('click', async function () {
+        if (!currentOtherUser || !window.EvcSecurite) return;
+        if (await EvcSecurite.bloquer(currentOtherUser.id, currentOtherUser.username)) {
+            closeConversation();
+            loadConversations();
+        }
+    });
+
     var userSearch = document.getElementById('userSearchInput');
     if (userSearch) {
         userSearch.addEventListener('input', function(e) {
@@ -100,6 +114,16 @@ function initSocket() {
 
         loadConversations();
     });
+
+    // Message refusé par le serveur (membre bloqué, sanction, mot interdit…) : on le dit clairement
+    // et le texte revient dans la zone de saisie
+    socket.on('dm:error', function(data) {
+        var texte = (data && data.message) || 'Message non envoyé';
+        afficherRefus(texte);
+        var champ = document.getElementById('messageInput');
+        if (champ && dernierEnvoi && !champ.value) champ.value = dernierEnvoi;
+    });
+    if (window.EvcSecurite) EvcSecurite.brancher(socket);
 
     socket.on('dm:unread-count', function(data) {
         updateUnreadBadge(data.count);
@@ -196,7 +220,13 @@ async function openConversation(convId) {
         const data = await apiCall('/messages/' + convId);
         currentOtherUser = data.otherUser;
 
-        document.getElementById('chatUsername').textContent = data.otherUser.username;
+        var lienNom = document.getElementById('chatUsername');
+        lienNom.textContent = data.otherUser.username;
+        lienNom.setAttribute('href', 'membre.html?u=' + encodeURIComponent(data.otherUser.username));
+        afficherRefus('');
+        // L'équipe de modération ne peut pas être bloquée
+        var btnBl = document.getElementById('btnBloquerConv');
+        if (btnBl) btnBl.classList.toggle('hidden', estEquipe(data.otherUser));
         document.getElementById('chatAvatar').textContent = data.otherUser.username.charAt(0).toUpperCase();
         currentOtherOnline = false;
         document.getElementById('chatStatus').innerHTML = '';
@@ -270,13 +300,16 @@ function buildMessageHtml(m) {
     var initial = (m.sender_username || '?').charAt(0).toUpperCase();
 
     var html = '';
-    html += '<div class="flex items-end gap-2 ' + (isMine ? 'flex-row-reverse' : '') + '"' + (m.id != null ? ' data-msg-id="' + Number(m.id) + '"' : '') + '>';
+    html += '<div class="flex items-end gap-2 ' + (isMine ? 'flex-row-reverse' : '') + '"' + (m.id != null ? ' data-msg-id="' + Number(m.id) + '"' : '') + (isMine ? '' : ' data-evc-msg') + '>';
     html += '<div class="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-xs shrink-0">' + initial + '</div>';
     html += '<div class="max-w-[70%]">';
-    html += '<div class="px-4 py-2.5 rounded-2xl text-sm break-words ' + (isMine ? 'msg-bubble-sent rounded-br-sm' : 'msg-bubble-received rounded-bl-sm') + '">';
+    html += '<div class="px-4 py-2.5 rounded-2xl text-sm break-words ' + (isMine ? 'msg-bubble-sent rounded-br-sm' : 'msg-bubble-received rounded-bl-sm') + '"' + (isMine ? '' : ' data-evc-texte') + '>';
     html += escapeHtml(m.content);
     html += '</div>';
-    html += '<p class="text-[10px] text-slate-400 mt-1 ' + (isMine ? 'text-right' : '') + '">' + formatTime(m.created_at) + '</p>';
+    // 🚩 Signaler ce message : le serveur joint lui-même le texte, l'auteur et la date
+    var drapeau = (!isMine && m.id != null) ? ' <button type="button" class="evc-flag" data-evc-signaler="message" data-source="prive" data-msg-id="' + Number(m.id) + '" data-uid="' + Number(m.sender_id) + '" data-nom="' + escapeHtml(m.sender_username || '') + '"' +
+        (m.sender_role === 'moderator' || m.sender_role === 'super_admin' ? ' data-peut-bloquer="0"' : '') + ' title="Signaler ce message" aria-label="Signaler ce message">🚩</button>' : '';
+    html += '<p class="text-[10px] text-slate-400 mt-1 ' + (isMine ? 'text-right' : '') + '">' + formatTime(m.created_at) + drapeau + '</p>';
     html += '</div></div>';
     return html;
 }
@@ -290,6 +323,8 @@ async function sendMessage() {
     if (!content || !currentConversationId) return;
 
     input.value = '';
+    dernierEnvoi = content;
+    afficherRefus('');
 
     try {
         if (socket && socket.connected) {
@@ -305,9 +340,20 @@ async function sendMessage() {
             loadConversations();
         }
     } catch (err) {
-        alert('Erreur envoi : ' + err.message);
+        afficherRefus(err.message || 'Message non envoyé');
+        if (!input.value) input.value = content;
     }
 }
+
+// Dernier texte envoyé : remis dans la zone de saisie si le serveur le refuse
+var dernierEnvoi = '';
+function afficherRefus(texte) {
+    var n = document.getElementById('dmNotice');
+    if (!n) return;
+    n.textContent = texte ? '⚠️ ' + texte : '';
+    n.classList.toggle('hidden', !texte);
+}
+function estEquipe(u) { return !!u && (u.role === 'moderator' || u.role === 'super_admin'); }
 
 // ============================================================
 // TYPING

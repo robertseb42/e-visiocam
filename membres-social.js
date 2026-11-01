@@ -170,14 +170,38 @@
         function lien(cls, texte, url) { var a = el('a', 'evs-btn ' + cls, texte); a.href = url; return a; }
         if (m.moi) {
             act.appendChild(lien('jaune', '✏️ Modifier mon profil', 'compte.html'));
+            act.appendChild(lien('', '👤 Voir mon profil public', 'membre.html?u=' + encodeURIComponent(m.username)));
         } else {
             if (m.isLive) act.appendChild(lien('rouge', '🎥 Voir sa caméra', 'live.html'));
-            act.appendChild(lien(m.isLive ? '' : 'jaune', '💬 Lui écrire', 'messages.html?ecrire=' + Number(m.id)));
+            var ecrire = lien(m.isLive ? '' : 'jaune', '💬 Lui écrire', 'messages.html?ecrire=' + Number(m.id));
+            // Page du salon : la conversation privée s'ouvre sur place
+            if (typeof window.ouvrirPrive === 'function') ecrire.addEventListener('click', function (e) { e.preventDefault(); fermerFiche(); window.ouvrirPrive(Number(m.id), m.username); });
+            act.appendChild(ecrire);
             if (!m.isLive) {
                 var cam = el('button', 'evs-btn', '📷 Demander sa cam'); cam.type = 'button';
                 if (!m.online) { cam.disabled = true; cam.title = m.username + ' n’est pas connecté'; }
                 cam.onclick = async function () { cam.disabled = true; var ok = await demander(m.id, m.username); if (ok) { cam.textContent = '✅ Demande envoyée'; } else cam.disabled = false; };
                 act.appendChild(cam);
+            }
+        }
+        if (!m.moi) {
+            act.appendChild(lien('', '👤 Voir le profil', 'membre.html?u=' + encodeURIComponent(m.username)));
+            // 🚩 Signaler · 🚫 Bloquer (voir securite-membres.js ; l'équipe de modération ne peut pas être bloquée)
+            if (window.EvcSecurite) {
+                var rg = el('div', 'evs-rang');
+                var sig = el('button', 'evs-btn', '🚩 Signaler'); sig.type = 'button';
+                sig.addEventListener('click', function () { fermerFiche(); window.EvcSecurite.signaler({ type: 'user', userId: m.id, username: m.username, peutBloquer: !!m.peutBloquer }); });
+                rg.appendChild(sig);
+                if (m.peutBloquer) {
+                    var bl = el('button', 'evs-btn', window.EvcSecurite.estBloque(m.id) ? '✅ Débloquer' : '🚫 Bloquer'); bl.type = 'button';
+                    bl.addEventListener('click', async function () {
+                        if (window.EvcSecurite.estBloque(m.id)) { if (await window.EvcSecurite.debloquer(m.id, m.username)) bl.textContent = '🚫 Bloquer'; return; }
+                        fermerFiche();
+                        window.EvcSecurite.bloquer(m.id, m.username);
+                    });
+                    rg.appendChild(bl);
+                }
+                act.appendChild(rg);
             }
         }
         f.appendChild(act);

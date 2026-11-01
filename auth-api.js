@@ -175,6 +175,8 @@ async function renvoyerConfirmation(login) {
 async function logout() {
     // 📷 Déconnexion : on coupe la caméra persistante (et le live) avant tout
     try { if (window.top.EvcCamSession) window.top.EvcCamSession.stop(); } catch (e) {}
+    // 🔔 Appareil partagé : plus de notifications du compte précédent après déconnexion
+    try { const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration('/'); const abo = reg && await reg.pushManager.getSubscription(); if (abo) { await apiCall('/push/unsubscribe', { method: 'POST', body: JSON.stringify({ endpoint: abo.endpoint }) }).catch(() => {}); await abo.unsubscribe(); } } catch (e) {}
     try { await apiCall('/auth/logout', { method: 'POST' }); } catch (e) {}
     clearToken(); clearUser();
     window.location.href = 'index.html';

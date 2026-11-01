@@ -5,6 +5,8 @@
 <meta charset="utf-8"/>
 <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
 <meta content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<script src="persistent-radio-bootstrap.js"></script>
+<link rel="preconnect" href="https://api.e-visiocam.com">
 <script src="theme.js?v=2"></script>
 <script src="actions.js?v=csp2"></script>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -12,6 +14,7 @@
 <link href="favicon.svg" rel="icon" type="image/svg+xml"/>
 <link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
 <link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<link href="manifest.webmanifest" rel="manifest"/>
 <meta content="#111113" name="theme-color"/>
 <meta content="Chat vidéo et webcam gratuit entre adultes : salons en direct, musique, quiz et rencontres, par écrit ou en cam. Communauté française modérée, réservée aux majeurs." name="description"/>
 <link href="https://www.e-visiocam.com/" rel="canonical"/>
@@ -29,9 +32,9 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://www.e-visiocam.com/#site","name":"E-VISIOCAM","url":"https://www.e-visiocam.com/","inLanguage":"fr-FR","description":"Chat webcam gratuit entre adultes : salons en direct, musique et rencontres."},{"@type":"Organization","@id":"https://www.e-visiocam.com/#org","name":"E-VISIOCAM","url":"https://www.e-visiocam.com/","logo":"https://www.e-visiocam.com/apple-touch-icon.png","email":"contact@e-visiocam.com"}]}</script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" rel="stylesheet" crossorigin="anonymous"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<script src="auth-api.js?v=6"></script>
-<script src="legal-banner.js?v=4"></script>
-<script src="nav-auth.js?v=6"></script>
+<script src="auth-api.js?v=7"></script>
+<script src="legal-banner.js?v=4" defer></script>
+<script defer="" src="nav-auth.js?v=6"></script>
 <link href="style.css?v=20261101-webp" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
@@ -70,7 +73,6 @@
     </style>
 <script defer="" src="maintenance.js"></script>
 <link href="tailwind.css?v=20261009" rel="stylesheet"/>
-<script src="persistent-radio-bootstrap.js"></script>
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
@@ -279,8 +281,8 @@
 <script src="radio-widget-floating.js?v=3"></script>
 <script defer="" src="banner.js?v=3"></script>
 <script defer="" src="site-search.js"></script>
-<script defer="" src="boule-facette.js?v=2"></script>
-<script defer="" src="couple-danse.js?v=6"></script>
+<script defer="" src="boule-facette.js?v=3"></script>
+<script defer="" src="couple-danse.js?v=7"></script>
 <script src="pages/index-cameras.js"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
 <script src="pages/index-membres.js"></script>

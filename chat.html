@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="persistent-radio-bootstrap.js"></script>
+    <link rel="preconnect" href="https://api.e-visiocam.com">
     <script src="theme.js?v=2"></script>
     <script src="actions.js?v=csp2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,18 +18,18 @@
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://api.e-visiocam.com/socket.io/socket.io.js"></script>
-    <script src="auth-api.js?v=6"></script>
+    <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js"></script>
+    <script src="auth-api.js?v=7"></script>
     <script src="sfu-client.js"></script>
     <script src="nav-auth.js?v=6" defer></script>
-    <script src="legal-banner.js?v=4"></script>
+    <script src="legal-banner.js?v=4" defer></script>
     <script src="salon-access.js?v=csp1"></script>
     <script src="live-prive.js"></script>
     <script src="ma-cam-salon.js?v=3"></script>
     <script src="danseur-disco.js"></script>
     <script src="quiz-salon.js?v=1"></script>
 <script src="departements-data.js"></script>
-<script src="membres-social.js?v=4"></script>
+<script src="membres-social.js?v=5"></script>
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
@@ -90,7 +92,6 @@
 .evc-bot-ia{font-size:9px;font-weight:900;letter-spacing:.08em;padding:1px 6px;border-radius:99px;background:#ffe500;color:#111113}
 .evc-bot-msg p{margin:0;font-size:14px;line-height:1.5}
 </style>
-  <script src="persistent-radio-bootstrap.js"></script>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 
@@ -334,9 +335,10 @@
     </div>
 </div>
 
-<script src="pages/chat.js?v=5"></script>
+<script src="securite-membres.js?v=2"></script>
+<script src="pages/chat.js?v=6"></script>
 
 <script src="mobile-nav.js?v=2" defer></script>
-<script src="boule-facette.js?v=2" defer></script>
+<script src="boule-facette.js?v=3" defer></script>
 </body>
 </html>

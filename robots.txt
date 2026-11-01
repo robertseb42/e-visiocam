@@ -8,6 +8,7 @@ Disallow: /compte.html
 Disallow: /profile.html
 Disallow: /messages.html
 Disallow: /favoris.html
+Disallow: /membre.html
 Disallow: /bienvenue.html
 Disallow: /contestation.html
 Disallow: /verifier-email.html
