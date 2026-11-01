@@ -109,6 +109,7 @@
 
         // Un spectateur (ou la modération) demande à voir ma caméra
         socket.on('webrtc:offer', repondreSpectateur);
+        socket.on('live:surveillance', function (d) { bandeauSurveillance(d && d.viewerUsername); });   // équipe via le SFU
 
         socket.on('webrtc:ice-candidate', function (d) {
             var pc = d && d.fromSocketId && peers[d.fromSocketId];
@@ -139,7 +140,7 @@
     async function repondreSpectateur(data) {
         var qui = (data && (data.viewerUsername || data.viewerSocketId)) || '?';
         log('📥 Offre de ' + qui);
-        if (data && data.moderation) bandeauSurveillance(data.viewerUsername, data.horsLive);
+        if (data && (data.moderation || data.isModerator)) bandeauSurveillance(data.viewerUsername, data.horsLive);
         try {
             var pc = new RTCPeerConnection(await rtcConfig());
             if (peers[data.viewerSocketId]) { try { peers[data.viewerSocketId].close(); } catch (e) {} }

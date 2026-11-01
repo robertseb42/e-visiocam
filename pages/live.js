@@ -253,10 +253,11 @@ function initSocket() {
     // ⚠️ RECEVEUR (broadcaster) - GESTION MULTI-VIEWERS
     // Chaque viewer a sa propre RTCPeerConnection
     // ============================================================
+    socket.on('live:surveillance', function(d) { signalerSurveillance(d && d.viewerUsername); });   // équipe via le SFU
     socket.on('webrtc:offer', async function(data) {
         log('📥 Offre de ' + (data.viewerUsername || data.viewerSocketId));
         // 🔍 Transparence : on prévient le membre qu'un membre de l'équipe regarde
-        if (data.moderation) signalerSurveillance(data.viewerUsername, data.horsLive);
+        if (data.moderation || data.isModerator) signalerSurveillance(data.viewerUsername, data.horsLive);
         try {
             // 1. Créer une peerConnection UNIQUE pour ce viewer
             var pc = new RTCPeerConnection(rtcConfig);
@@ -368,7 +369,7 @@ function signalerSurveillance(nom, horsLive) {
             + 'padding:10px 16px;border-radius:12px;box-shadow:0 10px 30px #0006;text-align:center';
         document.body.appendChild(el);
     }
-    el.innerHTML = '🔍 Un membre de l\'équipe regarde votre caméra'
+    el.textContent = '🔍 Un membre de l\'équipe regarde votre caméra'
         + (horsLive ? ' (hors live)' : '')
         + (nom ? ' — ' + nom : '');
     clearTimeout(window.__bandeauSurv);
