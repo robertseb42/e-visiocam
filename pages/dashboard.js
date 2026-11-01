@@ -66,5 +66,8 @@ async function loadSessions() {
     try {
         const data = await apiCall('/model/sessions');
         tbody.innerHTML = data.sessions.map(s => '<tr class="border-b border-slate-50"><td class="py-3 px-2">' + new Date(s.date).toLocaleDateString('fr-FR') + '</td><td class="py-3 px-2 text-slate-500">' + s.duration + ' min</td><td class="py-3 px-2 text-slate-500">' + s.viewers + '</td><td class="py-3 px-2 text-right font-bold text-emerald-600">' + s.earnings.toFixed(2) + ' €</td></tr>').join('');
-    } catch (err) { tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-rose-500">' + err.message + '</td></tr>'; }
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" class="py-8 text-center text-rose-500"></td></tr>';
+        tbody.querySelector('td').textContent = err.message;   // texte, jamais du HTML
+    }
 }

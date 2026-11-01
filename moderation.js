@@ -99,6 +99,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 // SOCKET
 // ============================================================
 function initSocket() {
+    // Le script temps réel vient du serveur : s'il est injoignable, on le dit au lieu de planter la page
+    if (typeof io === 'undefined') {
+        var st = document.getElementById('connectionStatus');
+        if (st) { st.className = 'text-xs font-bold px-3 py-1.5 rounded-full bg-rose-100 text-rose-700'; st.textContent = '❌ Serveur injoignable — rechargez la page'; }
+        console.warn('Socket.IO indisponible : serveur temps réel injoignable');
+        return;
+    }
     socket = io('https://api.e-visiocam.com', {
         withCredentials: true,
         transports: ['websocket', 'polling'],
@@ -180,7 +187,7 @@ function loadReports() {
         allReports = data.reports || [];
         renderReports();
     }).catch(function(err) {
-        list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + err.message + '</p>';
+        list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + escapeHtml(err.message) + '</p>';
     });
 }
 
