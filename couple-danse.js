@@ -77,27 +77,30 @@
         if (!cible || window.innerWidth < 1280) { el.style.display = 'none'; return; }
         var r = cible.getBoundingClientRect(), gauche = 0;
         var bas = Math.min(basRadio(), window.innerHeight - 16);
+        // Ne jamais déborder sur le texte du pied de page, qui commence parfois plus à gauche que le contenu
+        var droite = r.left;
+        var pied = document.querySelector('footer.ev-footer .ev-footer-inner');
+        if (pied) droite = Math.min(droite, pied.getBoundingClientRect().left + (parseFloat(getComputedStyle(pied).paddingLeft) || 0));
+        var w = Math.min(300, droite - 20), h = w * RATIO, haut = bas - h;
         var aside = document.querySelector('aside');
-        if (aside && getComputedStyle(aside).display !== 'none') {
+        if (w >= 130 && aside && getComputedStyle(aside).display !== 'none') {
             var basAside = 0;
             Array.prototype.forEach.call(aside.querySelectorAll('*'), function (n) {
                 var b = n.getBoundingClientRect();
                 if (b.width && b.height && getComputedStyle(n).visibility !== 'hidden') basAside = Math.max(basAside, b.bottom);
             });
-            // hauteur maximale du couple (300 px de large) : si la colonne descend jusque-là, on se met à sa droite
-            if (basAside > bas - 300 * RATIO - 10) gauche = aside.getBoundingClientRect().right;
+            if (basAside > haut - 10) {
+                // La colonne de gauche descend jusqu'au couple : on le met juste sous elle s'il y a la place…
+                if (basAside + 16 + h <= window.innerHeight - 16) haut = basAside + 16;
+                // … sinon à droite de la colonne, comme avant
+                else { gauche = aside.getBoundingClientRect().right; w = Math.min(300, droite - gauche - 20); h = w * RATIO; haut = bas - h; }
+            }
         }
-        // Ne jamais déborder sur le texte du pied de page, qui commence parfois plus à gauche que le contenu
-        var droite = r.left;
-        var pied = document.querySelector('footer.ev-footer .ev-footer-inner');
-        if (pied) droite = Math.min(droite, pied.getBoundingClientRect().left + (parseFloat(getComputedStyle(pied).paddingLeft) || 0));
         var place = droite - gauche;
-        var w = Math.min(300, place - 20);
         if (w < 130) { el.style.display = 'none'; return; }
-        var h = w * RATIO;
         el.style.width = w + 'px'; el.style.height = h + 'px';
         el.style.left = Math.round(gauche + (place - w) / 2) + 'px';
-        el.style.top = Math.round(bas - h) + 'px';
+        el.style.top = Math.round(haut) + 'px';
         el.style.display = 'block';
     }
     var prevu = false;

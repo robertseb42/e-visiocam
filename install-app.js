@@ -40,7 +40,7 @@
     function ecrire(cle, val, stockage) { try { (stockage || localStorage).setItem(cle, String(val)); } catch (e) {} }
 
     function page() {
-        var p = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var p = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
         return p.indexOf('.') === -1 ? p + '.html' : p;
     }
 

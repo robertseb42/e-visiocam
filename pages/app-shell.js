@@ -127,7 +127,7 @@
         // Titre et adresse : un rechargement ou un favori ramène sur la bonne page
         try {
           document.title = doc.title || 'E-VISIOCAM';
-          var page = (win.location.pathname.split('/').pop() || 'index.html') + win.location.search + win.location.hash;
+          var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(win.location.pathname.split('/').pop()) || 'index.html') + win.location.search + win.location.hash;
           // Adresse propre (/salons.html, /chat.html?theme=…) au lieu de app-shell.html?page=… :
           // les liens copiés et partagés pointent vers la vraie page, que Google peut indexer.
           // Un rechargement repasse par la page, qui renvoie aussitôt dans ce cadre.

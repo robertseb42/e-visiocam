@@ -5,7 +5,7 @@
   // Moteurs de recherche et aperçus de liens : ils lisent la vraie page, pas le cadre radio
   if (/bot|crawl|spider|slurp|google|bing|yandex|baidu|duckduck|qwant|inspection|facebookexternalhit|embedly|preview|lighthouse|headless/i.test(navigator.userAgent || '')) return;
 
-  var file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  var file = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
   var excluded = [
     'app-shell.html','login.html','register.html','forgot-password.html',
     'reset-password.html','verifier-email.html','404.html'

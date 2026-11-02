@@ -20,7 +20,7 @@
 
     async function basculer(b) {
         if (typeof isLoggedIn === 'function' && !isLoggedIn()) {
-            window.location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.split('/').pop() + location.search);
+            window.location.href = 'login.html?redirect=' + encodeURIComponent((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) + location.search);
             return;
         }
         var parts = (b.getAttribute('data-fav') || '').split(':');

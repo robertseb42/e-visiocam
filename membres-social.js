@@ -14,7 +14,7 @@
     'use strict';
     if (window.EvcCam) return;
 
-    var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
     var SANS = ['login.html', 'register.html', 'forgot-password.html', 'reset-password.html', 'nouveau-mdp.html', 'verifier-email.html', '404.html'];
     function connecte() { return typeof getCurrentUser === 'function' && !!getCurrentUser(); }
     function base() { return (typeof API_URL === 'string' ? API_URL : 'https://api.e-visiocam.com/api'); }

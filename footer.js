@@ -43,7 +43,7 @@
     function construire() {
         if (document.querySelector('.ev-footer')) return;   // déjà présent
 
-        var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
         if (page.indexOf('.') === -1) page += '.html';      // URL sans extension (/contact)
 
         var colonnes = COLONNES.map(function (col) {
@@ -93,7 +93,7 @@
 
         // 🪩 Boule à facettes et danseur sur toutes les pages (sauf l'éditeur de décor et les formulaires de connexion),
         // avec leur bouton marche / arrêt à côté du bouton clair / sombre
-        var pageB = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var pageB = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
         var sansBoule = ['decor.html', 'login.html', 'register.html', 'forgot-password.html', 'reset-password.html'];
         if (sansBoule.indexOf(pageB) === -1) {
             var themeBtn = document.querySelector('[data-theme-toggle]');
@@ -113,7 +113,7 @@
         }
 
         // 💬 Assistant d'aide (bulle en bas à gauche), sauf là où il gênerait la saisie ou l'équipe
-        var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
         var sansAssistant = ['apercu.html', 'chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
         if (sansAssistant.indexOf(page) === -1 && !document.querySelector('script[src*="assistant.js"]')) {
             var as = document.createElement('script');

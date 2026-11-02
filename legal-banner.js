@@ -3,7 +3,7 @@
 // ============================================================
 
 (function() {
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentPage = (function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(window.location.pathname.split('/').pop()) || 'index.html';
     const skipPages = ['cgu.html', 'confidentialite.html', 'a-propos.html', 'contact.html', 'mentions-legales.html', 'cookies.html', 'rgpd.html'];
     if (skipPages.includes(currentPage)) return;
     // Confirmation d'âge valable 1 an (durée annoncée dans la page Cookies), puis redemandée

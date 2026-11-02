@@ -31,7 +31,7 @@
     }
 
     function pageName() {
-        var p = (location.pathname.split('/').pop() || '').toLowerCase();
+        var p = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || '').toLowerCase();
         return p || 'index.html';
     }
 

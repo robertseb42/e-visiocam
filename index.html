@@ -41,6 +41,11 @@
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
+        /* Grand écran : la page se décale vers la gauche pour laisser une vraie colonne à droite
+           (boule à facettes, danseur, radio) ; contenu + colonne de décor centrés ensemble */
+        @media (min-width: 1700px) {
+            .cam-home .cam-layout, .cam-home .cam-header > div:first-of-type { margin-left: max(12px, calc((100vw - 1700px - 260px) / 2)); margin-right: auto; }
+        }
     /* 👥 Qui est là ? */
     /* 🛡️ Recrutement */
     .ev-recrute-in{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
@@ -332,7 +337,7 @@
 <script defer="" src="hero-direct.js?v=2"></script>
 <script defer="" src="site-search.js"></script>
 <script defer="" src="boule-facette.js?v=3"></script>
-<script defer="" src="couple-danse.js?v=7"></script>
+<script defer="" src="couple-danse.js?v=8"></script>
 <script src="pages/index-cameras.js"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
 <script src="pages/index-membres.js"></script>

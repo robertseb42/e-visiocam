@@ -11,7 +11,7 @@
     'use strict';
     if (document.querySelector('.ev-mnav')) return;
 
-    var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
     if (page.indexOf('.') === -1) page += '.html';
     var connecte = typeof isLoggedIn === 'function' && isLoggedIn();
 

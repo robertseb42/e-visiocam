@@ -393,7 +393,7 @@
         var avant = memoire('evc-amis-recues');
         memoire('evc-amis-recues', n);
         majBadgeAmis(n);
-        if (avant !== null && n > avant && !/amis\.html$/.test(location.pathname)) {
+        if (avant !== null && n > avant && !/amis(\.html)?$/.test(location.pathname)) {
             if (de && de.username) carteAmi(' vous a envoyé une demande d’ami', de.username, [{ texte: 'Voir', url: 'amis.html#recues' }]);
             else carteAmi(' demande d’ami reçue', n > 1 ? n + ' ' : 'Nouvelle', [{ texte: 'Voir', url: 'amis.html#recues' }]);
         }
@@ -464,7 +464,7 @@
 
                 // ❤️ Un modèle suivi vient de lancer un live
                 unreadSocket.on('evenement:debut', function (d) {
-                    if (!d || !d.titre || /chat\.html/.test(location.pathname) && new URLSearchParams(location.search).get('theme') === d.salon_slug) return;
+                    if (!d || !d.titre || /chat(\.html)?$/.test(location.pathname) && new URLSearchParams(location.search).get('theme') === d.salon_slug) return;
                     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
                     var el = document.createElement('div'); el.className = 'ev-live-alert'; el.setAttribute('role', 'status');
                     el.innerHTML = '<span class="ev-live-dot"></span><div><b>' + esc(d.titre) + '</b> commence<small>' + esc(d.salon_nom) + '</small></div>' +

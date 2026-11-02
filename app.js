@@ -110,7 +110,7 @@ function escapeHtml(text) {
 
 // ============ DÉTECTION PAGE ACTIVE ============
 document.addEventListener('DOMContentLoaded', () => {
-    const current = window.location.pathname.split('/').pop() || 'index.html';
+    const current = (function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(window.location.pathname.split('/').pop()) || 'index.html';
     document.querySelectorAll('nav a[href]').forEach(a => {
         const href = a.getAttribute('href');
         if (href === current || (current === 'index.html' && href === './')) {

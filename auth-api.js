@@ -89,7 +89,7 @@ async function apiCall(endpoint, options) {
     }
     // Mot de passe temporaire donné par un administrateur : le serveur refuse tout le reste
     // tant qu'il n'est pas remplacé, on envoie le membre le choisir
-    if (response.status === 403 && data && data.mustChangePassword && !/nouveau-mdp\.html$/.test(location.pathname)) {
+    if (response.status === 403 && data && data.mustChangePassword && !/nouveau-mdp(\.html)?$/.test(location.pathname)) {
         window.location.href = 'nouveau-mdp.html';
     }
     if (!response.ok) {
@@ -278,7 +278,7 @@ function goProfile() {
 // ============================================================
 (function() {
     try {
-        var page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(window.location.pathname.split('/').pop()) || 'index.html').toLowerCase();
         var libres = ['nouveau-mdp.html', 'login.html', 'register.html', 'forgot-password.html', 'reset-password.html'];
         if (libres.indexOf(page) !== -1) return;
         var user = getCurrentUser();
@@ -322,7 +322,7 @@ function evcSurveillerSession(socket) {
             } else {
                 bandeau();
                 try { clearToken(); clearUser(); } catch (e) {}
-                var page = window.location.pathname.split('/').pop() || 'index.html';
+                var page = (function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(window.location.pathname.split('/').pop()) || 'index.html';
                 setTimeout(function () { window.location.href = 'login.html?redirect=' + encodeURIComponent(page + window.location.search); }, 2500);
             }
         }).catch(function () {});
