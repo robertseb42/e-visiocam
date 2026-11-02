@@ -276,6 +276,100 @@
         });
     }
 
+    // ============================================================
+    // AGENDA DES SOIRÉES (fiche d'un lieu + page du guide)
+    // ============================================================
+    var MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+    var JOURS_C = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+    function soireeHTML(s, avecLieu) {
+        var d = new Date(s.date + 'T12:00:00');
+        return '<article class="gl-soiree"><div class="gl-soiree-date" aria-hidden="true"><small>' + JOURS_C[d.getDay()] + '</small><b>' + d.getDate() + '</b><small>' + MOIS_C[d.getMonth()] + '</small></div>' +
+            '<div class="gl-soiree-txt"><h3>' + esc(adoucir(s.titre)) + '</h3>' +
+            '<p class="gl-soiree-infos"><span class="gl-sr">' + esc(d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })) + ' · </span>' +
+            (s.debut ? '<span><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + heureFr(s.debut) + (s.fin ? ' – ' + heureFr(s.fin) : '') + '</span>' : '') +
+            (avecLieu ? '<a href="lieu.html?l=' + encodeURIComponent(s.lieu.slug) + '"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(s.lieu.nom) + ' · ' + esc(s.lieu.ville) + '</a>' : '') +
+            (s.prix ? '<span class="gl-soiree-prix">' + esc(s.prix) + '</span>' : '') + '</p>' +
+            (s.description ? texteRepliable(adoucir(s.description), 'gl-soiree-desc', 160) : '') +
+            (equipe() ? '<button type="button" class="gl-lien-btn gl-rouge" data-suppr-soiree="' + s.id + '">Retirer de l\'agenda</button>' : '') + '</div></article>';
+    }
+    async function chargerAgenda(zone, params, avecLieu, vide) {
+        if (!zone) return [];
+        try {
+            var d = await api('/soirees?' + new URLSearchParams(params));
+            zone.innerHTML = d.soirees.length ? d.soirees.map(function (s) { return soireeHTML(s, avecLieu); }).join('') : '<p class="gl-vide-plan">' + vide + '</p>';
+            return d.soirees;
+        } catch (e) { zone.innerHTML = ''; return []; }
+    }
+    document.addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-suppr-soiree]'); if (!b) return;
+        b.disabled = true;
+        try { await api('/soirees/' + b.getAttribute('data-suppr-soiree'), { method: 'DELETE' }); b.closest('.gl-soiree').remove(); toast('Soirée retirée de l\'agenda.', 'success'); }
+        catch (x) { toast(x.message, 'error'); b.disabled = false; }
+    });
+    // Fenêtres « Proposer une soirée » et « Signaler une fermeture ou une erreur » (ajoutées à la fiche)
+    function ajouterFenetresFiche() {
+        if ($('glFenetreSoiree')) return;
+        var auj = new Date(); var iso = function (d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+        var max = new Date(); max.setFullYear(max.getFullYear() + 1);
+        document.body.insertAdjacentHTML('beforeend',
+            '<div id="glFenetreSoiree" class="gl-fond" hidden><form id="glFormSoiree" class="gl-fenetre gl-petite" role="dialog" aria-modal="true" aria-labelledby="glTitreSoiree" novalidate>' +
+            '<div class="gl-fenetre-tete"><h2 id="glTitreSoiree">Proposer une soirée</h2><button type="button" class="gl-fermer" data-fermer aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>' +
+            '<div class="gl-fenetre-corps"><p class="gl-aide">Une soirée à thème, un événement spécial… Elle apparaîtra dans l\'agenda après validation par l\'équipe.</p>' +
+            '<label class="gl-champ"><span>Nom de la soirée *</span><input name="titre" maxlength="100" required placeholder="ex. Soirée masquée"></label>' +
+            '<div class="gl-trois"><label class="gl-champ"><span>Date *</span><input type="date" name="date" required min="' + iso(auj) + '" max="' + iso(max) + '"></label>' +
+            '<label class="gl-champ"><span>De</span><input type="time" name="debut"></label><label class="gl-champ"><span>À</span><input type="time" name="fin"></label></div>' +
+            '<label class="gl-champ"><span>Tarifs</span><input name="prix" maxlength="200" placeholder="ex. Couples 30 €, femmes offert"></label>' +
+            '<label class="gl-champ"><span>Description</span><textarea name="description" rows="4" maxlength="1000" placeholder="Thème, tenue demandée, repas…"></textarea></label>' +
+            '<p class="gl-erreur" role="alert" hidden></p></div>' +
+            '<div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">' + (equipe() ? 'Publier dans l\'agenda' : 'Envoyer à la modération') + '</button></div></form></div>' +
+            '<div id="glFenetreCorrection" class="gl-fond" hidden><form id="glFormCorrection" class="gl-fenetre gl-petite" role="dialog" aria-modal="true" aria-labelledby="glTitreCorr" novalidate>' +
+            '<div class="gl-fenetre-tete"><h2 id="glTitreCorr">Signaler une fermeture ou une erreur</h2><button type="button" class="gl-fermer" data-fermer aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>' +
+            '<div class="gl-fenetre-corps"><fieldset class="gl-champ"><legend>Que se passe-t-il ?</legend>' +
+            '<label class="gl-case"><input type="radio" name="motif" value="ferme" checked> Ce lieu a fermé définitivement</label>' +
+            '<label class="gl-case"><input type="radio" name="motif" value="erreur"> Une information est fausse (horaires, tarifs, adresse…)</label></fieldset>' +
+            '<label class="gl-champ"><span>Précisions</span><textarea name="message" rows="4" maxlength="600" placeholder="Ce qui a changé, depuis quand…"></textarea></label>' +
+            '<p class="gl-erreur" role="alert" hidden></p></div>' +
+            '<div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer à l\'équipe</button></div></form></div>');
+        $('glFormSoiree').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var f = this, d = Object.fromEntries(new FormData(f).entries()); d.lieuId = lieuCourant.id;
+            if (!d.titre || !d.date) { erreur(f, 'Indiquez au moins le nom et la date de la soirée.'); return; }
+            try { var r = await api('/soirees', { method: 'POST', body: JSON.stringify(d) }); fermer($('glFenetreSoiree')); f.reset(); toast(r.message, 'success'); chargerAgendaFiche(); }
+            catch (x) { erreur(f, x.message); }
+        });
+        $('glFormCorrection').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var f = this, d = Object.fromEntries(new FormData(f).entries());
+            try { var r = await api('/lieux/' + lieuCourant.id + '/correction', { method: 'POST', body: JSON.stringify(d) }); fermer($('glFenetreCorrection')); f.reset(); toast(r.message, 'success'); }
+            catch (x) { erreur(f, x.message); }
+        });
+    }
+    function chargerAgendaFiche() {
+        return chargerAgenda($('glAgendaLieu'), { lieu: lieuCourant.id, jours: 365 }, false, 'Aucune soirée annoncée pour le moment.').then(function (s) { donneesStructurees(lieuCourant, s); });
+    }
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('#glProposerSoiree')) { if (!connecte()) return versConnexion(); ouvrir('glFenetreSoiree'); }
+        if (e.target.closest('#glSignalerLieu')) { if (!connecte()) return versConnexion(); ouvrir('glFenetreCorrection'); }
+    });
+    // Données structurées pour Google (établissement + soirées), d'après les recommandations schema.org
+    function donneesStructurees(l, soirees) {
+        var ancien = document.getElementById('glLd'); if (ancien) ancien.remove();
+        var url = 'https://www.e-visiocam.com/lieu.html?l=' + encodeURIComponent(l.slug);
+        var lieu = { '@type': l.type === 'club' ? 'NightClub' : 'LocalBusiness', name: l.nom, url: url,
+            address: { '@type': 'PostalAddress', streetAddress: l.adresse || undefined, addressLocality: l.ville, addressRegion: l.regionNom, addressCountry: 'FR' } };
+        if (l.telephone) lieu.telephone = l.telephone;
+        if (l.lat != null) lieu.geo = { '@type': 'GeoCoordinates', latitude: l.lat, longitude: l.lng };
+        if (l.nbAvis) lieu.aggregateRating = { '@type': 'AggregateRating', ratingValue: l.note, reviewCount: l.nbAvis, bestRating: 5, worstRating: 1 };
+        var graphe = [Object.assign({ '@context': 'https://schema.org' }, lieu)].concat((soirees || []).slice(0, 10).map(function (s) {
+            var ev = { '@context': 'https://schema.org', '@type': 'Event', name: s.titre, startDate: s.date + (s.debut ? 'T' + s.debut : ''), eventStatus: 'https://schema.org/EventScheduled',
+                eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', location: { '@type': 'Place', name: l.nom, address: lieu.address }, url: url };
+            if (s.description) ev.description = s.description.slice(0, 300);
+            return ev;
+        }));
+        var sc = document.createElement('script'); sc.type = 'application/ld+json'; sc.id = 'glLd'; sc.textContent = JSON.stringify(graphe);
+        document.head.appendChild(sc);
+    }
+
     // ---- Formulaire lieu : proposer (POST) ou modifier (PUT, équipe) ----
     function ouvrirFormLieu(l) {
         var f = $('glFormLieu'); if (!f) return;
@@ -506,6 +600,10 @@
             liste.innerHTML = l.length ? l.map(carteLieu).join('') :
                 '<div class="gl-vide-bloc"><i class="fa-regular fa-map" aria-hidden="true"></i><p>' + (etat.q || etat.type || etat.public || etat.ouvert ? 'Aucun lieu ne correspond à ces filtres.' : 'Pas encore de lieu ' + (r ? 'en ' + esc(r.nom) : 'dans le guide') + '.') + '</p><p>Vous connaissez un club, un sauna ou une soirée ? <button type="button" class="gl-lien-btn" data-proposer>Proposez-le</button>, la communauté vous remerciera.</p></div>';
             placerSurCarte(l, r);
+            var ag = $('glAgenda');
+            if (!ag) { document.querySelector('.gl-grille').insertAdjacentHTML('afterend', '<section class="gl-liste-bloc gl-agenda-bloc" aria-labelledby="glAgendaTitre"><div class="gl-liste-tete"><h2 id="glAgendaTitre"></h2></div><div id="glAgenda" class="gl-agenda gl-agenda-grille"></div></section>'); ag = $('glAgenda'); }
+            $('glAgendaTitre').innerHTML = '<i class="fa-regular fa-calendar" aria-hidden="true"></i> Prochaines soirées ' + (r ? 'en ' + esc(r.nom) : 'en France');
+            chargerAgenda(ag, r ? { region: r.slug, jours: 60 } : { jours: 30 }, true, 'Pas encore de soirée annoncée' + (r ? ' dans cette région' : '') + '. Les soirées se proposent depuis la fiche de chaque lieu.');
             var plans = d.bonsPlans || [];
             $('glPlans').hidden = !r;
             $('glPlansListe').innerHTML = plans.length ? plans.map(function (b) {
@@ -564,7 +662,8 @@
         try {
             var d = await api('/moderation');
             d.lieux.forEach(function (l) { LIEUX_EQ[l.id] = l; });
-            var total = d.lieux.length + d.avis.length + d.bonsPlans.length + d.signales.length;
+            d.soirees = d.soirees || []; d.corrections = d.corrections || [];
+            var total = d.lieux.length + d.avis.length + d.bonsPlans.length + d.signales.length + d.soirees.length + d.corrections.length;
             $('glModeration').hidden = false;
             if (!total) { $('glModContenu').innerHTML = '<p class="gl-vide">Rien à valider pour le moment.</p>'; return; }
             var bloc = function (titre, items, rendu) { return items.length ? '<h3>' + titre + ' (' + items.length + ')</h3>' + items.map(rendu).join('') : ''; };
@@ -576,7 +675,9 @@
                 bloc('Lieux proposés', d.lieux, function (l) { return '<article class="gl-mod"><b>' + esc(l.nom) + '</b> · ' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + ' (' + esc(l.regionNom) + ')<p>' + esc(l.adresse) + (l.site ? ' · ' + esc(l.site) : '') + '</p><p>' + esc(l.description) + '</p><small>Proposé par ' + esc(l.proposePar) + '</small>' + boutons('lieu', l.id).replace(/<\/div>$/, '<button type="button" class="gl-btn" data-edit-lieu="' + l.id + '">Corriger</button></div>') + '</article>'; }) +
                 bloc('Avis à relire', d.avis, function (a) { return '<article class="gl-mod"><b>' + esc(a.lieu.nom) + '</b> · ' + a.note + '/5 · par ' + esc(a.auteur) + '<p><b>' + esc(a.titre) + '</b> ' + esc(a.texte) + '</p>' + boutons('avis', a.id) + '</article>'; }) +
                 bloc('Bons plans', d.bonsPlans, function (b) { return '<article class="gl-mod">' + esc(b.lieu || b.region) + ' · par ' + esc(b.auteur) + '<p>' + esc(b.texte) + '</p>' + boutons('bon-plan', b.id) + '</article>'; }) +
-                bloc('Avis signalés', d.signales, function (s) { return '<article class="gl-mod"><b>' + esc(s.lieu.nom) + '</b> · ' + s.nb + ' signalement(s) : ' + esc(s.motifs) + '<p><b>' + esc(s.titre) + '</b> ' + esc(s.texte) + '</p>' + boutons('signalement', s.id, true) + '</article>'; });
+                bloc('Avis signalés', d.signales, function (s) { return '<article class="gl-mod"><b>' + esc(s.lieu.nom) + '</b> · ' + s.nb + ' signalement(s) : ' + esc(s.motifs) + '<p><b>' + esc(s.titre) + '</b> ' + esc(s.texte) + '</p>' + boutons('signalement', s.id, true) + '</article>'; }) +
+                bloc('Soirées proposées', d.soirees, function (x) { return '<article class="gl-mod"><b>' + esc(x.titre) + '</b> · ' + esc(dateFr(x.date)) + (x.debut ? ' · ' + heureFr(x.debut) : '') + ' · <a href="lieu.html?l=' + encodeURIComponent(x.lieu.slug) + '">' + esc(x.lieu.nom) + '</a> (' + esc(x.lieu.ville) + ') · par ' + esc(x.auteur) + (x.prix ? '<p>' + esc(x.prix) + '</p>' : '') + (x.description ? '<p>' + esc(x.description) + '</p>' : '') + boutons('soiree', x.id) + '</article>'; }) +
+                bloc('Fermetures et erreurs signalées', d.corrections, function (c) { return '<article class="gl-mod"><b><a href="lieu.html?l=' + encodeURIComponent(c.lieu.slug) + '">' + esc(c.lieu.nom) + '</a></b> (' + esc(c.lieu.ville) + ') · ' + (c.motif === 'ferme' ? '<span class="gl-manque">Signalé fermé</span>' : 'Information fausse') + ' · par ' + esc(c.auteur) + (c.message ? '<p>' + esc(c.message) + '</p>' : '') + '<div class="gl-mod-actions"><a class="gl-btn" href="lieu.html?l=' + encodeURIComponent(c.lieu.slug) + '">Ouvrir et corriger la fiche</a>' + (c.motif === 'ferme' ? '<button type="button" class="gl-btn gl-btn-rouge" data-mod="lieu" data-id="' + c.lieu.id + '" data-d="refuser">Retirer le lieu du guide</button>' : '') + '<button type="button" class="gl-btn" data-mod="correction" data-id="' + c.id + '" data-d="traiter">Marquer comme traité</button></div></article>'; });
         } catch (e) {}
     }
     document.addEventListener('click', async function (e) {
@@ -790,12 +891,13 @@
                 '<div class="gl-note-bloc">' + (l.nbAvis ? '<b>' + note(l.note) + '</b><small>sur 5 · ' + l.nbAvis + ' avis</small>' : '<small>Pas encore d\'avis</small>') + '</div></div>' +
                 (l.description ? texteRepliable(l.description, 'gl-description', 380) : '') +
                 planningHTML(l) +
+                '<section class="gl-agenda-fiche" aria-labelledby="glAgTitre"><div class="gl-avis-entete"><h2 id="glAgTitre"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Prochaines soirées</h2><button type="button" class="gl-btn" id="glProposerSoiree"><i class="fa-solid fa-plus" aria-hidden="true"></i> Proposer une soirée</button></div><div id="glAgendaLieu" class="gl-agenda"></div></section>' +
                 (l.nbAvis ? '<div class="gl-notes-detail">' + notes.map(function (n) { return '<div><small>' + n[0] + '</small><b>' + note(n[1]) + '</b></div>'; }).join('') + '</div>' : '') +
                 '<section class="gl-avis-bloc"><div class="gl-avis-entete"><h2>Avis des membres</h2><button type="button" class="gl-btn gl-btn-jaune" id="glDonnerAvis">' + (mon ? 'Modifier mon avis' : 'Donner mon avis') + '</button></div>' +
                 (mon && mon.statut !== 'publie' ? '<p class="gl-attente">' + (mon.statut === 'attente' ? 'Votre avis est en cours de relecture par la modération.' : 'Votre avis n\'a pas été publié' + (mon.motif ? ' : ' + esc(mon.motif) : '.') + ' Vous pouvez le modifier.') + '</p>' : '') +
                 (avis || '<p class="gl-vide">Soyez le premier à donner votre avis sur ce lieu.</p>') + '</section></div>' +
                 '<aside class="gl-fiche-cote">' +
-                '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div>' + itineraire(l) + '</section>' +
+                '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div>' + itineraire(l) + '<button type="button" class="gl-lien-btn gl-gris gl-signaler-lieu" id="glSignalerLieu"><i class="fa-regular fa-flag" aria-hidden="true"></i> Signaler une fermeture ou une erreur</button></section>' +
                 habituesHTML(d.habitues) +
                 '<section class="gl-encart"><h2>Bons plans</h2>' + (d.bonsPlans.length ? '<ul class="gl-plans-fiche">' + d.bonsPlans.map(function (b) { return '<li>' + esc(b.texte) + '<small>' + esc(dateFr(b.date)) + '</small></li>'; }).join('') + '</ul>' : '<p class="gl-vide-plan">Pas encore de bon plan.</p>') + '<button type="button" class="gl-lien-btn" id="glPlanLieu">Partager un bon plan →</button></section>' +
                 '<section class="gl-encart gl-pointille"><b>Vous gérez ce lieu ?</b><p>Contactez-nous pour mettre la fiche à jour, ajouter vos photos officielles et répondre aux avis.</p><a class="gl-lien" href="contact.html">Revendiquer cette fiche →</a></section>' +
@@ -818,6 +920,8 @@
             });
             if ($('glModifierLieu')) $('glModifierLieu').addEventListener('click', function () { ouvrirFormLieu(l); });
             brancherHabitues(l, d.habitues);
+            ajouterFenetresFiche();
+            chargerAgendaFiche();
             $('glPlanLieu').addEventListener('click', function () { if (!connecte()) return versConnexion(); ouvrir('glFenetrePlan'); });
         } catch (e) {
             if (window.console) console.warn('Guide', e);

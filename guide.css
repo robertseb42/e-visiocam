@@ -302,6 +302,29 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-verif small{display:block;color:var(--g-muted);font-size:12px;margin-top:4px}
 .gl-ok{color:var(--g-ok)}
 
+/* ---------- Agenda des soirées ---------- */
+.gl-agenda-fiche{display:flex;flex-direction:column;gap:12px}
+.gl-agenda-fiche h2 i,.gl-agenda-bloc h2 i{color:var(--g-accent);margin-right:6px}
+.gl-agenda{display:flex;flex-direction:column;gap:10px}
+.gl-agenda-bloc{margin-top:20px}
+.gl-agenda-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.gl-soiree{display:flex;gap:14px;padding:14px;border-radius:14px;background:var(--g-panel2);border:1px solid var(--g-border)}
+.gl-fiche .gl-soiree{background:var(--g-panel)}
+.gl-soiree-date{flex:none;width:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0;border-radius:12px;background:var(--g-pink-bg);color:var(--g-pink-txt);line-height:1.1}
+.gl-soiree-date b{font-size:24px;font-weight:900;color:var(--g-text)}
+.gl-soiree-date small{font-size:11px;font-weight:700;text-transform:uppercase}
+.gl-soiree-txt{display:flex;flex-direction:column;gap:5px;min-width:0}
+.gl-soiree-txt h3{margin:0;font-size:16px;font-weight:800;color:var(--g-text)}
+.gl-soiree-infos{margin:0;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--g-soft)}
+.gl-soiree-infos i{color:var(--g-muted);margin-right:2px}
+.gl-soiree-infos a{color:var(--g-accent);font-weight:700;text-decoration:none}
+.gl-soiree-prix{color:var(--g-accent);font-weight:700}
+.gl-soiree-desc{font-size:13px;color:var(--g-muted);line-height:1.5}
+.gl-soiree-desc p{margin:0}
+.gl-signaler-lieu{font-size:13px;margin-top:2px}
+.gl-signaler-lieu i{margin-right:4px}
+.gl-fenetre input[type=radio]{width:18px;height:18px;min-height:0;accent-color:var(--g-accent)}
+
 /* ---------- Équipe ---------- */
 .gl-import .gl-aide{margin:0 0 8px}
 .gl-imp-regles{padding-left:18px;margin:0 0 14px}
