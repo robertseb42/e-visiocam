@@ -284,7 +284,7 @@
     function soireeHTML(s, avecLieu) {
         var d = new Date(s.date + 'T12:00:00');
         return '<article class="gl-soiree"><div class="gl-soiree-date" aria-hidden="true"><small>' + JOURS_C[d.getDay()] + '</small><b>' + d.getDate() + '</b><small>' + MOIS_C[d.getMonth()] + '</small></div>' +
-            '<div class="gl-soiree-txt"><h3>' + esc(adoucir(s.titre)) + '</h3>' +
+            '<div class="gl-soiree-txt"><h3>' + esc(adoucir(s.titre)) + (s.recurrenceLibelle ? ' <span class="gl-mini gl-recurrence"><i class="fa-solid fa-rotate" aria-hidden="true"></i> ' + esc(s.recurrenceLibelle) + '</span>' : '') + '</h3>' +
             '<p class="gl-soiree-infos"><span class="gl-sr">' + esc(d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })) + ' · </span>' +
             (s.debut ? '<span><i class="fa-regular fa-clock" aria-hidden="true"></i> ' + heureFr(s.debut) + (s.fin ? ' – ' + heureFr(s.fin) : '') + '</span>' : '') +
             (avecLieu ? '<a href="lieu.html?l=' + encodeURIComponent(s.lieu.slug) + '"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(s.lieu.nom) + ' · ' + esc(s.lieu.ville) + '</a>' : '') +
@@ -318,6 +318,8 @@
             '<label class="gl-champ"><span>Nom de la soirée *</span><input name="titre" maxlength="100" required placeholder="ex. Soirée masquée"></label>' +
             '<div class="gl-trois"><label class="gl-champ"><span>Date *</span><input type="date" name="date" required min="' + iso(auj) + '" max="' + iso(max) + '"></label>' +
             '<label class="gl-champ"><span>De</span><input type="time" name="debut"></label><label class="gl-champ"><span>À</span><input type="time" name="fin"></label></div>' +
+            '<div class="gl-deux"><label class="gl-champ"><span>Répétition</span><select name="recurrence" data-recurrence><option value="">Une seule fois</option></select></label>' +
+            '<label class="gl-champ" data-jusqu hidden><span>Jusqu\'au (facultatif)</span><input type="date" name="jusquAu" min="' + iso(auj) + '"></label></div>' +
             '<label class="gl-champ"><span>Tarifs</span><input name="prix" maxlength="200" placeholder="ex. Couples 30 €, femmes offert"></label>' +
             '<label class="gl-champ"><span>Description</span><textarea name="description" rows="4" maxlength="1000" placeholder="Thème, tenue demandée, repas…"></textarea></label>' +
             '<p class="gl-erreur" role="alert" hidden></p></div>' +
@@ -330,11 +332,30 @@
             '<label class="gl-champ"><span>Précisions</span><textarea name="message" rows="4" maxlength="600" placeholder="Ce qui a changé, depuis quand…"></textarea></label>' +
             '<p class="gl-erreur" role="alert" hidden></p></div>' +
             '<div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer à l\'équipe</button></div></form></div>');
+        // Options de répétition selon le jour choisi : « Tous les mercredis », « Le 2e mercredi du mois », « Le dernier mercredi du mois »
+        var fs = $('glFormSoiree');
+        function majRepetition() {
+            var sel = fs.querySelector('[data-recurrence]'), v = sel.value, dt = fs.date.value;
+            var opts = [['', 'Une seule fois']];
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dt)) {
+                var d = new Date(dt + 'T12:00:00'), j = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'][d.getDay()];
+                var rang = Math.ceil(d.getDate() / 7), apres = new Date(d); apres.setDate(d.getDate() + 7);
+                opts.push(['hebdo', 'Toutes les semaines (tous les ' + j + 's)']);
+                if (rang <= 4) opts.push(['mensuel-' + rang, 'Tous les mois (le ' + (rang === 1 ? '1er' : rang + 'e') + ' ' + j + ')']);
+                if (apres.getMonth() !== d.getMonth()) opts.push(['mensuel-dernier', 'Tous les mois (le dernier ' + j + ')']);
+            }
+            sel.innerHTML = opts.map(function (o) { return '<option value="' + o[0] + '">' + o[1] + '</option>'; }).join('');
+            sel.value = opts.some(function (o) { return o[0] === v; }) ? v : '';
+            fs.querySelector('[data-jusqu]').hidden = !sel.value;
+        }
+        fs.date.addEventListener('change', majRepetition);
+        fs.querySelector('[data-recurrence]').addEventListener('change', majRepetition);
         $('glFormSoiree').addEventListener('submit', async function (e) {
             e.preventDefault();
             var f = this, d = Object.fromEntries(new FormData(f).entries()); d.lieuId = lieuCourant.id;
             if (!d.titre || !d.date) { erreur(f, 'Indiquez au moins le nom et la date de la soirée.'); return; }
-            try { var r = await api('/soirees', { method: 'POST', body: JSON.stringify(d) }); fermer($('glFenetreSoiree')); f.reset(); toast(r.message, 'success'); chargerAgendaFiche(); }
+            if (!d.recurrence) d.jusquAu = '';
+            try { var r = await api('/soirees', { method: 'POST', body: JSON.stringify(d) }); fermer($('glFenetreSoiree')); f.reset(); toast(r.message, 'success'); fs.querySelector('[data-jusqu]').hidden = true; majRepetition(); chargerAgendaFiche(); }
             catch (x) { erreur(f, x.message); }
         });
         $('glFormCorrection').addEventListener('submit', async function (e) {
@@ -676,7 +697,7 @@
                 bloc('Avis à relire', d.avis, function (a) { return '<article class="gl-mod"><b>' + esc(a.lieu.nom) + '</b> · ' + a.note + '/5 · par ' + esc(a.auteur) + '<p><b>' + esc(a.titre) + '</b> ' + esc(a.texte) + '</p>' + boutons('avis', a.id) + '</article>'; }) +
                 bloc('Bons plans', d.bonsPlans, function (b) { return '<article class="gl-mod">' + esc(b.lieu || b.region) + ' · par ' + esc(b.auteur) + '<p>' + esc(b.texte) + '</p>' + boutons('bon-plan', b.id) + '</article>'; }) +
                 bloc('Avis signalés', d.signales, function (s) { return '<article class="gl-mod"><b>' + esc(s.lieu.nom) + '</b> · ' + s.nb + ' signalement(s) : ' + esc(s.motifs) + '<p><b>' + esc(s.titre) + '</b> ' + esc(s.texte) + '</p>' + boutons('signalement', s.id, true) + '</article>'; }) +
-                bloc('Soirées proposées', d.soirees, function (x) { return '<article class="gl-mod"><b>' + esc(x.titre) + '</b> · ' + esc(dateFr(x.date)) + (x.debut ? ' · ' + heureFr(x.debut) : '') + ' · <a href="lieu.html?l=' + encodeURIComponent(x.lieu.slug) + '">' + esc(x.lieu.nom) + '</a> (' + esc(x.lieu.ville) + ') · par ' + esc(x.auteur) + (x.prix ? '<p>' + esc(x.prix) + '</p>' : '') + (x.description ? '<p>' + esc(x.description) + '</p>' : '') + boutons('soiree', x.id) + '</article>'; }) +
+                bloc('Soirées proposées', d.soirees, function (x) { return '<article class="gl-mod"><b>' + esc(x.titre) + '</b> · ' + (x.recurrenceLibelle ? esc(x.recurrenceLibelle) + ' à partir du ' : '') + esc(dateFr(x.dateDebut || x.date)) + (x.debut ? ' · ' + heureFr(x.debut) : '') + ' · <a href="lieu.html?l=' + encodeURIComponent(x.lieu.slug) + '">' + esc(x.lieu.nom) + '</a> (' + esc(x.lieu.ville) + ') · par ' + esc(x.auteur) + (x.prix ? '<p>' + esc(x.prix) + '</p>' : '') + (x.description ? '<p>' + esc(x.description) + '</p>' : '') + boutons('soiree', x.id) + '</article>'; }) +
                 bloc('Fermetures et erreurs signalées', d.corrections, function (c) { return '<article class="gl-mod"><b><a href="lieu.html?l=' + encodeURIComponent(c.lieu.slug) + '">' + esc(c.lieu.nom) + '</a></b> (' + esc(c.lieu.ville) + ') · ' + (c.motif === 'ferme' ? '<span class="gl-manque">Signalé fermé</span>' : 'Information fausse') + ' · par ' + esc(c.auteur) + (c.message ? '<p>' + esc(c.message) + '</p>' : '') + '<div class="gl-mod-actions"><a class="gl-btn" href="lieu.html?l=' + encodeURIComponent(c.lieu.slug) + '">Ouvrir et corriger la fiche</a>' + (c.motif === 'ferme' ? '<button type="button" class="gl-btn gl-btn-rouge" data-mod="lieu" data-id="' + c.lieu.id + '" data-d="refuser">Retirer le lieu du guide</button>' : '') + '<button type="button" class="gl-btn" data-mod="correction" data-id="' + c.id + '" data-d="traiter">Marquer comme traité</button></div></article>'; });
         } catch (e) {}
     }

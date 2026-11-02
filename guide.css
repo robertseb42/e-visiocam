@@ -319,6 +319,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-soiree-infos i{color:var(--g-muted);margin-right:2px}
 .gl-soiree-infos a{color:var(--g-accent);font-weight:700;text-decoration:none}
 .gl-soiree-prix{color:var(--g-accent);font-weight:700}
+.gl-recurrence{background:rgba(255,229,0,.12);color:var(--g-accent);vertical-align:middle;margin-left:4px}
 .gl-soiree-desc{font-size:13px;color:var(--g-muted);line-height:1.5}
 .gl-soiree-desc p{margin:0}
 .gl-signaler-lieu{font-size:13px;margin-top:2px}
