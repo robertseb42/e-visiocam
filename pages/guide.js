@@ -509,10 +509,16 @@
     }
     function carteLieu(l) {
         var pub = (l.publics || []).map(function (p) { return PUBLICS[p]; }).filter(Boolean).join(', ');
+        var NOMS_TYPES = { club: 'Club', sauna: 'Sauna', soiree: 'Soirées', autre: 'Lieu' };
+        var badges = (l.types || [l.type]).map(function (t) { return '<span class="gl-mini gl-mini-' + t + '">' + (NOMS_TYPES[t] || 'Lieu') + '</span>'; }).join('') +
+            ((l.jours || []).indexOf(jourDuJour()) >= 0 ? '<span class="gl-mini gl-ouvert">Ouvert aujourd\'hui</span>' : '') +
+            (l.verifie ? '<span class="gl-mini gl-verifie"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Vérifiée</span>' : '');
         return '<a class="gl-lieu" href="lieu.html?l=' + encodeURIComponent(l.slug) + '">' +
             '<span class="gl-lieu-ico" aria-hidden="true"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '"></i></span>' +
-            '<span class="gl-lieu-txt"><b>' + esc(l.nom) + ((l.jours || []).indexOf(jourDuJour()) >= 0 ? ' <em class="gl-ouvert">Ouvert aujourd\'hui</em>' : '') + '</b><span>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + (etat.region ? '' : ' · ' + esc(l.regionNom)) + '</span>' +
-            (pub || l.precisionPublic ? '<small>' + esc(pub) + (l.precisionPublic ? ' — ' + esc(l.precisionPublic) : '') + '</small>' : '') + '</span>' +
+            '<span class="gl-lieu-txt"><b>' + esc(l.nom) + '</b>' +
+            '<span class="gl-lieu-ville"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(l.ville) + (etat.region ? '' : ' · ' + esc(l.regionNom)) + '</span>' +
+            '<span class="gl-lieu-badges">' + badges + '</span>' +
+            (l.equipementsCourt ? '<small>' + esc(l.equipementsCourt) + '</small>' : (pub || l.precisionPublic ? '<small>' + esc(pub) + (l.precisionPublic ? ' — ' + esc(l.precisionPublic) : '') + '</small>' : '')) + '</span>' +
             '<span class="gl-lieu-note">' + (l.nbAvis ? '<b>' + note(l.note) + '</b><small>' + l.nbAvis + ' avis</small>' : '<small>Pas encore d\'avis</small>') + '</span></a>';
     }
     function initCarte() {
@@ -526,14 +532,18 @@
         if (!carte) return;
         calque.clearLayers();
         var pts = [];
+        var om = region && region.slug === 'outre-mer';
         lieux.forEach(function (l) {
             if (l.lat == null || l.lng == null) return;
-            pts.push([l.lat, l.lng]);
+            // Hors Outre-mer, on ne cadre que sur la France métropolitaine (Corse comprise)
+            var metropole = l.lat > 41 && l.lat < 51.6 && l.lng > -5.6 && l.lng < 10;
+            if (om || metropole) pts.push([l.lat, l.lng]); else if (l.region !== 'outre-mer') return;
             L.circleMarker([l.lat, l.lng], { radius: 8, color: '#111113', weight: 2, fillColor: '#ff1680', fillOpacity: 0.95 })
                 .bindPopup('<b>' + esc(l.nom) + '</b><br>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + '<br><a href="lieu.html?l=' + encodeURIComponent(l.slug) + '">Voir la fiche</a>')
                 .addTo(calque);
         });
-        if (pts.length > 1) carte.fitBounds(pts, { padding: [30, 30], maxZoom: 11 });
+        if (!region && !om) carte.fitBounds([[42.2, -4.9], [51.2, 8.4]], { padding: [10, 10] });
+        else if (pts.length > 1) carte.fitBounds(pts, { padding: [30, 30], maxZoom: 11 });
         else if (pts.length === 1) carte.setView(pts[0], 10);
         else if (region && CENTRES[region.slug]) carte.setView(CENTRES[region.slug], region.slug === 'outre-mer' ? 3 : 7);
         else carte.setView([46.6, 2.4], 5);
@@ -574,26 +584,58 @@
     // ============================================================
     // ESPACE ÉQUIPE (guide-equipe.html) : tous les lieux, correction, retrait
     // ============================================================
-    var LIEUX_EQ = {}, filtreEq = { q: '', statut: '' };
+    var LIEUX_EQ = {}, filtreEq = { q: '', statut: '', region: '', manque: '' }, choisis = {};
     var STATUTS = { publie: 'Publié', attente: 'En attente', refuse: 'Retiré' };
     async function chargerEquipe() {
         var z = $('glEqListe'); if (!z) return;
         try {
-            var p = new URLSearchParams(); if (filtreEq.q) p.set('q', filtreEq.q); if (filtreEq.statut) p.set('statut', filtreEq.statut);
+            var p = new URLSearchParams(); ['q', 'statut', 'region', 'manque'].forEach(function (k) { if (filtreEq[k]) p.set(k, filtreEq[k]); });
             var d = await api('/equipe/lieux?' + p);
             var c = d.compte || {};
             $('glEqCompte').textContent = (c.publie || 0) + ' publié(s) · ' + (c.attente || 0) + ' en attente · ' + (c.refuse || 0) + ' retiré(s)';
             d.lieux.forEach(function (l) { LIEUX_EQ[l.id] = l; });
             z.innerHTML = d.lieux.length ? d.lieux.map(function (l) {
                 var nbCr = (l.planning || []).length;
-                return '<article class="gl-eq-lieu"><div class="gl-eq-txt"><b>' + esc(l.nom) + ' <span class="gl-pastille gl-st-' + l.statut + '">' + STATUTS[l.statut] + '</span></b>' +
+                return '<article class="gl-eq-lieu"><label class="gl-eq-case"><input type="checkbox" data-choix="' + l.id + '"' + (choisis[l.id] ? ' checked' : '') + '><span class="gl-sr">Sélectionner ' + esc(l.nom) + '</span></label><div class="gl-eq-txt"><b>' + esc(l.nom) + ' <span class="gl-pastille gl-st-' + l.statut + '">' + STATUTS[l.statut] + '</span></b>' +
                     '<small>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + ' · ' + esc(l.regionNom) + ' · ' + (l.nbAvis ? l.nbAvis + ' avis' : 'aucun avis') + ' · ' + (nbCr ? nbCr + ' créneau(x) horaires' : '<span class="gl-manque">horaires à compléter</span>') + (l.lat == null ? ' · <span class="gl-manque">pas encore sur la carte</span>' : '') + '</small></div>' +
                     '<div class="gl-mod-actions"><button type="button" class="gl-btn gl-btn-jaune" data-edit-lieu="' + l.id + '"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier</button>' +
                     (l.statut === 'publie' ? '<a class="gl-btn" href="lieu.html?l=' + encodeURIComponent(l.slug) + '">Voir</a><button type="button" class="gl-btn gl-btn-rouge" data-mod="lieu" data-id="' + l.id + '" data-d="refuser">Retirer</button>'
                         : '<button type="button" class="gl-btn" data-mod="lieu" data-id="' + l.id + '" data-d="publier">Publier</button>') + '</div></article>';
             }).join('') : '<p class="gl-vide">Aucun lieu pour ces critères. Cliquez sur « Ajouter un lieu » pour commencer.</p>';
+            listeEq = d.lieux.map(function (l) { return l.id; });
+            majLot();
         } catch (x) { z.innerHTML = '<p class="gl-vide">' + esc(x.message) + '</p>'; }
     }
+    var listeEq = [], confirmerSuppr = false;
+    function majLot() {
+        var n = Object.keys(choisis).length, b = $('glEqLot'); if (!b) return;
+        b.hidden = !n; $('glEqLotNb').textContent = n + ' lieu(x) sélectionné(s)';
+        confirmerSuppr = false; $('glEqSuppr').textContent = 'Supprimer définitivement';
+        var tout = $('glEqTout'); if (tout) tout.checked = listeEq.length > 0 && listeEq.every(function (id) { return choisis[id]; });
+    }
+    document.addEventListener('change', function (e) {
+        var c = e.target.closest('[data-choix]');
+        if (c) { if (c.checked) choisis[c.getAttribute('data-choix')] = 1; else delete choisis[c.getAttribute('data-choix')]; majLot(); return; }
+        if (e.target.id === 'glEqTout') {
+            listeEq.forEach(function (id) { if (e.target.checked) choisis[id] = 1; else delete choisis[id]; });
+            document.querySelectorAll('[data-choix]').forEach(function (x) { x.checked = e.target.checked; });
+            majLot();
+        }
+    });
+    document.addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-lot]'); if (!b) return;
+        var action = b.getAttribute('data-lot'), ids = Object.keys(choisis).map(Number);
+        if (!ids.length) return;
+        if (action === 'supprimer' && !confirmerSuppr) { confirmerSuppr = true; b.textContent = 'Confirmer : supprimer ' + ids.length + ' lieu(x) et leurs avis'; return; }
+        if (action === 'aucun') { choisis = {}; document.querySelectorAll('[data-choix]').forEach(function (x) { x.checked = false; }); majLot(); return; }
+        b.disabled = true;
+        try {
+            var r = await api('/equipe/lieux/action', { method: 'POST', body: JSON.stringify({ ids: ids, action: action }) });
+            toast(r.n + ' lieu(x) ' + ({ publier: 'publié(s)', retirer: 'retiré(s) du guide', supprimer: 'supprimé(s)' })[action], 'success');
+            choisis = {}; chargerEquipe(); chargerModeration();
+        } catch (x) { toast(x.message, 'error'); }
+        b.disabled = false;
+    });
     document.addEventListener('click', function (e) {
         var b = e.target.closest('[data-edit-lieu]'); if (!b) return;
         var l = LIEUX_EQ[b.getAttribute('data-edit-lieu')]; if (l) ouvrirFormLieu(l);
@@ -699,6 +741,7 @@
     async function chargerRegions() {
         try { REGIONS = (await api('/regions')).regions || []; } catch (e) { REGIONS = []; }
         remplirRegions(etat.region);
+        if ($('glEqRegion') && $('glEqRegion').options.length < 2) $('glEqRegion').insertAdjacentHTML('beforeend', REGIONS.map(function (r) { return '<option value="' + r.slug + '">' + esc(r.nom) + ' (' + r.lieux + ')</option>'; }).join(''));
         if ($('glListe')) charger();
     }
 
@@ -794,6 +837,8 @@
             var att;
             $('glEqQ').addEventListener('input', function () { clearTimeout(att); var v = this.value.trim(); att = setTimeout(function () { filtreEq.q = v; chargerEquipe(); }, 300); });
             $('glEqStatut').addEventListener('change', function () { filtreEq.statut = this.value; chargerEquipe(); });
+            $('glEqRegion').addEventListener('change', function () { filtreEq.region = this.value; chargerEquipe(); });
+            $('glEqManque').addEventListener('change', function () { filtreEq.manque = this.value; chargerEquipe(); });
             $('glEqAjouter').addEventListener('click', function () { ouvrirFormLieu(null); });
             brancherImport();
             return;

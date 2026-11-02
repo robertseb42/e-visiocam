@@ -54,7 +54,7 @@ html[data-theme="light"] .gl,html[data-theme="light"] .gl-fond{--g-panel:#fff;--
 .gl-r:hover{border-color:var(--g-accent)}
 .gl-r[aria-pressed="true"]{border-color:var(--g-accent);background:rgba(255,229,0,.1)}
 .gl-r[aria-pressed="true"] small{color:var(--g-accent)}
-.gl-carte{height:360px;border-radius:14px;overflow:hidden;background:var(--g-tag);border:1px solid var(--g-border);z-index:0}
+.gl-carte{height:480px;border-radius:14px;overflow:hidden;background:var(--g-tag);border:1px solid var(--g-border);z-index:0}
 
 /* Liste des lieux */
 .gl-liste-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -274,6 +274,28 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-hab-ecrire{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--g-border);color:var(--g-accent)!important}
 .gl-hab-ecrire:hover{border-color:var(--g-accent)}
 
+/* ---------- Liste : fiches plus parlantes ---------- */
+.gl-lieu-ville{display:flex;align-items:center;gap:6px;color:var(--g-soft)!important;font-size:13px;font-weight:600}
+.gl-lieu-ville i{color:var(--g-pink);font-size:11px}
+.gl-lieu-badges{display:flex;flex-wrap:wrap;gap:5px;margin:3px 0 1px}
+.gl-mini{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;background:var(--g-tag);color:var(--g-soft);font-style:normal;margin:0}
+.gl-mini-club{background:var(--g-pink-bg);color:var(--g-pink-txt)}
+.gl-mini-sauna{background:rgba(96,165,250,.14);color:#93c5fd}
+.gl-mini-soiree{background:rgba(167,139,250,.16);color:#c4b5fd}
+.gl-verifie{background:rgba(52,211,153,.14);color:var(--g-ok)}
+.gl-lieu-txt small{color:var(--g-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gl-liste{max-height:720px;overflow-y:auto;padding-right:4px}
+
+/* ---------- Équipe : nettoyage en lot ---------- */
+.gl-eq-outils{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:-4px 0 12px}
+.gl-eq-lot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;border-radius:12px;background:var(--g-panel2);border:1px solid var(--g-accent)}
+.gl-eq-lot[hidden]{display:none}
+.gl-eq-lot b{font-size:13px;margin-right:4px}
+.gl-eq-lot .gl-btn{min-height:38px;padding:6px 12px;font-size:13px}
+.gl-eq-case{display:flex;align-items:center;justify-content:center;width:36px;height:44px;flex:none;cursor:pointer}
+.gl-eq-case input{width:20px;height:20px;accent-color:var(--g-accent)}
+.gl-eq-lieu .gl-eq-txt{flex:1}
+
 /* ---------- Équipe ---------- */
 .gl-import .gl-aide{margin:0 0 8px}
 .gl-imp-regles{padding-left:18px;margin:0 0 14px}
@@ -316,7 +338,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 /* Tablette et téléphone */
 @media (max-width:1024px){
   .gl-grille,.gl-fiche-grille{grid-template-columns:1fr}
-  .gl-carte{height:300px}
+  .gl-carte{height:380px}
 }
 @media (max-width:640px){
   .gl-tete{align-items:stretch}
@@ -324,7 +346,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
   .gl-recherche{max-width:none}
   .gl-select{flex:1 1 100%}
   .gl-regions{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .gl-carte{height:260px}
+  .gl-carte{height:300px}
   .gl-fiche-tete{flex-direction:column}
   .gl-notes-detail{grid-template-columns:repeat(2,minmax(0,1fr))}
   .gl-deux{grid-template-columns:1fr}
