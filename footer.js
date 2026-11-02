@@ -19,6 +19,7 @@
             ['a-propos.html', 'À propos'],
             ['salons.html', 'Salons'],
             ['tchat-regions.html', 'Chat par région'],
+            ['guide.html', 'Guide libertin des clubs'],
             ['programme.html', 'Programme des soirées'],
             ['modeles.html', 'Modèles'],
             ['credits.html', 'Récompenses'],

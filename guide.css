@@ -1,0 +1,201 @@
+/* ============================================================
+   E-VISIOCAM — Guide libertin (guide.html + lieu.html)
+   Carte des régions, lieux, avis, bons plans, modération
+   ============================================================ */
+.gl,.gl-fond{--g-panel:#1c1c20;--g-panel2:#232329;--g-tag:#262630;--g-border:#2f2f36;--g-text:#f5f5f7;--g-soft:#d4d4dc;--g-muted:#b1b1bd;--g-accent:#ffe500;--g-accent-txt:#111113;--g-pink:#ff1680;--g-pink-bg:rgba(255,22,128,.12);--g-pink-txt:#ffb3d4;--g-ok:#34d399;--g-danger:#f87171}
+html[data-theme="light"] .gl,html[data-theme="light"] .gl-fond{--g-panel:#fff;--g-panel2:#f8fafc;--g-tag:#f1f5f9;--g-border:#e2e8f0;--g-text:#0f172a;--g-soft:#334155;--g-muted:#64748b;--g-accent:#e91e63;--g-accent-txt:#fff;--g-pink:#e91e63;--g-pink-bg:#fdf2f8;--g-pink-txt:#9d174d;--g-ok:#059669;--g-danger:#dc2626}
+.gl{color:var(--g-text)}
+.gl *,.gl-fond *{box-sizing:border-box}
+.gl a{color:var(--g-accent)}
+.gl h1,.gl h2,.gl h3{color:var(--g-text)}
+.gl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* En-tête */
+.gl-tete{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+.gl-sur{margin:0 0 6px;color:var(--g-pink);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.gl-tete h1{margin:0;font-size:clamp(26px,3.2vw,38px);font-weight:900;letter-spacing:-.5px;line-height:1.15}
+.gl-intro{margin:8px 0 0;max-width:720px;color:var(--g-soft);font-size:15px;line-height:1.6}
+
+/* Boutons et liens */
+.gl-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 18px;border-radius:12px;border:1px solid var(--g-border);background:var(--g-panel2);color:var(--g-text)!important;font:700 14px Inter,Arial,sans-serif;cursor:pointer;text-decoration:none}
+.gl-btn:hover{border-color:var(--g-accent)}
+.gl-btn-jaune{background:var(--g-accent);border-color:var(--g-accent);color:var(--g-accent-txt)!important}
+.gl-btn-jaune:hover{filter:brightness(1.06)}
+.gl-btn-rouge{border-color:var(--g-danger);color:var(--g-danger)!important;background:transparent}
+.gl-btn:disabled{opacity:.5;cursor:not-allowed}
+.gl-large{width:100%}
+.gl-lien{font-weight:700;font-size:14px;text-decoration:none}
+.gl-lien:hover{text-decoration:underline}
+.gl-lien-btn{border:0;background:none;padding:4px 0;color:var(--g-accent);font:700 14px Inter,Arial,sans-serif;cursor:pointer;text-align:left}
+.gl-lien-btn:hover{text-decoration:underline}
+.gl-gris{color:var(--g-muted)}
+.gl :focus-visible,.gl-fond :focus-visible{outline:2px solid var(--g-accent);outline-offset:2px}
+
+/* Filtres */
+.gl-filtres{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.gl-recherche{position:relative;flex:1 1 260px;max-width:420px}
+.gl-recherche i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--g-muted);font-size:14px}
+.gl-recherche input,.gl-select select{width:100%;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid var(--g-border);background:var(--g-panel);color:var(--g-text);font:14px Inter,Arial,sans-serif}
+.gl-recherche input{padding-left:38px}
+.gl-recherche input:focus,.gl-select select:focus{outline:none;border-color:var(--g-accent)}
+.gl-puces{display:flex;gap:6px;flex-wrap:wrap}
+.gl-puces button{min-height:44px;padding:8px 16px;border-radius:999px;border:1px solid var(--g-border);background:var(--g-panel);color:var(--g-soft);font:600 14px Inter,Arial,sans-serif;cursor:pointer}
+.gl-puces button:hover{border-color:var(--g-accent)}
+.gl-puces button[aria-pressed="true"]{background:var(--g-accent);border-color:var(--g-accent);color:var(--g-accent-txt);font-weight:800}
+
+/* Grille carte / liste */
+.gl-grille{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:start}
+.gl-carte-bloc,.gl-liste-bloc,.gl-moderation{background:var(--g-panel);border:1px solid var(--g-border);border-radius:18px;padding:18px}
+.gl-carte-bloc h2,.gl-liste-tete h2,.gl-moderation h2{margin:0 0 12px;font-size:18px;font-weight:800}
+.gl-regions{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+.gl-r{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:56px;padding:9px 12px;border-radius:12px;border:1px solid var(--g-border);background:var(--g-panel2);color:var(--g-text);font:13px Inter,Arial,sans-serif;text-align:left;cursor:pointer}
+.gl-r b{font-weight:700;font-size:14px;line-height:1.25}
+.gl-r small{color:var(--g-muted);font-size:12px}
+.gl-r:hover{border-color:var(--g-accent)}
+.gl-r[aria-pressed="true"]{border-color:var(--g-accent);background:rgba(255,229,0,.1)}
+.gl-r[aria-pressed="true"] small{color:var(--g-accent)}
+.gl-carte{height:360px;border-radius:14px;overflow:hidden;background:var(--g-tag);border:1px solid var(--g-border);z-index:0}
+
+/* Liste des lieux */
+.gl-liste-tete{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.gl-liste{display:flex;flex-direction:column;gap:8px}
+.gl-lieu{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;border:1px solid var(--g-border);background:var(--g-panel2);color:var(--g-text)!important;text-decoration:none}
+.gl-lieu:hover{border-color:var(--g-accent)}
+.gl-lieu-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--g-pink-bg);color:var(--g-pink);font-size:18px}
+.gl-lieu-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.gl-lieu-txt b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gl-lieu-txt span{color:var(--g-muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gl-lieu-note{display:flex;flex-direction:column;align-items:flex-end;text-align:right}
+.gl-lieu-note b{color:var(--g-accent);font-size:18px;font-weight:900}
+.gl-lieu-note small{color:var(--g-muted);font-size:12px}
+.gl-vide{color:var(--g-muted);font-size:14px;margin:6px 0}
+.gl-vide-bloc{padding:24px 18px;border-radius:14px;border:1px dashed var(--g-border);text-align:center;color:var(--g-soft);font-size:14px;line-height:1.6}
+.gl-vide-bloc>i{font-size:28px;color:var(--g-muted);margin-bottom:6px}
+.gl-vide-bloc p{margin:4px 0}
+.gl-vide-bloc .gl-lien-btn{display:inline;padding:0}
+
+/* Bons plans */
+.gl-plans{margin-top:18px;padding-top:16px;border-top:1px solid var(--g-border)}
+.gl-plans h3{margin:0 0 10px;font-size:16px;font-weight:800}
+.gl-plans ul,.gl-plans-fiche{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:8px}
+.gl-plans li:not(.gl-vide-plan),.gl-plans-fiche li{padding:12px;border-radius:12px;background:var(--g-pink-bg);color:var(--g-pink-txt);font-size:14px;line-height:1.5}
+.gl-plans li p{margin:0 0 4px}
+.gl-plans li small,.gl-plans-fiche li small{display:block;color:var(--g-muted);font-size:12px;margin-top:4px}
+.gl-plans li small a{color:var(--g-accent)}
+.gl-vide-plan{color:var(--g-muted);font-size:14px;margin:0 0 6px}
+
+/* Modération */
+.gl-moderation{margin-top:20px;border-color:var(--g-accent)}
+.gl-moderation h2 i{color:var(--g-accent)}
+.gl-moderation h3{margin:16px 0 8px;font-size:15px;font-weight:800}
+.gl-mod{padding:12px 14px;border-radius:12px;background:var(--g-panel2);border:1px solid var(--g-border);margin-bottom:8px;font-size:14px;line-height:1.5}
+.gl-mod p{margin:6px 0;color:var(--g-soft);white-space:pre-line}
+.gl-mod small{color:var(--g-muted)}
+.gl-mod-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+.gl-legal{margin:24px 0 8px;color:var(--g-muted);font-size:12px;line-height:1.6;max-width:900px}
+
+/* Fiche d'un lieu */
+.gl-ariane{margin:0 0 16px;font-size:13px;color:var(--g-muted)}
+.gl-ariane a{color:var(--g-muted)}
+.gl-fiche-grille{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;align-items:start}
+.gl-fiche-principal{display:flex;flex-direction:column;gap:20px;min-width:0}
+.gl-fiche-cote{display:flex;flex-direction:column;gap:16px}
+.gl-attente{margin:0;padding:12px 14px;border-radius:12px;background:rgba(255,229,0,.1);border:1px solid rgba(255,229,0,.35);color:var(--g-text);font-size:14px}
+.gl-fiche-tete{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.gl-fiche-tete h1{margin:6px 0 4px;font-size:clamp(28px,3.4vw,40px);font-weight:900;letter-spacing:-.5px;line-height:1.1}
+.gl-type{display:inline-flex;align-items:center;gap:6px;color:var(--g-pink);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+.gl-ville{margin:0;color:var(--g-soft);font-size:16px}
+.gl-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.gl-tag{padding:5px 11px;border-radius:999px;background:var(--g-tag);font-size:13px;color:var(--g-text)}
+.gl-note-bloc{flex:none;min-width:110px;text-align:center;padding:14px 18px;border-radius:16px;background:var(--g-panel);border:1px solid var(--g-border)}
+.gl-note-bloc b{display:block;font-size:32px;font-weight:900;color:var(--g-accent)}
+.gl-note-bloc small{color:var(--g-muted);font-size:13px}
+.gl-description{margin:0;color:var(--g-soft);font-size:15px;line-height:1.7;white-space:pre-line}
+.gl-notes-detail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.gl-notes-detail div{padding:14px;border-radius:14px;background:var(--g-panel);border:1px solid var(--g-border)}
+.gl-notes-detail small{color:var(--g-muted);font-size:12px}
+.gl-notes-detail b{display:block;font-size:20px;margin-top:4px}
+
+.gl-avis-bloc{display:flex;flex-direction:column;gap:12px}
+.gl-avis-entete{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.gl-avis-entete h2{margin:0;font-size:22px;font-weight:800}
+.gl-avis{display:flex;flex-direction:column;gap:8px;padding:18px;border-radius:16px;background:var(--g-panel);border:1px solid var(--g-border)}
+.gl-avis-tete{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--g-muted)}
+.gl-avis-tete b{color:var(--g-text)}
+.gl-avis-titre{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px}
+.gl-avis>p{margin:0;font-size:14px;line-height:1.65;color:var(--g-soft);white-space:pre-line}
+.gl-note-etoiles{color:var(--g-accent);font-size:13px;letter-spacing:1px;white-space:nowrap}
+.gl-reponse{margin-top:4px;padding:12px 14px;border-radius:12px;background:var(--g-tag);font-size:13px;color:var(--g-soft)}
+.gl-reponse b{color:var(--g-text)}
+.gl-reponse p{margin:6px 0 0;white-space:pre-line}
+.gl-avis-actions{display:flex;gap:16px;flex-wrap:wrap}
+.gl-avis-actions .gl-lien-btn{font-size:13px}
+
+.gl-encart{display:flex;flex-direction:column;gap:10px;padding:20px;border-radius:16px;background:var(--g-panel);border:1px solid var(--g-border)}
+.gl-encart h2{margin:0;font-size:17px;font-weight:800}
+.gl-encart p{margin:0;color:var(--g-muted);font-size:13px;line-height:1.5}
+.gl-encart dl{margin:0;display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;font-size:14px}
+.gl-encart dt{color:var(--g-muted)}
+.gl-encart dd{margin:0;overflow-wrap:anywhere}
+.gl-pointille{background:transparent;border-style:dashed}
+.gl-mini-carte{height:180px;border-radius:12px;overflow:hidden;background:var(--g-tag);z-index:0}
+
+/* Fenêtres (proposer, avis, bon plan) */
+.gl-fond{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.65);color:var(--g-text)}
+.gl-fond[hidden]{display:none}
+.gl-fenetre{width:100%;max-width:640px;max-height:calc(100vh - 32px);display:flex;flex-direction:column;background:var(--g-panel);border:1px solid var(--g-border);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.gl-petite{max-width:460px}
+.gl-fenetre-tete{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--g-border)}
+.gl-fenetre-tete h2{margin:0;font-size:18px;font-weight:800;color:var(--g-text)}
+.gl-fermer{width:44px;height:44px;border:0;border-radius:10px;background:transparent;color:var(--g-muted);font-size:18px;cursor:pointer}
+.gl-fermer:hover{background:var(--g-panel2);color:var(--g-text)}
+.gl-fenetre-corps{padding:18px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.gl-fenetre-pied{padding:14px 20px;border-top:1px solid var(--g-border);display:flex;justify-content:flex-end;gap:10px}
+.gl-aide{margin:0;color:var(--g-muted);font-size:13px;line-height:1.55}
+.gl-champ{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;border:0;min-width:0}
+.gl-champ>span,.gl-champ legend{font-size:13px;font-weight:700;color:var(--g-soft);padding:0;margin-bottom:6px}
+fieldset.gl-champ{flex-direction:row;flex-wrap:wrap;gap:6px 16px}
+fieldset.gl-champ legend{width:100%}
+.gl-champ input,.gl-champ select,.gl-champ textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--g-border);background:var(--g-panel2);color:var(--g-text);font:14px Inter,Arial,sans-serif}
+.gl-champ textarea{resize:vertical;line-height:1.5}
+.gl-champ input:focus,.gl-champ select:focus,.gl-champ textarea:focus{outline:none;border-color:var(--g-accent)}
+.gl-deux{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gl-case{display:inline-flex;align-items:center;gap:8px;min-height:36px;font-size:14px;cursor:pointer}
+.gl-case input{width:18px;height:18px;min-height:0;accent-color:var(--g-accent)}
+.gl-erreur{margin:0;padding:10px 12px;border-radius:10px;background:rgba(248,113,113,.12);color:var(--g-danger);font-size:14px}
+.gl-erreur[hidden]{display:none}
+.gl-etoiles{display:flex;gap:4px}
+.gl-etoiles button{width:44px;height:44px;border:0;border-radius:10px;background:var(--g-panel2);color:var(--g-accent);font-size:20px;cursor:pointer}
+.gl-etoiles button:hover{background:var(--g-tag)}
+.gl-etoiles.petites button{width:36px;height:36px;font-size:15px}
+.gl-notes fieldset.gl-champ{flex-wrap:nowrap}
+
+/* Leaflet : thème sombre et marqueurs */
+.gl .leaflet-container{background:var(--g-tag);font:13px Inter,Arial,sans-serif}
+.gl .leaflet-popup-content-wrapper,.gl .leaflet-popup-tip{background:var(--g-panel);color:var(--g-text);border:1px solid var(--g-border)}
+.gl .leaflet-popup-content a{color:var(--g-accent);font-weight:700}
+.gl .leaflet-control-attribution{background:rgba(0,0,0,.55)!important;color:#bbb}
+.gl .leaflet-control-attribution a{color:#ddd}
+.gl .leaflet-bar a{background:var(--g-panel);color:var(--g-text);border-color:var(--g-border)}
+
+/* Tablette et téléphone */
+@media (max-width:1024px){
+  .gl-grille,.gl-fiche-grille{grid-template-columns:1fr}
+  .gl-carte{height:300px}
+}
+@media (max-width:640px){
+  .gl-tete{align-items:stretch}
+  .gl-tete .gl-btn{width:100%}
+  .gl-recherche{max-width:none}
+  .gl-select{flex:1 1 100%}
+  .gl-regions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gl-carte{height:260px}
+  .gl-fiche-tete{flex-direction:column}
+  .gl-notes-detail{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gl-deux{grid-template-columns:1fr}
+  .gl-encart dl{grid-template-columns:1fr;gap:2px 0}
+  .gl-encart dd{margin-bottom:8px}
+  .gl-fond{padding:0;align-items:flex-end}
+  .gl-fenetre{max-height:92vh;border-radius:18px 18px 0 0}
+}
