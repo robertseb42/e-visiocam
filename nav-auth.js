@@ -87,7 +87,7 @@
                     <div class="relative">
                         ${photo ? `<img src="${esc(photo)}" alt="" class="w-9 h-9 rounded-full object-cover">` : `<div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${esc(avatarDisplay)}</div>`}
                         <span data-nav-amis-point title="Demandes d’ami reçues" class="hidden absolute -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-bold items-center justify-center ring-2 ring-white" style="background:#a855f7;bottom:-4px">0</span>
-                        ${user.role === 'super_admin' ? `<span id="navContactDot" title="Messages contact non lus" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">0</span>` : ''}
+                        ${user.role === 'super_admin' ? `<span id="navContactDot" title="Demandes de contact non lues" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">0</span>` : ''}
                     </div>
                     <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${esc(user.username)}</span>
                     <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
@@ -107,7 +107,7 @@
                         </a>
                         <a href="messages.html" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-comments w-4" style="color:#0ea5e9"></i> Mes messages
+                                <i class="fa-solid fa-envelope-open-text w-4" style="color:#0ea5e9"></i> Ma messagerie
                             </div>
                         </a>
                         <a href="amis.html" data-nav-amis class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
@@ -136,7 +136,7 @@
                             </a>
                             <a href="admin.html#contact" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                                 <div class="flex items-center gap-3">
-                                    <i class="fa-solid fa-envelope w-4 text-rose-500"></i> Messages contact
+                                    <i class="fa-solid fa-envelope w-4 text-rose-500"></i> Demandes de contact
                                 </div>
                                 <span id="navContactBadge" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
                             </a>

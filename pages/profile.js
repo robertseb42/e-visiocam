@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             </a>
             <a href="messages.html" class="p-4 bg-pink-50 hover:bg-pink-100 border border-pink-200 rounded-xl text-center transition-all">
                 <i class="fa-solid fa-comments text-2xl text-brand-primary mb-2"></i>
-                <p class="text-sm font-bold text-slate-900">Mes messages</p>
+                <p class="text-sm font-bold text-slate-900">Ma messagerie</p>
             </a>
             <a href="credits.html" class="p-4 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl text-center transition-all">
                 <i class="fa-solid fa-coins text-2xl text-amber-500 mb-2"></i>
