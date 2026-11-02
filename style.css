@@ -706,3 +706,44 @@ html[data-theme="light"] .evc-install .evc-install-x:hover{background:#f1f5f9;co
 @media(max-width:1023px){body.has-mnav .evc-install{bottom:calc(76px + env(safe-area-inset-bottom,0px))}}   /* au-dessus de la barre mobile */
 @media(prefers-reduced-motion:no-preference){.evc-install{animation:evcInstallIn .25s ease-out}
     @keyframes evcInstallIn{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translateX(-50%)}}}
+
+/* ============================================================
+   BANDEAU D'ACCUEIL « EVH » (nov. 2026) — toujours sombre,
+   photo à droite fondue dans le noir ; sur mobile photo sous le texte.
+   ============================================================ */
+.evh,.evh *{box-sizing:border-box}
+.evh{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;min-height:430px;border-radius:18px;background:#0b0709;color:#fff;font-family:Inter,Arial,sans-serif;box-shadow:0 14px 34px #0000002e}
+.evh-photo{position:absolute;inset:0 0 0 auto;width:62%;z-index:-2}
+.evh-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.evh:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#0b0709 0%,#0b0709 38%,rgba(11,7,9,.82) 46%,rgba(11,7,9,0) 66%)}
+.evh-legende{position:absolute;right:14px;bottom:12px;padding:3px 9px;border-radius:6px;background:rgba(11,7,9,.65);color:#d9ccd2;font-size:11px}
+.evh-contenu{position:relative;width:56%;max-width:600px;padding:40px 36px}
+.evh-direct{display:inline-flex;align-items:center;gap:9px;margin:0 0 18px;padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#e9dde2;font-size:13px;font-weight:500}
+.evh-direct[hidden]{display:none}
+.evh-point{width:9px;height:9px;border-radius:50%;background:#34d399;animation:evhPulse 1.8s infinite}
+@keyframes evhPulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.6)}70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.evh h1{margin:0;color:#fff;font-size:clamp(32px,3.7vw,56px);line-height:1.02;font-weight:900;letter-spacing:-1.5px;text-transform:uppercase}
+.evh h1 span{color:#e8256a}
+.evh-sous{max-width:470px;margin:16px 0 24px;color:#d9ccd2;font-size:16px;line-height:1.55}
+.evh-sous strong{color:#fff}
+.evh-actions{display:flex;flex-wrap:wrap;gap:12px}
+.evh-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:14px 24px;border:1px solid #e8256a;border-radius:13px;background:#e8256a;color:#fff;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 10px 28px rgba(232,37,106,.42);transition:background .2s,transform .2s,border-color .2s}
+.evh-btn:hover{background:#d81b60;border-color:#d81b60;color:#fff;transform:translateY(-1px)}
+.evh-btn--ghost{background:transparent;border-color:rgba(255,255,255,.45);box-shadow:none}
+.evh-btn--ghost:hover{background:rgba(255,255,255,.08);border-color:#fff}
+.evh-btn:focus-visible,.evh-essai a:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.evh-essai{display:flex;flex-wrap:wrap;align-items:center;margin:14px 0 0;color:#cdbfc6;font-size:14px}
+.evh-essai a{display:inline-flex;align-items:center;gap:7px;min-height:44px;margin-left:6px;color:#fff;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.evh-essai a:hover{color:#ffd1e0}
+@media(max-width:700px){
+  .evh{flex-direction:column;align-items:stretch;min-height:0}
+  .evh:after{display:none}
+  .evh-contenu{order:1;width:100%;max-width:none;padding:26px 20px 8px}
+  .evh-photo{position:relative;order:2;width:100%;height:290px;inset:auto}
+  .evh-photo:before{content:"";position:absolute;inset:0 0 auto 0;height:80px;z-index:1;background:linear-gradient(180deg,#0b0709,rgba(11,7,9,0))}
+  .evh h1{font-size:36px}
+  .evh-actions{flex-direction:column}
+  .evh-btn{width:100%}
+  .evh-essai{justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){.evh-point{animation:none}.evh-btn{transition:none}}

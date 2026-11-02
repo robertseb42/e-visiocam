@@ -1,5 +1,5 @@
 // ============================================================
-// E-VISIOCAM — Pages « Tchat webcam <Région> » (tchat-<region>.html) et tchat-regions.html
+// E-VISIOCAM — Pages « Chat webcam <Région> » (tchat-<region>.html) et tchat-regions.html
 // ------------------------------------------------------------
 // Bloc « En ligne dans la région » : compteurs réels, sans aucun pseudo.
 //   - page d'une région  : GET /api/salons/region/<slug>/stats (cache serveur 30 s)

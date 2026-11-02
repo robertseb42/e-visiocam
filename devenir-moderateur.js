@@ -38,7 +38,7 @@
             '<div class="evr-champ"><label for="evrMotivation">Pourquoi voulez-vous rejoindre l’équipe ?</label>' +
             '<textarea id="evrMotivation" maxlength="2000" required placeholder="Parlez de vous, de ce que vous aimez sur E-VISIOCAM et de la façon dont vous réagiriez face à un membre irrespectueux."></textarea>' +
             '<small><span id="evrCompte">0</span> / 2000 caractères (80 au moins)</small></div>' +
-            '<div class="evr-champ"><label for="evrExperience">Avez-vous déjà modéré un tchat, un forum ou un serveur ? <span class="evr-muted">(facultatif)</span></label>' +
+            '<div class="evr-champ"><label for="evrExperience">Avez-vous déjà modéré un chat, un forum ou un serveur ? <span class="evr-muted">(facultatif)</span></label>' +
             '<textarea id="evrExperience" maxlength="1000" style="min-height:80px" placeholder="Où, combien de temps, ce que vous en avez retenu…"></textarea></div>' +
             '<fieldset class="evr-champ"><legend>Quand êtes-vous connecté le plus souvent ?</legend><div class="evr-puces">' + creneaux + '</div></fieldset>' +
             '<div class="evr-champ"><label for="evrHeures">Combien d’heures par semaine pouvez-vous donner ?</label>' +

@@ -7,7 +7,7 @@
 //   d'accueil » (indispensable sur iPhone pour recevoir les notifications).
 // - Navigateur intégré (Facebook, Instagram…) : conseil d'ouvrir la page dans Safari / Chrome.
 // - Bandeau : à partir de la 2e visite seulement, une fois par visite au plus, jamais pendant
-//   un tchat / un direct / une conversation ni pendant qu'on se filme, jamais dans l'application
+//   un chat / un direct / une conversation ni pendant qu'on se filme, jamais dans l'application
 //   installée ; fermé → plus rien pendant 14 jours.
 // - compte.html : bouton #installApp (+ #installAide) qui lance l'installation ou affiche l'aide.
 //

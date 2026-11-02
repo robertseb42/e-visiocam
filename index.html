@@ -36,7 +36,7 @@
 <script src="auth-api.js?v=7"></script>
 <script src="legal-banner.js?v=4" defer></script>
 <script defer="" src="nav-auth.js?v=8"></script>
-<link href="style.css?v=20261101-webp-i" rel="stylesheet"/>
+<link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=2" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
@@ -177,17 +177,21 @@
 </div>
 </aside>
 <main class="flex-1 space-y-6">
-<section aria-labelledby="cam-banner-title" class="cam-banner">
-<div aria-hidden="true" class="cam-banner-art"></div>
-<div class="cam-banner-content">
+<section aria-labelledby="cam-banner-title" class="evh">
+<picture class="evh-photo">
+<source srcset="img/hero-visio.webp" type="image/webp"/>
+<img src="img/hero-visio.jpg" alt="Illustration : quatre adultes souriants en visio, ambiance lumière tamisée rose" width="1024" height="860" fetchpriority="high" decoding="async"/>
+</picture>
+<span class="evh-legende">Photos d'illustration</span>
+<div class="evh-contenu">
+<p class="evh-direct" id="evhDirect" hidden><span class="evh-point" aria-hidden="true"></span><span id="evhDirectTexte"></span></p>
 <h1 id="cam-banner-title">Chat webcam gratuit<br/><span>entre adultes</span></h1>
-<p><strong>Votre salon. Vos rencontres.</strong> Échangez par écrit ou en vidéo, à votre rythme.</p>
-<div class="cam-banner-actions">
-<a class="cam-banner-cta" href="salons.html"><i aria-hidden="true" class="fa-solid fa-user-group"></i>Rejoindre un salon</a>
-<button class="cam-banner-cta cam-banner-cta--ghost" data-click="goLive" type="button"><i aria-hidden="true" class="fa-solid fa-tower-broadcast"></i>Diffuser ma webcam</button>
-<a class="cam-banner-cta cam-banner-cta--ghost" href="roulette.html"><i aria-hidden="true" class="fa-solid fa-shuffle"></i>Chat roulette modéré</a>
+<p class="evh-sous"><strong>Votre salon. Vos rencontres.</strong> Discutez par écrit ou en vidéo, à votre rythme, sans abonnement.</p>
+<div class="evh-actions">
+<a class="evh-btn" href="salons.html"><i aria-hidden="true" class="fa-solid fa-video"></i>Entrer maintenant, c'est gratuit</a>
+<a class="evh-btn evh-btn--ghost" href="roulette.html"><i aria-hidden="true" class="fa-solid fa-shuffle"></i>Rencontre surprise</a>
 </div>
-<p class="ev-essai"><a href="apercu.html">Essayer sans compte</a> · voir un salon en direct avant de vous inscrire</p>
+<p class="evh-essai">Pas encore décidé ? <a href="apercu.html"><i aria-hidden="true" class="fa-solid fa-eye"></i>Essayer sans compte</a></p>
 </div>
 </section>
 <!-- 🛡️ Bandeau de confiance : chaque point renvoie à la page Sécurité -->
@@ -319,13 +323,13 @@
 <a class="ev-btn" href="devenir-moderateur.html"><i aria-hidden="true" class="fa-solid fa-shield-halved"></i>Devenir modérateur</a>
 </div>
 </section>
-<section aria-labelledby="seo-discover-title" class="ev-features" id="seo-discover"><div class="ev-features-head"><h2 id="seo-discover-title">Découvrir le tchat webcam E-VISIOCAM</h2><p>Rejoignez les <a href="salons.html">salons de tchat webcam entre adultes</a>, consultez notre <a href="guide-chat-webcam.html">guide pour bien débuter</a> et découvrez les <a href="securite-chat-webcam.html">conseils de sécurité</a> avant votre première diffusion. Envie de discuter près de chez vous ? Essayez le <a href="tchat-regions.html">tchat par région</a>, et ne manquez pas le <a href="programme.html">programme des soirées</a>.</p></div></section></main>
+<section aria-labelledby="seo-discover-title" class="ev-features" id="seo-discover"><div class="ev-features-head"><h2 id="seo-discover-title">Découvrir le chat webcam E-VISIOCAM</h2><p>Rejoignez les <a href="salons.html">salons de chat webcam entre adultes</a>, consultez notre <a href="guide-chat-webcam.html">guide pour bien débuter</a> et découvrez les <a href="securite-chat-webcam.html">conseils de sécurité</a> avant votre première diffusion. Envie de discuter près de chez vous ? Essayez le <a href="tchat-regions.html">chat par région</a>, et ne manquez pas le <a href="programme.html">programme des soirées</a>.</p></div></section></main>
 </div>
 <script src="pages/index-recrutement.js"></script>
 <script src="app.js"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
-<script defer="" src="banner.js?v=3"></script>
+<script defer="" src="hero-direct.js?v=1"></script>
 <script defer="" src="site-search.js"></script>
 <script defer="" src="boule-facette.js?v=3"></script>
 <script defer="" src="couple-danse.js?v=7"></script>

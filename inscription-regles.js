@@ -1,7 +1,7 @@
 // ============================================================
 // RÈGLES D'INSCRIPTION PARTAGÉES
 // Utilisées par register.html (pages/register.js) et par la fiche d'inscription rapide
-// de l'aperçu du tchat (apercu.html, pages/apercu.js). Ce sont les MÊMES contrôles que le
+// de l'aperçu du chat (apercu.html, pages/apercu.js). Ce sont les MÊMES contrôles que le
 // serveur (backend auth.js + routes/auth.js) : on répond tout de suite au visiteur, mais le
 // serveur reste seul juge (il refait toutes les vérifications, dont les 18 ans).
 // ============================================================

@@ -18,7 +18,7 @@
         { titre: 'E-VISIOCAM', liens: [
             ['a-propos.html', 'À propos'],
             ['salons.html', 'Salons'],
-            ['tchat-regions.html', 'Tchat par région'],
+            ['tchat-regions.html', 'Chat par région'],
             ['programme.html', 'Programme des soirées'],
             ['modeles.html', 'Modèles'],
             ['credits.html', 'Récompenses'],

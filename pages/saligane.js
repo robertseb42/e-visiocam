@@ -47,7 +47,7 @@
         if (e.target.closest && e.target.closest('[data-entrer]')) { compterVisite(); envoyer('entree'); }
     });
 
-    // ---------- Le tchat en direct ----------
+    // ---------- Le chat en direct ----------
     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     function lire(chemin) {
         return fetch(api + chemin, { credentials: 'omit' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
@@ -66,7 +66,7 @@
         zone.hidden = false;
     });
 
-    // « Voir le tchat en direct » seulement s'il y a de vrais échanges : un aperçu où seul l'animateur parle
+    // « Voir le chat en direct » seulement s'il y a de vrais échanges : un aperçu où seul l'animateur parle
     // donnerait l'impression d'un site vide. Sinon le bouton reste « Visiter d'abord » (accueil).
     var SEUIL_MESSAGES_MEMBRES = 5;
     lire('/salons/apercu').then(function (data) {
@@ -78,7 +78,7 @@
         var b = document.getElementById('salBtnApercu');
         if (!b) return;
         b.href = 'apercu.html';
-        b.innerHTML = '<i class="fa-solid fa-eye"></i> Voir le tchat en direct';
+        b.innerHTML = '<i class="fa-solid fa-eye"></i> Voir le chat en direct';
     });
 
     // Salons du moment (ceux choisis dans « Gestion des salons »), avec la même image qu'à l'accueil

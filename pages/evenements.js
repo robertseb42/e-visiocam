@@ -151,7 +151,7 @@
         var evts = seances.filter(function (s) { return Date.parse(s.fin) > t; }).slice(0, 20).map(function (s) {
             var url = SITE + '/' + lienSalon(s);
             return {
-                '@type': 'Event', name: s.titre + ' — E-VISIOCAM', description: s.description || (s.type_libelle + ' en direct dans le ' + s.salon_nom + ' du tchat E-VISIOCAM.'),
+                '@type': 'Event', name: s.titre + ' — E-VISIOCAM', description: s.description || (s.type_libelle + ' en direct dans le ' + s.salon_nom + ' du chat E-VISIOCAM.'),
                 startDate: s.debut, endDate: s.fin, eventStatus: 'https://schema.org/EventScheduled',
                 eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
                 location: { '@type': 'VirtualLocation', url: url },
