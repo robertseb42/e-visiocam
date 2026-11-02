@@ -373,7 +373,7 @@
     }
 
     function refus(r) {
-        var msg = (r && r.message) || 'La roulette est indisponible pour le moment.';
+        var msg = (r && r.message) || 'La Rencontre surprise est indisponible pour le moment.';
         enMarche = false;
         fermerPc(); session = null; partenaire = null;
         ecran('repos', 'Pas tout de suite…', msg, { icone: 'fin' });
@@ -415,7 +415,7 @@
                 ecran('repos', 'Conversation arrêtée', 'Votre signalement a été envoyé avec les messages échangés. Vous ne recroiserez pas cette personne. Appuyez sur « Démarrer » quand vous voulez.', { icone: 'fin' });
                 return;
             case 'sanction': return arreter({ titre: 'Session arrêtée', texte: d.message || 'Session arrêtée par la modération.' });
-            case 'autre_onglet': return arreter({ titre: 'Roulette ouverte ailleurs', texte: 'Vous avez lancé la roulette dans un autre onglet ou appareil.' });
+            case 'autre_onglet': return arreter({ titre: 'Rencontre surprise ouverte ailleurs', texte: 'Vous l’avez déjà lancée dans un autre onglet ou sur un autre appareil.' });
             default: if (enMarche) relance = setTimeout(rejoindre, 700); else ecran('repos');
         }
     }
