@@ -347,6 +347,15 @@
                 });
 
                 // ❤️ Un modèle suivi vient de lancer un live
+                unreadSocket.on('evenement:debut', function (d) {
+                    if (!d || !d.titre || /chat\.html/.test(location.pathname) && new URLSearchParams(location.search).get('theme') === d.salon_slug) return;
+                    var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+                    var el = document.createElement('div'); el.className = 'ev-live-alert'; el.setAttribute('role', 'status');
+                    el.innerHTML = '<span class="ev-live-dot"></span><div><b>' + esc(d.titre) + '</b> commence<small>' + esc(d.salon_nom) + '</small></div>' +
+                        '<a href="chat.html?theme=' + encodeURIComponent(d.salon_slug) + '">Rejoindre</a><button type="button" aria-label="Fermer">×</button>';
+                    el.querySelector('button').addEventListener('click', function () { el.remove(); });
+                    document.body.appendChild(el); setTimeout(function () { el.remove(); }, 20000);
+                });
                 unreadSocket.on('favori:live', function(d) {
                     if (d && d.username) alerteLive(d);
                 });

@@ -159,6 +159,9 @@
         if (roles[m.role]) lignes.push(roles[m.role]);
         if (depuis) lignes.push('Membre depuis ' + depuis);
         if (m.departement) lignes.push('📍 ' + m.departement + (window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[m.departement] ? ' · ' + window.EVC_DEPARTEMENTS[m.departement] : ''));
+        // 🏡 Même département ou même région que moi (departements-data.js) : « près de chez vous »
+        var moiDep = !m.moi && typeof getCurrentUser === 'function' && (getCurrentUser() || {}).departement;
+        if (moiDep && m.departement && typeof window.evcProximite === 'function' && window.evcProximite(moiDep, m.departement)) lignes.push('🏡 Près de chez vous');
         f.appendChild(el('p', 'evs-sous', lignes.join(' · ')));
         var chips = [];
         if (m.insigne) chips.push(m.insigne.icone + ' ' + m.insigne.nom);

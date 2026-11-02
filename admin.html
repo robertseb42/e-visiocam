@@ -19,10 +19,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="auth-api.js?v=7"></script>
     <script src="legal-banner.js?v=4" defer></script>
-    <script src="sanction-modal.js?v=3"></script>
+    <script src="sanction-modal.js?v=4"></script>
     <script src="offrir-credits.js?v=2"></script>
     <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js" defer></script>
-    <script src="nav-auth.js?v=6" defer></script>
+    <script src="nav-auth.js?v=7" defer></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp">
     <script src="maintenance.js" defer></script>
@@ -38,7 +38,7 @@
         .stats-periode.actif { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
         :where(html:not([data-theme="light"])) .stats-periode.actif { background: #2c2c33; color: #f5f5f6; }
     </style>
-    <link rel="stylesheet" href="fiche-membre.css?v=2">
+    <link rel="stylesheet" href="fiche-membre.css?v=3">
     <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
@@ -219,6 +219,9 @@
             <button id="contactTabBtn" data-click="showTab" data-click-args='["contact","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-envelope mr-1"></i> Messages contact
                 <span id="contactTabBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
+            <button id="programmeTabBtn" data-click="showTab" data-click-args='["programme","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-calendar-days mr-1"></i> Programme
             </button>
         </div>
 
@@ -547,6 +550,38 @@
                 <p class="text-center text-slate-400 py-8 text-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</p>
             </div>
         </div>
+
+        <!-- 📅 Programme des soirées (pages/admin-programme.js) -->
+        <div id="tab-programme" class="tab-content p-5 hidden">
+            <div class="evm">
+                <div class="evm-titre">
+                    <div>
+                        <h3>Programme des soirées</h3>
+                        <p>Rendez-vous réguliers affichés sur l'accueil et sur programme.html. Au début de chaque séance : notification aux membres qui ont demandé un rappel, alerte en direct pour tous et annonce de DJ_Disco dans le salon. Heures de Paris.</p>
+                    </div>
+                    <button type="button" id="evpNouveau" class="evm-btn evm-btn-jaune"><i class="fa-solid fa-plus" aria-hidden="true"></i> Nouveau rendez-vous</button>
+                </div>
+                <form id="evpForm" class="evm-filtres" hidden aria-label="Rendez-vous" style="flex-wrap:wrap">
+                    <input type="hidden" id="evpId">
+                    <label class="evm-champ" style="flex:2 1 220px">Titre<input type="text" id="evpTitre" required minlength="3" maxlength="80" autocomplete="off"></label>
+                    <label class="evm-champ">Type<select id="evpType"><option value="soiree">Soirée</option><option value="quiz">Quiz (DJ_Disco lance un quiz)</option><option value="blindtest">Blind test</option><option value="autre">Autre</option></select></label>
+                    <label class="evm-champ">Salon<select id="evpSalon"></select></label>
+                    <label class="evm-champ">Début (heure de Paris)<input type="datetime-local" id="evpDebut" required></label>
+                    <label class="evm-champ">Durée (min)<input type="number" id="evpDuree" min="15" max="360" step="5" value="60" required></label>
+                    <label class="evm-champ">Récurrence<select id="evpRecurrence"><option value="hebdo">Chaque semaine</option><option value="aucune">Une seule fois</option></select></label>
+                    <label class="evm-champ">État<select id="evpActif"><option value="1">Actif</option><option value="0">En pause</option></select></label>
+                    <label class="evm-champ" style="flex:1 1 100%">Description (facultative)<input type="text" id="evpDescription" maxlength="300" autocomplete="off"></label>
+                    <div class="evm-puces"><button type="submit" class="evm-btn evm-btn-jaune" id="evpEnregistrer">Enregistrer</button><button type="button" id="evpAnnuler" class="evm-lien">Annuler</button></div>
+                </form>
+                <p class="evm-resume" id="evpResume" aria-live="polite"></p>
+                <div class="evm-tableau">
+                    <table class="evm-table">
+                        <thead><tr><th scope="col">Rendez-vous</th><th scope="col">Quand</th><th scope="col">Salon</th><th scope="col">Rappels</th><th scope="col">État</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+                        <tbody id="evpListe"><tr><td colspan="6" class="evm-vide">Chargement...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 
@@ -637,13 +672,14 @@
     </div>
 </div>
 
-<script src="pages/admin.js?v=5"></script>
-<script src="fiche-membre.js?v=2"></script>
-<script src="pages/admin-membres.js?v=3"></script>
+<script src="pages/admin.js?v=6"></script>
+<script src="fiche-membre.js?v=3"></script>
+<script src="pages/admin-membres.js?v=4"></script>
 
 
 <script src="pages/admin-demandes.js"></script>
+<script src="pages/admin-programme.js?v=2"></script>
 <script src="admin-provenance.js?v=1"></script>
-<script src="footer.js?v=5" defer></script>
+<script src="footer.js?v=6" defer></script>
 </body>
 </html>

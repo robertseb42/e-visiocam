@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<html class="h-full cam-theme" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+<meta content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<script src="persistent-radio-bootstrap.js"></script>
+<link rel="preconnect" href="https://api.e-visiocam.com">
+<script src="theme.js?v=2"></script>
+<script src="actions.js?v=csp2"></script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Programme des soirées tchat — E-VISIOCAM</title>
+<link href="favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<meta content="#111113" name="theme-color"/>
+<meta content="Soirée Disco, quiz de DJ_Disco, blind test : chaque semaine, des soirées tchat à heure fixe pour retrouver toute la communauté E-VISIOCAM en même temps. Gratuit, entre adultes." name="description"/>
+<link href="https://www.e-visiocam.com/programme.html" rel="canonical"/>
+<meta content="adult" name="rating"/>
+<meta content="website" property="og:type"/>
+<meta content="E-VISIOCAM" property="og:site_name"/>
+<meta content="fr_FR" property="og:locale"/>
+<meta content="Programme des soirées tchat — E-VISIOCAM" property="og:title"/>
+<meta content="Soirée Disco, quiz de DJ_Disco, blind test : chaque semaine, des soirées tchat à heure fixe pour retrouver toute la communauté E-VISIOCAM en même temps." property="og:description"/>
+<meta content="https://www.e-visiocam.com/programme.html" property="og:url"/>
+<meta content="https://www.e-visiocam.com/img/partage.jpg" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<!-- Données fixes de la page. Les séances (type Event) sont ajoutées par pages/evenements.js à partir de l'API. -->
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://www.e-visiocam.com/programme.html#page","url":"https://www.e-visiocam.com/programme.html","name":"Programme des soirées tchat — E-VISIOCAM","inLanguage":"fr-FR","isPartOf":{"@id":"https://www.e-visiocam.com/#site"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.e-visiocam.com/"},{"@type":"ListItem","position":2,"name":"Programme des soirées","item":"https://www.e-visiocam.com/programme.html"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Les soirées sont-elles gratuites ?","acceptedAnswer":{"@type":"Answer","text":"Oui. Les soirées ont lieu dans les salons publics du site, ouverts gratuitement à tous les membres majeurs."}},{"@type":"Question","name":"Comment être prévenu au début d’une soirée ?","acceptedAnswer":{"@type":"Answer","text":"Cliquez sur « Me prévenir » à côté de la soirée. Si le site est ouvert, une alerte s’affiche au début ; site fermé, vous recevez une notification si vous les avez activées dans Mon compte."}},{"@type":"Question","name":"Qui est DJ_Disco ?","acceptedAnswer":{"@type":"Answer","text":"DJ_Disco est l’animateur virtuel du site, une intelligence artificielle : il accueille les membres, pose des questions et lance les quiz. Ce n’est pas une vraie personne."}}]}]}</script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" rel="stylesheet" crossorigin="anonymous"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<script src="auth-api.js?v=7"></script>
+<script src="legal-banner.js?v=4" defer></script>
+<script defer="" src="nav-auth.js?v=7"></script>
+<link href="style.css?v=20261101-webp" rel="stylesheet"/>
+<link href="evenements.css?v=2" rel="stylesheet"/>
+<script defer="" src="maintenance.js"></script>
+<link href="tailwind.css?v=20261009" rel="stylesheet"/>
+</head>
+<body class="cam-home h-full flex flex-col font-sans">
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+<div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+<div class="flex items-center lg:w-64 lg:shrink-0">
+<a class="flex items-center gap-2" href="index.html">
+<div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+<i class="fa-solid font-bold text-lg fa-video"></i>
+</div>
+<span class="text-2xl font-black tracking-tight text-slate-900">
+                    E-<span class="text-brand-primary">VISIOCAM</span>
+</span>
+</a>
+</div>
+<nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messages</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+</nav>
+<div class="ml-auto flex items-center gap-3 sm:gap-5">
+<div class="cam-search relative hidden sm:block w-48 md:w-64">
+<i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+<input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+</div>
+<button aria-label="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle="" title="Passer en thème clair" type="button">☀️</button>
+<button aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-nav-bell="">
+<i class="fa-regular fa-bell text-lg"></i>
+<span class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white" data-nav-bell-badge="">0</span>
+</button>
+<div class="flex items-center gap-2" id="navAuth"></div>
+</div>
+</div>
+</header>
+<main class="ev-prog max-w-[1000px] w-full mx-auto flex-1 p-3 md:p-6 space-y-6">
+<nav aria-label="Fil d’Ariane" style="font-size:13px;color:var(--h-muted)"><a href="index.html" style="color:inherit">Accueil</a> › Programme des soirées</nav>
+<section class="ev-soirees" aria-labelledby="progTitre">
+<h1 id="progTitre">Programme des soirées tchat</h1>
+<p class="ev-prog-intro">Chaque semaine, des rendez-vous à heure fixe pour retrouver toute la communauté au même moment : soirée disco avec la radio du site, quiz de DJ_Disco, blind test… Gratuit, entre adultes. Heures de Paris.</p>
+</section>
+<section aria-labelledby="progUne" class="ev-soirees">
+<div class="ev-soirees-tete"><h2 id="progUne">Prochaine soirée</h2></div>
+<div class="ev-une" id="soireeUne" style="min-height:236px"><p class="ev-soirees-vide">Chargement du programme…</p></div>
+<p aria-live="polite" class="ev-sr" id="soireeAnnonce"></p>
+</section>
+<section aria-labelledby="progListe" class="ev-soirees">
+<div class="ev-soirees-tete"><h2 id="progListe">Les 14 prochains jours</h2><a href="salons.html">Tous les salons <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
+<div id="programmeJours"><p class="ev-soirees-vide">Chargement du programme…</p></div>
+</section>
+<section aria-labelledby="progComment" class="ev-soirees ev-prog-texte">
+<h2 id="progComment">Comment se passent les soirées ?</h2>
+<p>Chaque soirée a lieu dans un salon public du tchat. À l’heure dite, DJ_Disco, l’animateur virtuel du site (une IA, pas une vraie personne), l’annonce dans le salon et lance l’animation : sujets de discussion, quiz avec des crédits à gagner, titres à deviner à la radio. Vous participez par écrit, et vous activez votre caméra seulement si vous le souhaitez.</p>
+<h3>Être prévenu au bon moment</h3>
+<p>Cliquez sur « Me prévenir » : si le site est ouvert, une alerte s’affiche au début de la soirée ; site fermé, vous recevez une notification si vous les avez activées dans <a href="compte.html">Mon compte</a>. Le rappel vaut pour chaque semaine, jusqu’à ce que vous le retiriez.</p>
+<h3>Les mêmes règles que partout sur le site</h3>
+<p>Les soirées sont modérées comme le reste du tchat : site réservé aux majeurs, aucun contenu sexuel, et un bouton Signaler toujours à portée de main. Avant votre première soirée, lisez nos <a href="securite-chat-webcam.html">conseils de sécurité</a>.</p>
+<h3>Les soirées sont-elles gratuites ?</h3>
+<p>Oui. Il suffit d’un compte gratuit pour écrire dans les salons. <a href="register.html">Créer mon compte</a> ou <a href="apercu.html">essayer sans compte</a>.</p>
+</section>
+</main>
+<script defer="" src="pages/evenements.js?v=2"></script>
+<script defer="" src="site-search.js"></script>
+<script defer="" src="footer.js?v=6"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-slate-100" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+<meta content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<script src="persistent-radio-bootstrap.js"></script>
+<link rel="preconnect" href="https://api.e-visiocam.com">
+<script src="theme.js?v=2"></script>
+<title>Tchat webcam par région : salons gratuits près de chez vous | E-VISIOCAM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<meta content="#111113" name="theme-color"/>
+<meta content="Un salon de tchat webcam par région, de l'Île-de-France à l'Outre-mer : discutez entre adultes près de chez vous. Gratuit, webcam facultative, modération et 18+ uniquement." name="description"/>
+<link href="https://www.e-visiocam.com/tchat-regions.html" rel="canonical"/>
+<meta content="adult" name="rating"/>
+<meta content="website" property="og:type"/>
+<meta content="E-VISIOCAM" property="og:site_name"/>
+<meta content="fr_FR" property="og:locale"/>
+<meta content="Tchat webcam par région : salons gratuits près de chez vous | E-VISIOCAM" property="og:title"/>
+<meta content="Un salon de tchat webcam par région, de l'Île-de-France à l'Outre-mer : discutez entre adultes près de chez vous. Gratuit, webcam facultative, modération et 18+ uniquement." property="og:description"/>
+<meta content="https://www.e-visiocam.com/tchat-regions.html" property="og:url"/>
+<meta content="https://www.e-visiocam.com/img/partage.jpg" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.e-visiocam.com/"},{"@type":"ListItem","position":2,"name":"Salons","item":"https://www.e-visiocam.com/salons.html"},{"@type":"ListItem","position":3,"name":"Tchat par région","item":"https://www.e-visiocam.com/tchat-regions.html"}]}</script>
+<script src="app.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" rel="stylesheet" crossorigin="anonymous"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="auth-api.js?v=7"></script>
+<script src="legal-banner.js?v=4" defer></script>
+<script defer="" src="nav-auth.js?v=7"></script>
+<link href="style.css?v=20261101-webp" rel="stylesheet"/>
+<script defer="" src="maintenance.js"></script>
+<link href="tailwind.css?v=20261009" rel="stylesheet"/>
+<style>
+.tr-page{max-width:980px;margin:0 auto}
+.tr-fil{font-size:13px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tr-fil a{text-decoration:none}.tr-fil a:hover{text-decoration:underline}
+.tr-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tr-stat{border-radius:14px;padding:14px 12px;text-align:center}
+.tr-stat b{display:block;font-size:28px;line-height:1.1;font-weight:900;font-variant-numeric:tabular-nums}
+.tr-stat span{display:block;font-size:12px;margin-top:4px;opacity:.75}
+.tr-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.tr-cta a{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none}
+.tr-puces{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:0}
+.tr-puces li{font-size:13px;padding:6px 11px;border-radius:999px;border:1px solid var(--ev-border,#e2e8f0)}
+.tr-puces a{text-decoration:none}.tr-puces a:hover{text-decoration:underline}
+.tr-carte{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.tr-tuile{display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;text-decoration:none;min-height:86px;transition:transform .15s}
+.tr-tuile:hover{transform:translateY(-2px)}
+.tr-tuile .i{font-size:22px;line-height:1}.tr-tuile .n{font-weight:800;font-size:14px;line-height:1.25}.tr-tuile .d{font-size:11.5px;opacity:.7}
+.tr-tuile .o{font-size:11.5px;font-weight:700;color:#059669}
+@media (max-width:640px){
+  .tr-stats{grid-template-columns:1fr}
+  .tr-stat{display:flex;align-items:center;gap:12px;text-align:left;padding:10px 14px}
+  .tr-stat b{font-size:22px;min-width:52px}.tr-stat span{margin-top:0}
+  .tr-cta a{width:100%}
+  .tr-carte{grid-template-columns:1fr 1fr}
+  .tr-carte .tr-tuile{grid-column:auto!important;grid-row:auto!important}
+}
+</style>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+        <div class="flex items-center lg:w-64 lg:shrink-0">
+            <a class="flex items-center gap-2" href="index.html">
+                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid font-bold text-lg fa-video"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            </a>
+        </div>
+        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+            <a class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold" href="salons.html">Salons</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messages</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+        </nav>
+        <div class="ml-auto flex items-center gap-3 sm:gap-5">
+            <div class="cam-search relative hidden sm:block w-48 md:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+            </div>
+            <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
+            <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</header>
+<main class="max-w-[1700px] w-full mx-auto flex-1 p-6">
+<div class="tr-page">
+<nav aria-label="Fil d'Ariane" class="tr-fil text-slate-500"><a class="text-slate-500" href="index.html">Accueil</a><span aria-hidden="true">›</span><a class="text-slate-500" href="salons.html">Salons</a><span aria-hidden="true">›</span><span aria-current="page" class="text-slate-700 font-semibold">Tchat par région</span></nav>
+<h1 class="text-3xl font-extrabold text-slate-900 mb-3">🗺️ Tchat webcam par région</h1>
+<p class="text-slate-600 mb-3 leading-relaxed">Chaque région de France a son salon sur E-VISIOCAM, et les cinq départements d'outre-mer partagent le leur. L'idée est simple : discuter entre adultes avec des gens de votre coin, à l'écrit ou en webcam, sans quitter la communauté du site. Choisissez votre région ci-dessous pour voir ses départements, l'activité du moment et entrer dans son salon.</p>
+<p class="text-sm text-slate-500 mb-6" aria-live="polite" id="statTotal"></p>
+<div class="tr-carte mb-8">
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-auvergne-rhone-alpes.html" style="grid-column:3 / span 2;grid-row:4"><span aria-hidden="true" class="i">🏔️</span><span class="n">Auvergne-Rhône-Alpes</span><span class="d">12 départements</span><span class="o" data-enligne="auvergne-rhone-alpes" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-bourgogne-franche-comte.html" style="grid-column:4;grid-row:3"><span aria-hidden="true" class="i">🍇</span><span class="n">Bourgogne-Franche-Comté</span><span class="d">8 départements</span><span class="o" data-enligne="bourgogne-franche-comte" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-bretagne.html" style="grid-column:1;grid-row:2"><span aria-hidden="true" class="i">⚓</span><span class="n">Bretagne</span><span class="d">4 départements</span><span class="o" data-enligne="bretagne" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-centre-val-de-loire.html" style="grid-column:3;grid-row:3"><span aria-hidden="true" class="i">🏰</span><span class="n">Centre-Val de Loire</span><span class="d">6 départements</span><span class="o" data-enligne="centre-val-de-loire" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-corse.html" style="grid-column:5;grid-row:5"><span aria-hidden="true" class="i">⛰️</span><span class="n">Corse</span><span class="d">2 départements</span><span class="o" data-enligne="corse" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-grand-est.html" style="grid-column:4;grid-row:2"><span aria-hidden="true" class="i">🥨</span><span class="n">Grand Est</span><span class="d">10 départements</span><span class="o" data-enligne="grand-est" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-hauts-de-france.html" style="grid-column:3;grid-row:1"><span aria-hidden="true" class="i">🌾</span><span class="n">Hauts-de-France</span><span class="d">5 départements</span><span class="o" data-enligne="hauts-de-france" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-ile-de-france.html" style="grid-column:3;grid-row:2"><span aria-hidden="true" class="i">🗼</span><span class="n">Île-de-France</span><span class="d">8 départements</span><span class="o" data-enligne="ile-de-france" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-normandie.html" style="grid-column:2;grid-row:1"><span aria-hidden="true" class="i">🍎</span><span class="n">Normandie</span><span class="d">5 départements</span><span class="o" data-enligne="normandie" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-nouvelle-aquitaine.html" style="grid-column:2;grid-row:3 / span 2"><span aria-hidden="true" class="i">🌊</span><span class="n">Nouvelle-Aquitaine</span><span class="d">12 départements</span><span class="o" data-enligne="nouvelle-aquitaine" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-occitanie.html" style="grid-column:2 / span 2;grid-row:5"><span aria-hidden="true" class="i">☀️</span><span class="n">Occitanie</span><span class="d">13 départements</span><span class="o" data-enligne="occitanie" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-pays-de-la-loire.html" style="grid-column:2;grid-row:2"><span aria-hidden="true" class="i">⛵</span><span class="n">Pays de la Loire</span><span class="d">5 départements</span><span class="o" data-enligne="pays-de-la-loire" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-provence-alpes-cote-d-azur.html" style="grid-column:4;grid-row:5"><span aria-hidden="true" class="i">🌻</span><span class="n">Provence-Alpes-Côte d'Azur</span><span class="d">6 départements</span><span class="o" data-enligne="provence-alpes-cote-d-azur" hidden></span></a>
+<a class="tr-tuile bg-white border border-slate-200 shadow-sm text-slate-900" href="tchat-outre-mer.html" style="grid-column:1;grid-row:4 / span 2"><span aria-hidden="true" class="i">🌴</span><span class="n">Outre-mer</span><span class="d">5 départements</span><span class="o" data-enligne="outre-mer" hidden></span></a>
+</div>
+<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+<h2 class="text-xl font-bold text-slate-900 mb-2">Comment le site connaît-il ma région ?</h2>
+<p class="text-slate-600 mb-4 leading-relaxed">Uniquement par le département que vous choisissez, si vous le souhaitez, dans votre profil (« 69 · Rhône », par exemple). Votre ville et votre adresse ne sont jamais enregistrées. Avec un département renseigné, le salon de votre région apparaît en tête de la <a class="text-brand-primary font-semibold hover:underline" href="salons.html">liste des salons</a>, et un badge « près de chez vous » signale les membres du même département ou de la même région dans les salons.</p>
+<h2 class="text-xl font-bold text-slate-900 mb-2">Les mêmes règles partout</h2>
+<p class="text-slate-600 mb-0 leading-relaxed">Les salons régionaux sont des salons publics comme les autres : réservés aux 18 ans et plus, gratuits, sans nudité ni contenu sexuel (<a class="text-brand-primary font-semibold hover:underline" href="cgu.html">CGU</a>), avec filtre automatique, modérateurs bénévoles et boutons Signaler et Bloquer. Vous pouvez entrer dans n'importe quelle région, pas seulement la vôtre.</p>
+</section>
+<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+<h2 class="text-xl font-bold text-slate-900 mb-3">Toutes les régions et leurs départements</h2>
+<ul class="text-slate-600 space-y-1 mb-0" style="list-style:none;padding:0">
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-auvergne-rhone-alpes.html">Tchat webcam Auvergne-Rhône-Alpes</a> <span class="text-slate-500">— Ain, Allier, Ardèche, Cantal, Drôme, Isère, Loire, Haute-Loire, Puy-de-Dôme, Rhône, Savoie, Haute-Savoie</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-bourgogne-franche-comte.html">Tchat webcam Bourgogne-Franche-Comté</a> <span class="text-slate-500">— Côte-d'Or, Doubs, Jura, Nièvre, Haute-Saône, Saône-et-Loire, Yonne, Territoire de Belfort</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-bretagne.html">Tchat webcam Bretagne</a> <span class="text-slate-500">— Côtes-d'Armor, Finistère, Ille-et-Vilaine, Morbihan</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-centre-val-de-loire.html">Tchat webcam Centre-Val de Loire</a> <span class="text-slate-500">— Cher, Eure-et-Loir, Indre, Indre-et-Loire, Loir-et-Cher, Loiret</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-corse.html">Tchat webcam Corse</a> <span class="text-slate-500">— Corse-du-Sud, Haute-Corse</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-grand-est.html">Tchat webcam Grand Est</a> <span class="text-slate-500">— Ardennes, Aube, Marne, Haute-Marne, Meurthe-et-Moselle, Meuse, Moselle, Bas-Rhin, Haut-Rhin, Vosges</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-hauts-de-france.html">Tchat webcam Hauts-de-France</a> <span class="text-slate-500">— Aisne, Nord, Oise, Pas-de-Calais, Somme</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-ile-de-france.html">Tchat webcam Île-de-France</a> <span class="text-slate-500">— Paris, Seine-et-Marne, Yvelines, Essonne, Hauts-de-Seine, Seine-Saint-Denis, Val-de-Marne, Val-d'Oise</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-normandie.html">Tchat webcam Normandie</a> <span class="text-slate-500">— Calvados, Eure, Manche, Orne, Seine-Maritime</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-nouvelle-aquitaine.html">Tchat webcam Nouvelle-Aquitaine</a> <span class="text-slate-500">— Charente, Charente-Maritime, Corrèze, Creuse, Dordogne, Gironde, Landes, Lot-et-Garonne, Pyrénées-Atlantiques, Deux-Sèvres, Vienne, Haute-Vienne</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-occitanie.html">Tchat webcam Occitanie</a> <span class="text-slate-500">— Ariège, Aude, Aveyron, Gard, Haute-Garonne, Gers, Hérault, Lot, Lozère, Hautes-Pyrénées, Pyrénées-Orientales, Tarn, Tarn-et-Garonne</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-pays-de-la-loire.html">Tchat webcam Pays de la Loire</a> <span class="text-slate-500">— Loire-Atlantique, Maine-et-Loire, Mayenne, Sarthe, Vendée</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-provence-alpes-cote-d-azur.html">Tchat webcam Provence-Alpes-Côte d'Azur</a> <span class="text-slate-500">— Alpes-de-Haute-Provence, Hautes-Alpes, Alpes-Maritimes, Bouches-du-Rhône, Var, Vaucluse</span></li>
+<li><a class="text-brand-primary font-semibold hover:underline" href="tchat-outre-mer.html">Tchat webcam Outre-mer</a> <span class="text-slate-500">— Guadeloupe, Martinique, Guyane, La Réunion, Mayotte</span></li>
+</ul>
+</section>
+<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+<h2 class="text-xl font-bold text-slate-900 mb-2">Pour bien commencer</h2>
+<p class="text-slate-600 mb-0"><a class="text-brand-primary font-semibold hover:underline" href="guide-chat-webcam.html">Guide du tchat webcam</a> · <a class="text-brand-primary font-semibold hover:underline" href="securite-chat-webcam.html">Conseils de sécurité</a> · <a class="text-brand-primary font-semibold hover:underline" href="apercu.html">Essayer sans compte</a> · <a class="text-brand-primary font-semibold hover:underline" href="register.html">Créer un compte gratuit</a></p>
+</section>
+</div>
+</main>
+<script src="pages/tchat-region.js?v=2"></script>
+<script src="radio-widget.js?v=2"></script>
+<script src="radio-widget-floating.js?v=3"></script>
+<script defer="" src="footer.js?v=6"></script>
+<script src="site-search.js" defer></script>
+</body>
+</html>

@@ -34,8 +34,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <script src="auth-api.js?v=7"></script>
 <script src="legal-banner.js?v=4" defer></script>
-<script defer="" src="nav-auth.js?v=6"></script>
+<script defer="" src="nav-auth.js?v=7"></script>
 <link href="style.css?v=20261101-webp" rel="stylesheet"/>
+<link href="evenements.css?v=2" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -184,7 +185,29 @@
 <a class="cam-banner-cta" href="salons.html"><i aria-hidden="true" class="fa-solid fa-user-group"></i>Rejoindre un salon</a>
 <button class="cam-banner-cta cam-banner-cta--ghost" data-click="goLive" type="button"><i aria-hidden="true" class="fa-solid fa-tower-broadcast"></i>Diffuser ma webcam</button>
 </div>
+<p class="ev-essai"><a href="apercu.html">Essayer sans compte</a> · voir un salon en direct avant de vous inscrire</p>
 </div>
+</section>
+<!-- 🛡️ Bandeau de confiance : chaque point renvoie à la page Sécurité -->
+<a class="ev-confiance" href="securite-chat-webcam.html" aria-label="Modéré 7 jours sur 7, majeurs uniquement, signalement en un geste, aucun contenu sexuel, gratuit. En savoir plus sur la sécurité">
+<span><i aria-hidden="true" class="fa-solid fa-shield-halved"></i>Modération humaine</span>
+<span><i aria-hidden="true" class="fa-solid fa-id-card"></i>Majeurs uniquement</span>
+<span><i aria-hidden="true" class="fa-solid fa-flag"></i>Signalement en 1 geste</span>
+<span><i aria-hidden="true" class="fa-solid fa-ban"></i>Aucun contenu sexuel</span>
+<span><i aria-hidden="true" class="fa-solid fa-gift"></i>Gratuit</span>
+<span aria-hidden="true" class="ev-confiance-plus">Sécurité <i class="fa-solid fa-arrow-right"></i></span>
+</a>
+<!-- 📅 Prochaines soirées : rendez-vous réguliers (pages/evenements.js, API /evenements/prochains) -->
+<section aria-labelledby="soireesTitre" class="ev-soirees" id="soirees">
+<div class="ev-soirees-tete">
+<h2 id="soireesTitre">🪩 Prochaines soirées</h2>
+<a href="programme.html">Tout le programme <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+</div>
+<div class="ev-soirees-grille">
+<div class="ev-une" id="soireeUne" style="min-height:236px"><p class="ev-soirees-vide">Chargement du programme…</p></div>
+<ol aria-label="Soirées suivantes" class="ev-liste" id="soireesListe"></ol>
+</div>
+<p aria-live="polite" class="ev-sr" id="soireeAnnonce"></p>
 </section>
 <!-- 👥 Qui est là ? Les membres connectés en ce moment (photos pour les membres, nombre seul pour les visiteurs) -->
 <section aria-labelledby="quiTitre" class="ev-qui" hidden="" id="quiEstLa">
@@ -236,6 +259,27 @@
 </article>
 </div>
 </section>
+<!-- Pourquoi E-VISIOCAM est différent : uniquement ce que le site fait vraiment -->
+<section aria-labelledby="diffTitre" class="ev-features">
+<h2 id="diffTitre">Pourquoi E-VISIOCAM est différent</h2>
+<div class="ev-diff-grille">
+<article class="ev-diff">
+<i aria-hidden="true" class="fa-solid fa-user-shield"></i>
+<h3>Une vraie modération, avec des preuves</h3>
+<p>Une équipe de modérateurs humains, prévenue par des alertes automatiques. Quand vous signalez un message, il est joint au signalement : la modération voit exactement ce qui a été écrit. Et vous pouvez bloquer un membre en un clic.</p>
+</article>
+<article class="ev-diff">
+<i aria-hidden="true" class="fa-solid fa-user-secret"></i>
+<h3>Votre vie privée d’abord</h3>
+<p>Vous n’êtes qu’un pseudo. Votre ville n’est jamais affichée (seul votre département l’est), votre e-mail non plus. Les traces anti-fraude ne gardent pas votre adresse IP en clair, seulement une empreinte, effacée après 90 jours.</p>
+</article>
+<article class="ev-diff">
+<i aria-hidden="true" class="fa-solid fa-compact-disc"></i>
+<h3>Une ambiance, pas juste un chat</h3>
+<p>La radio du site tourne en continu, DJ_Disco, notre animateur virtuel (une IA), lance quiz et sujets, et chaque semaine des <a href="programme.html">soirées à heure fixe</a> réunissent tout le monde au même moment.</p>
+</article>
+</div>
+</section>
 <section aria-labelledby="featuresTitle" class="ev-features">
 <h2 id="featuresTitle">À chacun sa façon de participer</h2>
 <ul>
@@ -273,7 +317,7 @@
 <a class="ev-btn" href="devenir-moderateur.html"><i aria-hidden="true" class="fa-solid fa-shield-halved"></i>Devenir modérateur</a>
 </div>
 </section>
-<section aria-labelledby="seo-discover-title" class="ev-features" id="seo-discover"><div class="ev-features-head"><h2 id="seo-discover-title">Découvrir le tchat webcam E-VISIOCAM</h2><p>Rejoignez les <a href="salons.html">salons de tchat webcam entre adultes</a>, consultez notre <a href="guide-chat-webcam.html">guide pour bien débuter</a> et découvrez les <a href="securite-chat-webcam.html">conseils de sécurité</a> avant votre première diffusion.</p></div></section></main>
+<section aria-labelledby="seo-discover-title" class="ev-features" id="seo-discover"><div class="ev-features-head"><h2 id="seo-discover-title">Découvrir le tchat webcam E-VISIOCAM</h2><p>Rejoignez les <a href="salons.html">salons de tchat webcam entre adultes</a>, consultez notre <a href="guide-chat-webcam.html">guide pour bien débuter</a> et découvrez les <a href="securite-chat-webcam.html">conseils de sécurité</a> avant votre première diffusion. Envie de discuter près de chez vous ? Essayez le <a href="tchat-regions.html">tchat par région</a>, et ne manquez pas le <a href="programme.html">programme des soirées</a>.</p></div></section></main>
 </div>
 <script src="pages/index-recrutement.js"></script>
 <script src="app.js"></script>
@@ -286,6 +330,7 @@
 <script src="pages/index-cameras.js"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
 <script src="pages/index-membres.js"></script>
-<script defer="" src="footer.js?v=5"></script>
+<script defer="" src="pages/evenements.js?v=2"></script>
+<script defer="" src="footer.js?v=6"></script>
 </body>
 </html>

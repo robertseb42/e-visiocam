@@ -33,10 +33,60 @@
     .apc h1 span { color:var(--a-accent); }
     .apc-intro { color:var(--a-muted); margin:0 0 22px; line-height:1.55; }
     .apc-onglets { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
-    .apc-onglet { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; border:1px solid var(--a-border); background:var(--a-panel); color:var(--a-text); font:700 14px Inter, Arial, sans-serif; cursor:pointer; }
+    .apc-onglet { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; border:1px solid var(--a-border); background:var(--a-panel); color:var(--a-text); font:700 14px Inter, Arial, sans-serif; cursor:pointer; white-space:nowrap; flex:none; }
+    /* ---------- Vue en direct (essai sans compte) ---------- */
+    .apc-titre { display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; }   /* à gauche : la boule à facettes occupe le coin droit */
+    .apc-enligne { display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px; border:1px solid var(--a-border); background:var(--a-panel); font-size:13px; font-weight:700; color:var(--a-text); }
+    .apc-enligne:empty { display:none; }
+    .apc-pt { animation:apcPouls 2s ease-in-out infinite; }
+    @keyframes apcPouls { 50% { opacity:.35; } }
+    .apc-msg.nouveau p { animation:apcArrivee .6s ease-out; }
+    @keyframes apcArrivee { from { opacity:0; transform:translateY(6px); } }
+    .apc-saisie { position:sticky; bottom:0; z-index:5; display:flex; align-items:center; gap:6px; padding:10px 12px; border-top:1px solid var(--a-border); background:var(--a-panel); }
+    .apc-act { flex:none; width:40px; height:40px; border-radius:12px; border:1px solid var(--a-border); background:transparent; color:var(--a-muted); font-size:16px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+    .apc-act:hover, .apc-act:focus-visible { color:var(--a-text); border-color:var(--a-accent); }
+    .apc-saisie input { flex:1; min-width:0; height:42px; padding:0 14px; border-radius:12px; border:1px solid var(--a-border); background:var(--a-bg); color:var(--a-text); font:500 15px Inter, Arial, sans-serif; }
+    .apc-saisie input::placeholder { color:var(--a-muted); }
+    .apc-envoyer { flex:none; height:42px; padding:0 16px; border:0; border-radius:12px; background:var(--a-accent); color:var(--a-ink); font:800 14px Inter, Arial, sans-serif; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+    .apc-verif-note { margin:0; padding:10px 16px; border-top:1px solid var(--a-border); font-size:13px; color:var(--a-text); background:color-mix(in srgb, var(--a-accent) 12%, var(--a-panel)); }
+    /* ---------- Fiche d'inscription rapide (s'ouvre par le bas, sans quitter le salon) ---------- */
+    .apc-voile { position:fixed; inset:0; z-index:80; background:rgba(0,0,0,.45); }   /* au-dessus de la barre du bas (.ev-mnav, z-index 70) */
+    .apc-fiche { position:fixed; z-index:81; left:50%; bottom:0; transform:translateX(-50%); width:min(460px, 100%); max-height:92vh; max-height:92dvh; overflow-y:auto; overscroll-behavior:contain;
+        background:var(--a-panel); color:var(--a-text); border:1px solid var(--a-border); border-bottom:0; border-radius:22px 22px 0 0; padding:10px 20px calc(18px + env(safe-area-inset-bottom)); box-shadow:0 -12px 40px rgba(0,0,0,.35); animation:apcMonte .22s ease-out; }
+    @keyframes apcMonte { from { transform:translate(-50%, 40px); opacity:.4; } }
+    .apc-voile[hidden], .apc-fiche[hidden] { display:none; }
+    .apc-poignee { width:40px; height:4px; border-radius:2px; background:var(--a-border); margin:0 auto 10px; }
+    .apc-fermer { position:absolute; top:10px; right:12px; width:36px; height:36px; border:0; border-radius:10px; background:transparent; color:var(--a-muted); font-size:22px; line-height:1; cursor:pointer; }
+    .apc-fiche h2 { margin:0 36px 4px 0; font-size:19px; font-weight:900; letter-spacing:-.01em; }
+    .apc-fiche-sous { margin:0 0 12px; color:var(--a-muted); font-size:13.5px; line-height:1.45; }
+    .apc-fiche-sous strong { color:var(--a-text); }
+    .apc-form { display:flex; flex-direction:column; gap:10px; }
+    .apc-champ { display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:700; color:var(--a-muted); }
+    .apc-champ input, .apc-brouillon input { height:44px; width:100%; padding:0 12px; border-radius:12px; border:1px solid var(--a-border); background:var(--a-bg); color:var(--a-text); font:500 15px Inter, Arial, sans-serif; color-scheme:dark light; }
+    .apc-champ input:focus, .apc-brouillon input:focus, .apc-saisie input:focus { outline:2px solid var(--a-accent); outline-offset:1px; }
+    .apc-champ small { font-weight:500; font-size:11px; }
+    .apc-brouillon { display:flex; align-items:center; gap:8px; padding:6px 8px 6px 12px; border-radius:14px; background:color-mix(in srgb, var(--a-accent) 9%, transparent); }
+    .apc-brouillon input { background:var(--a-panel); }
+    .apc-deux { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .apc-mdp { position:relative; }
+    .apc-mdp input { padding-right:46px; }
+    .apc-mdp button { position:absolute; right:4px; top:4px; width:38px; height:36px; border:0; border-radius:9px; background:transparent; color:var(--a-muted); cursor:pointer; }
+    .apc-cgu { display:flex; gap:10px; align-items:flex-start; font-size:12.5px; line-height:1.45; color:var(--a-muted); cursor:pointer; }
+    .apc-cgu input { width:20px; height:20px; flex:none; margin-top:1px; accent-color:#e91e63; }
+    .apc-cgu a, .apc-deja a, .apc-verif a { color:var(--a-text); font-weight:700; text-decoration:underline; }
+    .apc-erreur { padding:9px 12px; border-radius:12px; background:rgba(225,29,72,.14); border:1px solid rgba(225,29,72,.45); color:var(--a-text); font-size:13px; font-weight:600; }
+    .apc-erreur[hidden], .apc-verif[hidden], .apc-form[hidden] { display:none; }
+    .apc-creer { height:48px; border:0; border-radius:14px; background:var(--a-accent); color:var(--a-ink); font:800 15px Inter, Arial, sans-serif; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .apc-creer[disabled] { opacity:.7; cursor:wait; }
+    .apc-deja { margin:2px 0 0; text-align:center; font-size:12.5px; color:var(--a-muted); }
+    .apc-verif { text-align:center; padding:6px 0 4px; }
+    .apc-verif p { color:var(--a-muted); font-size:13.5px; line-height:1.5; margin:0 0 10px; }
+    .apc-verif p strong { color:var(--a-text); }
+    .apc-verif .apc-creer { width:100%; margin-bottom:8px; }
+    .apc-sec { width:100%; height:42px; border-radius:12px; border:1px solid var(--a-border); background:transparent; color:var(--a-text); font:700 14px Inter, Arial, sans-serif; cursor:pointer; margin-bottom:8px; }
     .apc-onglet[aria-pressed="true"] { border-color:var(--a-accent); box-shadow:0 0 0 1px var(--a-accent) inset; }
     .apc-onglet small { color:var(--a-muted); font-weight:600; }
-    .apc-boite { background:var(--a-panel); border:1px solid var(--a-border); border-radius:20px; overflow:hidden; }
+    .apc-boite { background:var(--a-panel); border:1px solid var(--a-border); border-radius:20px; overflow:hidden; overflow:clip; }
     .apc-tete { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--a-border); font-weight:800; }
     .apc-tete small { color:var(--a-muted); font-weight:600; }
     .apc-pt { display:inline-block; width:9px; height:9px; border-radius:50%; background:#22c55e; margin-right:6px; }
@@ -51,6 +101,30 @@
     .apc-pied p { flex:1; min-width:220px; margin:0; color:var(--a-muted); font-size:14px; }
     .apc-pied p strong { color:var(--a-text); }
     .apc-note { color:var(--a-muted); font-size:12.5px; margin:14px 2px 0; line-height:1.5; }
+    @media (max-width: 640px) {
+        .apc-in { padding:16px 12px 24px; }
+        .apc h1 { font-size:24px; margin-bottom:4px; }
+        .apc-intro { font-size:13.5px; margin-bottom:12px; }
+        .apc-onglets { flex-wrap:nowrap; overflow-x:auto; margin:0 -12px 10px; padding:0 12px 2px; scrollbar-width:none; }
+        .apc-onglets::-webkit-scrollbar { display:none; }
+        .apc-onglet { padding:7px 12px; font-size:13px; }
+        .apc-boite { border-radius:16px; }
+        .apc-tete { padding:11px 14px; }
+        .apc-fil { height:calc(100vh - 340px); height:calc(100dvh - 340px); min-height:220px; padding:12px 14px; }
+        body.has-mnav .apc-fil { height:calc(100vh - 404px); height:calc(100dvh - 404px); }
+        .apc-saisie { padding:8px; gap:4px; }
+        .apc-act { width:36px; height:40px; border:0; }
+        .apc-envoyer span { display:none; }
+        .apc-envoyer { padding:0 14px; }
+        .apc-fiche { border-radius:20px 20px 0 0; padding-left:16px; padding-right:16px; }
+    }
+    /* Barre de navigation du bas (mobile-nav.js, sous 1024 px) : la saisie reste juste au-dessus */
+    @media (max-width: 1023px) {
+        body.has-mnav .apc-saisie { bottom:calc(64px + env(safe-area-inset-bottom)); }
+        /* La bulle « Besoin d'aide ? » (assistant.js, en bas à gauche) recouvrait le bouton caméra :
+           masquée sur téléphone, comme sur chat.html (le centre d'aide reste dans le pied de page) */
+        .evc-as { display:none !important; }
+    }
 </style>
 </head>
 <body class="min-h-full flex flex-col font-sans">
@@ -69,21 +143,70 @@
 </header>
 <main class="apc">
 <div class="apc-in">
+<div class="apc-titre">
 <h1>Le tchat <span>en direct</span></h1>
-<p class="apc-intro">Voici ce qui se dit en ce moment dans les salons publics, sans inscription. Pour répondre, créez votre compte gratuit : c’est l’affaire d’une minute.</p>
-<div aria-label="Salons" class="apc-onglets" id="apcOnglets"></div>
-<section aria-live="polite" class="apc-boite">
-<div class="apc-tete"><span id="apcNom">Chargement…</span><small id="apcPresents"></small></div>
-<div class="apc-fil" id="apcFil"></div>
-<div class="apc-pied">
-<p><strong>Envie de répondre ?</strong> Créez votre compte gratuit et rejoignez la conversation.</p>
-<a class="ev-btn" href="register.html"><i class="fa-solid fa-user-plus"></i> Créer mon compte gratuit</a>
+<span class="apc-enligne" id="apcEnLigne"></span>
 </div>
+<p class="apc-intro">Vous regardez un vrai salon, en direct et sans compte. Pour écrire, choisissez un pseudo : 30 secondes, et vous restez dans le même salon.</p>
+<div aria-label="Salons publics" class="apc-onglets" id="apcOnglets"></div>
+<section class="apc-boite">
+<div class="apc-tete"><span id="apcNom">Chargement…</span><small id="apcPresents"></small></div>
+<div aria-live="polite" class="apc-fil" id="apcFil"></div>
+<p class="apc-verif-note" hidden id="apcVerifNote"></p>
+<!-- Barre de saisie : en lecture seule, chaque action ouvre la fiche d'inscription rapide -->
+<form autocomplete="off" class="apc-saisie" id="apcSaisie">
+<button aria-label="Activer ma webcam" class="apc-act" data-action="cam" title="Webcam" type="button"><i aria-hidden="true" class="fa-solid fa-video"></i></button>
+<button aria-label="Envoyer une réaction" class="apc-act" data-action="reaction" title="Réaction" type="button"><span aria-hidden="true">❤️</span></button>
+<button aria-label="Envoyer un message privé" class="apc-act" data-action="prive" title="Message privé" type="button"><i aria-hidden="true" class="fa-solid fa-envelope"></i></button>
+<input aria-label="Écrire un message (un pseudo vous sera demandé)" id="apcInput" maxlength="500" placeholder="Écrire un message…" type="text"/>
+<button aria-label="Envoyer" class="apc-envoyer" id="apcEnvoyer" type="submit"><i aria-hidden="true" class="fa-solid fa-paper-plane"></i><span>Envoyer</span></button>
+</form>
 </section>
-<p class="apc-note">Aperçu en lecture seule des salons publics (jamais des salons privés) : les pseudos sont masqués et les webcams ne sont visibles qu’aux membres inscrits. Messages des dernières 48 heures, mis à jour automatiquement.</p>
+<p class="apc-note">Vue en lecture seule des salons publics (jamais des salons privés) : les pseudos sont masqués et les webcams ne sont visibles qu’aux membres inscrits. Chaque membre a un compte : la modération sait qui écrit quoi, et chacun peut signaler un abus.</p>
+</div>
+<!-- ⚡ Fiche d'inscription rapide : s'ouvre par le bas, on ne quitte pas le salon -->
+<div class="apc-voile" hidden id="apcVoile"></div>
+<div aria-labelledby="apcFicheTitre" aria-modal="true" class="apc-fiche" hidden id="apcFiche" role="dialog">
+<div aria-hidden="true" class="apc-poignee"></div>
+<button aria-label="Fermer" class="apc-fermer" id="apcFermer" type="button">×</button>
+<h2 id="apcFicheTitre">Écrivez dans le salon</h2>
+<p class="apc-fiche-sous" id="apcFicheSous">Votre compte gratuit en 30 secondes : vous restez dans <strong id="apcFicheSalon">ce salon</strong>.</p>
+<form class="apc-form" id="apcForm" novalidate="">
+<div class="apc-brouillon"><span aria-hidden="true">💬</span><input aria-label="Votre premier message (facultatif)" id="apcBrouillon" maxlength="500" placeholder="Votre premier message (facultatif)" type="text"/></div>
+<div class="apc-erreur" hidden id="apcErreur" role="alert" tabindex="-1"></div>
+<label class="apc-champ">Pseudo
+<input autocapitalize="off" autocomplete="username" id="apcPseudo" maxlength="20" placeholder="MonPseudo" spellcheck="false" type="text"/>
+</label>
+<label class="apc-champ">Adresse e-mail
+<input autocomplete="email" id="apcEmail" inputmode="email" placeholder="vous@exemple.fr" type="email"/>
+</label>
+<div class="apc-deux">
+<label class="apc-champ">Mot de passe
+<span class="apc-mdp"><input autocomplete="new-password" id="apcMdp" placeholder="••••••••" type="password"/><button aria-label="Afficher le mot de passe" aria-pressed="false" id="apcVoirMdp" type="button"><i aria-hidden="true" class="fa-solid fa-eye"></i></button></span>
+<small>8 caractères, 1 majuscule, 1 chiffre</small>
+</label>
+<label class="apc-champ">Date de naissance
+<input id="apcNaissance" type="date"/>
+<small>18 ans ou plus</small>
+</label>
+</div>
+<label class="apc-cgu"><input id="apcCgu" type="checkbox"/><span>J’accepte les <a href="cgu.html" rel="noopener" target="_blank">CGU</a> et la <a href="rgpd.html" rel="noopener" target="_blank">politique de confidentialité</a>, et je certifie avoir 18 ans ou plus.</span></label>
+<button class="apc-creer" id="apcCreer" type="submit"><i aria-hidden="true" class="fa-solid fa-user-plus"></i><span id="apcCreerTexte">Créer mon compte et écrire</span></button>
+<p class="apc-deja">Déjà un compte ? <a href="login.html" id="apcConnexion">Se connecter</a></p>
+</form>
+<!-- ✉️ Adresse à confirmer (EMAIL_VERIFICATION actif) : on reste dans la vue en lecture seule -->
+<div class="apc-verif" hidden id="apcVerif">
+<div aria-hidden="true" style="font-size:40px;line-height:1;margin:4px 0 10px">✉️</div>
+<p>Nous avons envoyé un lien de confirmation à <strong id="apcVerifEmail">votre adresse</strong>. Cliquez dessus pour activer votre compte (valable 48 heures), puis connectez-vous : votre message vous attendra dans le salon.</p>
+<button class="apc-creer" id="apcVerifOk" type="button">Continuer à regarder le salon</button>
+<button class="apc-sec" id="apcRenvoi" type="button"><i aria-hidden="true" class="fa-solid fa-paper-plane"></i> Renvoyer le lien</button>
+<p aria-live="polite" id="apcVerifMsg"></p>
+<a href="login.html" id="apcVerifConnexion">J’ai confirmé, me connecter</a>
+</div>
 </div>
 </main>
-<script src="pages/apercu.js?v=2"></script>
-<script defer="" src="footer.js?v=5"></script>
+<script src="inscription-regles.js?v=2"></script>
+<script src="pages/apercu.js?v=3"></script>
+<script defer="" src="footer.js?v=6"></script>
 </body>
 </html>

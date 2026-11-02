@@ -18,6 +18,8 @@
         { titre: 'E-VISIOCAM', liens: [
             ['a-propos.html', 'À propos'],
             ['salons.html', 'Salons'],
+            ['tchat-regions.html', 'Tchat par région'],
+            ['programme.html', 'Programme des soirées'],
             ['modeles.html', 'Modèles'],
             ['credits.html', 'Récompenses'],
             ['guides.html', 'Guides du chat webcam'],
@@ -112,7 +114,7 @@
 
         // 💬 Assistant d'aide (bulle en bas à gauche), sauf là où il gênerait la saisie ou l'équipe
         var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-        var sansAssistant = ['chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
+        var sansAssistant = ['apercu.html', 'chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
         if (sansAssistant.indexOf(page) === -1 && !document.querySelector('script[src*="assistant.js"]')) {
             var as = document.createElement('script');
             as.src = 'assistant.js?v=6';
@@ -121,7 +123,7 @@
 
         // 📷 Fiche membre + demandes de cam (notifications « X aimerait voir votre cam »)
         if (!window.EVC_DEPARTEMENTS && !document.querySelector('script[src*="departements-data.js"]')) {
-            var dd = document.createElement('script'); dd.src = 'departements-data.js'; document.body.appendChild(dd);
+            var dd = document.createElement('script'); dd.src = 'departements-data.js?v=2'; document.body.appendChild(dd);
         }
         if (!document.querySelector('script[src*="membres-social.js"]')) {
             var ms = document.createElement('script');

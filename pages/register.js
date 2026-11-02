@@ -80,17 +80,6 @@
         box.focus({ preventScroll: true });
     }
 
-    // Âge en années révolues à partir d'une date ISO (YYYY-MM-DD)
-    function ageDepuis(iso) {
-        const d = new Date(iso);
-        if (isNaN(d)) return 0;
-        const now = new Date();
-        let age = now.getFullYear() - d.getFullYear();
-        const m = now.getMonth() - d.getMonth();
-        if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
-        return age;
-    }
-
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         document.getElementById('errorBox').classList.add('hidden');
@@ -101,29 +90,12 @@
         const confirm = document.getElementById('confirm').value;
         const birthdate = document.getElementById('birthdate').value;
 
-        // Vérifications côté client
-        if (!birthdate) {
-            showError('Veuillez indiquer votre date de naissance');
-            return;
-        }
-        if (ageDepuis(birthdate) < 18) {
-            showError('Vous devez avoir 18 ans ou plus pour vous inscrire');
-            return;
-        }
-        if (password !== confirm) {
-            showError('Les mots de passe ne correspondent pas');
-            return;
-        }
-        if (password.length < 8) {
-            showError('Le mot de passe doit contenir au moins 8 caractères');
-            return;
-        }
-        if (!/[A-Z]/.test(password)) {
-            showError('Le mot de passe doit contenir au moins une majuscule');
-            return;
-        }
-        if (!/[0-9]/.test(password)) {
-            showError('Le mot de passe doit contenir au moins un chiffre');
+        // Vérifications côté client (règles partagées avec l'inscription rapide : inscription-regles.js)
+        const erreur = EvcInscription.verifier({ birthdate: birthdate })
+            || (password !== confirm ? 'Les mots de passe ne correspondent pas' : '')
+            || EvcInscription.verifier({ password: password });
+        if (erreur) {
+            showError(erreur);
             return;
         }
 

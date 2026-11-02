@@ -580,6 +580,7 @@ function showTab(name, btn) {
     if (name === 'users' && window.EvcMembres) EvcMembres.charger();
     if (name === 'audit' && window.EvcMembres) EvcMembres.chargerJournal();
     if (name === 'contact') loadContactMessages();
+    if (name === 'programme' && window.EvcProgramme) EvcProgramme.charger();
     if (location.hash !== '#' + name && name === 'contact') history.replaceState(null, '', '#contact');
 }
 

@@ -33,7 +33,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <script src="auth-api.js?v=7"></script>
 <script src="legal-banner.js?v=4" defer></script>
-<script defer="" src="nav-auth.js?v=6"></script>
+<script defer="" src="nav-auth.js?v=7"></script>
 <script src="salon-access.js?v=csp1"></script>
 <link href="style.css?v=20261101-webp" rel="stylesheet"/>
 <script defer="" src="maintenance.js"></script>
@@ -84,8 +84,25 @@
             </a>
 </div>
 </div>
+<section aria-labelledby="maRegionTitre" class="hidden mb-8" id="maRegionBloc">
+<div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+<h2 class="text-lg font-bold text-slate-800" id="maRegionTitre">📍 Votre région</h2>
+<a class="text-sm text-brand-primary font-semibold hover:underline" href="tchat-regions.html" id="maRegionPage">Tchat par région →</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="maRegionSalon"></div>
+</section>
 <h2 class="text-lg font-bold text-slate-800 mb-3">🌐 Salons publics</h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8" id="publicSalons"></div>
+<details class="hidden mb-8 bg-white rounded-2xl border border-slate-200 shadow-sm" id="regions">
+<summary class="cursor-pointer select-none p-5 flex flex-wrap items-center justify-between gap-2" style="list-style:none">
+<span class="text-lg font-bold text-slate-800">🗺️ Salons régionaux <span class="text-xs font-normal text-slate-500" id="nbRegions"></span></span>
+<span class="text-xs text-slate-500">Afficher / masquer ▾</span>
+</summary>
+<div class="p-5" style="padding-top:0">
+<p class="text-sm text-slate-500 mb-4">Un salon par région, pour discuter avec des adultes près de chez vous. Seul le département indiqué sur votre profil est utilisé, jamais votre ville. <a class="text-brand-primary font-semibold hover:underline" href="tchat-regions.html">Voir toutes les régions</a></p>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="regionSalons"></div>
+</div>
+</details>
 <h2 class="text-lg font-bold text-slate-800 mb-3">🔒 Salons privés <span class="text-xs font-normal text-slate-500">(accès sur invitation)</span></h2>
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="privateSalons"></div>
 <section aria-labelledby="salons-seo-title" class="mt-10 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm">
@@ -102,6 +119,7 @@
 <div class="rounded-xl p-4 border border-slate-200 bg-slate-50"><h3 class="text-lg font-bold text-slate-800 mb-1">✨ Salon Amateurs</h3><p class="text-slate-600 text-sm mb-0">Pensé pour les nouveaux venus et les amateurs de chat webcam : l'endroit idéal pour faire vos premiers pas, poser vos questions et découvrir le tchat et la caméra à votre rythme.</p></div>
 <div class="rounded-xl p-4 border border-slate-200 bg-slate-50"><h3 class="text-lg font-bold text-slate-800 mb-1">🎵 Salon Musique</h3><p class="text-slate-600 text-sm mb-0">Pour partager vos playlists, vos coups de cœur et parler musique avec d'autres passionnés. Un danseur disco s'invite dans le coin du chat (sur ordinateur) ; un bouton permet de l'arrêter.</p></div>
 </div>
+<p class="text-slate-600 mb-4">Envie de discuter avec des adultes de votre coin ? Chaque région a son salon, de l'<a class="text-brand-primary font-semibold hover:underline" href="tchat-ile-de-france.html">Île-de-France</a> à la <a class="text-brand-primary font-semibold hover:underline" href="tchat-bretagne.html">Bretagne</a> en passant par l'<a class="text-brand-primary font-semibold hover:underline" href="tchat-outre-mer.html">Outre-mer</a> : retrouvez-les sur la page <a class="text-brand-primary font-semibold hover:underline" href="tchat-regions.html">tchat webcam par région</a>.</p>
 <p class="text-slate-600 mb-4">Les salons privés 🔒 fonctionnent sur demande : cliquez sur « Demander l'accès » et l'équipe accepte ou refuse la demande. Vous pouvez enregistrer vos salons préférés en favoris pour les retrouver plus vite.</p>
 <h2 class="text-xl font-bold text-slate-900 mt-6 mb-2">Avec ou sans webcam</h2>
 <p class="text-slate-600 mb-4">La caméra n'est pas une obligation pour discuter. Vous pouvez commencer par le tchat écrit puis choisir d'activer votre webcam ou votre micro lorsque vous êtes à l'aise. Pour comprendre le fonctionnement du service, consultez notre <a class="text-brand-primary font-semibold hover:underline" href="guide-chat-webcam.html">guide du tchat webcam entre adultes</a>.</p>
@@ -117,12 +135,12 @@
 <p class="text-slate-600 mb-4">Avant d'utiliser votre caméra, prenez quelques minutes pour lire nos <a class="text-brand-primary font-semibold hover:underline" href="securite-chat-webcam.html">10 conseils de sécurité sur un tchat webcam</a>. Une question sur le fonctionnement d'un salon, de la webcam ou des sanctions ? Le <a class="text-brand-primary font-semibold hover:underline" href="aide.html">centre d'aide</a> répond aux questions les plus fréquentes.</p>
 <p class="text-slate-600 mb-0"><strong>Envie de rejoindre la conversation ?</strong> L'inscription est gratuite : <a class="text-brand-primary font-semibold hover:underline" href="register.html">créez votre compte</a>, choisissez un pseudo et entrez dans le salon de votre choix.</p>
 </section></main>
-<script src="pages/salons.js"></script>
+<script src="pages/salons.js?v=2"></script>
 <script src="favorites.js"></script>
 <script src="pages/salons-favoris.js"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
-<script defer="" src="footer.js?v=5"></script>
+<script defer="" src="footer.js?v=6"></script>
 <script src="site-search.js" defer></script>
 </body>
 </html>

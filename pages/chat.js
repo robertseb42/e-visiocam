@@ -64,7 +64,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     appliquerSalon(s.name, s.slug);
     recordJoin(currentSlug);
     initSocket();
+    reprendreEssai();
 });
+
+// 👀 Arrivée depuis l'essai sans compte (apercu.html) : le message tapé avant l'inscription est remis
+// dans la zone de saisie (jamais envoyé tout seul : le membre appuie sur Envoyer), et un accueil léger
+// remplace l'étape bienvenue.html (une seule fois).
+function reprendreEssai() {
+    let brouillon = null, accueil = null;
+    try {
+        brouillon = JSON.parse(sessionStorage.getItem('evc-brouillon') || 'null');
+        accueil = sessionStorage.getItem('evc-accueil');
+        sessionStorage.removeItem('evc-accueil');
+    } catch (e) {}
+    const input = document.getElementById('chatInput');
+    if (brouillon && input && (brouillon.salon === currentSlug || brouillon.salon === currentSalon) && Date.now() - Number(brouillon.t || 0) < 3600000) {
+        try { sessionStorage.removeItem('evc-brouillon'); } catch (e) {}
+        if (!input.value) input.value = String(brouillon.texte || '').slice(0, 500);
+        try { input.focus({ preventScroll: true }); input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
+    }
+    if (!accueil) return;
+    // Le bonus de bienvenue est versé à la première connexion temps réel : on attend l'annonce
+    // (nav-auth.js → « evc:recompense »), sinon on relit le solde après quelques secondes.
+    let fait = false;
+    const montrer = (solde) => {
+        if (fait) return; fait = true;
+        const pseudo = currentUser && currentUser.username ? ' ' + currentUser.username : '';
+        showToast('Bienvenue' + pseudo + ' ! Vous êtes dans ' + currentSalon + (solde > 0 ? ' · ' + solde + ' crédits offerts pour commencer' : ''), 'success');
+    };
+    window.addEventListener('evc:recompense', e => setTimeout(() => montrer(e.detail && e.detail.solde), 400), { once: true });
+    setTimeout(() => { apiCall('/credits/balance').then(b => montrer(b && b.balance)).catch(() => montrer(0)); }, 3000);
+}
 
 // ============================================================
 // SALONS
@@ -87,7 +117,10 @@ function trouverSalon(cle) {
 function dessinerSalons() {
     const boite = document.getElementById('salonList');
     if (!boite) return;
-    boite.innerHTML = SALONS.map(x => {
+    // Salons régionaux : seulement le vôtre et celui ouvert (les autres via « Autres salons régionaux »)
+    const maReg = (currentUser && typeof window.evcRegionDe === 'function') ? window.evcRegionDe(currentUser.departement) : null;
+    const visibles = SALONS.filter(x => !/^region-/.test(x.slug) || x.slug === currentSlug || (maReg && x.slug === 'region-' + maReg.slug));
+    boite.innerHTML = visibles.map(x => {
         const actif = x.slug === currentSlug;
         const logo = (typeof SalonAccess !== 'undefined' && SalonAccess.logoHtml) ? SalonAccess.logoHtml(x, 18) : escapeHtml(x.icon);
         return '<button type="button" data-slug="' + escapeHtml(x.slug) + '" class="salon-btn w-full text-left px-3 py-2 rounded-xl flex items-center gap-2 ' +
@@ -97,6 +130,7 @@ function dessinerSalons() {
             (x.isHidden ? '<i class="fa-solid fa-eye-slash text-[10px] text-slate-400" title="Salon masqué"></i>' : '') +
         '</button>';
     }).join('');
+    boite.insertAdjacentHTML('beforeend', '<a href="salons.html#regions" class="block px-3 py-2 text-xs text-slate-500 hover:text-brand-primary">🗺️ Autres salons régionaux</a>');
 }
 
 // Affiche le salon courant (titre, liste, adresse)
@@ -197,13 +231,15 @@ function dessinerMembres() {
             const actif = prive.actif && prive.actif.userId === u.id;
             const photo = (typeof urlAvatar === 'function') ? urlAvatar(u.avatar) : null;
             const live = u.streamId ? '<span class="text-[9px] font-bold text-white bg-red-500 rounded px-1">LIVE</span>' : '';
+            const proche = (!moi && currentUser && currentUser.departement && u.departement && typeof window.evcProximite === 'function') ? window.evcProximite(currentUser.departement, u.departement) : '';
+            const badgeProche = proche ? '<span class="text-[9px] font-bold rounded px-1" style="background:rgba(16,185,129,.15);color:#059669" title="' + (proche === 'departement' ? 'Même département que vous' : 'Même région que vous') + '">près de chez vous</span>' : '';
             const avatar = '<span data-fiche="' + Number(u.id) + '" title="Voir la fiche de ' + escapeHtml(nom) + '" class="cursor-pointer relative w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-brand-primary text-white flex items-center justify-center text-[11px] font-bold shrink-0">' +
                 escapeHtml(nom[0].toUpperCase()) + (photo ? '<img src="' + escapeHtml(photo) + '" alt="" class="absolute inset-0 w-full h-full rounded-full object-cover" loading="lazy">' : '') + (nonLus ? '<span class="pb">' + (nonLus > 99 ? '99+' : nonLus) + '</span>' : '') + '</span>';
             const libelle = '<span class="font-medium text-slate-700 truncate flex-1">' + (ROLE_ICONS[u.role] || '') + ' ' + escapeHtml(nom) + insigneHtml(u.insigne) + (moi ? ' <span class="text-slate-400">(moi)</span>' : '') + '</span>';
             if (moi) return '<div class="flex items-center gap-2 p-2 rounded-lg">' + avatar.replace(/<\/span>$/, pastilleMaCam() + '</span>') + libelle + live + '</div>';
             return '<button type="button" class="membre-btn w-full flex items-center gap-2 p-2 rounded-lg hover:bg-purple-50 text-left' + (actif ? ' actif bg-purple-50' : '') + '"' +
                 ' data-uid="' + Number(u.id) + '" data-n="' + escapeHtml(nom) + '" title="Écrire en privé à ' + escapeHtml(nom) + '">' +
-                avatar + libelle + live + '<i class="fa-regular fa-envelope text-purple-500" aria-hidden="true"></i></button>';
+                avatar + libelle + live + badgeProche + '<i class="fa-regular fa-envelope text-purple-500" aria-hidden="true"></i></button>';
         }).join('');
     }
     majTotalNonLus();
@@ -491,6 +527,8 @@ function initSocket() {
         scrollToBottom(false, false);
     });
 
+    // 🪩 Une soirée du programme commence dans un autre salon
+    socket.on('evenement:debut', (d) => { if (d && d.salon_slug !== currentSlug) showToast('🪩 ' + d.titre + ' commence dans ' + d.salon_nom + ' !', 'success'); });
     socket.on('salon:error', data => showToast((data && data.message) || 'Accès au salon refusé', 'error'));
     socket.on('salon:joined', (data) => {
         if (!data || !data.salon) return;

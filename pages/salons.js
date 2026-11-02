@@ -37,6 +37,9 @@ function renderSalons(items, containerId, isPrivate = false) {
                 <div class="text-3xl">${typeof SalonAccess !== 'undefined' && SalonAccess.logoHtml ? SalonAccess.logoHtml(s, 40) : esc(s.icon || '💬')}</div>
                 ${s.isHidden ? `<span class="text-[10px] bg-slate-200 text-slate-600 font-bold px-2 py-1 rounded-full" title="Salon masqué (visible par l'équipe uniquement)">🚫 Masqué</span>` : ''}
                 <div class="flex items-center gap-2">
+                ${s.online > 0
+                    ? `<span class="text-xs font-bold px-2 py-1 rounded-full" style="background:rgba(16,185,129,.14);color:#059669" title="Membres dans ce salon en ce moment">● ${Number(s.online)} en ligne</span>`
+                    : ''}
                 ${typeof s.members === 'number'
                     ? `<span class="text-xs bg-pink-50 text-brand-primary font-bold px-2 py-1 rounded-full" title="Membres">
                            <i class="fa-solid fa-users text-[10px] mr-1"></i>${s.members}
@@ -60,16 +63,43 @@ async function loadSalons() {
     try {
         if (typeof apiCall === 'function') {
             const data = await apiCall('/salons/list');
-            if (data && Array.isArray(data.salons) && data.salons.length) salons = data.salons;
+            if (data && Array.isArray(data.salons) && data.salons.length) { salons = data.salons; maRegionSlug = data.maRegion || null; }
         }
     } catch (e) { salons = null; }
 
-    const publics = salons ? salons.filter(s => !s.isPrivate) : REPLI_PUBLICS;
+    // Salons régionaux à part (section repliable), « Votre région » en tête pour un membre
+    // dont le département est connu (le serveur indique maRegion et place ce salon en premier)
+    const estRegional = s => !!s.region || /^region-/.test(s.slug || '');
+    const publics = salons ? salons.filter(s => !s.isPrivate && !estRegional(s)) : REPLI_PUBLICS;
+    const regionaux = salons ? salons.filter(s => !s.isPrivate && estRegional(s)) : [];
     const prives = salons ? salons.filter(s => s.isPrivate) : REPLI_PRIVES;
+    const maRegion = salons ? regionaux.find(s => s.slug === maRegionSlug) : null;
     renderSalons(publics, 'publicSalons', false);
     renderSalons(prives, 'privateSalons', true);
+    const bloc = document.getElementById('maRegionBloc');
+    if (bloc) {
+        if (maRegion) {
+            renderSalons([maRegion], 'maRegionSalon', false);
+            const lien = document.getElementById('maRegionPage');
+            if (lien && maRegion.region) { lien.href = 'tchat-' + maRegion.region + '.html'; lien.textContent = 'La page ' + maRegion.name.replace(/^Salon /, '') + ' →'; }
+            bloc.classList.remove('hidden');
+        } else bloc.classList.add('hidden');
+    }
+    const zone = document.getElementById('regions');
+    if (zone) {
+        if (regionaux.length) {
+            const autres = regionaux.filter(s => s !== maRegion);
+            renderSalons(autres, 'regionSalons', false);
+            const nb = document.getElementById('nbRegions');
+            const enLigne = autres.reduce((t, s) => t + (Number(s.online) || 0), 0);
+            if (nb) nb.textContent = autres.length + ' salons' + (enLigne ? ' · ' + enLigne + ' en ligne' : '');
+            zone.classList.remove('hidden');
+            if (location.hash === '#regions') zone.open = true;
+        } else zone.classList.add('hidden');
+    }
     refreshAccess();
 }
+let maRegionSlug = null;
 
 // ---- Salons privés : accès accordé par un responsable ou un administrateur ----
 async function refreshAccess() {
