@@ -322,6 +322,17 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-recurrence{background:rgba(255,229,0,.12);color:var(--g-accent);vertical-align:middle;margin-left:4px}
 .gl-soiree-desc{font-size:13px;color:var(--g-muted);line-height:1.5}
 .gl-soiree-desc p{margin:0}
+.gl-soiree-visuel{flex:none;margin-left:auto;align-self:flex-start}
+.gl-soiree-visuel img{display:block;width:110px;max-height:150px;object-fit:cover;border-radius:10px;border:1px solid var(--g-border)}
+.gl-soiree-visuel:hover img{border-color:var(--g-accent)}
+.gl-soiree-equipe{display:flex;gap:14px;flex-wrap:wrap}
+.gl-soiree-equipe label{cursor:pointer;font-size:13px}
+.gl-soiree-equipe .gl-lien-btn{font-size:13px}
+.gl-visuel-choisir{align-self:flex-start;cursor:pointer}
+.gl-visuel-apercu{display:flex;align-items:flex-end;gap:12px;margin-top:8px}
+.gl-visuel-apercu[hidden]{display:none}
+.gl-visuel-apercu img{max-width:160px;max-height:200px;border-radius:10px;border:1px solid var(--g-border)}
+.gl-mod-visuel{float:right;width:90px;max-height:120px;object-fit:cover;border-radius:8px;margin:0 0 6px 10px}
 .gl-signaler-lieu{font-size:13px;margin-top:2px}
 .gl-signaler-lieu i{margin-right:4px}
 .gl-fenetre input[type=radio]{width:18px;height:18px;min-height:0;accent-color:var(--g-accent)}
@@ -363,6 +374,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
   .gl-jours-grille{grid-template-columns:1fr}
   .gl-tete-actions{width:100%}
   .gl-tete-actions .gl-btn{flex:1}
+  .gl-soiree-visuel img{width:80px;max-height:110px}
 }
 
 /* Tablette et téléphone */

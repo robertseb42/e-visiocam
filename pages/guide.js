@@ -281,6 +281,25 @@
     // ============================================================
     var MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
     var JOURS_C = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+    function urlApi(chemin) { return chemin ? String(API_URL).replace(/\/api\/?$/, '') + chemin : ''; }
+    // Image choisie → JPEG réduit (1400 px max, ~650 Ko max) prêt à envoyer
+    function reduireImage(fichier) {
+        return new Promise(function (ok, ko) {
+            if (!fichier || !/^image\/(jpeg|png|webp)$/.test(fichier.type)) return ko(new Error('Choisissez une image JPG, PNG ou WebP.'));
+            var url = URL.createObjectURL(fichier), img = new Image();
+            img.onload = function () {
+                var k = Math.min(1, 1400 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+                c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+                if (c.width < 200 || c.height < 200) { URL.revokeObjectURL(url); return ko(new Error('Image trop petite (200 × 200 px minimum).')); }
+                c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+                var q = 0.86, d = c.toDataURL('image/jpeg', q);
+                while (d.length > 880000 && q > 0.4) { q -= 0.1; d = c.toDataURL('image/jpeg', q); }
+                ok(d);
+            };
+            img.onerror = function () { URL.revokeObjectURL(url); ko(new Error('Image illisible.')); };
+            img.src = url;
+        });
+    }
     function soireeHTML(s, avecLieu) {
         var d = new Date(s.date + 'T12:00:00');
         return '<article class="gl-soiree"><div class="gl-soiree-date" aria-hidden="true"><small>' + JOURS_C[d.getDay()] + '</small><b>' + d.getDate() + '</b><small>' + MOIS_C[d.getMonth()] + '</small></div>' +
@@ -290,7 +309,8 @@
             (avecLieu ? '<a href="lieu.html?l=' + encodeURIComponent(s.lieu.slug) + '"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(s.lieu.nom) + ' · ' + esc(s.lieu.ville) + '</a>' : '') +
             (s.prix ? '<span class="gl-soiree-prix">' + esc(s.prix) + '</span>' : '') + '</p>' +
             (s.description ? texteRepliable(adoucir(s.description), 'gl-soiree-desc', 160) : '') +
-            (equipe() ? '<button type="button" class="gl-lien-btn gl-rouge" data-suppr-soiree="' + s.id + '">Retirer de l\'agenda</button>' : '') + '</div></article>';
+            (equipe() ? '<div class="gl-soiree-equipe"><label class="gl-lien-btn gl-gris">' + (s.visuel ? 'Changer le visuel' : 'Ajouter le visuel') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-visuel-soiree="' + s.id + '"></label><button type="button" class="gl-lien-btn gl-rouge" data-suppr-soiree="' + s.id + '">Retirer de l\'agenda</button></div>' : '') + '</div>' +
+            (s.visuel ? '<a class="gl-soiree-visuel" href="' + esc(urlApi(s.visuel)) + '" target="_blank" rel="noopener"><img src="' + esc(urlApi(s.visuel)) + '" alt="Affiche : ' + esc(s.titre) + '" loading="lazy"></a>' : '') + '</article>';
     }
     async function chargerAgenda(zone, params, avecLieu, vide) {
         if (!zone) return [];
@@ -300,6 +320,16 @@
             return d.soirees;
         } catch (e) { zone.innerHTML = ''; return []; }
     }
+    document.addEventListener('change', async function (e) {
+        var i = e.target.closest('[data-visuel-soiree]'); if (!i || !i.files[0]) return;
+        try {
+            var d = await reduireImage(i.files[0]);
+            await api('/soirees/' + i.getAttribute('data-visuel-soiree') + '/visuel', { method: 'PUT', body: JSON.stringify({ visuel: d }) });
+            toast('Visuel enregistré.', 'success');
+            if (surFiche) chargerAgendaFiche(); else charger();
+        } catch (x) { toast(x.message, 'error'); }
+        i.value = '';
+    });
     document.addEventListener('click', async function (e) {
         var b = e.target.closest('[data-suppr-soiree]'); if (!b) return;
         b.disabled = true;
@@ -322,6 +352,7 @@
             '<label class="gl-champ" data-jusqu hidden><span>Jusqu\'au (facultatif)</span><input type="date" name="jusquAu" min="' + iso(auj) + '"></label></div>' +
             '<label class="gl-champ"><span>Tarifs</span><input name="prix" maxlength="200" placeholder="ex. Couples 30 €, femmes offert"></label>' +
             '<label class="gl-champ"><span>Description</span><textarea name="description" rows="4" maxlength="1000" placeholder="Thème, tenue demandée, repas…"></textarea></label>' +
+            '<div class="gl-champ"><span>Visuel / affiche (facultatif)</span><label class="gl-btn gl-visuel-choisir"><i class="fa-regular fa-image" aria-hidden="true"></i> Choisir une image<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-visuel-nouveau></label><div class="gl-visuel-apercu" data-visuel-apercu hidden><img alt="Aperçu du visuel"><button type="button" class="gl-lien-btn gl-gris" data-visuel-retirer>Retirer l\'image</button></div></div>' +
             '<p class="gl-erreur" role="alert" hidden></p></div>' +
             '<div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">' + (equipe() ? 'Publier dans l\'agenda' : 'Envoyer à la modération') + '</button></div></form></div>' +
             '<div id="glFenetreCorrection" class="gl-fond" hidden><form id="glFormCorrection" class="gl-fenetre gl-petite" role="dialog" aria-modal="true" aria-labelledby="glTitreCorr" novalidate>' +
@@ -349,13 +380,22 @@
             fs.querySelector('[data-jusqu]').hidden = !sel.value;
         }
         fs.date.addEventListener('change', majRepetition);
+        var visuelChoisi = '';
+        fs.querySelector('[data-visuel-nouveau]').addEventListener('change', async function () {
+            var ap = fs.querySelector('[data-visuel-apercu]');
+            try { visuelChoisi = await reduireImage(this.files[0]); ap.querySelector('img').src = visuelChoisi; ap.hidden = false; }
+            catch (x) { visuelChoisi = ''; ap.hidden = true; erreur(fs, x.message); }
+            this.value = '';
+        });
+        fs.querySelector('[data-visuel-retirer]').addEventListener('click', function () { visuelChoisi = ''; fs.querySelector('[data-visuel-apercu]').hidden = true; });
         fs.querySelector('[data-recurrence]').addEventListener('change', majRepetition);
         $('glFormSoiree').addEventListener('submit', async function (e) {
             e.preventDefault();
             var f = this, d = Object.fromEntries(new FormData(f).entries()); d.lieuId = lieuCourant.id;
             if (!d.titre || !d.date) { erreur(f, 'Indiquez au moins le nom et la date de la soirée.'); return; }
             if (!d.recurrence) d.jusquAu = '';
-            try { var r = await api('/soirees', { method: 'POST', body: JSON.stringify(d) }); fermer($('glFenetreSoiree')); f.reset(); toast(r.message, 'success'); fs.querySelector('[data-jusqu]').hidden = true; majRepetition(); chargerAgendaFiche(); }
+            if (visuelChoisi) d.visuel = visuelChoisi;
+            try { var r = await api('/soirees', { method: 'POST', body: JSON.stringify(d) }); fermer($('glFenetreSoiree')); f.reset(); toast(r.message, 'success'); fs.querySelector('[data-jusqu]').hidden = true; visuelChoisi = ''; fs.querySelector('[data-visuel-apercu]').hidden = true; majRepetition(); chargerAgendaFiche(); }
             catch (x) { erreur(f, x.message); }
         });
         $('glFormCorrection').addEventListener('submit', async function (e) {
@@ -385,6 +425,7 @@
             var ev = { '@context': 'https://schema.org', '@type': 'Event', name: s.titre, startDate: s.date + (s.debut ? 'T' + s.debut : ''), eventStatus: 'https://schema.org/EventScheduled',
                 eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode', location: { '@type': 'Place', name: l.nom, address: lieu.address }, url: url };
             if (s.description) ev.description = s.description.slice(0, 300);
+            if (s.visuel) ev.image = urlApi(s.visuel);
             return ev;
         }));
         var sc = document.createElement('script'); sc.type = 'application/ld+json'; sc.id = 'glLd'; sc.textContent = JSON.stringify(graphe);
@@ -697,7 +738,7 @@
                 bloc('Avis à relire', d.avis, function (a) { return '<article class="gl-mod"><b>' + esc(a.lieu.nom) + '</b> · ' + a.note + '/5 · par ' + esc(a.auteur) + '<p><b>' + esc(a.titre) + '</b> ' + esc(a.texte) + '</p>' + boutons('avis', a.id) + '</article>'; }) +
                 bloc('Bons plans', d.bonsPlans, function (b) { return '<article class="gl-mod">' + esc(b.lieu || b.region) + ' · par ' + esc(b.auteur) + '<p>' + esc(b.texte) + '</p>' + boutons('bon-plan', b.id) + '</article>'; }) +
                 bloc('Avis signalés', d.signales, function (s) { return '<article class="gl-mod"><b>' + esc(s.lieu.nom) + '</b> · ' + s.nb + ' signalement(s) : ' + esc(s.motifs) + '<p><b>' + esc(s.titre) + '</b> ' + esc(s.texte) + '</p>' + boutons('signalement', s.id, true) + '</article>'; }) +
-                bloc('Soirées proposées', d.soirees, function (x) { return '<article class="gl-mod"><b>' + esc(x.titre) + '</b> · ' + (x.recurrenceLibelle ? esc(x.recurrenceLibelle) + ' à partir du ' : '') + esc(dateFr(x.dateDebut || x.date)) + (x.debut ? ' · ' + heureFr(x.debut) : '') + ' · <a href="lieu.html?l=' + encodeURIComponent(x.lieu.slug) + '">' + esc(x.lieu.nom) + '</a> (' + esc(x.lieu.ville) + ') · par ' + esc(x.auteur) + (x.prix ? '<p>' + esc(x.prix) + '</p>' : '') + (x.description ? '<p>' + esc(x.description) + '</p>' : '') + boutons('soiree', x.id) + '</article>'; }) +
+                bloc('Soirées proposées', d.soirees, function (x) { return '<article class="gl-mod">' + (x.visuel ? '<a href="' + esc(urlApi(x.visuel)) + '" target="_blank" rel="noopener"><img class="gl-mod-visuel" src="' + esc(urlApi(x.visuel)) + '" alt="Visuel proposé"></a>' : '') + '<b>' + esc(x.titre) + '</b> · ' + (x.recurrenceLibelle ? esc(x.recurrenceLibelle) + ' à partir du ' : '') + esc(dateFr(x.dateDebut || x.date)) + (x.debut ? ' · ' + heureFr(x.debut) : '') + ' · <a href="lieu.html?l=' + encodeURIComponent(x.lieu.slug) + '">' + esc(x.lieu.nom) + '</a> (' + esc(x.lieu.ville) + ') · par ' + esc(x.auteur) + (x.prix ? '<p>' + esc(x.prix) + '</p>' : '') + (x.description ? '<p>' + esc(x.description) + '</p>' : '') + boutons('soiree', x.id) + '</article>'; }) +
                 bloc('Fermetures et erreurs signalées', d.corrections, function (c) { return '<article class="gl-mod"><b><a href="lieu.html?l=' + encodeURIComponent(c.lieu.slug) + '">' + esc(c.lieu.nom) + '</a></b> (' + esc(c.lieu.ville) + ') · ' + (c.motif === 'ferme' ? '<span class="gl-manque">Signalé fermé</span>' : 'Information fausse') + ' · par ' + esc(c.auteur) + (c.message ? '<p>' + esc(c.message) + '</p>' : '') + '<div class="gl-mod-actions"><a class="gl-btn" href="lieu.html?l=' + encodeURIComponent(c.lieu.slug) + '">Ouvrir et corriger la fiche</a>' + (c.motif === 'ferme' ? '<button type="button" class="gl-btn gl-btn-rouge" data-mod="lieu" data-id="' + c.lieu.id + '" data-d="refuser">Retirer le lieu du guide</button>' : '') + '<button type="button" class="gl-btn" data-mod="correction" data-id="' + c.id + '" data-d="traiter">Marquer comme traité</button></div></article>'; });
         } catch (e) {}
     }
