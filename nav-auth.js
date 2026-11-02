@@ -86,6 +86,7 @@
                 <button data-user-menu-toggle class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-100 transition-colors">
                     <div class="relative">
                         ${photo ? `<img src="${esc(photo)}" alt="" class="w-9 h-9 rounded-full object-cover">` : `<div class="w-9 h-9 rounded-full bg-gradient-to-r ${avatarGradient} text-white flex items-center justify-center font-bold text-sm">${esc(avatarDisplay)}</div>`}
+                        <span data-nav-amis-point title="Demandes d’ami reçues" class="hidden absolute -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-bold items-center justify-center ring-2 ring-white" style="background:#a855f7;bottom:-4px">0</span>
                         ${user.role === 'super_admin' ? `<span id="navContactDot" title="Messages contact non lus" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white">0</span>` : ''}
                     </div>
                     <span class="hidden sm:inline text-sm font-bold text-slate-900">${roleIcon} ${esc(user.username)}</span>
@@ -108,6 +109,12 @@
                             <div class="flex items-center gap-3">
                                 <i class="fa-solid fa-comments w-4" style="color:#0ea5e9"></i> Mes messages
                             </div>
+                        </a>
+                        <a href="amis.html" data-nav-amis class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-user-group w-4" style="color:#a855f7"></i> Mes amis
+                            </div>
+                            <span data-nav-amis-badge title="Demandes d’ami reçues" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
                         </a>
                         <a href="favoris.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-heart w-4" style="color:#ff1680"></i> Mes favoris
@@ -310,6 +317,115 @@
     // Redessine le menu du compte (ex. après un changement de photo de profil)
     window.EvcRafraichirNav = function () { try { initNavAuth(); } catch (e) {} };
 
+    // ═══════════════════════════════════════════════════════════
+    // 👥 AMIS : « Julie est en ligne », demandes d'ami reçues (pastille du menu)
+    //   - pages avec temps réel : événements ami:connecte / ami:demande / ami:accepte
+    //   - toutes les pages : GET /api/amis/pouls toutes les 45 s (compte aussi comme présence)
+    //   Au plus une carte par ami toutes les 30 min (le serveur le garantit aussi).
+    // ═══════════════════════════════════════════════════════════
+    var AMIS_PAUSE_MS = 30 * 60 * 1000;
+    var amisDemarre = false, amisPoulsEnCours = false;
+    function memoire(cle, val) {
+        try {
+            if (val === undefined) return JSON.parse(sessionStorage.getItem(cle) || 'null');
+            sessionStorage.setItem(cle, JSON.stringify(val));
+        } catch (e) { return null; }
+    }
+    function majBadgeAmis(n) {
+        n = Number(n) || 0;
+        window.__evcAmisDemandes = n;
+        document.querySelectorAll('[data-nav-amis-badge],[data-nav-amis-point]').forEach(function (el) {
+            el.textContent = n > 99 ? '99+' : String(n);
+            el.classList.toggle('hidden', n === 0);
+            el.style.display = n > 0 ? 'flex' : 'none';
+        });
+        try { window.dispatchEvent(new CustomEvent('evc:amis-demandes', { detail: { count: n } })); } catch (e) {}
+    }
+    // Les cartes s'affichent dans la fenêtre principale (au-dessus de la radio continue)
+    function docHaut() { try { if (window.top !== window && window.top.document && window.top.document.body) return window.top.document; } catch (e) {} return document; }
+    function pileAmis() {
+        var d = docHaut(), p = d.getElementById('evcAmisPile');
+        if (!p) {
+            p = d.createElement('div'); p.id = 'evcAmisPile'; p.setAttribute('aria-live', 'polite');
+            // Mobile : en haut (la barre du bas et la radio occupent le bas de l'écran) ; ordinateur : en bas à gauche
+            var W = d.defaultView || window, etroit = (W.innerWidth || 1024) < 768;
+            p.style.cssText = 'position:fixed;z-index:2147482400;display:flex;flex-direction:column;gap:10px;width:min(340px,calc(100vw - 32px));pointer-events:none;' +
+                (etroit ? 'top:76px;left:50%;transform:translateX(-50%)' : 'left:16px;bottom:16px');
+            d.body.appendChild(p);
+        }
+        return p;
+    }
+    function carteAmi(texte, gras, boutons) {
+        var d = docHaut(), clair = document.documentElement.getAttribute('data-theme') === 'light';
+        var c = d.createElement('div');
+        c.setAttribute('role', 'status'); c.setAttribute('data-evc-ami-carte', '');
+        c.style.cssText = 'pointer-events:auto;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 14px;border-radius:16px;font:500 14px/1.4 Inter,system-ui,sans-serif;box-shadow:0 14px 40px rgba(0,0,0,.35);border:1px solid ' +
+            (clair ? '#e2e8f0;background:#fff;color:#14161c' : '#3b3b43;background:#1c1c20;color:#f5f5f7') + ';border-left:4px solid #a855f7';
+        var point = d.createElement('span'); point.style.cssText = 'flex:none;width:10px;height:10px;border-radius:50%;background:#22c55e';
+        var t = d.createElement('div'); t.style.cssText = 'flex:1;min-width:0;overflow-wrap:anywhere';
+        var b = d.createElement('b'); b.textContent = gras; t.appendChild(b); t.appendChild(d.createTextNode(texte));
+        c.appendChild(point); c.appendChild(t);
+        (boutons || []).forEach(function (bt) {
+            var x = d.createElement('button'); x.type = 'button'; x.textContent = bt.texte;
+            x.style.cssText = 'flex:none;min-height:36px;padding:6px 12px;border:0;border-radius:10px;font:800 13px Inter,system-ui,sans-serif;cursor:pointer;background:' + (clair ? '#e91e63;color:#fff' : '#ffe500;color:#111113');
+            x.addEventListener('click', function () { c.remove(); location.href = bt.url; });
+            c.appendChild(x);
+        });
+        var f = d.createElement('button'); f.type = 'button'; f.textContent = '×'; f.setAttribute('aria-label', 'Fermer');
+        f.style.cssText = 'flex:none;border:0;background:transparent;color:inherit;opacity:.6;font-size:20px;cursor:pointer;padding:0 2px;min-width:28px;min-height:36px';
+        f.addEventListener('click', function () { c.remove(); });
+        c.appendChild(f);
+        pileAmis().appendChild(c);
+        setTimeout(function () { c.remove(); }, 15000);
+    }
+    function amiConnecte(d) {
+        if (!d || !d.id || !d.pseudo) return;
+        var vus = memoire('evc-amis-vus') || {}, t = Date.now();
+        if (d.seq && vus['s' + d.seq]) return;                      // déjà reçu (socket + relève)
+        if (vus['a' + d.id] && t - vus['a' + d.id] < AMIS_PAUSE_MS) return;
+        Object.keys(vus).forEach(function (k) { if (t - vus[k] > AMIS_PAUSE_MS) delete vus[k]; });
+        if (d.seq) vus['s' + d.seq] = t;
+        vus['a' + d.id] = t;
+        memoire('evc-amis-vus', vus);
+        carteAmi(' est en ligne', d.pseudo, [{ texte: 'Écrire', url: 'messages.html?ecrire=' + Number(d.id) }]);
+    }
+    function demandeRecue(n, de) {
+        var avant = memoire('evc-amis-recues');
+        memoire('evc-amis-recues', n);
+        majBadgeAmis(n);
+        if (avant !== null && n > avant && !/amis\.html$/.test(location.pathname)) {
+            if (de && de.username) carteAmi(' vous a envoyé une demande d’ami', de.username, [{ texte: 'Voir', url: 'amis.html#recues' }]);
+            else carteAmi(' demande d’ami reçue', n > 1 ? n + ' ' : 'Nouvelle', [{ texte: 'Voir', url: 'amis.html#recues' }]);
+        }
+    }
+    function brancherAmis(s) {
+        if (!s || s.__evcAmis) return; s.__evcAmis = true;
+        s.on('ami:connecte', amiConnecte);
+        s.on('ami:demande', function (d) { if (d && typeof d.recues === 'number') demandeRecue(d.recues, d.de); });
+        s.on('ami:accepte', function (d) {
+            if (d && d.par && d.par.username) carteAmi(' a accepté votre demande d’ami', d.par.username, [{ texte: 'Écrire', url: 'messages.html?ecrire=' + Number(d.par.id) }]);
+        });
+    }
+    async function poulsAmis() {
+        if (amisPoulsEnCours || document.hidden || typeof apiCall !== 'function' || typeof isLoggedIn !== 'function' || !isLoggedIn()) return;
+        amisPoulsEnCours = true;
+        try {
+            var curseur = memoire('evc-amis-curseur');
+            var r = await apiCall('/amis/pouls' + (typeof curseur === 'number' ? '?apres=' + curseur : ''));
+            if (r && typeof r.curseur === 'number') memoire('evc-amis-curseur', r.curseur);
+            (r && r.connectes || []).forEach(amiConnecte);
+            if (r && typeof r.demandesRecues === 'number') demandeRecue(r.demandesRecues);
+        } catch (e) {} finally { amisPoulsEnCours = false; }
+    }
+    function demarrerAmis() {
+        if (amisDemarre) { majBadgeAmis(window.__evcAmisDemandes || 0); return; }
+        amisDemarre = true;
+        poulsAmis();
+        setInterval(poulsAmis, 45000);
+        document.addEventListener('visibilitychange', function () { if (!document.hidden) poulsAmis(); });
+    }
+    window.EvcAmis = { badge: majBadgeAmis, actualiser: poulsAmis };
+
     let unreadSocket = null;
     let pollingInterval = null;
 
@@ -359,8 +475,10 @@
                 unreadSocket.on('favori:live', function(d) {
                     if (d && d.username) alerteLive(d);
                 });
+                brancherAmis(unreadSocket);
             }
         }
+        demarrerAmis();
 
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(refreshUnreadCount, 30000);

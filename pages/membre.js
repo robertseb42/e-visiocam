@@ -121,6 +121,7 @@
             return;
         }
         act.appendChild(lien('principal', '💬 Envoyer un message', 'messages.html?ecrire=' + Number(m.id)));
+        if (m.ami) act.appendChild(boutonsAmi(m));
         if (!m.isLive) {
             var cam = bouton('', '📷 Demander la cam');
             if (!m.online) { cam.disabled = true; cam.title = m.username + ' n’est pas connecté en ce moment'; }
@@ -168,6 +169,77 @@
         }
         carte.appendChild(sec);
         if (!m.isLive) carte.appendChild(el('p', 'mb-note', m.online ? 'Pour la cam, il ou elle pourra accepter ou refuser.' : 'Demande de cam possible quand il ou elle est connecté.'));
+    }
+
+    // ---------- Amis : Ajouter / Demande envoyée / Accepter / Ami ✓ — Retirer ----------
+    function boutonsAmi(m) {
+        var zone = el('div', 'mb-amis');
+        zone.setAttribute('data-ami-zone', '');
+        zone.style.cssText = 'grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap';
+        function plein(b) { b.style.flex = '1 1 120px'; return b; }
+        function action(fn) {
+            return async function () {
+                zone.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+                try { await fn(); } catch (e) { info(e.message || 'Action impossible', 'error'); }
+                dessinerAmi();
+            };
+        }
+        function dessinerAmi() {
+            zone.textContent = '';
+            var r = m.ami || { statut: 'aucun' };
+            zone.setAttribute('data-ami-statut', r.statut);
+            if (r.statut === 'amis') {
+                var ok = plein(bouton('actif', '👥 Ami ✓')); ok.disabled = true; ok.style.opacity = '1'; ok.style.cursor = 'default'; ok.style.color = '#22c55e';
+                var ret = plein(bouton('discret', 'Retirer'));
+                ret.setAttribute('data-ami-action', 'retirer');
+                ret.addEventListener('click', action(async function () {
+                    if (!confirm('Retirer ' + m.username + ' de vos amis ?')) return;
+                    await apiCall('/amis/' + Number(m.id), { method: 'DELETE' });
+                    m.ami = { statut: 'aucun', demandeId: null };
+                    info(m.username + ' ne fait plus partie de vos amis.', 'success');
+                }));
+                zone.appendChild(ok); zone.appendChild(ret);
+            } else if (r.statut === 'envoyee') {
+                var env = plein(bouton('discret', '⏳ Demande envoyée'));
+                env.title = 'Cliquez pour annuler la demande';
+                env.setAttribute('data-ami-action', 'annuler');
+                env.addEventListener('click', action(async function () {
+                    if (!confirm('Annuler votre demande d’ami à ' + m.username + ' ?')) return;
+                    await apiCall('/amis/demandes/' + Number(r.demandeId), { method: 'DELETE' });
+                    m.ami = { statut: 'aucun', demandeId: null };
+                }));
+                zone.appendChild(env);
+            } else if (r.statut === 'recue') {
+                var acc = plein(bouton('', '✅ Accepter la demande d’ami'));
+                acc.setAttribute('data-ami-action', 'accepter');
+                acc.style.background = '#22c55e'; acc.style.color = '#fff';
+                acc.addEventListener('click', action(async function () {
+                    var rep = await apiCall('/amis/demandes/' + Number(r.demandeId) + '/accepter', { method: 'POST' });
+                    m.ami = rep.relation;
+                    info('👥 Vous êtes maintenant amis avec ' + m.username + ' !', 'success');
+                    if (window.EvcAmis) EvcAmis.actualiser();
+                }));
+                var ref = plein(bouton('discret', 'Refuser'));
+                ref.setAttribute('data-ami-action', 'refuser');
+                ref.addEventListener('click', action(async function () {
+                    await apiCall('/amis/demandes/' + Number(r.demandeId), { method: 'DELETE' });
+                    m.ami = { statut: 'aucun', demandeId: null };
+                    if (window.EvcAmis) EvcAmis.actualiser();
+                }));
+                zone.appendChild(acc); zone.appendChild(ref);
+            } else {
+                var aj = plein(bouton('', '➕ Ajouter en ami'));
+                aj.setAttribute('data-ami-action', 'ajouter');
+                aj.addEventListener('click', action(async function () {
+                    var rep = await apiCall('/amis/demandes', { method: 'POST', body: JSON.stringify({ userId: Number(m.id) }) });
+                    m.ami = rep.relation;
+                    info(rep.message || 'Demande d’ami envoyée.', 'success');
+                }));
+                zone.appendChild(aj);
+            }
+        }
+        dessinerAmi();
+        return zone;
     }
 
     // Après un blocage, le profil n'est plus visible : on propose d'annuler

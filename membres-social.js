@@ -139,6 +139,7 @@
         voile.addEventListener('click', function (e) { if (e.target === voile) fermerFiche(); });
         haut().addEventListener('keydown', echap);
         var m;
+        var relation = api('/amis/relation/' + Number(id)).then(function (r) { return r.relation; }).catch(function () { return null; });
         try { m = (await api('/models/profil/' + Number(id))).membre; }
         catch (e) { f.textContent = ''; f.appendChild(el('p', 'evs-sous', e.message || 'Fiche indisponible')); return; }
         f.textContent = '';
@@ -188,6 +189,8 @@
             }
         }
         if (!m.moi) {
+            var rel = await relation;
+            if (rel) act.appendChild(boutonsAmi(m, rel));
             act.appendChild(lien('', '👤 Voir le profil', 'membre.html?u=' + encodeURIComponent(m.username)));
             // 🚩 Signaler · 🚫 Bloquer (voir securite-membres.js ; l'équipe de modération ne peut pas être bloquée)
             if (window.EvcSecurite) {
@@ -210,6 +213,62 @@
         f.appendChild(act);
         if (!m.moi && !m.isLive) f.appendChild(el('p', 'evs-note', m.online ? 'Il ou elle pourra accepter ou refuser.' : 'Demande de cam possible quand il ou elle est connecté.'));
         x.focus();
+    }
+
+    // ---------- Amis : Ajouter / Demande envoyée / Accepter / Ami ✓ — Retirer ----------
+    function boutonsAmi(m, rel) {
+        var zone = el('div', 'evs-rang'); zone.setAttribute('data-ami-zone', ''); zone.style.marginTop = '0';
+        function btn(cls, texte, action) {
+            var b = el('button', 'evs-btn ' + cls, texte); b.type = 'button';
+            if (action) { b.setAttribute('data-ami-action', action); }
+            zone.appendChild(b); return b;
+        }
+        function faire(fn) {
+            return async function () {
+                zone.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+                try { await fn(); } catch (e) { info(e.message || 'Action impossible', 'error'); }
+                dessiner();
+            };
+        }
+        function dessiner() {
+            zone.textContent = '';
+            zone.setAttribute('data-ami-statut', rel.statut);
+            if (rel.statut === 'amis') {
+                var ok = btn('', '👥 Ami ✓'); ok.disabled = true; ok.style.opacity = '1'; ok.style.cursor = 'default'; ok.style.color = '#22c55e';
+                btn('', 'Retirer', 'retirer').onclick = faire(async function () {
+                    if (!fenetre().confirm('Retirer ' + m.username + ' de vos amis ?')) return;
+                    await api('/amis/' + Number(m.id), { method: 'DELETE' });
+                    rel = { statut: 'aucun', demandeId: null };
+                });
+            } else if (rel.statut === 'envoyee') {
+                var e = btn('', '⏳ Demande envoyée', 'annuler'); e.title = 'Cliquez pour annuler la demande';
+                e.onclick = faire(async function () {
+                    if (!fenetre().confirm('Annuler votre demande d’ami à ' + m.username + ' ?')) return;
+                    await api('/amis/demandes/' + Number(rel.demandeId), { method: 'DELETE' });
+                    rel = { statut: 'aucun', demandeId: null };
+                });
+            } else if (rel.statut === 'recue') {
+                var a = btn('', '✅ Accepter', 'accepter'); a.style.background = '#22c55e'; a.style.color = '#fff';
+                a.onclick = faire(async function () {
+                    rel = (await api('/amis/demandes/' + Number(rel.demandeId) + '/accepter', { method: 'POST' })).relation;
+                    info('👥 Vous êtes maintenant amis avec ' + m.username + ' !', 'success');
+                    if (window.EvcAmis) window.EvcAmis.actualiser();
+                });
+                btn('', 'Refuser', 'refuser').onclick = faire(async function () {
+                    await api('/amis/demandes/' + Number(rel.demandeId), { method: 'DELETE' });
+                    rel = { statut: 'aucun', demandeId: null };
+                    if (window.EvcAmis) window.EvcAmis.actualiser();
+                });
+            } else {
+                btn('', '➕ Ajouter en ami', 'ajouter').onclick = faire(async function () {
+                    var r = await api('/amis/demandes', { method: 'POST', body: JSON.stringify({ userId: Number(m.id) }) });
+                    rel = r.relation;
+                    info(r.message || 'Demande d’ami envoyée.', 'success');
+                });
+            }
+        }
+        dessiner();
+        return zone;
     }
 
     // ============================================================

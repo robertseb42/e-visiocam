@@ -3,7 +3,8 @@
 // ------------------------------------------------------------
 // - la permission n'est demandée QUE lorsque le membre clique sur « Activer »
 // - service worker /sw.js (portée « / »), clé publique VAPID lue sur /api/push/public-key
-// - interrupteurs « Messages privés » et « Favoris en direct », bouton « Désactiver »
+// - interrupteurs « Messages privés », « Favoris en direct », « Soirées du programme »
+//   et « Demandes d'amis » (seulement si le serveur renvoie ce réglage), bouton « Désactiver »
 // - iPhone / iPad : uniquement depuis l'icône ajoutée à l'écran d'accueil (iOS 16.4+)
 // Dépend de auth-api.js (API_URL, apiCall). Aucun script inline (CSP stricte).
 // ============================================================
@@ -76,7 +77,33 @@
     }
     function occupe(oui) {
         el.activer.disabled = oui; el.desactiver.disabled = oui;
-        el.dm.disabled = oui; el.live.disabled = oui;
+        interrupteurs().forEach(function (i) { i.input.disabled = oui; });
+    }
+
+    // Réglage ↔ case à cocher. « amis » n'apparaît que si le serveur le connaît.
+    function interrupteurs() {
+        return [
+            { cle: 'dm', input: el.dm },
+            { cle: 'favori_live', input: el.live },
+            { cle: 'evenements', input: el.evenements },
+            { cle: 'amis', input: el.amis, zone: el.amisZone, optionnel: true }
+        ].filter(function (i) { return i.input; });
+    }
+    function appliquerPrefs(prefs) {
+        prefs = prefs || {};
+        interrupteurs().forEach(function (i) {
+            var connu = Object.prototype.hasOwnProperty.call(prefs, i.cle);
+            if (i.optionnel && i.zone) i.zone.hidden = !connu;
+            if (connu) i.input.checked = !!prefs[i.cle];
+        });
+    }
+    function prefsCochees() {
+        var p = {};
+        interrupteurs().forEach(function (i) {
+            if (i.optionnel && i.zone && i.zone.hidden) return;   // réglage inconnu du serveur : on n'envoie rien
+            p[i.cle] = i.input.checked;
+        });
+        return p;
     }
 
     function verifier() {
@@ -100,8 +127,7 @@
             if (!abo) { afficher('inactif'); message(''); return; }
             return apiCall('/push/etat', { method: 'POST', body: JSON.stringify({ endpoint: abo.endpoint }) }).then(function (d) {
                 if (d.abonne && memeCle(abo, cleServeur)) {
-                    el.dm.checked = !!(d.prefs && d.prefs.dm);
-                    el.live.checked = !!(d.prefs && d.prefs.favori_live);
+                    appliquerPrefs(d.prefs);
                     afficher('actif');
                     message('Notifications activées sur cet appareil.', 'ok');
                 } else {
@@ -138,10 +164,10 @@
         }).then(function (abo) {
             return apiCall('/push/subscribe', {
                 method: 'POST',
-                body: JSON.stringify({ subscription: abo.toJSON(), prefs: { dm: el.dm.checked, favori_live: el.live.checked } })
+                body: JSON.stringify({ subscription: abo.toJSON(), prefs: prefsCochees() })
             });
         }).then(function (d) {
-            el.dm.checked = !!d.prefs.dm; el.live.checked = !!d.prefs.favori_live;
+            appliquerPrefs(d.prefs);
             afficher('actif');
             message('Notifications activées sur cet appareil.', 'ok');
         }).catch(function (e) {
@@ -170,9 +196,11 @@
         occupe(true);
         abonnementActuel().then(function (abo) {
             if (!abo) throw new Error('absent');
-            return apiCall('/push/prefs', { method: 'PUT', body: JSON.stringify({ endpoint: abo.endpoint, dm: el.dm.checked, favori_live: el.live.checked }) });
+            var corps = prefsCochees();
+            corps.endpoint = abo.endpoint;
+            return apiCall('/push/prefs', { method: 'PUT', body: JSON.stringify(corps) });
         }).then(function (d) {
-            el.dm.checked = !!d.prefs.dm; el.live.checked = !!d.prefs.favori_live;
+            appliquerPrefs(d.prefs);
             message('Réglages enregistrés.', 'ok');
         }).catch(function () {
             message('Le réglage n’a pas été enregistré. Réessayez.', 'erreur');
@@ -181,12 +209,13 @@
     }
 
     function demarrer() {
-        el = { zone: $('pushZone'), msg: $('pushMessage'), reglages: $('pushReglages'), dm: $('pushDm'), live: $('pushLive'), activer: $('pushActiver'), desactiver: $('pushDesactiver') };
+        el = { zone: $('pushZone'), msg: $('pushMessage'), reglages: $('pushReglages'), dm: $('pushDm'), live: $('pushLive'),
+               evenements: $('pushEvenements'), amis: $('pushAmis'), amisZone: $('pushAmisZone'),
+               activer: $('pushActiver'), desactiver: $('pushDesactiver') };
         if (!el.zone || !el.activer || typeof apiCall !== 'function') return;
         el.activer.addEventListener('click', activer);
         el.desactiver.addEventListener('click', desactiver);
-        el.dm.addEventListener('change', reglage);
-        el.live.addEventListener('change', reglage);
+        interrupteurs().forEach(function (i) { i.input.addEventListener('change', reglage); });
         verifier();
     }
 

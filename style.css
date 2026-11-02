@@ -659,3 +659,50 @@ html:not([data-theme="light"]) body .evc-deck-play:hover,
 html:not([data-theme="light"]) body #radioWidgetMinimized .bg-brand-primary:hover,
 html:not([data-theme="light"]) body .ev-live-alert a:hover{
     background:var(--btn-brillant-fond-survol);box-shadow:var(--btn-brillant-ombre-survol)}
+
+/* ---------- En-tête : jamais de défilement horizontal (toutes les pages, 1024–1440 px) ----------
+   Cause : les pages intérieures reprennent l'en-tête de l'accueil (colonne logo 256 px fixe + 6 liens
+   sans retour à la ligne + recherche 256 px + thème + boule + cloche + #navAuth) mais seule .cam-home
+   masquait la recherche entre 1024 et 1450 px : ~1 515 px de contenu pour 1 440 px (+50 px de défilement).
+   → recherche rétrécissable (16rem → 9rem) et masquée sous 1 440 px ; #navAuth ne se tasse jamais ;
+     entre 1024 et 1279 px, espacements resserrés (colonne logo à sa taille, liens et boutons plus serrés). */
+/* (live.html, chat.html… ont le même en-tête sans la classe cam-header : header.sticky) */
+:is(.cam-header,header.sticky) .cam-search{flex:0 1 16rem;width:auto;min-width:9rem}
+:is(.cam-header,header.sticky) #navAuth{flex-shrink:0;white-space:nowrap}
+@media(min-width:640px) and (max-width:899px){:is(.cam-header,header.sticky) .cam-search{display:none}}
+@media(min-width:1024px) and (max-width:1439px){:is(.cam-header,header.sticky) .cam-search{display:none}}
+@media(min-width:1024px) and (max-width:1279px){
+    :is(.cam-header,header.sticky)>div{gap:10px;padding-left:16px;padding-right:16px}
+    :is(.cam-header,header.sticky)>div>div:first-child{width:auto}
+    :is(.cam-header,header.sticky)>div>div:first-child .text-2xl{font-size:1.25rem}
+    :is(.cam-header,header.sticky) nav a{padding-left:5px;padding-right:5px}
+    :is(.cam-header,header.sticky) #connectionStatus{padding-left:8px;padding-right:8px;min-width:0;max-width:7.5rem;overflow:hidden;text-overflow:ellipsis}
+    :is(.cam-header,header.sticky)>div>.ml-auto{gap:6px}
+    :is(.cam-header,header.sticky) #navAuth>a{padding-left:12px;padding-right:12px}
+}
+
+/* compte.html : réglage « Demandes d'amis » masqué tant que le serveur ne le connaît pas
+   (la classe flex de tailwind.css, chargé après, l'emporterait sur [hidden]) */
+#pushReglages label[hidden],#installApp[hidden]{display:none}
+
+/* ---------- Installer l'application (install-app.js) ---------- */
+.evc-install{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;width:calc(100% - 32px);max-width:440px;
+    display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:16px;
+    background:#1c1c20;color:#f5f5f7;border:1px solid #3b3b43;box-shadow:0 10px 30px rgba(0,0,0,.45);font-size:13px;line-height:1.35}
+.evc-install img{width:40px;height:40px;border-radius:10px;flex-shrink:0}
+.evc-install .evc-install-txt{flex:1;min-width:0}
+.evc-install .evc-install-txt b{display:block;font-size:14px}
+.evc-install .evc-install-txt small{display:block;color:#b1b1bd;font-size:12px;margin-top:2px}
+.evc-install .evc-install-ok{flex-shrink:0;padding:8px 14px;border-radius:10px;font-weight:700;background:#ffe500;color:#111113;border:0;cursor:pointer}
+.evc-install .evc-install-ok:hover{background:#fff04a}
+.evc-install .evc-install-x{flex-shrink:0;width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:#b1b1bd;font-size:20px;line-height:1;cursor:pointer}
+.evc-install .evc-install-x:hover{background:#303037;color:#f5f5f7}
+.evc-install :focus-visible{outline:2px solid #ffe500;outline-offset:2px}
+html[data-theme="light"] .evc-install{background:#fff;color:#0f172a;border-color:#e2e8f0;box-shadow:0 10px 30px rgba(15,23,42,.18)}
+html[data-theme="light"] .evc-install .evc-install-txt small{color:#64748b}
+html[data-theme="light"] .evc-install .evc-install-ok{background:#e91e63;color:#fff}
+html[data-theme="light"] .evc-install .evc-install-ok:hover{background:#d81b60}
+html[data-theme="light"] .evc-install .evc-install-x:hover{background:#f1f5f9;color:#0f172a}
+@media(max-width:1023px){body.has-mnav .evc-install{bottom:calc(76px + env(safe-area-inset-bottom,0px))}}   /* au-dessus de la barre mobile */
+@media(prefers-reduced-motion:no-preference){.evc-install{animation:evcInstallIn .25s ease-out}
+    @keyframes evcInstallIn{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translateX(-50%)}}}

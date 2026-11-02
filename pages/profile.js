@@ -40,6 +40,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         ` : ''}
 
         <div class="grid grid-cols-2 gap-3 mt-4">
+            <a href="amis.html" data-profil-amis class="p-4 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl transition-all flex items-center gap-3" style="grid-column:1/-1">
+                <i class="fa-solid fa-user-group text-2xl text-purple-500"></i>
+                <span class="flex-1 min-w-0">
+                    <span class="block text-sm font-bold text-slate-900">Mes amis</span>
+                    <span data-profil-amis-texte class="block text-xs text-slate-500">Qui est en ligne, demandes reçues et envoyées</span>
+                </span>
+                <i class="fa-solid fa-chevron-right text-slate-400"></i>
+            </a>
             <a href="messages.html" class="p-4 bg-pink-50 hover:bg-pink-100 border border-pink-200 rounded-xl text-center transition-all">
                 <i class="fa-solid fa-comments text-2xl text-brand-primary mb-2"></i>
                 <p class="text-sm font-bold text-slate-900">Mes messages</p>
@@ -60,4 +68,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         </div>
     `;
     document.querySelector('#profileContent [data-logout]').addEventListener('click', () => logout());
+
+    // 👥 Résumé des amis : en ligne / demandes reçues
+    try {
+        const [liste, dem] = await Promise.all([apiCall('/amis'), apiCall('/amis/demandes')]);
+        const amis = liste.amis || [], recues = (dem.recues || []).length;
+        const enLigne = amis.filter(a => a.online).length;
+        const morceaux = [amis.length ? amis.length + ' ami' + (amis.length > 1 ? 's' : '') + (enLigne ? ' · ' + enLigne + ' en ligne' : '') : 'Aucun ami pour l’instant'];
+        if (recues) morceaux.push(recues + ' demande' + (recues > 1 ? 's' : '') + ' reçue' + (recues > 1 ? 's' : ''));
+        const t = document.querySelector('[data-profil-amis-texte]');
+        if (t) t.textContent = morceaux.join(' · ');
+        if (recues) document.querySelector('[data-profil-amis]').href = 'amis.html#recues';
+    } catch (e) {}
 });

@@ -22,9 +22,9 @@
     <script src="departements-data.js?v=2"></script>
     <script src="ville-departement.js"></script>
     <script src="legal-banner.js?v=4" defer></script>
-    <script src="nav-auth.js?v=7" defer></script>
+    <script src="nav-auth.js?v=8" defer></script>
 
-    <link rel="stylesheet" href="style.css?v=20261101-webp">
+    <link rel="stylesheet" href="style.css?v=20261101-webp-i">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
   
@@ -209,6 +209,12 @@
                     <label class="flex items-center gap-3 text-sm text-slate-700 cursor-pointer">
                         <input type="checkbox" id="pushLive" class="rounded" checked> Favoris en direct
                     </label>
+                    <label class="flex items-center gap-3 text-sm text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="pushEvenements" class="rounded" checked> Soirées du programme
+                    </label>
+                    <label id="pushAmisZone" class="flex items-center gap-3 text-sm text-slate-700 cursor-pointer" hidden>
+                        <input type="checkbox" id="pushAmis" class="rounded" checked> Demandes d'amis
+                    </label>
                 </div>
                 <div class="flex flex-wrap gap-3">
                     <button type="button" id="pushActiver" hidden class="px-5 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm disabled:opacity-50">
@@ -218,6 +224,17 @@
                         <i class="fa-regular fa-bell-slash" aria-hidden="true"></i> Désactiver
                     </button>
                 </div>
+            </section>
+
+            <!-- 📲 Installer l'application (install-app.js) -->
+            <section id="installZone" class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm" aria-labelledby="installTitre">
+                <h3 id="installTitre" class="font-bold text-slate-900 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-mobile-screen-button text-brand-primary" aria-hidden="true"></i> Application
+                </h3>
+                <p id="installAide" class="text-xs text-slate-500 mb-4" role="status" aria-live="polite">Ajoutez E-VISIOCAM à votre écran d’accueil ou à votre bureau.</p>
+                <button type="button" id="installApp" class="px-5 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm">
+                    <i class="fa-solid fa-download" aria-hidden="true"></i> Installer l’application
+                </button>
             </section>
 
             <!-- Zone dangereuse -->
@@ -239,9 +256,10 @@
 </main>
 
 <script src="pages/compte.js?v=2"></script>
-<script src="push-client.js?v=2"></script>
+<script src="push-client.js?v=3"></script>
+<script src="install-app.js?v=2"></script>
 
-<script src="footer.js?v=6" defer></script>
+<script src="footer.js?v=7" defer></script>
 
 <script src="site-search.js" defer></script>
 </body>

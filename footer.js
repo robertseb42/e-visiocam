@@ -137,7 +137,17 @@
             sc.src = 'mobile-nav.js?v=2';
             document.body.appendChild(sc);
         }
+
+        // 📲 Installer l'application (bandeau discret dès la 2e visite, aide iPhone)
+        if (!document.querySelector('script[src*="install-app.js"]')) {
+            var ia = document.createElement('script');
+            ia.src = 'install-app.js?v=1';
+            document.body.appendChild(ia);
+        }
     }
+
+    // L'événement d'installation peut arriver avant install-app.js : on le garde pour lui
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); window.__evcBip = e; });
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', construire);
     else construire();

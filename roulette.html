@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="h-full cam-theme" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données (media-src blob: pour les vidéos WebRTC) -->
+<meta content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<script src="persistent-radio-bootstrap.js"></script>
+<script src="theme.js?v=2"></script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chat roulette français modéré — E-VISIOCAM</title>
+<link href="favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<meta content="#111113" name="theme-color"/>
+<meta content="Chat roulette français modéré entre adultes : discutez en vidéo 1 à 1 avec une personne au hasard, filtres par région, bouton Signaler et équipe de modération. Gratuit, réservé aux majeurs, aucun contenu sexuel." name="description"/>
+<link href="https://www.e-visiocam.com/roulette.html" rel="canonical"/>
+<meta content="adult" name="rating"/>
+<meta content="website" property="og:type"/>
+<meta content="E-VISIOCAM" property="og:site_name"/>
+<meta content="fr_FR" property="og:locale"/>
+<meta content="Chat roulette français modéré — E-VISIOCAM" property="og:title"/>
+<meta content="Discutez en vidéo 1 à 1 avec une personne au hasard, entre adultes, dans un espace modéré : filtres par région, Signaler et Bloquer en un geste." property="og:description"/>
+<meta content="https://www.e-visiocam.com/roulette.html" property="og:url"/>
+<meta content="https://www.e-visiocam.com/img/partage.jpg" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://www.e-visiocam.com/roulette.html#page","url":"https://www.e-visiocam.com/roulette.html","name":"Chat roulette français modéré — E-VISIOCAM","inLanguage":"fr-FR","isPartOf":{"@id":"https://www.e-visiocam.com/#site"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://www.e-visiocam.com/"},{"@type":"ListItem","position":2,"name":"Chat roulette","item":"https://www.e-visiocam.com/roulette.html"}]},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Le chat roulette d’E-VISIOCAM est-il gratuit ?","acceptedAnswer":{"@type":"Answer","text":"Oui. Il suffit d’un compte gratuit, créé depuis au moins dix minutes, et d’être majeur."}},{"@type":"Question","name":"La vidéo est-elle enregistrée ou regardée par la modération ?","acceptedAnswer":{"@type":"Answer","text":"Non. La vidéo passe directement entre vous deux et n’est jamais enregistrée. Seuls les derniers messages écrits sont gardés quelques minutes en mémoire, pour être joints à un signalement si vous en faites un."}},{"@type":"Question","name":"Que faire si quelqu’un ne respecte pas les règles ?","acceptedAnswer":{"@type":"Answer","text":"Appuyez sur Signaler : la conversation s’arrête aussitôt, la modération reçoit le signalement avec les messages échangés et vous ne recroisez plus cette personne. Bloquer l’écarte définitivement."}}]}]}</script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" rel="stylesheet" crossorigin="anonymous"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<script src="auth-api.js?v=7"></script>
+<script src="legal-banner.js?v=4" defer></script>
+<script defer="" src="nav-auth.js?v=8"></script>
+<link href="style.css?v=20261101-webp-i" rel="stylesheet"/>
+<script defer="" src="maintenance.js"></script>
+<link href="tailwind.css?v=20261009" rel="stylesheet"/>
+<link href="roulette.css?v=2" rel="stylesheet"/>
+</head>
+<body class="cam-home h-full flex flex-col font-sans">
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+<div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+<div class="flex items-center lg:w-64 lg:shrink-0">
+<a class="flex items-center gap-2" href="index.html" aria-label="E-VISIOCAM — accueil">
+<div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+<i class="fa-solid font-bold text-lg fa-video"></i>
+</div>
+<span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+</a>
+</div>
+<nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium" aria-label="Navigation principale">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messages</a>
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+</nav>
+<div class="ml-auto flex items-center gap-3 sm:gap-5">
+<button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle="" title="Changer de thème" type="button">☀️</button>
+<button aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-nav-bell="">
+<i class="fa-regular fa-bell text-lg"></i>
+<span class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white" data-nav-bell-badge="">0</span>
+</button>
+<div class="flex items-center gap-2" id="navAuth"></div>
+</div>
+</div>
+</header>
+
+<main class="rl-main">
+<!-- ===== Présentation (visible par tous, lue par les moteurs de recherche) ===== -->
+<section class="rl-intro" aria-labelledby="rlTitre">
+<p class="rl-fil"><a href="index.html">Accueil</a> › Chat roulette</p>
+<h1 id="rlTitre">Chat roulette <span>français et modéré</span></h1>
+<p class="rl-chapo">Rencontrez quelqu’un au hasard, en vidéo et en tête-à-tête. Un clic sur « Suivant » pour changer de personne, un clic sur « Signaler » si quelque chose ne va pas.</p>
+<ul class="rl-atouts" aria-label="Ce qui change ici">
+<li><i aria-hidden="true" class="fa-solid fa-id-card"></i>Majeurs uniquement</li>
+<li><i aria-hidden="true" class="fa-solid fa-ban"></i>Aucun contenu sexuel</li>
+<li><i aria-hidden="true" class="fa-solid fa-flag"></i>Signaler en un geste</li>
+<li><i aria-hidden="true" class="fa-solid fa-map-location-dot"></i>Filtre par région</li>
+<li><i aria-hidden="true" class="fa-solid fa-gift"></i>Gratuit</li>
+</ul>
+<p class="rl-compteur-public" id="rlCompteurPublic" hidden></p>
+<!-- Visiteur : inscription / connexion -->
+<div class="rl-visiteur" id="rlVisiteur">
+<a class="rl-btn rl-btn--principal" href="register.html?redirect=roulette.html"><i aria-hidden="true" class="fa-solid fa-user-plus"></i>Créer mon compte gratuit</a>
+<a class="rl-btn" href="login.html?redirect=roulette.html"><i aria-hidden="true" class="fa-solid fa-right-to-bracket"></i>Se connecter</a>
+<p class="rl-petit">Pas encore décidé ? <a href="apercu.html">Essayer sans compte</a> : regardez un salon en direct avant de vous inscrire.</p>
+</div>
+</section>
+
+<!-- ===== L'application (membres connectés) ===== -->
+<section class="rl-app" id="rlApp" aria-label="Chat roulette" hidden>
+<div class="rl-refus" id="rlRefus" role="status" hidden></div>
+<div class="rl-grille">
+<div class="rl-colonne-video">
+<div class="rl-scene" id="rlScene" data-etat="repos">
+<video class="rl-distante" id="rlDistante" playsinline autoplay aria-label="Vidéo de votre partenaire"></video>
+<div class="rl-ecran" id="rlEcran" aria-live="polite">
+<div class="rl-ecran-icone" id="rlEcranIcone" aria-hidden="true"><i class="fa-solid fa-shuffle"></i></div>
+<p class="rl-ecran-titre" id="rlEcranTitre">Prêt pour une rencontre ?</p>
+<p class="rl-ecran-texte" id="rlEcranTexte">Appuyez sur « Démarrer » : nous cherchons une personne disponible.</p>
+<p class="rl-ecran-lien" id="rlProgramme" hidden><a href="programme.html"><i aria-hidden="true" class="fa-regular fa-calendar"></i> Voir le programme des soirées</a></p>
+<div class="rl-ecran-actions" id="rlEcranActions" hidden>
+<button class="rl-btn rl-btn--principal" id="rlReessayerCam" type="button"><i aria-hidden="true" class="fa-solid fa-video"></i>Réessayer la caméra</button>
+<button class="rl-btn" id="rlSansCamera" type="button"><i aria-hidden="true" class="fa-solid fa-comment"></i>Continuer sans caméra</button>
+</div>
+</div>
+<div class="rl-masque" id="rlMasque" hidden>
+<p><i aria-hidden="true" class="fa-solid fa-eye-slash"></i> Vidéo masquée</p>
+<button class="rl-btn rl-btn--petit" id="rlDemasquer" type="button">Afficher</button>
+</div>
+<div class="rl-partenaire" id="rlPartenaire" hidden>
+<span class="rl-avatar" id="rlAvatar" aria-hidden="true"></span>
+<span class="rl-partenaire-txt"><strong id="rlPseudo"></strong><small id="rlRegion"></small></span>
+<a class="rl-profil" id="rlProfil" href="membre.html" target="_blank" rel="noopener"><i aria-hidden="true" class="fa-regular fa-user"></i><span>Voir le profil</span></a>
+</div>
+<div class="rl-locale" id="rlLocaleCadre">
+<video class="rl-locale-video" id="rlLocale" muted playsinline autoplay aria-label="Votre caméra"></video>
+<span class="rl-locale-off" id="rlLocaleOff"><i aria-hidden="true" class="fa-solid fa-video-slash"></i></span>
+</div>
+<p class="rl-file" id="rlFile" hidden></p>
+</div>
+<div class="rl-commandes" role="toolbar" aria-label="Commandes de la roulette">
+<button class="rl-btn rl-btn--principal rl-btn--grand" id="rlDemarrer" type="button"><i aria-hidden="true" class="fa-solid fa-play"></i>Démarrer</button>
+<button class="rl-btn rl-btn--principal rl-btn--grand" id="rlSuivant" type="button" hidden><i aria-hidden="true" class="fa-solid fa-forward"></i>Suivant <kbd>→</kbd></button>
+<button class="rl-btn" id="rlArreter" type="button" hidden><i aria-hidden="true" class="fa-solid fa-stop"></i>Arrêter</button>
+<button class="rl-btn rl-btn--icone" id="rlMicro" type="button" aria-pressed="false" title="Couper le micro" aria-label="Couper le micro"><i aria-hidden="true" class="fa-solid fa-microphone"></i></button>
+<button class="rl-btn rl-btn--icone" id="rlCamera" type="button" aria-pressed="false" title="Couper la caméra" aria-label="Couper la caméra"><i aria-hidden="true" class="fa-solid fa-video"></i></button>
+<button class="rl-btn rl-btn--danger" id="rlSignaler" type="button" disabled><i aria-hidden="true" class="fa-solid fa-flag"></i>Signaler</button>
+<button class="rl-btn" id="rlBloquer" type="button" disabled><i aria-hidden="true" class="fa-solid fa-ban"></i>Bloquer</button>
+</div>
+<p class="rl-transparence"><i aria-hidden="true" class="fa-solid fa-shield-halved"></i> Les conversations vidéo sont directes entre vous deux ; utilisez Signaler en cas de problème. Rien n’est enregistré.</p>
+<p class="rl-equipe" id="rlEquipe" hidden></p>
+</div>
+<aside class="rl-cote">
+<section class="rl-chat" aria-labelledby="rlChatTitre">
+<h2 id="rlChatTitre">Discussion</h2>
+<ol class="rl-messages" id="rlMessages" aria-live="polite"><li class="rl-msg-info">Les messages apparaîtront ici pendant la rencontre.</li></ol>
+<form class="rl-chat-form" id="rlChatForm" autocomplete="off">
+<label class="rl-sr" for="rlChatTexte">Votre message</label>
+<input id="rlChatTexte" maxlength="500" placeholder="Écrire un message…" disabled/>
+<button class="rl-btn rl-btn--principal rl-btn--petit" type="submit" aria-label="Envoyer"><i aria-hidden="true" class="fa-solid fa-paper-plane"></i></button>
+</form>
+<p class="rl-chat-erreur" id="rlChatErreur" role="alert" hidden></p>
+</section>
+<details class="rl-filtres" id="rlFiltres">
+<summary><i aria-hidden="true" class="fa-solid fa-sliders"></i> Filtres <small id="rlFiltresResume"></small></summary>
+<label class="rl-option"><input id="rlFiltreCam" type="checkbox"/> Avec caméra uniquement</label>
+<label class="rl-option"><input id="rlFiltreRegion" type="checkbox"/> <span id="rlFiltreRegionTxt">Même région que moi</span></label>
+<label class="rl-option rl-option--select" for="rlFiltreGenre">Je préfère discuter avec
+<select id="rlFiltreGenre">
+<option value="">Tout le monde</option>
+<option value="femme">des femmes</option>
+<option value="homme">des hommes</option>
+<option value="autre">des personnes « autre »</option>
+</select>
+</label>
+<p class="rl-petit">Une préférence seulement : elle se base sur le profil des autres membres (ceux qui ne l’ont pas rempli ne vous seront pas proposés). Plus il y a de filtres, plus l’attente est longue.</p>
+</details>
+<p class="rl-petit rl-raccourcis">Raccourcis : <kbd>→</kbd> ou <kbd>Échap</kbd> pour passer au suivant.</p>
+</aside>
+</div>
+</section>
+
+<!-- Règles à accepter la première fois -->
+<div class="rl-voile" id="rlRegles" role="dialog" aria-modal="true" aria-labelledby="rlReglesTitre" hidden>
+<div class="rl-boite">
+<h2 id="rlReglesTitre">Avant votre première rencontre</h2>
+<p>Le chat roulette vous met en relation avec une personne au hasard. Pour que tout le monde s’y sente bien :</p>
+<ul class="rl-regles-liste">
+<li><i aria-hidden="true" class="fa-solid fa-id-card"></i><span><strong>18 ans et plus uniquement.</strong> Signalez toute personne qui semble mineure.</span></li>
+<li><i aria-hidden="true" class="fa-solid fa-ban"></i><span><strong>Pas de nudité ni de contenu sexuel</strong>, même suggéré : c’est un motif de bannissement.</span></li>
+<li><i aria-hidden="true" class="fa-solid fa-handshake"></i><span><strong>Respect</strong> : pas d’insultes, de harcèlement, de chantage ni de demande d’argent.</span></li>
+<li><i aria-hidden="true" class="fa-solid fa-camera"></i><span><strong>Captures d’écran et enregistrements interdits.</strong></span></li>
+<li><i aria-hidden="true" class="fa-solid fa-flag"></i><span><strong>Un souci ? « Signaler »</strong> arrête tout de suite la conversation et prévient la modération ; « Bloquer » vous évite de recroiser la personne.</span></li>
+</ul>
+<label class="rl-option"><input id="rlReglesOk" type="checkbox"/> J’ai 18 ans ou plus et j’accepte ces règles.</label>
+<div class="rl-boite-actions">
+<button class="rl-btn" id="rlReglesNon" type="button">Plus tard</button>
+<button class="rl-btn rl-btn--principal" id="rlReglesOui" type="button" disabled>C’est parti</button>
+</div>
+</div>
+</div>
+
+<!-- ===== Explications (visibles par tous) ===== -->
+<section class="rl-explications" aria-labelledby="rlComment">
+<h2 id="rlComment">Comment fonctionne le chat roulette ?</h2>
+<ol class="rl-etapes">
+<li><strong>Démarrez</strong> : votre caméra s’allume (ou non, si vous préférez écrire) et nous cherchons une personne disponible.</li>
+<li><strong>Discutez</strong> en vidéo et par écrit, en tête-à-tête. Vous voyez son pseudo, sa région et vous pouvez ouvrir son profil.</li>
+<li><strong>« Suivant »</strong> pour changer de personne à tout moment. Vous ne retombez pas sur la même personne avant dix minutes.</li>
+</ol>
+<h2>Une roulette pensée pour la sécurité</h2>
+<p>Contrairement aux chats roulette anonymes, ici chaque personne a un compte, confirmé et créé depuis au moins dix minutes. Les membres sanctionnés par la modération, même rendus muets, n’y ont pas accès. Les messages écrits passent par le même filtre que les salons.</p>
+<p><strong>Signaler</strong> arrête la conversation pour vous deux : la modération reçoit le signalement avec les derniers messages échangés, et la personne ne vous est plus proposée. <strong>Bloquer</strong> l’écarte pour de bon, partout sur le site.</p>
+<h2>Votre vie privée</h2>
+<p>La vidéo passe directement entre vous deux, par un relais sécurisé qui masque votre adresse IP. Elle n’est jamais enregistrée et la modération ne peut pas la regarder. Les derniers messages écrits restent quelques minutes en mémoire, uniquement pour être joints à un signalement, puis disparaissent. Votre genre n’est jamais affiché à l’autre personne.</p>
+<h2>Questions fréquentes</h2>
+<h3>C’est gratuit ?</h3>
+<p>Oui, il suffit d’un <a href="register.html?redirect=roulette.html">compte gratuit</a>. Le site est réservé aux personnes majeures.</p>
+<h3>Personne n’est disponible, que faire ?</h3>
+<p>La roulette est plus animée en soirée, notamment pendant les <a href="programme.html">soirées du programme</a>. En attendant, rejoignez les <a href="salons.html">salons de tchat</a>.</p>
+<h3>Je ne veux pas allumer ma caméra</h3>
+<p>Vous pouvez discuter par écrit seulement. Les personnes qui choisissent « Avec caméra uniquement » ne vous seront simplement pas proposées. Lisez aussi nos <a href="securite-chat-webcam.html">conseils de sécurité</a>.</p>
+</section>
+</main>
+<script src="https://api.e-visiocam.com/socket.io/socket.io.min.js" defer></script>
+<script src="securite-membres.js?v=2" defer></script>
+<script src="aide-camera.js?v=2" defer></script>
+<script src="pages/roulette.js?v=2" defer></script>
+<script defer="" src="footer.js?v=7"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="persistent-radio-bootstrap.js"></script>
+    <script src="theme.js?v=2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes amis — E-VISIOCAM</title>
+    <meta name="description" content="Vos amis sur E-VISIOCAM : qui est en ligne, demandes d’ami reçues et envoyées."/>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#111113">
+    <meta name="robots" content="noindex">
+    <script src="app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js?v=7"></script>
+    <script src="site-search.js" defer></script>
+<script src="nav-auth.js?v=8" defer></script>
+    <script src="legal-banner.js?v=4" defer></script>
+
+    <link rel="stylesheet" href="style.css?v=20261101-webp-i">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
+    <link rel="stylesheet" href="membre.css?v=2">
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+        <div class="flex items-center lg:w-64 lg:shrink-0">
+            <a class="flex items-center gap-2" href="index.html">
+                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid font-bold text-lg fa-video"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            </a>
+        </div>
+        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messages</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+        </nav>
+        <div class="ml-auto flex items-center gap-3 sm:gap-5">
+            <div class="cam-search relative hidden sm:block w-48 md:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+            </div>
+            <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
+            <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-3xl w-full mx-auto flex-1 p-4 md:p-6">
+    <div class="flex items-center justify-between gap-3 mb-4">
+        <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900">👥 Mes amis</h1>
+        <a href="profile.html" class="text-sm text-slate-500 hover:text-brand-primary whitespace-nowrap"><i class="fa-solid fa-user" aria-hidden="true"></i> Mon profil</a>
+    </div>
+
+    <div id="amOnglets" class="am-onglets" role="tablist" aria-label="Mes amis">
+        <button type="button" role="tab" data-am-tab="enligne" id="am-tab-enligne" aria-controls="amPanneau">En ligne <span data-compte="enligne"></span></button>
+        <button type="button" role="tab" data-am-tab="tous" id="am-tab-tous" aria-controls="amPanneau">Tous <span data-compte="tous"></span></button>
+        <button type="button" role="tab" data-am-tab="recues" id="am-tab-recues" aria-controls="amPanneau">Reçues <span data-compte="recues"></span></button>
+        <button type="button" role="tab" data-am-tab="envoyees" id="am-tab-envoyees" aria-controls="amPanneau">Envoyées <span data-compte="envoyees"></span></button>
+    </div>
+
+    <section id="amPanneau" class="bg-white rounded-2xl border border-slate-200 shadow-sm am-panneau" role="tabpanel" aria-live="polite">
+        <p class="text-center text-slate-400 py-10">Chargement…</p>
+    </section>
+
+    <form id="amAjouter" class="bg-white rounded-2xl border border-slate-200 shadow-sm am-ajouter" autocomplete="off">
+        <label for="amPseudo" class="text-sm font-bold text-slate-900">Ajouter un ami par son pseudo</label>
+        <div class="am-ligne-form">
+            <input id="amPseudo" name="pseudo" type="text" maxlength="50" required placeholder="Pseudo du membre" class="am-champ">
+            <button type="submit" class="mb-btn principal am-envoyer">➕ Envoyer</button>
+        </div>
+    </form>
+
+    <section id="amReglages" class="bg-white rounded-2xl border border-slate-200 shadow-sm am-reglages" aria-labelledby="amReglagesTitre">
+        <h2 id="amReglagesTitre" class="text-lg font-bold text-slate-900">Réglages</h2>
+        <label class="am-option"><input type="checkbox" id="amPrevenir"> <span><b>Prévenir quand mes amis se connectent</b><small>Une petite carte « Julie est en ligne », au plus une fois par ami toutes les 30 minutes.</small></span></label>
+        <label class="am-option"><input type="checkbox" id="amMasquer"> <span><b>Masquer ma présence à mes amis</b><small>Vos amis ne voient plus si vous êtes en ligne, ni votre salon, ni votre dernière visite, et ne sont pas prévenus de votre arrivée.</small></span></label>
+        <label class="am-option" id="amPushLigne" hidden><input type="checkbox" id="amPush"> <span><b>Notifications des demandes d’ami</b><small>Sur les appareils où vous avez activé les notifications.</small></span></label>
+    </section>
+
+    <p class="text-xs text-slate-400 mt-4 text-center">Seuls vos amis voient votre présence et votre salon (salons publics uniquement). Bloquer un membre le retire de vos amis.</p>
+</main>
+
+<script src="securite-membres.js?v=2"></script>
+<script src="pages/amis.js?v=2"></script>
+<script src="radio-widget.js?v=2"></script>
+<script src="radio-widget-floating.js?v=3"></script>
+<script src="footer.js?v=7" defer></script>
+</body>
+</html>

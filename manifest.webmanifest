@@ -1,19 +1,45 @@
 {
-  "name": "E-VISIOCAM",
-  "short_name": "E-VisioCam",
-  "description": "Chat cam en direct et rencontres live",
   "id": "/",
-  "start_url": "/",
+  "name": "E-VISIOCAM — Chat webcam et rencontres en direct",
+  "short_name": "E-VISIOCAM",
+  "description": "Chat webcam en direct, salons de discussion et rencontres entre adultes (18+).",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#111113",
   "theme_color": "#111113",
   "lang": "fr",
+  "dir": "ltr",
+  "categories": ["social"],
+  "prefer_related_applications": false,
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Salons",
+      "short_name": "Salons",
+      "description": "Rejoindre un salon de discussion",
+      "url": "/salons.html?source=pwa",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Messages",
+      "short_name": "Messages",
+      "description": "Vos messages privés",
+      "url": "/messages.html?source=pwa",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "En direct",
+      "short_name": "En direct",
+      "description": "Les webcams en direct",
+      "url": "/live.html?source=pwa",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }
