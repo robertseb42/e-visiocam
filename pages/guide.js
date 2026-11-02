@@ -7,8 +7,8 @@
     var $ = function (id) { return document.getElementById(id); };
     var surFiche = !!$('glFiche');
     var REGIONS = [], etat = { region: '', type: '', public: '', q: '' }, carte = null, calque = null, lieuCourant = null;
-    var TUILES = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    var ATTRIB = '&copy; OpenStreetMap &copy; CARTO';
+    var TUILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';   // OpenStreetMap : gratuit, sans clé (assombri en CSS)
+    var ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
     var ICONES = { club: 'fa-champagne-glasses', sauna: 'fa-hot-tub-person', soiree: 'fa-masks-theater', autre: 'fa-location-dot' };
     var PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls' };
 
@@ -287,7 +287,7 @@
     function initCarte() {
         if (carte || !window.L || !$('glCarte')) return;
         carte = L.map('glCarte', { scrollWheelZoom: false, attributionControl: true }).setView([46.6, 2.4], 5);
-        L.tileLayer(TUILES, { attribution: ATTRIB, subdomains: 'abcd', maxZoom: 18 }).addTo(carte);
+        L.tileLayer(TUILES, { attribution: ATTRIB, maxZoom: 18 }).addTo(carte);
         calque = L.layerGroup().addTo(carte);
     }
     function placerSurCarte(lieux, region) {
@@ -420,7 +420,7 @@
                 '</aside></div>';
             if (l.lat != null && window.L) {
                 var m = L.map('glMiniCarte', { scrollWheelZoom: false, zoomControl: false }).setView([l.lat, l.lng], 14);
-                L.tileLayer(TUILES, { attribution: ATTRIB, subdomains: 'abcd' }).addTo(m);
+                L.tileLayer(TUILES, { attribution: ATTRIB }).addTo(m);
                 L.circleMarker([l.lat, l.lng], { radius: 9, color: '#111113', weight: 2, fillColor: '#ff1680', fillOpacity: 1 }).addTo(m);
             }
             $('glDonnerAvis').addEventListener('click', function () {

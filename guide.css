@@ -171,7 +171,9 @@ fieldset.gl-champ legend{width:100%}
 .gl-etoiles.petites button{width:36px;height:36px;font-size:15px}
 .gl-notes fieldset.gl-champ{flex-wrap:nowrap}
 
-/* Leaflet : thème sombre et marqueurs */
+/* Leaflet : thème sombre et marqueurs (tuiles OpenStreetMap claires, assombries ici) */
+.gl .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.9) saturate(.6)}
+html[data-theme="light"] .gl .leaflet-tile-pane{filter:none}
 .gl .leaflet-container{background:var(--g-tag);font:13px Inter,Arial,sans-serif}
 .gl .leaflet-popup-content-wrapper,.gl .leaflet-popup-tip{background:var(--g-panel);color:var(--g-text);border:1px solid var(--g-border)}
 .gl .leaflet-popup-content a{color:var(--g-accent);font-weight:700}
