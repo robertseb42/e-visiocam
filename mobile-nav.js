@@ -16,7 +16,7 @@
     var connecte = typeof isLoggedIn === 'function' && isLoggedIn();
 
     var ongletFavoris = { href: 'favoris.html', label: 'Favoris', svg: '<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>' };
-    var ongletMessages = { href: 'messages.html', label: 'Messages', messages: true, svg: '<path fill-rule="evenodd" d="M2 5h20v14H2zM4.5 7 12 12.4 19.5 7z"/>' };
+    var ongletMessages = { href: 'messages.html', label: 'Messagerie', messages: true, svg: '<path fill-rule="evenodd" d="M2 5h20v14H2zM4.5 7 12 12.4 19.5 7z"/>' };
 
     var LIENS = [
         { href: 'index.html', label: 'Accueil', svg: '<path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/>' },

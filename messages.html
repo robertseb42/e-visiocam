@@ -8,7 +8,7 @@
     <script src="theme.js?v=2"></script>
     <script src="actions.js?v=csp2"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages — E-VISIOCAM</title>
+    <title>Ma messagerie — E-VISIOCAM</title>
     <meta name="description" content="Messages — E-VISIOCAM — E-VISIOCAM, chat et rencontres par webcam."/>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
@@ -21,17 +21,10 @@
     <script src="auth-api.js?v=7"></script>
     <script src="legal-banner.js?v=4" defer></script>
     <script src="site-search.js" defer></script>
-<script src="nav-auth.js?v=8"></script>
-    <style>
-        .msg-bubble-sent { background: #e91e63; color: white; }
-        .msg-bubble-received { background: #f1f5f9; color: #1e293b; }
-        .conv-item { transition: all 0.15s ease; }
-        .conv-item:hover { background: #f8fafc; }
-        .conv-item.active { background: #fdf2f8; border-left: 3px solid #e91e63; }
-        .modal-backdrop { background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); }
-    </style>
+<script src="nav-auth.js?v=9"></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
+    <link rel="stylesheet" href="messagerie.css?v=1">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
@@ -54,7 +47,7 @@
             <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
             <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
             <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
-            <a class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold" href="messages.html">Messages</a>
+            <a class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold" href="messages.html">Messagerie</a>
             <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
         </nav>
         <div class="ml-auto flex items-center gap-3 sm:gap-5">
@@ -72,103 +65,70 @@
     </div>
 </header>
 
-<main class="max-w-[1700px] w-full mx-auto flex-1 p-3 md:p-6">
-    <div class="mb-4 flex items-center justify-between">
-        <h1 class="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
-            <i class="fa-solid fa-comments text-brand-primary"></i> Messages
-        </h1>
-        <button data-click="openNewConvModal" class="px-4 py-2.5 bg-gradient-to-r from-brand-primary to-rose-500 text-white font-bold rounded-xl shadow-lg shadow-pink-500/25 flex items-center gap-2 hover:opacity-90 transition-all">
-            <i class="fa-solid fa-plus"></i>
-            <span>Nouvelle conversation</span>
-        </button>
+<main class="evm max-w-[1700px] w-full mx-auto flex-1 p-3 md:p-6">
+    <div class="evm-tete">
+        <h1><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Ma messagerie</h1>
+        <button type="button" id="evmNouveau" class="evm-btn evm-btn-ecrire"><i class="fa-solid fa-pen" aria-hidden="true"></i> Nouveau message</button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-240px)] min-h-[500px]">
-        <!-- LISTE CONVERSATIONS -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-            <div class="p-4 border-b border-slate-100">
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                    <input type="text" id="searchConv" placeholder="Rechercher une conversation..."
-                        class="w-full pl-9 pr-4 py-2 bg-slate-100 text-sm rounded-xl border border-transparent focus:border-brand-primary focus:bg-white focus:outline-none transition-all">
-                </div>
-            </div>
-            <div id="conversationsList" class="flex-1 overflow-y-auto"></div>
-        </div>
+    <div class="evm-boite">
+        <!-- Dossiers -->
+        <nav class="evm-dossiers" aria-label="Dossiers">
+            <button type="button" data-dossier="recus" class="actif"><i class="fa-solid fa-inbox" aria-hidden="true"></i><span>Reçus</span><b id="evmCompteRecus" hidden>0</b></button>
+            <button type="button" data-dossier="envoyes"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Envoyés</span></button>
+            <button type="button" data-dossier="corbeille"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Corbeille</span></button>
+            <p class="evm-astuce"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Vous pouvez écrire à un membre même s'il n'est pas connecté : il trouvera votre message dans ses Reçus.</p>
+        </nav>
 
-        <!-- CHAT -->
-        <div class="md:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-            <div id="chatHeader" class="p-4 border-b border-slate-100 flex items-center justify-between hidden">
-                <div class="flex items-center gap-3">
-                    <div id="chatAvatar" class="w-11 h-11 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg">?</div>
-                    <div>
-                        <a id="chatUsername" href="#" class="block font-bold text-slate-900 evc-profil-lien" title="Voir le profil">—</a>
-                        <p id="chatStatus" class="text-xs text-slate-400 flex items-center gap-1"></p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-1">
-                    <button id="btnSignalerConv" type="button" title="Signaler ce membre" aria-label="Signaler ce membre" class="w-9 h-9 rounded-lg text-slate-500 hover:bg-slate-100 flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-flag"></i>
-                    </button>
-                    <button id="btnBloquerConv" type="button" title="Bloquer ce membre" aria-label="Bloquer ce membre" class="w-9 h-9 rounded-lg text-slate-500 hover:bg-slate-100 flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-ban"></i>
-                    </button>
-                    <button data-click="deleteCurrentConversation" title="Supprimer" class="w-9 h-9 rounded-lg text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <button data-click="closeConversation" class="w-9 h-9 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
+        <!-- Liste des messages -->
+        <section class="evm-liste" aria-label="Messages">
+            <div class="evm-recherche">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input type="search" id="evmRecherche" placeholder="Rechercher (pseudo, objet, texte)…" aria-label="Rechercher dans la messagerie" maxlength="60">
             </div>
+            <ul id="evmListe" class="evm-lignes"></ul>
+            <button type="button" id="evmPlus" class="evm-plus" hidden>Messages plus anciens</button>
+        </section>
 
-            <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/50">
-                <div class="h-full flex items-center justify-center text-center text-slate-400">
-                    <div>
-                        <i class="fa-solid fa-comments text-5xl mb-3 text-slate-300"></i>
-                        <p class="text-sm">Sélectionnez une conversation pour commencer</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="chatInputWrapper" class="p-3 border-t border-slate-100 hidden">
-                <p id="dmNotice" role="alert" class="hidden mb-2 px-3 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold"></p>
-                <div class="flex items-center gap-2">
-                    <input type="text" id="messageInput" placeholder="Écrire un message..."
-                        class="flex-1 px-4 py-3 bg-slate-100 rounded-2xl text-sm border border-transparent focus:border-brand-primary focus:bg-white focus:outline-none transition-all"
-                        maxlength="2000">
-                    <button data-click="sendMessage" class="w-12 h-12 rounded-2xl bg-gradient-to-r from-brand-primary to-rose-500 text-white flex items-center justify-center hover:opacity-90 transition-all shadow-lg shadow-pink-500/25">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
+        <!-- Lecture -->
+        <section class="evm-lecture" id="evmLecture" aria-live="polite">
+            <div class="evm-vide"><i class="fa-regular fa-envelope" aria-hidden="true"></i><p>Sélectionnez un message pour le lire</p></div>
+        </section>
     </div>
 </main>
 
-<!-- MODAL : NOUVELLE CONVERSATION -->
-<div id="newConvModal" class="hidden fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h3 class="text-lg font-extrabold text-slate-900">Nouvelle conversation</h3>
-            <button data-click="closeNewConvModal" class="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+<!-- Fenêtre : nouveau message / répondre -->
+<div id="evmFenetre" class="evm-fond" hidden>
+    <form id="evmForm" class="evm-fenetre" role="dialog" aria-modal="true" aria-labelledby="evmFenetreTitre" novalidate>
+        <div class="evm-fenetre-tete">
+            <h2 id="evmFenetreTitre">Nouveau message</h2>
+            <button type="button" class="evm-fermer" id="evmFermer" aria-label="Fermer"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
-        <div class="p-5">
-            <div class="relative mb-4">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="text" id="userSearchInput" placeholder="Rechercher un pseudo..."
-                    class="w-full pl-9 pr-4 py-3 bg-slate-100 text-sm rounded-xl border border-transparent focus:border-brand-primary focus:bg-white focus:outline-none transition-all">
+        <label class="evm-champ">
+            <span>À</span>
+            <div class="evm-a">
+                <span id="evmAChoisi" class="evm-puce" hidden></span>
+                <input type="text" id="evmA" placeholder="Pseudo du membre…" autocomplete="off" maxlength="40">
+                <ul id="evmSuggestions" class="evm-suggestions" hidden></ul>
             </div>
-            <div id="userSearchResults" class="max-h-80 overflow-y-auto">
-                <p class="text-center text-slate-400 text-sm py-6">Tapez au moins 2 lettres pour chercher</p>
-            </div>
+        </label>
+        <label class="evm-champ">
+            <span>Objet</span>
+            <input type="text" id="evmObjet" placeholder="(facultatif)" maxlength="120">
+        </label>
+        <label class="evm-champ evm-champ-texte">
+            <span class="evm-sr">Message</span>
+            <textarea id="evmTexte" rows="9" maxlength="2000" placeholder="Votre message…" required></textarea>
+        </label>
+        <p id="evmErreur" class="evm-erreur" role="alert" hidden></p>
+        <div class="evm-fenetre-pied">
+            <small id="evmCompteur">0 / 2000</small>
+            <button type="submit" class="evm-btn evm-btn-ecrire" id="evmEnvoyer"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Envoyer</button>
         </div>
-    </div>
+    </form>
 </div>
 <script src="securite-membres.js?v=2"></script>
-<script src="messages.js?v=8"></script>
+<script src="pages/messagerie.js?v=1"></script>
  <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=7" defer></script>

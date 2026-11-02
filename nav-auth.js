@@ -521,9 +521,27 @@
         } catch (err) {}
     }
 
-    // 🔔 La cloche est le SEUL indicateur de messages non lus : le nombre s'affiche dessus,
+    // 🔔 La cloche affiche aussi le nombre de messages non lus (en plus des pastilles « Messagerie ») :
     //    elle se balance tant qu'il en reste, sonne et joue un carillon à l'arrivée d'un message.
+    // 📬 Pastille du nombre de messages non lus sur « Messagerie » (barre du haut) et « Ma messagerie » (menu du compte)
+    function pastillesMessagerie(count) {
+        document.querySelectorAll('.cam-topnav a[href="messages.html"], #userMenuDropdown a[href="messages.html"]').forEach(function (a) {
+            var p = a.querySelector('.evc-nb-msg');
+            if (!p) {
+                p = document.createElement('span');
+                p.className = 'evc-nb-msg';
+                p.setAttribute('aria-hidden', 'true');
+                p.style.cssText = 'display:none;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:999px;background:#ff1680;color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center;vertical-align:middle';
+                (a.querySelector('div') || a).appendChild(p);
+            }
+            p.textContent = count > 99 ? '99+' : String(count);
+            p.style.display = count > 0 ? 'inline-block' : 'none';
+            a.setAttribute('aria-label', count > 0 ? 'Messagerie, ' + count + ' message' + (count > 1 ? 's' : '') + ' non lu' + (count > 1 ? 's' : '') : 'Messagerie');
+        });
+    }
+
     function updateNavBadge(count) {
+        pastillesMessagerie(count);
         const nouveauMessage = dernierCompteVu !== null && count > dernierCompteVu;
         mettreAJourCloche(count);
         if (nouveauMessage) animerCloche(true);
@@ -543,6 +561,7 @@
         event.stopPropagation();
         const dropdown = document.getElementById('userMenuDropdown');
         if (dropdown) dropdown.classList.toggle('hidden');
+        pastillesMessagerie(window.__evcDmNonLus || 0);
     };
 
     if (document.readyState === 'loading') {
