@@ -1,9 +1,9 @@
 # En-têtes de sécurité HTTP (Netlify / Cloudflare Pages).
-# GitHub Pages n'applique PAS ce fichier : il ne sert que si tu migres l'hébergement.
+# Appliqué par Cloudflare Pages. SAMEORIGIN / 'self' : app-shell.html affiche les pages du site dans un cadre (radio continue).
 # L'anti-clickjacking sur GitHub Pages est assuré en attendant par theme.js (chargé en premier sur chaque page).
 /*
-  X-Frame-Options: DENY
-  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), payment=()
