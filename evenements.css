@@ -87,3 +87,12 @@ html[data-theme="light"] .ev-mini-live{background:#e91e63;border-color:#e91e63;c
 .ev-ligne.ev-ligne--disco{--h-text:#fff;--h-muted:#e6d8df;--h-border:rgba(255,255,255,.22);--h-yellow:#ffe500;color:#fff;border-color:#4a2a3a;
   background:linear-gradient(90deg,#140810 0%,rgba(20,8,16,.9) 45%,rgba(20,8,16,.25) 100%),url("img/soiree-disco.webp") right 30% center/auto 170% no-repeat,#140810}
 .ev-ligne.ev-ligne--disco .ev-date{background:rgba(255,255,255,.12)}
+/* Grande carte qui défile : points de navigation */
+.ev-une-points{position:absolute;right:16px;bottom:14px;display:flex;gap:4px}
+.ev-une-points button{width:24px;height:24px;padding:0;border:0;background:transparent;cursor:pointer;display:grid;place-items:center}
+.ev-une-points button:after{content:"";width:9px;height:9px;border-radius:50%;background:var(--h-muted);opacity:.5;transition:opacity .2s,transform .2s}
+.ev-une-points button[aria-current="true"]:after{opacity:1;background:#e8256a;transform:scale(1.25)}
+.ev-une-points button:focus-visible{outline:2px solid var(--h-yellow);outline-offset:1px;border-radius:50%}
+/* Même hauteur pour toutes les séances : la carte ne saute pas en défilant */
+#soireeUne.ev-une{min-height:300px!important;padding:26px 28px}
+@media(max-width:700px){#soireeUne.ev-une{padding:20px 18px}}

@@ -104,17 +104,47 @@
         el.innerHTML = cases.map(function (c) { return '<span><b>' + c[0] + '</b><small>' + c[1] + '</small></span>'; }).join('');
     }
 
+    // ---------- Grande carte qui défile ----------
+    var uneListe = [], uneIdx = 0, unePause = false, uneDepuis = Date.now();
+    var DUREE_UNE = 7000;
+    var mouvementReduit = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function afficherUne() {
+        var s = uneListe[uneIdx];
+        if (!s || !zoneUne) return;
+        var points = uneListe.length > 1 ? '<div class="ev-une-points">' + uneListe.map(function (x, i) {
+            return '<button type="button" data-une="' + i + '" aria-label="Voir : ' + esc(x.titre) + '"' + (i === uneIdx ? ' aria-current="true"' : '') + '></button>';
+        }).join('') + '</div>' : '';
+        zoneUne.innerHTML = rendreUne(s) + points;
+        zoneUne.className = zoneUne.className.replace(/\s*ev-une--[a-z]+/g, '') + ' ev-une--' + (s.type || 'autre') + (s.type === 'soiree' ? ' ev-une--disco' : '');
+        uneDepuis = Date.now();
+        compteur();
+    }
+    if (zoneUne) {
+        zoneUne.addEventListener('mouseenter', function () { unePause = true; });
+        zoneUne.addEventListener('mouseleave', function () { unePause = false; uneDepuis = Date.now(); });
+        zoneUne.addEventListener('focusin', function () { unePause = true; });
+        zoneUne.addEventListener('focusout', function () { unePause = false; uneDepuis = Date.now(); });
+        zoneUne.addEventListener('click', function (e) {
+            var b = e.target.closest && e.target.closest('[data-une]');
+            if (!b) return;
+            uneIdx = Number(b.getAttribute('data-une')) || 0;
+            afficherUne();
+        });
+    }
+
     function rendre() {
         var t = maintenant();
         var a_venir = seances.filter(function (s) { return Date.parse(s.fin) > t; });
         if (zoneUne) {
             if (!a_venir.length) {
-                zoneUne.classList.remove('ev-une--disco');
+                uneListe = [];
+                zoneUne.className = zoneUne.className.replace(/\s*ev-une--[a-z]+/g, '');
                 zoneUne.innerHTML = '<p class="ev-soirees-vide">Aucune soirée programmée pour le moment. Les salons restent ouverts à toute heure.</p>';
                 if (zoneListe) zoneListe.innerHTML = '';
             } else {
-                zoneUne.innerHTML = rendreUne(a_venir[0]);
-                zoneUne.classList.toggle('ev-une--disco', a_venir[0].type === 'soiree');   // visuel micro + boule à facettes
+                uneListe = a_venir.slice(0, 4);   // la grande carte défile entre les prochaines séances
+                if (uneIdx >= uneListe.length) uneIdx = 0;
+                afficherUne();
                 if (zoneListe) zoneListe.innerHTML = a_venir.slice(1, 4).map(rendreLigne).join('');
             }
         }
@@ -237,6 +267,7 @@
         var prochaine = seances.filter(function (x) { return Date.parse(x.fin) > t; })[0];
         var etat = prochaine ? prochaine.evenement_id + '|' + prochaine.debut + '|' + enCours(prochaine, t) : '';
         if (etat !== etaitEnCours) { if (etaitEnCours !== null) rendre(); etaitEnCours = etat; }   // début ou fin d'une soirée
+        if (!unePause && !mouvementReduit && uneListe.length > 1 && Date.now() - uneDepuis > DUREE_UNE) { uneIdx = (uneIdx + 1) % uneListe.length; afficherUne(); }
         compteur();
         annoncer();
         if (Date.now() - chargeLe > 5 * 60000) charger();
