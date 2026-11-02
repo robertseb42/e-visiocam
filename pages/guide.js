@@ -312,6 +312,30 @@
             (equipe() ? '<div class="gl-soiree-equipe"><label class="gl-lien-btn gl-gris">' + (s.visuel ? 'Changer le visuel' : 'Ajouter le visuel') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-visuel-soiree="' + s.id + '"></label><button type="button" class="gl-lien-btn gl-rouge" data-suppr-soiree="' + s.id + '">Retirer de l\'agenda</button></div>' : '') + '</div>' +
             (s.visuel ? '<a class="gl-soiree-visuel" href="' + esc(urlApi(s.visuel)) + '" target="_blank" rel="noopener"><img src="' + esc(urlApi(s.visuel)) + '" alt="Affiche : ' + esc(s.titre) + '" loading="lazy"></a>' : '') + '</article>';
     }
+    // Bandeau d'affiches en haut de la page du guide : les prochaines soirées de la région (ou de France)
+    async function chargerBandeau(r) {
+        var sec = $('glBandeau');
+        if (!sec) {
+            document.querySelector('.gl-filtres').insertAdjacentHTML('beforebegin', '<section id="glBandeau" class="gl-bandeau" aria-labelledby="glBandeauTitre" hidden><div class="gl-bandeau-tete"><h2 id="glBandeauTitre"></h2><div class="gl-bandeau-fleches"><button type="button" data-defiler="-1" aria-label="Soirées précédentes"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button><button type="button" data-defiler="1" aria-label="Soirées suivantes"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div></div><div class="gl-bandeau-piste" id="glBandeauPiste"></div></section>');
+            sec = $('glBandeau');
+            sec.addEventListener('click', function (e) { var b = e.target.closest('[data-defiler]'); if (!b) return; var p = $('glBandeauPiste'); p.scrollBy({ left: +b.getAttribute('data-defiler') * p.clientWidth * 0.8, behavior: 'smooth' }); });
+        }
+        $('glBandeauTitre').innerHTML = '<i class="fa-regular fa-calendar" aria-hidden="true"></i> Prochaines soirées ' + (r ? 'en ' + esc(r.nom) : 'en France');
+        try {
+            var d = await api('/soirees?' + new URLSearchParams(r ? { region: r.slug, jours: 60 } : { jours: 45 }));
+            sec.hidden = !d.soirees.length;
+            $('glBandeauPiste').innerHTML = d.soirees.map(function (s) {
+                var dt = new Date(s.date + 'T12:00:00');
+                return '<a class="gl-affiche" href="lieu.html?l=' + encodeURIComponent(s.lieu.slug) + '">' +
+                    '<span class="gl-affiche-img">' + (s.visuel ? '<img src="' + esc(urlApi(s.visuel)) + '" alt="" loading="lazy">' : '<span class="gl-affiche-vide" aria-hidden="true"><i class="fa-solid fa-champagne-glasses"></i></span>') +
+                    '<span class="gl-affiche-date"><small>' + JOURS_C[dt.getDay()] + '</small><b>' + dt.getDate() + '</b><small>' + MOIS_C[dt.getMonth()] + '</small></span>' +
+                    (s.recurrenceLibelle ? '<span class="gl-affiche-rec"><i class="fa-solid fa-rotate" aria-hidden="true"></i> ' + esc(s.recurrenceLibelle) + '</span>' : '') + '</span>' +
+                    '<span class="gl-affiche-txt"><b>' + esc(adoucir(s.titre)) + '</b><small>' + esc(s.lieu.nom) + ' · ' + esc(s.lieu.ville) + '</small>' +
+                    (s.debut ? '<small class="gl-affiche-h">' + heureFr(s.debut) + (s.fin ? ' – ' + heureFr(s.fin) : '') + '</small>' : '') + '</span></a>';
+            }).join('');
+        } catch (e) { sec.hidden = true; }
+    }
+
     async function chargerAgenda(zone, params, avecLieu, vide) {
         if (!zone) return [];
         try {
@@ -662,10 +686,7 @@
             liste.innerHTML = l.length ? l.map(carteLieu).join('') :
                 '<div class="gl-vide-bloc"><i class="fa-regular fa-map" aria-hidden="true"></i><p>' + (etat.q || etat.type || etat.public || etat.ouvert ? 'Aucun lieu ne correspond à ces filtres.' : 'Pas encore de lieu ' + (r ? 'en ' + esc(r.nom) : 'dans le guide') + '.') + '</p><p>Vous connaissez un club, un sauna ou une soirée ? <button type="button" class="gl-lien-btn" data-proposer>Proposez-le</button>, la communauté vous remerciera.</p></div>';
             placerSurCarte(l, r);
-            var ag = $('glAgenda');
-            if (!ag) { document.querySelector('.gl-grille').insertAdjacentHTML('afterend', '<section class="gl-liste-bloc gl-agenda-bloc" aria-labelledby="glAgendaTitre"><div class="gl-liste-tete"><h2 id="glAgendaTitre"></h2></div><div id="glAgenda" class="gl-agenda gl-agenda-grille"></div></section>'); ag = $('glAgenda'); }
-            $('glAgendaTitre').innerHTML = '<i class="fa-regular fa-calendar" aria-hidden="true"></i> Prochaines soirées ' + (r ? 'en ' + esc(r.nom) : 'en France');
-            chargerAgenda(ag, r ? { region: r.slug, jours: 60 } : { jours: 30 }, true, 'Pas encore de soirée annoncée' + (r ? ' dans cette région' : '') + '. Les soirées se proposent depuis la fiche de chaque lieu.');
+            chargerBandeau(r);
             var plans = d.bonsPlans || [];
             $('glPlans').hidden = !r;
             $('glPlansListe').innerHTML = plans.length ? plans.map(function (b) {
