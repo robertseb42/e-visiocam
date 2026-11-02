@@ -122,6 +122,39 @@
         if (s) { var bl = s.closest('.gl-creneau'), zz = bl.parentNode; bl.remove(); if (!zz.children.length) zz.insertAdjacentHTML('beforeend', creneauHTML()); }
     });
 
+    // ---- Mise en forme des textes longs saisis par les membres ----
+    // TEXTE TOUT EN MAJUSCULES → texte normal (plus lisible)
+    function adoucir(t) {
+        t = String(t || '');
+        var lettres = t.replace(/[^A-Za-zÀ-ÿ]/g, '');
+        if (lettres.length >= 12 && lettres === lettres.toUpperCase()) {
+            return t.toLowerCase().replace(/(^\s*|[.!?:]\s+)([a-zà-ÿ])/g, function (m, a, b) { return a + b.toUpperCase(); });
+        }
+        // Passages de 4 mots ou plus en majuscules au milieu d'une phrase
+        return t.replace(/(?:(?<!\p{L})\p{Lu}[\p{Lu}'’]+(?!\p{L})[\s,;:'’]*){4,}/gu, function (m) { return m.toLowerCase(); });
+    }
+    // Lignes vides → paragraphes ; liste « Nom : 10 € » → tableau de prix lisible
+    var LIGNE_PRIX = /^(.+?)\s*(?::|—|-|…|\.{2,})?\s*(\d[\d\s.,]*\s*€|gratuit|offert)\s*\.?$/i;
+    function paragraphes(t, liste) {
+        var lignes = String(t || '').split(/\n/).map(function (x) { return x.trim(); }).filter(Boolean);
+        var prix = lignes.filter(function (x) { return LIGNE_PRIX.test(x); }).length;
+        if (liste && prix >= 3 && prix >= lignes.length * 0.6) {
+            var tab = [], autres = [];
+            lignes.forEach(function (x) { var m = x.match(LIGNE_PRIX); if (m) tab.push('<div><dt>' + esc(m[1].replace(/\s*:$/, '')) + '</dt><dd>' + esc(m[2].replace(/\s+€/, ' €')) + '</dd></div>'); else autres.push('<p>' + esc(x) + '</p>'); });
+            return '<dl class="gl-tarifs-liste">' + tab.join('') + '</dl>' + autres.join('');
+        }
+        return lignes.map(function (x) { return '<p>' + esc(x) + '</p>'; }).join('');
+    }
+    function texteRepliable(t, classe, max) {
+        var long = String(t).length > max;
+        return '<div class="' + classe + (long ? ' gl-replie' : '') + '">' + paragraphes(t) + '</div>' + (long ? '<button type="button" class="gl-lien-btn gl-plus" data-plus aria-expanded="false">Lire la suite</button>' : '');
+    }
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-plus]'); if (!b) return;
+        var z = b.previousElementSibling, ouvert = z.classList.toggle('gl-replie') === false;
+        b.setAttribute('aria-expanded', String(ouvert)); b.textContent = ouvert ? 'Réduire' : 'Lire la suite';
+    });
+
     // ---- Affichage (fiche) ----
     function groupesPlanning(planning) {
         var parJour = [];
@@ -170,15 +203,17 @@
             return '<div class="gl-jour' + (estAuj ? ' gl-jour-auj' : '') + '"><h3>' + libelleJours(g.jours) + (estAuj ? ' <span>Aujourd\'hui</span>' : '') + '</h3>' +
                 g.liste.map(function (c) {
                     var p = c.prix || {}, prix = [['Hommes', p.hommes], ['Femmes', p.femmes], ['Couples', p.couples]].filter(function (x) { return x[1] != null; });
-                    return '<div class="gl-cr"><div class="gl-cr-txt"><b>' + (c.debut ? '<span class="gl-h">' + heureFr(c.debut) + (c.fin ? ' – ' + heureFr(c.fin) : '') + '</span>' : '') + (c.espace ? '<em>' + esc(c.espace) + '</em>' : '') + '</b>' +
-                        (c.titre ? '<strong>' + esc(c.titre) + '</strong>' : '') + (c.public ? '<small>' + esc(c.public) + '</small>' : '') + (c.note ? '<small class="gl-cr-note">' + esc(c.note) + '</small>' : '') + '</div>' +
-                        (prix.length ? '<dl class="gl-prix">' + prix.map(function (x) { return '<div><dt>' + x[0] + '</dt><dd>' + prixFr(x[1]) + '</dd></div>'; }).join('') + '</dl>' : '') + '</div>';
+                    return '<div class="gl-cr"><div class="gl-cr-tete">' + (c.debut ? '<span class="gl-h">' + heureFr(c.debut) + (c.fin ? ' – ' + heureFr(c.fin) : '') + '</span>' : '') + (c.espace ? '<span class="gl-espace">' + esc(c.espace) + '</span>' : '') + '</div>' +
+                        (c.titre ? '<strong class="gl-cr-titre">' + esc(adoucir(c.titre)) + '</strong>' : '') +
+                        (c.public ? '<p class="gl-cr-public"><i class="fa-solid fa-user-group" aria-hidden="true"></i> ' + esc(adoucir(c.public).replace(/\s*,\s*/g, ', ')) + '</p>' : '') +
+                        (prix.length ? '<ul class="gl-prix">' + prix.map(function (x) { return '<li>' + x[0] + ' <b>' + prixFr(x[1]) + '</b></li>'; }).join('') + '</ul>' : '') +
+                        (c.note ? texteRepliable(adoucir(c.note), 'gl-cr-note', 170) : '') + '</div>';
                 }).join('') + '</div>';
         }).join('');
         return '<section class="gl-horaires" aria-labelledby="glHorTitre"><div class="gl-horaires-tete"><h2 id="glHorTitre">Horaires et tarifs</h2>' + etatOuverture(pl) + '</div>' +
             '<div class="gl-jours-grille">' + html + '</div>' +
             (fermes.length ? '<p class="gl-ferme">Fermé le ' + fermes.map(function (d) { return JOURS[d]; }).join(', ') + '.</p>' : '') +
-            (l.tarifs ? '<p class="gl-tarifs-note">' + esc(l.tarifs) + '</p>' : '') +
+            (l.tarifs ? '<div class="gl-tarifs-note"><h3><i class="fa-solid fa-champagne-glasses" aria-hidden="true"></i> Tarifs et consommations</h3>' + paragraphes(l.tarifs, true) + '</div>' : '') +
             '<p class="gl-maj">Infos données à titre indicatif' + (l.majLe ? ', mises à jour le ' + esc(dateFr(l.majLe)) : '') + '. Vérifiez auprès de l\'établissement avant de vous déplacer.</p></section>';
     }
 
@@ -473,7 +508,7 @@
                 '<div class="gl-fiche-tete"><div><span class="gl-type"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '" aria-hidden="true"></i> ' + esc(l.typeLibelle) + '</span><h1>' + esc(l.nom) + '</h1><p class="gl-ville">' + esc(l.ville) + ' · ' + esc(l.regionNom) + '</p><div class="gl-tags">' + pub + (l.precisionPublic ? '<span class="gl-tag">' + esc(l.precisionPublic) + '</span>' : '') + '</div></div>' +
                 (equipe() ? '<button type="button" class="gl-btn gl-btn-equipe" id="glModifierLieu"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier la fiche</button>' : '') +
                 '<div class="gl-note-bloc">' + (l.nbAvis ? '<b>' + note(l.note) + '</b><small>sur 5 · ' + l.nbAvis + ' avis</small>' : '<small>Pas encore d\'avis</small>') + '</div></div>' +
-                (l.description ? '<p class="gl-description">' + esc(l.description) + '</p>' : '') +
+                (l.description ? texteRepliable(l.description, 'gl-description', 380) : '') +
                 planningHTML(l) +
                 (l.nbAvis ? '<div class="gl-notes-detail">' + notes.map(function (n) { return '<div><small>' + n[0] + '</small><b>' + note(n[1]) + '</b></div>'; }).join('') + '</div>' : '') +
                 '<section class="gl-avis-bloc"><div class="gl-avis-entete"><h2>Avis des membres</h2><button type="button" class="gl-btn gl-btn-jaune" id="glDonnerAvis">' + (mon ? 'Modifier mon avis' : 'Donner mon avis') + '</button></div>' +

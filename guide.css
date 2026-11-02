@@ -111,7 +111,7 @@ html[data-theme="light"] .gl,html[data-theme="light"] .gl-fond{--g-panel:#fff;--
 .gl-note-bloc{flex:none;min-width:110px;text-align:center;padding:14px 18px;border-radius:16px;background:var(--g-panel);border:1px solid var(--g-border)}
 .gl-note-bloc b{display:block;font-size:32px;font-weight:900;color:var(--g-accent)}
 .gl-note-bloc small{color:var(--g-muted);font-size:13px}
-.gl-description{margin:0;color:var(--g-soft);font-size:15px;line-height:1.7;white-space:pre-line}
+.gl-description{margin:0;color:var(--g-soft);font-size:15px;line-height:1.65}
 .gl-notes-detail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .gl-notes-detail div{padding:14px;border-radius:14px;background:var(--g-panel);border:1px solid var(--g-border)}
 .gl-notes-detail small{color:var(--g-muted);font-size:12px}
@@ -207,26 +207,38 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-statut-ouvert{background:rgba(52,211,153,.14);color:var(--g-ok)}
 .gl-statut-ouvert i{color:var(--g-ok);font-size:9px}
 .gl-statut-ferme{color:var(--g-muted)}
-.gl-jours-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.gl-jours-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 .gl-jour{padding:14px;border-radius:14px;background:var(--g-panel2);border:1px solid var(--g-border);display:flex;flex-direction:column;gap:10px}
 .gl-jour h3{margin:0;font-size:16px;font-weight:800;color:var(--g-accent);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .gl-jour h3 span{padding:2px 9px;border-radius:999px;background:var(--g-pink);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
 .gl-jour-auj{border-color:var(--g-pink);box-shadow:0 0 0 1px var(--g-pink) inset}
-.gl-cr{display:flex;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--g-border)}
+.gl-cr{display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--g-border);min-width:0}
 .gl-jour h3+.gl-cr{border-top:0;padding-top:0}
-.gl-cr-txt{display:flex;flex-direction:column;gap:3px;min-width:0}
-.gl-cr-txt b{font-size:15px}
-.gl-h{white-space:nowrap}
-.gl-cr-txt b em{font-style:normal;font-weight:600;color:var(--g-muted);margin-left:8px;font-size:13px}
-.gl-cr-txt strong{color:var(--g-pink-txt);font-size:14px}
-.gl-cr-txt small{color:var(--g-soft);font-size:13px;line-height:1.4}
-.gl-cr-txt .gl-cr-note{color:var(--g-muted);font-style:italic}
-.gl-prix{margin:0;display:flex;flex-direction:column;gap:3px;flex:none;min-width:118px}
-.gl-prix div{display:flex;justify-content:space-between;gap:10px;font-size:13px}
-.gl-prix dt{color:var(--g-muted)}
-.gl-prix dd{margin:0;font-weight:800;color:var(--g-text)}
-.gl-ferme,.gl-tarifs-note{margin:0;font-size:14px;color:var(--g-soft);white-space:pre-line}
-.gl-tarifs-note{padding:10px 12px;border-radius:12px;background:rgba(255,229,0,.08);border:1px solid rgba(255,229,0,.25)}
+.gl-cr-tete{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gl-h{white-space:nowrap;font-size:16px;font-weight:800}
+.gl-espace{padding:2px 9px;border-radius:999px;background:var(--g-tag);color:var(--g-soft);font-size:12px;font-weight:700}
+.gl-cr-titre{color:var(--g-pink-txt);font-size:14px}
+.gl-cr-public{margin:0;color:var(--g-soft);font-size:13px;line-height:1.4}
+.gl-cr-public i{color:var(--g-muted);font-size:11px;margin-right:2px}
+.gl-prix{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.gl-prix li{padding:5px 10px;border-radius:10px;background:var(--g-panel);border:1px solid var(--g-border);font-size:13px;color:var(--g-muted)}
+.gl-prix b{color:var(--g-accent);font-weight:800;margin-left:2px}
+.gl-cr-note{color:var(--g-muted);font-size:13px;line-height:1.5}
+.gl-cr-note p{margin:0}
+.gl-replie{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.gl-description.gl-replie{-webkit-line-clamp:5}
+.gl-plus{font-size:13px;padding:2px 0;align-self:flex-start}
+.gl-description p{margin:0 0 8px}
+.gl-description p:last-child{margin-bottom:0}
+.gl-ferme{margin:0;font-size:14px;color:var(--g-muted)}
+.gl-tarifs-note{padding:14px 16px;border-radius:14px;background:var(--g-panel2);border:1px solid var(--g-border);font-size:14px;color:var(--g-soft)}
+.gl-tarifs-note h3{margin:0 0 10px;font-size:15px;font-weight:800;color:var(--g-text)}
+.gl-tarifs-note h3 i{color:var(--g-accent);margin-right:4px}
+.gl-tarifs-note p{margin:0 0 4px}
+.gl-tarifs-liste{margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 24px}
+.gl-tarifs-liste div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--g-border)}
+.gl-tarifs-liste dt{color:var(--g-soft)}
+.gl-tarifs-liste dd{margin:0;font-weight:800;color:var(--g-text);white-space:nowrap}
 .gl-maj{margin:0;font-size:12px;color:var(--g-muted)}
 .gl-ouvert{font-style:normal;font-size:11px;font-weight:800;color:var(--g-ok);background:rgba(52,211,153,.14);padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
 .gl-puces #glOuvert i{margin-right:4px}
@@ -274,9 +286,6 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
   .gl-trois .gl-champ:first-child{grid-column:1/-1}
   .gl-jours button{width:38px;height:40px}
   .gl-jours-grille{grid-template-columns:1fr}
-  .gl-cr{flex-direction:column}
-  .gl-prix{flex-direction:row;flex-wrap:wrap;gap:6px 14px}
-  .gl-prix div{gap:6px}
   .gl-tete-actions{width:100%}
   .gl-tete-actions .gl-btn{flex:1}
 }
