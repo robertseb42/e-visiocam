@@ -265,6 +265,19 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-hab-ecrire:hover{border-color:var(--g-accent)}
 
 /* ---------- Équipe ---------- */
+.gl-import .gl-aide{margin:0 0 8px}
+.gl-imp-regles{padding-left:18px;margin:0 0 14px}
+.gl-imp-regles li{margin-bottom:4px}
+.gl-imp-choisir{cursor:pointer}
+.gl-imp-apercu{margin-top:14px;display:flex;flex-direction:column;gap:10px;font-size:14px}
+.gl-imp-apercu p{margin:0}
+.gl-imp-tableau{overflow-x:auto;border:1px solid var(--g-border);border-radius:12px}
+.gl-imp-tableau table{width:100%;border-collapse:collapse;font-size:13px}
+.gl-imp-tableau th,.gl-imp-tableau td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--g-border);white-space:nowrap}
+.gl-imp-tableau th{color:var(--g-muted);font-weight:700;background:var(--g-panel2)}
+.gl-imp-bilan ul{margin:6px 0 10px;padding-left:18px}
+.gl-imp-apercu .gl-btn{align-self:flex-start}
+.gl-reseaux a{font-weight:700}
 .gl-tete-actions{display:flex;gap:10px;flex-wrap:wrap}
 .gl-btn-equipe{align-self:flex-start;min-height:40px;padding:8px 14px;font-size:13px}
 .gl-fiche-tete .gl-btn-equipe{margin-left:auto}

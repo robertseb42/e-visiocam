@@ -214,7 +214,7 @@
             '<div class="gl-jours-grille">' + html + '</div>' +
             (fermes.length ? '<p class="gl-ferme">Fermé le ' + fermes.map(function (d) { return JOURS[d]; }).join(', ') + '.</p>' : '') +
             (l.tarifs ? '<div class="gl-tarifs-note"><h3><i class="fa-solid fa-champagne-glasses" aria-hidden="true"></i> Tarifs et consommations</h3>' + paragraphes(l.tarifs, true) + '</div>' : '') +
-            '<p class="gl-maj">Infos données à titre indicatif' + (l.majLe ? ', mises à jour le ' + esc(dateFr(l.majLe)) : '') + '. Vérifiez auprès de l\'établissement avant de vous déplacer.</p></section>';
+            '<p class="gl-maj">Infos données à titre indicatif' + (l.verifieLe && /^\d{4}-\d{2}-\d{2}/.test(l.verifieLe) ? ', vérifiées le ' + esc(dateFr(l.verifieLe)) : l.majLe ? ', mises à jour le ' + esc(dateFr(l.majLe)) : '') + '. Vérifiez auprès de l\'établissement avant de vous déplacer.</p></section>';
     }
 
     // Boutons « Y aller » : ouvrent le GPS du téléphone (Google Maps, Waze, Plans d'Apple) sur l'adresse du lieu
@@ -468,6 +468,93 @@
         var l = LIEUX_EQ[b.getAttribute('data-edit-lieu')]; if (l) ouvrirFormLieu(l);
     });
 
+    // ============================================================
+    // IMPORT CSV (espace équipe)
+    // ============================================================
+    var COLONNES = ['nom', 'categorie', 'adresse', 'code_postal', 'ville', 'departement', 'telephone', 'site', 'reseaux', 'statut', 'verifie_le', 'source', 'description'];
+    var SYNONYMES = { etablissement: 'nom', nom_de_l_etablissement: 'nom', type: 'categorie', cp: 'code_postal', codepostal: 'code_postal', dep: 'departement', dept: 'departement',
+        tel: 'telephone', telephones: 'telephone', site_internet: 'site', site_web: 'site', url: 'site', reseaux_sociaux: 'reseaux', facebook: 'reseaux', instagram: 'reseaux',
+        date_de_derniere_verification: 'verifie_le', derniere_verification: 'verifie_le', date_verification: 'verifie_le', date: 'verifie_le' };
+    function sansAccentJs(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
+    function lireCsv(texte) {
+        texte = texte.replace(/^﻿/, '');
+        var premiere = texte.split(/\r?\n/)[0] || '';
+        var sep = [';', ',', '\t'].sort(function (a, b) { return premiere.split(b).length - premiere.split(a).length; })[0];
+        var lignes = [], champ = '', ligne = [], guillemets = false;
+        for (var i = 0; i < texte.length; i++) {
+            var c = texte[i];
+            if (guillemets) {
+                if (c === '"' && texte[i + 1] === '"') { champ += '"'; i++; }
+                else if (c === '"') guillemets = false;
+                else champ += c;
+            } else if (c === '"') guillemets = true;
+            else if (c === sep) { ligne.push(champ); champ = ''; }
+            else if (c === '\n' || c === '\r') { if (c === '\r' && texte[i + 1] === '\n') i++; ligne.push(champ); lignes.push(ligne); ligne = []; champ = ''; }
+            else champ += c;
+        }
+        if (champ || ligne.length) { ligne.push(champ); lignes.push(ligne); }
+        lignes = lignes.filter(function (l) { return l.some(function (x) { return x.trim(); }); });
+        if (lignes.length < 2) return { entetes: [], objets: [] };
+        var entetes = lignes[0].map(function (h) { var k = sansAccentJs(h).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''); return SYNONYMES[k] || k; });
+        var objets = lignes.slice(1).map(function (l) {
+            var o = {};
+            entetes.forEach(function (h, k) { var v = (l[k] || '').trim(); if (!v) return; o[h] = h === 'reseaux' && o[h] ? o[h] + ' ' + v : v; });
+            return o;
+        });
+        return { entetes: entetes, objets: objets };
+    }
+    function telechargerModele() {
+        var lignes = [COLONNES.join(';'),
+            'Le Velvet;club;9 Imp. du Château-Rouge;69530;Brignais;69;06 99 23 24 06;;;actif confirmé;2026-11-02;fiche existante;Discothèque libertine',
+            'Exemple sauna;sauna;1 rue Exemple;42000;Saint-Étienne;42;;https://www.exemple.fr;https://www.facebook.com/exemple;à vérifier;;site officiel;'];
+        var b = new Blob(['﻿' + lignes.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+        var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'guide-libertin-modele.csv';
+        document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    }
+    var importEnAttente = [];
+    function brancherImport() {
+        if (!$('glImpFichier')) return;
+        $('glImpModele').addEventListener('click', telechargerModele);
+        $('glImpFichier').addEventListener('change', function () {
+            var f = this.files && this.files[0]; if (!f) return;
+            var lecteur = new FileReader();
+            lecteur.onload = function () {
+                var r = lireCsv(String(lecteur.result || ''));
+                var z = $('glImpApercu');
+                importEnAttente = r.objets.filter(function (o) { return o.nom; });
+                var manque = ['nom', 'ville'].filter(function (c) { return r.entetes.indexOf(c) < 0; });
+                if (manque.length || !importEnAttente.length) { z.innerHTML = '<p class="gl-erreur">' + (manque.length ? 'Colonnes obligatoires absentes : ' + manque.join(', ') + '.' : 'Aucune ligne lisible dans ce fichier.') + ' Téléchargez le modèle pour voir le format attendu.</p>'; return; }
+                var vues = r.entetes.filter(function (h) { return COLONNES.indexOf(h) >= 0; });
+                z.innerHTML = '<p><b>' + importEnAttente.length + ' établissement(s)</b> lus dans « ' + esc(f.name) + ' ». Colonnes reconnues : ' + esc(vues.join(', ')) + '.</p>' +
+                    '<div class="gl-imp-tableau"><table><thead><tr><th>Nom</th><th>Catégorie</th><th>Ville</th><th>CP</th><th>Téléphone</th><th>Statut</th></tr></thead><tbody>' +
+                    importEnAttente.slice(0, 8).map(function (o) { return '<tr><td>' + esc(o.nom) + '</td><td>' + esc(o.categorie || '') + '</td><td>' + esc(o.ville || '') + '</td><td>' + esc(o.code_postal || o.departement || '') + '</td><td>' + esc(o.telephone || '') + '</td><td>' + esc(o.statut || 'à vérifier') + '</td></tr>'; }).join('') +
+                    '</tbody></table></div>' + (importEnAttente.length > 8 ? '<p class="gl-aide">… et ' + (importEnAttente.length - 8) + ' autre(s).</p>' : '') +
+                    '<button type="button" class="gl-btn gl-btn-jaune" id="glImpGo">Importer ' + importEnAttente.length + ' établissement(s)</button>';
+            };
+            lecteur.readAsText(f, 'utf-8');
+            this.value = '';
+        });
+        document.addEventListener('click', async function (e) {
+            var b = e.target.closest('#glImpGo'); if (!b) return;
+            b.disabled = true; b.textContent = 'Import en cours…';
+            var total = { ajoutes: 0, completes: 0, doublons: 0, fermes: 0, erreurs: [] };
+            try {
+                for (var i = 0; i < importEnAttente.length; i += 200) {
+                    var r = await api('/equipe/import', { method: 'POST', body: JSON.stringify({ lignes: importEnAttente.slice(i, i + 200) }) });
+                    ['ajoutes', 'completes', 'doublons', 'fermes'].forEach(function (k) { total[k] += r[k] || 0; });
+                    total.erreurs = total.erreurs.concat((r.erreurs || []).map(function (m) { return m.replace(/Ligne (\d+)/, function (x, n) { return 'Ligne ' + (+n + i); }); }));
+                }
+                $('glImpApercu').innerHTML = '<div class="gl-imp-bilan"><p><b>Import terminé.</b></p><ul>' +
+                    '<li>' + total.ajoutes + ' établissement(s) ajouté(s)</li><li>' + total.completes + ' fiche(s) existante(s) complétée(s)</li>' +
+                    '<li>' + total.doublons + ' doublon(s) déjà à jour</li><li>' + total.fermes + ' établissement(s) fermé(s) ignoré(s)</li></ul>' +
+                    (total.erreurs.length ? '<p class="gl-erreur">' + total.erreurs.length + ' ligne(s) non importée(s) :<br>' + total.erreurs.slice(0, 20).map(esc).join('<br>') + '</p>' : '') +
+                    '<p class="gl-aide">Les lieux « actifs confirmés » sont publiés et placés sur la carte dans les minutes qui suivent. Les autres attendent dans « Tous les lieux » (statut « En attente ») : vérifiez-les puis cliquez sur Publier.</p></div>';
+                importEnAttente = [];
+                chargerEquipe(); chargerModeration();
+            } catch (x) { toast(x.message, 'error'); b.disabled = false; b.textContent = 'Réessayer l\'import'; }
+        });
+    }
+
     async function chargerRegions() {
         try { REGIONS = (await api('/regions')).regions || []; } catch (e) { REGIONS = []; }
         remplirRegions(etat.region);
@@ -491,6 +578,7 @@
             var infos = [['Adresse', l.adresse], ['Horaires', aPlanning ? '' : l.horaires], ['Tarifs', aPlanning ? '' : l.tarifs], ['Équipements', l.equipements], ['Tenue', l.tenue]]
                 .filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('');
             if (l.telephone) infos += '<dt>Téléphone</dt><dd><a href="tel:' + esc(l.telephone.replace(/[^0-9+]/g, '')) + '">' + esc(l.telephone) + '</a></dd>';
+            if ((l.reseaux || []).length) infos += '<dt>Réseaux</dt><dd class="gl-reseaux">' + l.reseaux.map(function (u) { var h = u.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]; var n = /facebook|fb\./.test(h) ? 'Facebook' : /instagram/.test(h) ? 'Instagram' : /tiktok/.test(h) ? 'TikTok' : /twitter|x\.com/.test(h) ? 'X' : h; return '<a href="' + esc(u) + '" target="_blank" rel="noopener nofollow">' + esc(n) + '</a>'; }).join(' · ') + '</dd>';
             if (l.site) infos += '<dt>Site</dt><dd><a href="' + esc(l.site) + '" target="_blank" rel="noopener nofollow ugc">' + esc(l.site.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></dd>';
             var mon = d.monAvis;
             var avis = d.avis.map(function (a) {
@@ -566,6 +654,7 @@
             $('glEqQ').addEventListener('input', function () { clearTimeout(att); var v = this.value.trim(); att = setTimeout(function () { filtreEq.q = v; chargerEquipe(); }, 300); });
             $('glEqStatut').addEventListener('change', function () { filtreEq.statut = this.value; chargerEquipe(); });
             $('glEqAjouter').addEventListener('click', function () { ouvrirFormLieu(null); });
+            brancherImport();
             return;
         }
         var p = new URLSearchParams(location.search);
