@@ -192,7 +192,7 @@
         var aide = f.querySelector('.gl-aide'); if (aide) aide.textContent = l ? 'Les modifications sont visibles tout de suite sur la fiche.' : (equipe() ? 'Indiquez les informations publiques du lieu. Il sera publié tout de suite et placé sur la carte d\'après son adresse.' : 'Club, sauna ou soirée privée : indiquez les informations publiques du lieu. La fiche sera publiée après vérification par la modération.');
         remplirRegions(l ? l.region : etat.region);
         if (l) {
-            ['nom', 'type', 'ville', 'adresse', 'equipements', 'tenue', 'site', 'description', 'tarifs'].forEach(function (k) { if (f[k]) f[k].value = l[k] || ''; });
+            ['nom', 'type', 'ville', 'adresse', 'telephone', 'equipements', 'tenue', 'site', 'description', 'tarifs'].forEach(function (k) { if (f[k]) f[k].value = l[k] || ''; });
             if (f.precisionPublic) f.precisionPublic.value = l.precisionPublic || '';
             f.querySelectorAll('input[name=publics]').forEach(function (c) { c.checked = (l.publics || []).indexOf(c.value) >= 0; });
             // Anciennes fiches : horaires en texte libre → recopiés dans « précisions » pour ne rien perdre
@@ -394,6 +394,7 @@
             var aPlanning = (l.planning || []).length;
             var infos = [['Adresse', l.adresse], ['Horaires', aPlanning ? '' : l.horaires], ['Tarifs', aPlanning ? '' : l.tarifs], ['Équipements', l.equipements], ['Tenue', l.tenue]]
                 .filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('');
+            if (l.telephone) infos += '<dt>Téléphone</dt><dd><a href="tel:' + esc(l.telephone.replace(/[^0-9+]/g, '')) + '">' + esc(l.telephone) + '</a></dd>';
             if (l.site) infos += '<dt>Site</dt><dd><a href="' + esc(l.site) + '" target="_blank" rel="noopener nofollow ugc">' + esc(l.site.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></dd>';
             var mon = d.monAvis;
             var avis = d.avis.map(function (a) {
