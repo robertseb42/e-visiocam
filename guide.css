@@ -198,6 +198,16 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-creneau .gl-champ input{background:var(--g-panel)}
 .gl-rouge{color:var(--g-danger)}
 
+/* Coller les horaires */
+.gl-coller{border:1px dashed var(--g-accent);border-radius:14px;padding:10px 14px;background:rgba(255,229,0,.05)}
+.gl-coller summary{cursor:pointer;font-weight:800;font-size:14px;color:var(--g-accent);min-height:32px;display:flex;align-items:center;gap:8px}
+.gl-coller[open] summary{margin-bottom:8px}
+.gl-coller .gl-aide{margin:0 0 8px}
+.gl-coller textarea{width:100%;min-height:150px;padding:10px 12px;border-radius:10px;border:1px solid var(--g-border);background:var(--g-panel);color:var(--g-text);font:13px/1.5 Inter,Arial,sans-serif;resize:vertical}
+.gl-coller textarea:focus{outline:none;border-color:var(--g-accent)}
+.gl-coller-pied{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px}
+.gl-coller-pied .gl-aide{margin:0}
+
 /* ---------- Horaires et tarifs : fiche ---------- */
 .gl-horaires{display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:18px;background:var(--g-panel);border:1px solid var(--g-border)}
 .gl-horaires-tete{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}

@@ -24,7 +24,7 @@
 <script src="nav-auth.js?v=10"></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
-    <link rel="stylesheet" href="guide.css?v=7">
+    <link rel="stylesheet" href="guide.css?v=8">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
@@ -131,6 +131,11 @@
             <label class="gl-champ"><span>Précision sur le public</span><input name="precisionPublic" maxlength="120" placeholder="ex. hommes seuls le jeudi uniquement"></label>
             <fieldset class="gl-champ gl-planning-bloc"><legend>Horaires et tarifs</legend>
                 <p class="gl-aide">Un créneau par espace et par horaire (ex. sauna l'après-midi, discothèque le soir). Cochez les jours concernés ; un créneau qui finit après minuit se termine le lendemain. Laissez un prix vide s'il n'est pas connu.</p>
+                <details class="gl-coller"><summary><i class="fa-solid fa-paste" aria-hidden="true"></i> Gagner du temps : coller les horaires depuis un texte</summary>
+                    <p class="gl-aide">Copiez les horaires tels qu'ils sont sur le site ou la page Facebook du lieu (un jour ou un groupe de jours avec ses heures, puis une ligne par tarif). Les créneaux se remplissent tout seuls : il ne reste qu'à vérifier.</p>
+                    <textarea data-coller rows="8" placeholder="Mardi soir : 19h - 1h&#10;Femme seule : offert&#10;Couple : 20€&#10;Homme seul : 50€ avec 2 consos&#10;Mercredi, vendredi et samedi : 14h - 19h&#10;…"></textarea>
+                    <div class="gl-coller-pied"><button type="button" class="gl-btn gl-btn-jaune" data-coller-go>Créer les créneaux</button><span data-coller-msg class="gl-aide" role="status"></span></div>
+                </details>
                 <div class="gl-planning" data-planning></div>
                 <button type="button" class="gl-btn" data-creneau-ajout><i class="fa-solid fa-plus" aria-hidden="true"></i> Ajouter un créneau</button>
             </fieldset>
@@ -161,7 +166,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=10"></script>
+<script src="pages/guide.js?v=11"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=8" defer></script>

@@ -297,6 +297,87 @@
         ouvrir('glFenetreLieu');
     }
 
+    // ============================================================
+    // HORAIRES COLLÉS EN TEXTE → créneaux (le texte tel qu'il est sur le site du club ou Facebook)
+    // Ex. « Mercredi, Vendredi et Samedi AM: 14h -19h » puis « Femme seule : OFFERT », « Homme seul : 50€ avec 2 consos »…
+    // ============================================================
+    var NOMS_JOURS = { lundi: 1, mardi: 2, mercredi: 3, jeudi: 4, vendredi: 5, samedi: 6, dimanche: 7 };
+    var RE_PLAGE = /(\d{1,2})\s*(?:h|:)(\d{2})?\s*(?:-|–|—|à|a|jusqu'?à)\s*(\d{1,2})\s*(?:h|:)?(\d{2}(?!\d))?/i;
+    function minusc(t) { return String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+    function joursDans(ligne) {
+        var t = minusc(ligne), j = [];
+        if (/tous les jours|7j\/7|7 jours sur 7/.test(t)) return [1, 2, 3, 4, 5, 6, 7];
+        var du = t.match(/du\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+au\s+(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)/);
+        if (du) { for (var d = NOMS_JOURS[du[1]]; ; d = d % 7 + 1) { j.push(d); if (d === NOMS_JOURS[du[2]]) break; } }
+        Object.keys(NOMS_JOURS).forEach(function (n) { if (new RegExp('\\b' + n + 's?\\b').test(t) && j.indexOf(NOMS_JOURS[n]) < 0) j.push(NOMS_JOURS[n]); });
+        return j.sort(function (a, b) { return a - b; });
+    }
+    function heure(h, m) { h = +h; if (h === 24) h = 0; return (h < 10 ? '0' : '') + h + ':' + (m || '00'); }
+    function prixDe(t) {
+        var s = minusc(t);
+        if (/offert|gratuit|free/.test(s)) return { prix: 0 };
+        if (/pas autoris|non autoris|interdit|non admis|pas admis|refus/.test(s)) return { refuse: true };
+        var m = s.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:€|euros?|eur)/) || s.match(/^\s*(\d+(?:[.,]\d{1,2})?)\b/);
+        return m ? { prix: Number(m[1].replace(',', '.')) } : null;
+    }
+    function analyserHoraires(texte) {
+        var blocs = [], bloc = null, joursEnAttente = null, sousPrix = null, general = [];
+        var CAT = [[/^femmes?(\s+seules?)?\b/, 'femmes', 'Femmes'], [/^couples?\b/, 'couples', 'Couples'], [/^hommes?(\s+seuls?)?\b/, 'hommes', 'Hommes']];
+        function ajouterNote(b, t) { t = t.trim(); if (!t) return; b.note = (b.note ? b.note + ' · ' : '') + t; }
+        String(texte || '').split(/\r?\n/).forEach(function (brut) {
+            var l = brut.trim(); if (!l) return;
+            var t = minusc(l).replace(/^[-•*\s]+/, '');
+            var jours = joursDans(l), plage = l.match(RE_PLAGE);
+            // 1) En-tête de créneau : des jours (ou des jours mis en attente) + une plage horaire
+            if ((jours.length || joursEnAttente) && plage && !CAT.some(function (c) { return c[0].test(t); })) {
+                var titre = l.replace(RE_PLAGE, ' ').replace(/\*/g, ' ')
+                    .replace(/\b(du|au|et|de|à|a partir|tous les jours|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)s?\b/gi, ' ')
+                    .replace(/(^|\s)(am|pm|apr[eè]s[- ]midi|soir|matin|midi|journ[ée]e)(?=\s|$|[:,+])/gi, ' ')
+                    .replace(/[,:+&\/–—-]/g, ' ').replace(/\s+/g, ' ').trim();
+                bloc = { jours: jours.length ? jours : joursEnAttente, espace: '', debut: heure(plage[1], plage[2]), fin: heure(plage[3], plage[4]), titre: titre, public: '', note: '', prix: { hommes: '', femmes: '', couples: '' } };
+                blocs.push(bloc); joursEnAttente = null; sousPrix = null; return;
+            }
+            // 2) Des jours seuls (l'horaire est sur la ligne suivante)
+            if (jours.length && !plage && !CAT.some(function (c) { return c[0].test(t); }) && t.length < 60) { joursEnAttente = jours; return; }
+            // 3) Renvoi « * Sauf… » : précision sur le créneau précédent
+            if (/^\*/.test(l)) { if (bloc) ajouterNote(bloc, l.replace(/^\*+\s*/, '')); else general.push(l.replace(/^\*+\s*/, '')); return; }
+            if (!bloc) { general.push(l); return; }
+            // 4) Ligne de prix : « Homme seul : 50€ avec 2 consos »
+            var cat = null; CAT.forEach(function (c) { if (!cat && c[0].test(t)) cat = c; });
+            if (cat) {
+                var reste = l.replace(/^[-•*\s]*/, '').replace(/^[^:]*:\s*/, l.indexOf(':') >= 0 ? '' : '$&');
+                if (l.indexOf(':') < 0) reste = l.replace(/^[-•*\s]*\S+(\s+seule?s?)?(\s+f\/h|\s+h\/f)?/i, '');
+                var p = prixDe(reste);
+                if (p && p.refuse) { bloc.prix[cat[1]] = ''; bloc.public = (bloc.public ? bloc.public + ' · ' : '') + cat[2] + ' seuls non admis'; sousPrix = null; return; }
+                if (p) bloc.prix[cat[1]] = p.prix;
+                var detail = reste.replace(/^\s*(offert|gratuit)\s*/i, '').replace(/^\s*\d+(?:[.,]\d{1,2})?\s*(?:€|euros?|eur)?\s*/i, '').trim();
+                if (detail) ajouterNote(bloc, cat[2] + ' : ' + detail);
+                sousPrix = p ? null : cat; // pas de prix sur la ligne → les lignes « - 40€ avant 19h » suivent
+                return;
+            }
+            // 5) Sous-lignes de prix (« - 40€ avant 19h ») ou précision libre
+            if (sousPrix && /^[-•]/.test(l)) {
+                var sp = prixDe(l);
+                if (sp && !sp.refuse && bloc.prix[sousPrix[1]] === '') bloc.prix[sousPrix[1]] = sp.prix;
+                ajouterNote(bloc, sousPrix[2] + ' : ' + l.replace(/^[-•\s]+/, ''));
+                return;
+            }
+            ajouterNote(bloc, l);
+        });
+        blocs.forEach(function (b) { b.note = b.note.slice(0, 200); b.titre = b.titre.slice(0, 80); b.public = b.public.slice(0, 120); });
+        return { creneaux: blocs, reste: general.join('\n') };
+    }
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-coller-go]'); if (!b) return;
+        var f = b.closest('form'), zone = f.querySelector('[data-coller]'), msg = f.querySelector('[data-coller-msg]');
+        var r = analyserHoraires(zone.value);
+        if (!r.creneaux.length) { msg.textContent = 'Aucun horaire reconnu. Il faut au moins une ligne avec un jour et une plage horaire (ex. « Samedi : 21h - 5h »).'; return; }
+        remplirPlanning(f, r.creneaux);
+        if (r.reste && f.tarifs && f.tarifs.value.indexOf(r.reste) < 0) f.tarifs.value = (f.tarifs.value ? f.tarifs.value + '\n' : '') + r.reste;
+        msg.textContent = r.creneaux.length + ' créneau(x) créé(s). Vérifiez-les ci-dessous (jours, heures, prix), complétez l\'espace si besoin, puis enregistrez.';
+        f.querySelector('.gl-creneau').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
     // ---------- Proposer un lieu / un bon plan ----------
     function brancherFormulaires() {
         var fl = $('glFormLieu');
