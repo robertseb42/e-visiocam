@@ -90,7 +90,7 @@
     }
     function rendreLigne(s) {
         var d = new Date(s.debut), live = enCours(s, maintenant());
-        return '<li class="ev-ligne">' +
+        return '<li class="ev-ligne' + (s.type === 'soiree' ? ' ev-ligne--disco' : '') + '">' +
             '<span class="ev-date" aria-hidden="true"><b>' + esc(fJourCourt.format(d).replace('.', '')) + '</b><strong>' + esc(fNum.format(d)) + '</strong></span>' +
             '<div class="ev-ligne-txt"><h3><i class="fa-solid ' + icone(s) + '" aria-hidden="true" style="color:var(--h-pink);margin-right:6px"></i>' + esc(s.titre) + '</h3>' +
             '<p>' + (live ? '<span class="ev-badge ev-badge-live" style="padding:1px 7px;font-size:10px">En cours</span> ' : esc(quand(s)) + ' · ') + esc(s.salon_nom) + '</p></div>' +
