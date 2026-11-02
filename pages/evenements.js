@@ -30,6 +30,7 @@
     var connecte = function () { return typeof isLoggedIn === 'function' && isLoggedIn(); };
     var toast = function (m, t) { if (typeof showToast === 'function') showToast(m, t); };
     var ICONES = { soiree: 'fa-compact-disc', quiz: 'fa-brain', blindtest: 'fa-headphones', autre: 'fa-calendar-day' };
+    var VISUELS = { soiree: 1, quiz: 1, blindtest: 1 };   // types qui ont une image (img/seance-<type>.webp)
     var icone = function (s) { return ICONES[s.type] || 'fa-calendar'; };
 
     // ---------- Dates (heure de Paris : le site et ses soirées sont en France) ----------
@@ -90,7 +91,7 @@
     }
     function rendreLigne(s) {
         var d = new Date(s.debut), live = enCours(s, maintenant());
-        return '<li class="ev-ligne' + (s.type === 'soiree' ? ' ev-ligne--disco' : '') + '">' +
+        return '<li class="ev-ligne' + (VISUELS[s.type] ? ' ev-ligne--visuel ev-ligne--' + s.type : '') + '">' +
             '<span class="ev-date" aria-hidden="true"><b>' + esc(fJourCourt.format(d).replace('.', '')) + '</b><strong>' + esc(fNum.format(d)) + '</strong></span>' +
             '<div class="ev-ligne-txt"><h3><i class="fa-solid ' + icone(s) + '" aria-hidden="true" style="color:var(--h-pink);margin-right:6px"></i>' + esc(s.titre) + '</h3>' +
             '<p>' + (live ? '<span class="ev-badge ev-badge-live" style="padding:1px 7px;font-size:10px">En cours</span> ' : esc(quand(s)) + ' · ') + esc(s.salon_nom) + '</p></div>' +
@@ -115,7 +116,7 @@
             return '<button type="button" data-une="' + i + '" aria-label="Voir : ' + esc(x.titre) + '"' + (i === uneIdx ? ' aria-current="true"' : '') + '></button>';
         }).join('') + '</div>' : '';
         zoneUne.innerHTML = rendreUne(s) + points;
-        zoneUne.className = zoneUne.className.replace(/\s*ev-une--[a-z]+/g, '') + ' ev-une--' + (s.type || 'autre') + (s.type === 'soiree' ? ' ev-une--disco' : '');
+        zoneUne.className = zoneUne.className.replace(/\s*ev-une--[a-z]+/g, '') + ' ev-une--' + (s.type || 'autre') + (VISUELS[s.type] ? ' ev-une--visuel' : '');
         uneDepuis = Date.now();
         compteur();
     }
