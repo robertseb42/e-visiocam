@@ -294,6 +294,13 @@
             if (!(l.planning || []).length && l.horaires && f.tarifs && f.tarifs.value.indexOf(l.horaires) < 0) f.tarifs.value = ('Horaires : ' + l.horaires + (f.tarifs.value ? '\n' + f.tarifs.value : '')).slice(0, 600);
         }
         remplirPlanning(f, l ? l.planning : []);
+        var bv = f.querySelector('[data-equipe-seul]');
+        if (bv) {
+            bv.hidden = !equipe();
+            if (f.verifie) f.verifie.checked = false;
+            var ev = f.querySelector('[data-verif-etat]');
+            if (ev) ev.textContent = l && l.verifieLe ? 'Dernière vérification : ' + dateFr(l.verifieLe) + (l.verifiePar ? ' par ' + l.verifiePar : '') + '.' : 'Cette fiche n\'a encore jamais été vérifiée par l\'équipe.';
+        }
         ouvrir('glFenetreLieu');
     }
 
@@ -436,6 +443,7 @@
             var d = Object.fromEntries(new FormData(fl).entries());
             d.publics = [].slice.call(fl.querySelectorAll('input[name=publics]:checked')).map(function (x) { return x.value; });
             d.planning = lirePlanningForm(fl);
+            d.verifie = !!(fl.verifie && fl.verifie.checked && equipe());
             d.types = [].slice.call(fl.querySelectorAll('input[name=types]:checked')).map(function (x) { return x.value; });
             var id = fl.dataset.id;
             try {
@@ -597,7 +605,7 @@
             z.innerHTML = d.lieux.length ? d.lieux.map(function (l) {
                 var nbCr = (l.planning || []).length;
                 return '<article class="gl-eq-lieu"><label class="gl-eq-case"><input type="checkbox" data-choix="' + l.id + '"' + (choisis[l.id] ? ' checked' : '') + '><span class="gl-sr">Sélectionner ' + esc(l.nom) + '</span></label><div class="gl-eq-txt"><b>' + esc(l.nom) + ' <span class="gl-pastille gl-st-' + l.statut + '">' + STATUTS[l.statut] + '</span></b>' +
-                    '<small>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + ' · ' + esc(l.regionNom) + ' · ' + (l.nbAvis ? l.nbAvis + ' avis' : 'aucun avis') + ' · ' + (nbCr ? nbCr + ' créneau(x) horaires' : '<span class="gl-manque">horaires à compléter</span>') + (l.lat == null ? ' · <span class="gl-manque">pas encore sur la carte</span>' : '') + '</small></div>' +
+                    '<small>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + ' · ' + esc(l.regionNom) + ' · ' + (l.nbAvis ? l.nbAvis + ' avis' : 'aucun avis') + ' · ' + (nbCr ? nbCr + ' créneau(x) horaires' : '<span class="gl-manque">horaires à compléter</span>') + ' · ' + (l.verifie ? '<span class="gl-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> vérifiée le ' + esc(dateFr(l.verifieLe)) + '</span>' : '<span class="gl-manque">non vérifiée</span>') + (l.lat == null ? ' · <span class="gl-manque">pas encore sur la carte</span>' : '') + '</small></div>' +
                     '<div class="gl-mod-actions"><button type="button" class="gl-btn gl-btn-jaune" data-edit-lieu="' + l.id + '"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier</button>' +
                     (l.statut === 'publie' ? '<a class="gl-btn" href="lieu.html?l=' + encodeURIComponent(l.slug) + '">Voir</a><button type="button" class="gl-btn gl-btn-rouge" data-mod="lieu" data-id="' + l.id + '" data-d="refuser">Retirer</button>'
                         : '<button type="button" class="gl-btn" data-mod="lieu" data-id="' + l.id + '" data-d="publier">Publier</button>') + '</div></article>';
@@ -631,7 +639,7 @@
         b.disabled = true;
         try {
             var r = await api('/equipe/lieux/action', { method: 'POST', body: JSON.stringify({ ids: ids, action: action }) });
-            toast(r.n + ' lieu(x) ' + ({ publier: 'publié(s)', retirer: 'retiré(s) du guide', supprimer: 'supprimé(s)' })[action], 'success');
+            toast(r.n + ' lieu(x) ' + ({ publier: 'publié(s)', retirer: 'retiré(s) du guide', supprimer: 'supprimé(s)', verifier: 'marqué(s) comme vérifié(s)' })[action], 'success');
             choisis = {}; chargerEquipe(); chargerModeration();
         } catch (x) { toast(x.message, 'error'); }
         b.disabled = false;

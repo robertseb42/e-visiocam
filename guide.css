@@ -296,6 +296,12 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-eq-case input{width:20px;height:20px;accent-color:var(--g-accent)}
 .gl-eq-lieu .gl-eq-txt{flex:1}
 
+.gl-verif{align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid rgba(52,211,153,.35);background:rgba(52,211,153,.07);line-height:1.45}
+.gl-verif[hidden]{display:none}
+.gl-verif input{margin-top:2px;accent-color:var(--g-ok)}
+.gl-verif small{display:block;color:var(--g-muted);font-size:12px;margin-top:4px}
+.gl-ok{color:var(--g-ok)}
+
 /* ---------- Équipe ---------- */
 .gl-import .gl-aide{margin:0 0 8px}
 .gl-imp-regles{padding-left:18px;margin:0 0 14px}
