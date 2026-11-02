@@ -198,6 +198,49 @@
         }).join('') + '</div></div>';
     }
 
+    // ---- Habitués du lieu : membres qui se déclarent clients (visible des seuls membres connectés) ----
+    function habituesHTML(h) {
+        h = h || { nombre: 0, moi: false };
+        return '<section class="gl-encart gl-habitues" id="glHabitues"><h2><i class="fa-solid fa-user-group" aria-hidden="true"></i> Les habitués <span id="glHabNb">' + (h.nombre ? '(' + h.nombre + ')' : '') + '</span></h2>' +
+            '<p>Vous fréquentez ce lieu ? Déclarez-vous client pour échanger avec les autres habitués.</p>' +
+            '<button type="button" class="gl-btn ' + (h.moi ? '' : 'gl-btn-jaune') + '" id="glHabBouton" aria-pressed="' + h.moi + '">' + (h.moi ? '<i class="fa-solid fa-check" aria-hidden="true"></i> Je suis client · me retirer' : 'Je suis client de ce lieu') + '</button>' +
+            '<div id="glHabListe" class="gl-hab-liste">' + (connecte() ? '' : '<p class="gl-vide-plan"><a class="gl-lien" href="login.html">Connectez-vous</a> pour voir qui fréquente ce lieu.</p>') + '</div>' +
+            '<small class="gl-aide">Votre pseudo n\'est visible que des membres connectés. Vous pouvez vous retirer à tout moment.</small></section>';
+    }
+    async function chargerHabitues(lieu) {
+        var z = $('glHabListe'); if (!z || !connecte()) return;
+        try {
+            var d = await api('/lieux/' + lieu.id + '/habitues');
+            z.innerHTML = d.membres.length ? '<ul>' + d.membres.map(function (m) {
+                var av = typeof urlAvatar === 'function' ? urlAvatar(m.avatar) : null;
+                return '<li><a class="gl-hab-membre" href="membre.html?u=' + encodeURIComponent(m.pseudo) + '">' +
+                    (av ? '<img src="' + esc(av) + '" alt="" loading="lazy">' : '<span class="gl-hab-init" aria-hidden="true">' + esc(m.pseudo.charAt(0).toUpperCase()) + '</span>') +
+                    '<b>' + esc(m.pseudo) + (m.moi ? ' (vous)' : '') + '</b></a>' +
+                    (m.moi ? '' : '<a class="gl-hab-ecrire" href="messages.html?ecrire=' + m.id + '" aria-label="Écrire à ' + esc(m.pseudo) + '"><i class="fa-solid fa-envelope" aria-hidden="true"></i></a>') + '</li>';
+            }).join('') + '</ul>' : '<p class="gl-vide-plan">Personne ne s\'est encore déclaré client. Soyez le premier !</p>';
+        } catch (x) { z.innerHTML = ''; }
+    }
+    function brancherHabitues(lieu, h) {
+        var b = $('glHabBouton'); if (!b) return;
+        var moi = !!(h && h.moi);
+        chargerHabitues(lieu);
+        b.addEventListener('click', async function () {
+            if (!connecte()) return versConnexion();
+            b.disabled = true;
+            try {
+                var r = await api('/lieux/' + lieu.id + '/habitue', { method: moi ? 'DELETE' : 'POST' });
+                moi = !moi;
+                b.setAttribute('aria-pressed', String(moi));
+                b.className = 'gl-btn' + (moi ? '' : ' gl-btn-jaune');
+                b.innerHTML = moi ? '<i class="fa-solid fa-check" aria-hidden="true"></i> Je suis client · me retirer' : 'Je suis client de ce lieu';
+                $('glHabNb').textContent = r.nombre ? '(' + r.nombre + ')' : '';
+                toast(moi ? 'Vous apparaissez dans la liste des habitués.' : 'Vous n\'apparaissez plus dans la liste.', 'success');
+                chargerHabitues(lieu);
+            } catch (x) { toast(x.message, 'error'); }
+            b.disabled = false;
+        });
+    }
+
     // ---- Formulaire lieu : proposer (POST) ou modifier (PUT, équipe) ----
     function ouvrirFormLieu(l) {
         var f = $('glFormLieu'); if (!f) return;
@@ -438,6 +481,7 @@
                 (avis || '<p class="gl-vide">Soyez le premier à donner votre avis sur ce lieu.</p>') + '</section></div>' +
                 '<aside class="gl-fiche-cote">' +
                 '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div>' + itineraire(l) + '</section>' +
+                habituesHTML(d.habitues) +
                 '<section class="gl-encart"><h2>Bons plans</h2>' + (d.bonsPlans.length ? '<ul class="gl-plans-fiche">' + d.bonsPlans.map(function (b) { return '<li>' + esc(b.texte) + '<small>' + esc(dateFr(b.date)) + '</small></li>'; }).join('') + '</ul>' : '<p class="gl-vide-plan">Pas encore de bon plan.</p>') + '<button type="button" class="gl-lien-btn" id="glPlanLieu">Partager un bon plan →</button></section>' +
                 '<section class="gl-encart gl-pointille"><b>Vous gérez ce lieu ?</b><p>Contactez-nous pour mettre la fiche à jour, ajouter vos photos officielles et répondre aux avis.</p><a class="gl-lien" href="contact.html">Revendiquer cette fiche →</a></section>' +
                 (l.salon ? '<a class="gl-btn gl-large" href="chat.html?theme=' + encodeURIComponent(l.salon) + '">Discuter dans le salon ' + esc(l.regionNom) + '</a>' : '') +
@@ -458,6 +502,7 @@
                 ouvrir('glFenetreAvis');
             });
             if ($('glModifierLieu')) $('glModifierLieu').addEventListener('click', function () { ouvrirFormLieu(l); });
+            brancherHabitues(l, d.habitues);
             $('glPlanLieu').addEventListener('click', function () { if (!connecte()) return versConnexion(); ouvrir('glFenetrePlan'); });
         } catch (e) {
             if (window.console) console.warn('Guide', e);

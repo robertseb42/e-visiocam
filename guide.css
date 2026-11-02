@@ -238,6 +238,20 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-gps div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .gl-gps .gl-btn{min-height:44px;padding:8px 6px;font-size:12px;gap:6px}
 
+/* ---------- Habitués ---------- */
+.gl-habitues h2 i{color:var(--g-pink);margin-right:4px}
+.gl-habitues h2 span{color:var(--g-muted);font-weight:600}
+.gl-habitues .gl-aide{font-size:12px}
+.gl-hab-liste ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto}
+.gl-hab-liste li{display:flex;align-items:center;gap:8px}
+.gl-hab-membre{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 8px;border-radius:10px;color:var(--g-text)!important;text-decoration:none}
+.gl-hab-membre:hover{background:var(--g-panel2)}
+.gl-hab-membre img,.gl-hab-init{width:34px;height:34px;border-radius:50%;flex:none;object-fit:cover}
+.gl-hab-init{display:flex;align-items:center;justify-content:center;background:var(--g-pink-bg);color:var(--g-pink);font-weight:800}
+.gl-hab-membre b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gl-hab-ecrire{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--g-border);color:var(--g-accent)!important}
+.gl-hab-ecrire:hover{border-color:var(--g-accent)}
+
 /* ---------- Équipe ---------- */
 .gl-tete-actions{display:flex;gap:10px;flex-wrap:wrap}
 .gl-btn-equipe{align-self:flex-start;min-height:40px;padding:8px 14px;font-size:13px}
