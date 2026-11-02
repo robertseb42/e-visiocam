@@ -109,10 +109,12 @@
         var a_venir = seances.filter(function (s) { return Date.parse(s.fin) > t; });
         if (zoneUne) {
             if (!a_venir.length) {
+                zoneUne.classList.remove('ev-une--disco');
                 zoneUne.innerHTML = '<p class="ev-soirees-vide">Aucune soirée programmée pour le moment. Les salons restent ouverts à toute heure.</p>';
                 if (zoneListe) zoneListe.innerHTML = '';
             } else {
                 zoneUne.innerHTML = rendreUne(a_venir[0]);
+                zoneUne.classList.toggle('ev-une--disco', a_venir[0].type === 'soiree');   // visuel micro + boule à facettes
                 if (zoneListe) zoneListe.innerHTML = a_venir.slice(1, 4).map(rendreLigne).join('');
             }
         }

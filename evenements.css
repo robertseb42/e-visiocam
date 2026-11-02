@@ -76,3 +76,10 @@ html[data-theme="light"] .ev-mini-live{background:#e91e63;border-color:#e91e63;c
 .ev-prog-texte h3{margin:16px 0 4px;font-size:15px;font-weight:800}
 .ev-prog-texte p{margin:0 0 8px;font-size:14px;line-height:1.6;color:var(--h-muted)}
 .ev-prog-texte a{color:var(--h-yellow);font-weight:700}
+
+/* Prochaine soirée disco : visuel micro + boule à facettes (texte sur la partie sombre à gauche) */
+.ev-une.ev-une--disco{--h-text:#fff;--h-muted:#e6d8df;--h-border:rgba(255,255,255,.2);--h-panel:rgba(14,6,12,.6);--h-yellow:#ffe500;color:#fff;border-color:#4a2a3a;min-height:300px!important;padding:26px 28px;
+  background:linear-gradient(90deg,#140810 0%,rgba(20,8,16,.92) 40%,rgba(20,8,16,.35) 62%,rgba(20,8,16,0) 78%),url("img/soiree-disco.webp") right center/cover no-repeat,#140810}
+.ev-une.ev-une--disco>*{max-width:560px}
+.ev-une.ev-une--disco .ev-badge:not(.ev-badge-live){background:rgba(255,255,255,.14);color:#fff}
+@media(max-width:700px){.ev-une.ev-une--disco{padding:20px 18px;background:linear-gradient(180deg,rgba(20,8,16,.55) 0%,rgba(20,8,16,.88) 55%,#140810 100%),url("img/soiree-disco.webp") 78% center/cover no-repeat,#140810}}
