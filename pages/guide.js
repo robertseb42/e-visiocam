@@ -182,6 +182,22 @@
             '<p class="gl-maj">Infos données à titre indicatif' + (l.majLe ? ', mises à jour le ' + esc(dateFr(l.majLe)) : '') + '. Vérifiez auprès de l\'établissement avant de vous déplacer.</p></section>';
     }
 
+    // Boutons « Y aller » : ouvrent le GPS du téléphone (Google Maps, Waze, Plans d'Apple) sur l'adresse du lieu
+    function itineraire(l) {
+        var pos = l.lat != null ? l.lat + ',' + l.lng : '';
+        var adr = [l.adresse, l.ville].filter(Boolean).join(', ');
+        if (!pos && !adr) return '';
+        var q = encodeURIComponent(pos || adr + ', France');
+        var liens = [
+            ['Google Maps', 'fa-brands fa-google', 'https://www.google.com/maps/dir/?api=1&destination=' + q],
+            ['Waze', 'fa-brands fa-waze', pos ? 'https://waze.com/ul?ll=' + q + '&navigate=yes' : 'https://waze.com/ul?q=' + q + '&navigate=yes'],
+            ['Plans (iPhone)', 'fa-brands fa-apple', 'https://maps.apple.com/?daddr=' + q]
+        ];
+        return '<div class="gl-gps"><b><i class="fa-solid fa-route" aria-hidden="true"></i> Y aller</b><div>' + liens.map(function (x) {
+            return '<a class="gl-btn" href="' + x[2] + '" target="_blank" rel="noopener"><i class="' + x[1] + '" aria-hidden="true"></i> ' + x[0] + '</a>';
+        }).join('') + '</div></div>';
+    }
+
     // ---- Formulaire lieu : proposer (POST) ou modifier (PUT, équipe) ----
     function ouvrirFormLieu(l) {
         var f = $('glFormLieu'); if (!f) return;
@@ -195,6 +211,7 @@
             ['nom', 'type', 'ville', 'adresse', 'telephone', 'equipements', 'tenue', 'site', 'description', 'tarifs'].forEach(function (k) { if (f[k]) f[k].value = l[k] || ''; });
             if (f.precisionPublic) f.precisionPublic.value = l.precisionPublic || '';
             f.querySelectorAll('input[name=publics]').forEach(function (c) { c.checked = (l.publics || []).indexOf(c.value) >= 0; });
+            f.querySelectorAll('input[name=types]').forEach(function (c) { c.checked = c.value !== l.type && (l.types || []).indexOf(c.value) >= 0; });
             // Anciennes fiches : horaires en texte libre → recopiés dans « précisions » pour ne rien perdre
             if (!(l.planning || []).length && l.horaires && f.tarifs && f.tarifs.value.indexOf(l.horaires) < 0) f.tarifs.value = ('Horaires : ' + l.horaires + (f.tarifs.value ? '\n' + f.tarifs.value : '')).slice(0, 600);
         }
@@ -210,6 +227,7 @@
             var d = Object.fromEntries(new FormData(fl).entries());
             d.publics = [].slice.call(fl.querySelectorAll('input[name=publics]:checked')).map(function (x) { return x.value; });
             d.planning = lirePlanningForm(fl);
+            d.types = [].slice.call(fl.querySelectorAll('input[name=types]:checked')).map(function (x) { return x.value; });
             var id = fl.dataset.id;
             try {
                 var r = await api(id ? '/lieux/' + id : '/lieux', { method: id ? 'PUT' : 'POST', body: JSON.stringify(d) });
@@ -419,7 +437,7 @@
                 (mon && mon.statut !== 'publie' ? '<p class="gl-attente">' + (mon.statut === 'attente' ? 'Votre avis est en cours de relecture par la modération.' : 'Votre avis n\'a pas été publié' + (mon.motif ? ' : ' + esc(mon.motif) : '.') + ' Vous pouvez le modifier.') + '</p>' : '') +
                 (avis || '<p class="gl-vide">Soyez le premier à donner votre avis sur ce lieu.</p>') + '</section></div>' +
                 '<aside class="gl-fiche-cote">' +
-                '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div></section>' +
+                '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div>' + itineraire(l) + '</section>' +
                 '<section class="gl-encart"><h2>Bons plans</h2>' + (d.bonsPlans.length ? '<ul class="gl-plans-fiche">' + d.bonsPlans.map(function (b) { return '<li>' + esc(b.texte) + '<small>' + esc(dateFr(b.date)) + '</small></li>'; }).join('') + '</ul>' : '<p class="gl-vide-plan">Pas encore de bon plan.</p>') + '<button type="button" class="gl-lien-btn" id="glPlanLieu">Partager un bon plan →</button></section>' +
                 '<section class="gl-encart gl-pointille"><b>Vous gérez ce lieu ?</b><p>Contactez-nous pour mettre la fiche à jour, ajouter vos photos officielles et répondre aux avis.</p><a class="gl-lien" href="contact.html">Revendiquer cette fiche →</a></section>' +
                 (l.salon ? '<a class="gl-btn gl-large" href="chat.html?theme=' + encodeURIComponent(l.salon) + '">Discuter dans le salon ' + esc(l.regionNom) + '</a>' : '') +

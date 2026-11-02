@@ -24,7 +24,7 @@
 <script src="nav-auth.js?v=10"></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
-    <link rel="stylesheet" href="guide.css?v=3">
+    <link rel="stylesheet" href="guide.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
     <script src="maintenance.js" defer></script>
@@ -127,13 +127,18 @@
             <p class="gl-aide">Club, sauna ou soirée privée : indiquez les informations publiques du lieu. La fiche sera publiée après vérification par la modération.</p>
             <label class="gl-champ"><span>Nom du lieu *</span><input name="nom" maxlength="80" required></label>
             <div class="gl-deux">
-                <label class="gl-champ"><span>Type *</span><select name="type"><option value="club">Club</option><option value="sauna">Sauna</option><option value="soiree">Soirée privée</option><option value="autre">Autre lieu</option></select></label>
+                <label class="gl-champ"><span>Type principal *</span><select name="type"><option value="club">Club</option><option value="sauna">Sauna</option><option value="soiree">Soirée privée</option><option value="autre">Autre lieu</option></select></label>
                 <label class="gl-champ"><span>Région *</span><select name="region" data-regions required></select></label>
             </div>
             <div class="gl-deux">
                 <label class="gl-champ"><span>Ville *</span><input name="ville" maxlength="60" required></label>
                 <label class="gl-champ"><span>Adresse</span><input name="adresse" maxlength="160" placeholder="Pour placer le lieu sur la carte"></label>
             </div>
+            <fieldset class="gl-champ"><legend>Le lieu propose aussi (facultatif)</legend>
+                <label class="gl-case"><input type="checkbox" name="types" value="club"> Club / discothèque</label>
+                <label class="gl-case"><input type="checkbox" name="types" value="sauna"> Sauna / spa</label>
+                <label class="gl-case"><input type="checkbox" name="types" value="soiree"> Soirées privées</label>
+            </fieldset>
             <fieldset class="gl-champ"><legend>Public accepté</legend>
                 <label class="gl-case"><input type="checkbox" name="publics" value="couples"> Couples</label>
                 <label class="gl-case"><input type="checkbox" name="publics" value="femmes"> Femmes seules</label>
@@ -172,7 +177,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=5"></script>
+<script src="pages/guide.js?v=7"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=8" defer></script>

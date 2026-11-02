@@ -231,6 +231,13 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-ouvert{font-style:normal;font-size:11px;font-weight:800;color:var(--g-ok);background:rgba(52,211,153,.14);padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
 .gl-puces #glOuvert i{margin-right:4px}
 
+/* ---------- Itinéraire GPS ---------- */
+.gl-gps{display:flex;flex-direction:column;gap:8px}
+.gl-gps b{font-size:14px}
+.gl-gps b i{color:var(--g-accent);margin-right:4px}
+.gl-gps div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.gl-gps .gl-btn{min-height:44px;padding:8px 6px;font-size:12px;gap:6px}
+
 /* ---------- Équipe ---------- */
 .gl-tete-actions{display:flex;gap:10px;flex-wrap:wrap}
 .gl-btn-equipe{align-self:flex-start;min-height:40px;padding:8px 14px;font-size:13px}
