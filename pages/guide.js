@@ -367,14 +367,64 @@
         blocs.forEach(function (b) { b.note = b.note.slice(0, 200); b.titre = b.titre.slice(0, 80); b.public = b.public.slice(0, 120); });
         return { creneaux: blocs, reste: general.join('\n') };
     }
+    // Deuxième forme courante : tarifs rangés PAR PUBLIC (« Hommes seuls » puis « Après-midi : 25 € », « Soir à partir de 20h : 30 €»…)
+    function analyserParPublic(texte) {
+        var RUB = [[/travesti|trans\b|transgenre/, 'autre', 'Travestis'], [/couples?.*(dames?|femmes?)|(dames?|femmes?).*couples?/, 'couples+femmes', ''],
+            [/^(les\s+)?(dames?|femmes?)(\s+seules?)?\b/, 'femmes', ''], [/^(les\s+)?couples?\b/, 'couples', ''], [/^(les\s+)?(hommes?|messieurs)(\s+seuls?)?\b/, 'hommes', '']];
+        var rubrique = null, periodes = {}, ordre = [], general = [], partout = [];
+        function cle(p) { return p.jours.join('') + '|' + p.debut + '|' + p.fin + '|' + p.titre; }
+        function periodeDe(t) {
+            var s = minusc(t), j = joursDans(t), plage = t.match(RE_PLAGE), dep = s.match(/(?:a partir de|apres|des|des)\s*(\d{1,2})\s*h\s*(\d{2})?/);
+            var titre = /apres[- ]?midi|journee|\bam\b/.test(s) ? 'Après-midi' : /soir|nuit/.test(s) ? 'Soirée' : /matin/.test(s) ? 'Matinée' : '';
+            return { jours: j.length ? j : [1, 2, 3, 4, 5, 6, 7], debut: plage ? heure(plage[1], plage[2]) : dep ? heure(dep[1], dep[2]) : '', fin: plage ? heure(plage[3], plage[4]) : '', titre: titre };
+        }
+        function appliquer(per, prix, detail) {
+            var k = cle(per);
+            if (!periodes[k]) { periodes[k] = { jours: per.jours, espace: '', debut: per.debut, fin: per.fin, titre: per.titre, public: '', note: '', prix: { hommes: '', femmes: '', couples: '' } }; ordre.push(k); }
+            remplir(periodes[k], prix, detail);
+        }
+        function remplir(c, prix, detail) {
+            var cibles = rubrique[1] === 'couples+femmes' ? ['couples', 'femmes'] : [rubrique[1]];
+            if (rubrique[1] === 'autre') { c.note = (c.note ? c.note + ' · ' : '') + rubrique[2] + ' : ' + (prix && prix.prix === 0 ? 'offert' : prix ? String(prix.prix).replace('.', ',') + ' €' : detail); return; }
+            cibles.forEach(function (x) { if (prix && !prix.refuse) c.prix[x] = prix.prix; });
+            if (prix && prix.refuse) c.public = (c.public ? c.public + ' · ' : '') + (cibles[0] === 'hommes' ? 'Hommes seuls' : cibles[0] === 'femmes' ? 'Femmes seules' : 'Couples') + ' non admis';
+            if (detail) c.note = (c.note ? c.note + ' · ' : '') + detail;
+        }
+        String(texte || '').split(/\r?\n/).forEach(function (brut) {
+            var l = brut.replace(/^[\s*•·-]+/, '').trim(); if (!l) return;
+            var t = minusc(l), prix = prixDe(l.indexOf(':') >= 0 ? l.slice(l.indexOf(':') + 1) : l);
+            var r = null; RUB.forEach(function (x) { if (!r && x[0].test(t)) r = x; });
+            if (r && !prix && l.length < 50) { rubrique = r; return; }            // titre de rubrique
+            if (!rubrique || !prix || (l.indexOf(':') < 0 && l.length > 50)) { general.push(l); return; }
+            var avant = l.indexOf(':') >= 0 ? l.slice(0, l.indexOf(':')) : '';
+            var detail = (l.indexOf(':') >= 0 ? l.slice(l.indexOf(':') + 1) : l).replace(/^\s*(entr[ée]e\s+)?(offerte?|gratuite?)\s*/i, '').replace(/^\s*\d+(?:[.,]\d{1,2})?\s*(?:€|euros?|eur)?\s*/i, '').replace(/^tous les jours\.?$/i, '').trim();
+            var generique = !avant || /tarif unique|tous les jours|entree|prix/.test(minusc(avant)) && !joursDans(avant).length && !/soir|midi|nuit|matin/.test(minusc(avant));
+            if (generique) partout.push({ rubrique: rubrique, prix: prix, detail: detail });
+            else appliquer(periodeDe(avant), prix, detail);
+        });
+        // Un tarif « soir » général ne s'applique pas aux jours qui ont leur propre tarif du soir
+        ordre.forEach(function (k) {
+            var p = periodes[k]; if (p.jours.length !== 7) return;
+            ordre.forEach(function (k2) { var q = periodes[k2]; if (q !== p && q.titre === p.titre && q.jours.length < 7) p.jours = p.jours.filter(function (d) { return q.jours.indexOf(d) < 0; }); });
+        });
+        if (!ordre.length && partout.length) appliquer({ jours: [1, 2, 3, 4, 5, 6, 7], debut: '', fin: '', titre: 'Tous les jours' }, null, '');
+        var garde = rubrique;
+        partout.forEach(function (x) { rubrique = x.rubrique; ordre.forEach(function (k) { remplir(periodes[k], x.prix, ''); }); });
+        rubrique = garde;
+        var cr = ordre.map(function (k) { return periodes[k]; }).filter(function (c) { return c.jours.length; });
+        cr.forEach(function (b) { b.note = b.note.slice(0, 200); b.public = b.public.slice(0, 120); });
+        return { creneaux: cr, reste: general.join('\n') };
+    }
+
     document.addEventListener('click', function (e) {
         var b = e.target.closest('[data-coller-go]'); if (!b) return;
         var f = b.closest('form'), zone = f.querySelector('[data-coller]'), msg = f.querySelector('[data-coller-msg]');
         var r = analyserHoraires(zone.value);
-        if (!r.creneaux.length) { msg.textContent = 'Aucun horaire reconnu. Il faut au moins une ligne avec un jour et une plage horaire (ex. « Samedi : 21h - 5h »).'; return; }
+        if (!r.creneaux.length) r = analyserParPublic(zone.value);
+        if (!r.creneaux.length) { msg.textContent = 'Rien de reconnu. Il faut soit des jours avec leurs heures (« Samedi : 21h - 5h » puis « Couple : 20 € »), soit des rubriques par public (« Hommes seuls » puis « Soir à partir de 20h : 30 € »).'; return; }
         remplirPlanning(f, r.creneaux);
         if (r.reste && f.tarifs && f.tarifs.value.indexOf(r.reste) < 0) f.tarifs.value = (f.tarifs.value ? f.tarifs.value + '\n' : '') + r.reste;
-        msg.textContent = r.creneaux.length + ' créneau(x) créé(s). Vérifiez-les ci-dessous (jours, heures, prix), complétez l\'espace si besoin, puis enregistrez.';
+        msg.textContent = r.creneaux.length + ' créneau(x) créé(s). Vérifiez-les ci-dessous (jours, heures, prix)' + (r.creneaux.some(function (c) { return !c.debut || !c.fin; }) ? ', ajoutez les heures d\'ouverture qui manquent' : '') + ', puis enregistrez.';
         f.querySelector('.gl-creneau').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 
