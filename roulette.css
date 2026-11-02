@@ -157,3 +157,7 @@ html[data-theme="light"] .rl-boite .rl-btn:not(.rl-btn--principal) { background:
     .rl-messages { height: 300px; }
     .rl-raccourcis { display: block; }
 }
+
+/* 🔞 Mode sans restriction (choisi par les deux personnes) */
+.rl-option--adulte { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--rl-bord); }
+.rl-scene[data-adulte="1"] { box-shadow: inset 0 0 0 3px #ff1680; }

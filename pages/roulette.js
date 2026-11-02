@@ -194,7 +194,8 @@
         session = d.sessionId; partenaire = d.partenaire || {}; initiateur = !!d.initiateur;
         afficherPartenaire();
         viderChat('Vous êtes en relation avec ' + (partenaire.pseudo || 'un membre') + '. Dites bonjour !');
-        ecran('connexion', 'Connexion avec ' + (partenaire.pseudo || 'un membre') + '…', 'La vidéo arrive dans un instant.');
+        ecran('connexion', 'Connexion avec ' + (partenaire.pseudo || 'un membre') + '…', d.adulte ? '🔞 Mode sans restriction : vous l’avez choisi tous les deux.' : 'La vidéo arrive dans un instant.');
+        $('rlScene').setAttribute('data-adulte', d.adulte ? '1' : '0');
         await chargerTurn();
         if (session !== d.sessionId) return;
         var p = creerPc();
@@ -249,12 +250,14 @@
     // FILTRES
     // ============================================================
     function filtres() {
-        return { cameraSeulement: $('rlFiltreCam').checked, memeRegion: $('rlFiltreRegion').checked && !$('rlFiltreRegion').disabled, genre: $('rlFiltreGenre').value };
+        return { cameraSeulement: $('rlFiltreCam').checked, memeRegion: $('rlFiltreRegion').checked && !$('rlFiltreRegion').disabled, genre: $('rlFiltreGenre').value,
+            adulte: $('rlFiltreAdulte').checked };
     }
     function majResumeFiltres() {
-        var f = filtres(), n = (f.cameraSeulement ? 1 : 0) + (f.memeRegion ? 1 : 0) + (f.genre ? 1 : 0);
-        $('rlFiltresResume').textContent = n ? '(' + n + ' actif' + (n > 1 ? 's' : '') + ')' : '';
-        ecrire(CLE_FILTRES, JSON.stringify(f));
+        var f = filtres(), n = (f.cameraSeulement ? 1 : 0) + (f.memeRegion ? 1 : 0) + (f.genre ? 1 : 0) + (f.adulte ? 1 : 0);
+        $('rlFiltresResume').textContent = (n ? '(' + n + ' actif' + (n > 1 ? 's' : '') + ')' : '') + (f.adulte ? ' 🔞' : '');
+        var garde = { cameraSeulement: f.cameraSeulement, memeRegion: f.memeRegion, genre: f.genre };   // 🔞 jamais gardé : accord à chaque visite
+        ecrire(CLE_FILTRES, JSON.stringify(garde));
     }
     function chargerFiltres() {
         var f = {}; try { f = JSON.parse(lire(CLE_FILTRES) || '{}') || {}; } catch (e) {}
@@ -267,6 +270,29 @@
     // ============================================================
     // DÉMARRER / SUIVANT / ARRÊTER
     // ============================================================
+    // 🔞 Mode sans restriction : accord explicite (3 cases) à chaque visite
+    function demanderAdulte() {
+        return new Promise(function (resoudre) {
+            var v = $('rlAdulte'), oui = $('rlAdulteOui'), non = $('rlAdulteNon');
+            var cases = Array.prototype.slice.call(v.querySelectorAll('.rl-adulte-case'));
+            cases.forEach(function (c) { c.checked = false; c.onchange = maj; });
+            function maj() { oui.disabled = !cases.every(function (c) { return c.checked; }); }
+            maj(); v.hidden = false; if (cases[0]) cases[0].focus();
+            function fin(r) { v.hidden = true; oui.onclick = non.onclick = null; document.removeEventListener('keydown', echap, true); resoudre(r); }
+            function echap(e) { if (e.key === 'Escape') { e.stopPropagation(); fin(false); } }
+            oui.onclick = function () { if (!oui.disabled) fin(true); };
+            non.onclick = function () { fin(false); };
+            document.addEventListener('keydown', echap, true);
+        });
+    }
+    async function surFiltreAdulte() {
+        var c = $('rlFiltreAdulte');
+        if (c.checked && !(await demanderAdulte())) c.checked = false;
+        majResumeFiltres();
+        // Déjà en route : le changement de mode s'applique tout de suite (nouvelle recherche)
+        if (enMarche) suivant(true);
+    }
+
     function reglesAcceptees() { return lire(CLE_REGLES) === '1'; }
     function demanderRegles() {
         return new Promise(function (resoudre) {
@@ -483,6 +509,7 @@
         $('rlLocaleCadre').classList.add('rl-off');
         chargerFiltres();
         ['rlFiltreCam', 'rlFiltreRegion', 'rlFiltreGenre'].forEach(function (id) { $(id).addEventListener('change', majResumeFiltres); });
+        $('rlFiltreAdulte').addEventListener('change', surFiltreAdulte);
         $('rlDemarrer').addEventListener('click', demarrer);
         $('rlSuivant').addEventListener('click', function () { suivant(); });
         $('rlArreter').addEventListener('click', function () { arreter(); });

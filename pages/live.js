@@ -89,6 +89,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (prive.actif && !prive.invited.length) choisirInvites();
     });
     document.getElementById('privePick').addEventListener('click', choisirInvites);
+    var cocheAdulte = document.getElementById('priveAdulte');
+    if (cocheAdulte) cocheAdulte.addEventListener('change', function() { prive.adulte = cocheAdulte.checked; afficherPrive(); });
     afficherPrive();
     // 📷 Demande de cam acceptée : le live privé est prêt (le demandeur est le seul invité),
     // on allume la caméra ; c'est le membre qui clique lui-même sur « Démarrer mon live »
@@ -129,7 +131,7 @@ function log(msg) {
 // Seuls les invités (et la modération) voient la caméra. Les invités se choisissent avant le live ;
 // on peut en AJOUTER pendant le live, mais pour en retirer il faut terminer le live.
 // ============================================================
-var prive = { actif: false, invited: [], names: {}, salon: null };
+var prive = { actif: false, adulte: false, invited: [], names: {}, salon: null };
 var membresEnLigne = [];    // [{ id, username }] reçus du serveur
 var joinDemande = null;     // live à rejoindre dès la connexion (?join=...)
 
@@ -146,6 +148,7 @@ function chargerConfigPrive() {
             prive.invited = cfg.invited.map(Number).filter(function(n) { return n > 0; });
             prive.names = cfg.names || {};
             prive.salon = typeof cfg.salon === 'string' ? cfg.salon : null;
+            prive.adulte = cfg.adulte === true;
         }
     } catch (e) {}
 }
@@ -159,7 +162,9 @@ function afficherPrive() {
     document.getElementById('priveInvites').classList.toggle('hidden', !prive.actif);
     document.getElementById('priveNoms').textContent = noms.length ? noms.join(', ') : 'personne pour l\'instant';
     document.getElementById('privePick').textContent = isBroadcasting ? 'Inviter d\'autres membres' : 'Choisir des invités';
-    document.getElementById('broadcastBadge').textContent = (prive.actif && isBroadcasting) ? '🔒 LIVE PRIVÉ' : '🔴 EN DIRECT';
+    var cocheAdulte = document.getElementById('priveAdulte');
+    if (cocheAdulte) { cocheAdulte.checked = prive.adulte; cocheAdulte.disabled = isBroadcasting; }
+    document.getElementById('broadcastBadge').textContent = (prive.actif && isBroadcasting) ? (prive.adulte ? '🔞 LIVE PRIVÉ' : '🔒 LIVE PRIVÉ') : '🔴 EN DIRECT';
 }
 
 function choisirInvites() {
@@ -230,7 +235,8 @@ function initSocket() {
 
     socket.on('live:private-invite', function(d) {
         log('🔒 ' + d.broadcasterUsername + ' vous invite à son live privé');
-        LivePrive.banniere({ de: d.broadcasterUsername, onRegarder: function() { joinStream(d.streamId, d.broadcasterUsername || 'Live privé'); } });
+        LivePrive.banniere({ de: d.broadcasterUsername, adulte: !!d.adulte, streamId: d.streamId, socket: socket,
+            onRegarder: function() { joinStream(d.streamId, d.broadcasterUsername || 'Live privé'); } });
     });
 
     socket.on('connect_error', function(err) {
@@ -262,6 +268,13 @@ function initSocket() {
 
     socket.on('live:error', function(data) {
         log('❌ ' + data.message);
+        // 🔞 Live sans restriction pas encore confirmé (arrivée par un lien d'invitation) : on demande l'accord
+        if (data && data.adulte && data.streamId && typeof LivePrive !== 'undefined') {
+            var v = vues[data.streamId], nom = v ? v.nom : 'Live privé';
+            if (v) leaveStream(data.streamId);
+            LivePrive.accepterLiveAdulte(socket, data.streamId, nom, function() { joinStream(data.streamId, nom); });
+            return;
+        }
         showToast(data.message, 'error');
     });
 
@@ -527,6 +540,7 @@ function appliquerEtatSession(e) {
     nbSpectateurs = e.broadcasting ? (Number(e.viewers) || 0) : 0;
     if (e.broadcasting) {
         prive.actif = !!e.prive;
+        prive.adulte = !!e.adulte;
         prive.invited = (e.invited || []).slice();
         Object.keys(e.names || {}).forEach(function(k) { prive.names[k] = e.names[k]; });
         if (e.salon) prive.salon = e.salon;
@@ -618,7 +632,7 @@ async function startBroadcast() {
         try {
             btn('startBroadcastBtn', true, BTN_LIVE_OFF);
             currentBroadcastStreamId = await S.startBroadcast({
-                private: prive.actif, invited: prive.invited, names: prive.names, salon: prive.salon
+                private: prive.actif, adulte: prive.actif && prive.adulte, invited: prive.invited, names: prive.names, salon: prive.salon
             });
             isBroadcasting = true;
             uiLiveEnCours();
@@ -635,6 +649,7 @@ async function startBroadcast() {
     if (prive.actif) {   // live privé : visible dès la première seconde des seuls invités
         donnees.private = true;
         donnees.invited = prive.invited;
+        if (prive.adulte) donnees.adulte = true;   // 🔞 sans restriction
         if (prive.salon) donnees.salon = prive.salon;
     }
     socket.emit('live:start', donnees);
@@ -742,6 +757,7 @@ async function ajouterVue(streamId, nom) {
             '<button type="button" data-a="son" class="w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs" title="Son"><i class="fa-solid fa-volume-xmark"></i></button>' +
             '<button type="button" data-a="agrandir" class="hidden sm:inline-block w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs" title="Agrandir dans le mur"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>' +
             '<button type="button" data-a="plein" class="hidden sm:inline-block w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs" title="Plein écran"><i class="fa-solid fa-expand"></i></button>' +
+            '<button type="button" data-a="signaler" class="w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white text-xs" title="Arrêter et signaler" aria-label="Arrêter et signaler"><i class="fa-solid fa-flag"></i></button>' +
             '<button type="button" data-a="fermer" class="w-8 h-8 rounded-full bg-rose-500/90 hover:bg-rose-600 text-white text-xs" title="Fermer"><i class="fa-solid fa-xmark"></i></button>' +
         '</div>';
     var v = { streamId: streamId, nom: nom, pc: null, sub: null, el: el, video: el.querySelector('video'), muet: true };
@@ -750,6 +766,10 @@ async function ajouterVue(streamId, nom) {
         var b = e.target.closest('[data-a]');
         if (!b) return;
         if (b.dataset.a === 'fermer') leaveStream(streamId);
+        else if (b.dataset.a === 'signaler') {   // 🚩 la caméra se coupe tout de suite, puis le signalement
+            leaveStream(streamId);
+            if (typeof LivePrive !== 'undefined') LivePrive.signaler({ nom: nom, contexte: 'Live regardé' });
+        }
         else if (b.dataset.a === 'son') reglerSon(streamId, !v.muet ? true : false);
         else if (b.dataset.a === 'agrandir') { focusVue = focusVue === streamId ? null : streamId; majMur(); }
         else if (b.dataset.a === 'plein') { if (el.requestFullscreen) el.requestFullscreen().catch(function() {}); }

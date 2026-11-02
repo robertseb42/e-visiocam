@@ -12,7 +12,7 @@
 <link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
 <link href="apple-touch-icon.png" rel="apple-touch-icon"/>
 <meta content="#111113" name="theme-color"/>
-<meta content="Chat roulette français modéré entre adultes : discutez en vidéo 1 à 1 avec une personne au hasard, filtres par région, bouton Signaler et équipe de modération. Gratuit, réservé aux majeurs, aucun contenu sexuel." name="description"/>
+<meta content="Chat roulette français modéré entre adultes : discutez en vidéo 1 à 1 avec une personne au hasard, filtres par région, bouton Signaler et équipe de modération. Gratuit et réservé aux majeurs." name="description"/>
 <link href="https://www.e-visiocam.com/roulette.html" rel="canonical"/>
 <meta content="adult" name="rating"/>
 <meta content="website" property="og:type"/>
@@ -34,7 +34,7 @@
 <link href="style.css?v=20261101-webp-i" rel="stylesheet"/>
 <script defer="" src="maintenance.js"></script>
 <link href="tailwind.css?v=20261009" rel="stylesheet"/>
-<link href="roulette.css?v=2" rel="stylesheet"/>
+<link href="roulette.css?v=3" rel="stylesheet"/>
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
@@ -74,7 +74,7 @@
 <p class="rl-chapo">Rencontrez quelqu’un au hasard, en vidéo et en tête-à-tête. Un clic sur « Suivant » pour changer de personne, un clic sur « Signaler » si quelque chose ne va pas.</p>
 <ul class="rl-atouts" aria-label="Ce qui change ici">
 <li><i aria-hidden="true" class="fa-solid fa-id-card"></i>Majeurs uniquement</li>
-<li><i aria-hidden="true" class="fa-solid fa-ban"></i>Aucun contenu sexuel</li>
+<li><i aria-hidden="true" class="fa-solid fa-user-lock"></i>Mode 18+ entre volontaires</li>
 <li><i aria-hidden="true" class="fa-solid fa-flag"></i>Signaler en un geste</li>
 <li><i aria-hidden="true" class="fa-solid fa-map-location-dot"></i>Filtre par région</li>
 <li><i aria-hidden="true" class="fa-solid fa-gift"></i>Gratuit</li>
@@ -156,6 +156,8 @@
 </select>
 </label>
 <p class="rl-petit">Une préférence seulement : elle se base sur le profil des autres membres (ceux qui ne l’ont pas rempli ne vous seront pas proposés). Plus il y a de filtres, plus l’attente est longue.</p>
+<label class="rl-option rl-option--adulte"><input id="rlFiltreAdulte" type="checkbox"/> 🔞 Mode sans restriction</label>
+<p class="rl-petit">Vous ne rencontrez que des adultes qui ont eux aussi choisi ce mode et confirmé être d’accord. Compte de plus de 3 jours. Jamais mélangé avec le mode normal.</p>
 </details>
 <p class="rl-petit rl-raccourcis">Raccourcis : <kbd>→</kbd> ou <kbd>Échap</kbd> pour passer au suivant.</p>
 </aside>
@@ -169,7 +171,7 @@
 <p>Le chat roulette vous met en relation avec une personne au hasard. Pour que tout le monde s’y sente bien :</p>
 <ul class="rl-regles-liste">
 <li><i aria-hidden="true" class="fa-solid fa-id-card"></i><span><strong>18 ans et plus uniquement.</strong> Signalez toute personne qui semble mineure.</span></li>
-<li><i aria-hidden="true" class="fa-solid fa-ban"></i><span><strong>Pas de nudité ni de contenu sexuel</strong>, même suggéré : c’est un motif de bannissement.</span></li>
+<li><i aria-hidden="true" class="fa-solid fa-ban"></i><span><strong>Pas de nudité en mode normal</strong> : la personne en face n’a rien demandé. C’est possible seulement en <strong>mode sans restriction</strong> (Filtres), entre volontaires.</span></li>
 <li><i aria-hidden="true" class="fa-solid fa-handshake"></i><span><strong>Respect</strong> : pas d’insultes, de harcèlement, de chantage ni de demande d’argent.</span></li>
 <li><i aria-hidden="true" class="fa-solid fa-camera"></i><span><strong>Captures d’écran et enregistrements interdits.</strong></span></li>
 <li><i aria-hidden="true" class="fa-solid fa-flag"></i><span><strong>Un souci ? « Signaler »</strong> arrête tout de suite la conversation et prévient la modération ; « Bloquer » vous évite de recroiser la personne.</span></li>
@@ -178,6 +180,22 @@
 <div class="rl-boite-actions">
 <button class="rl-btn" id="rlReglesNon" type="button">Plus tard</button>
 <button class="rl-btn rl-btn--principal" id="rlReglesOui" type="button" disabled>C’est parti</button>
+</div>
+</div>
+</div>
+
+<!-- 🔞 Accord pour le mode sans restriction (à chaque visite) -->
+<div class="rl-voile" id="rlAdulte" role="dialog" aria-modal="true" aria-labelledby="rlAdulteTitre" hidden>
+<div class="rl-boite">
+<h2 id="rlAdulteTitre">🔞 Mode sans restriction</h2>
+<p>Vous ne serez mis en relation qu’avec des adultes qui ont eux aussi choisi ce mode. Ce qui se passe entre adultes d’accord reste entre vous.</p>
+<label class="rl-option"><input class="rl-adulte-case" type="checkbox"/> J’ai 18 ans ou plus.</label>
+<label class="rl-option"><input class="rl-adulte-case" type="checkbox"/> Je choisis des rencontres sans restriction, entre adultes consentants.</label>
+<label class="rl-option"><input class="rl-adulte-case" type="checkbox"/> Je n’enregistre rien et ne fais aucune capture (bannissement définitif).</label>
+<p class="rl-petit">Si quelqu’un insiste, vous met mal à l’aise ou semble mineur : « Signaler » coupe tout de suite.</p>
+<div class="rl-boite-actions">
+<button class="rl-btn" id="rlAdulteNon" type="button">Rester en mode normal</button>
+<button class="rl-btn rl-btn--principal" id="rlAdulteOui" type="button" disabled>Je confirme</button>
 </div>
 </div>
 </div>
@@ -207,7 +225,7 @@
 <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js" defer></script>
 <script src="securite-membres.js?v=2" defer></script>
 <script src="aide-camera.js?v=2" defer></script>
-<script src="pages/roulette.js?v=2" defer></script>
+<script src="pages/roulette.js?v=3" defer></script>
 <script defer="" src="footer.js?v=7"></script>
 </body>
 </html>

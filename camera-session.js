@@ -65,6 +65,7 @@
             micMuted: micMuted,
             viewers: broadcasting ? viewers : 0,
             prive: !!(options && options.private),
+            adulte: !!(options && options.private && options.adulte),
             salon: options && options.salon || null,
             invited: invited.slice(),
             names: Object.assign({}, names)
@@ -334,6 +335,7 @@
         if (options.private) {
             donnees.private = true;
             donnees.invited = invited;
+            if (options.adulte === true) donnees.adulte = true;   // 🔞 live privé sans restriction
             if (options.salon) donnees.salon = options.salon;
         }
         s.emit('live:start', donnees);

@@ -133,6 +133,27 @@ function dessinerSalons() {
     boite.insertAdjacentHTML('beforeend', '<a href="salons.html#regions" class="block px-3 py-2 text-xs text-slate-500 hover:text-brand-primary">🗺️ Autres salons régionaux</a>');
 }
 
+// 🔞 Salon Coquin 18+ : confirmation « majeur et d'accord » une fois par visite (onglet)
+const SALONS_ADULTES = ['coquin'];
+function verifierSalonAdulte() {
+    if (!SALONS_ADULTES.includes(currentSlug) || typeof LivePrive === 'undefined') return;
+    let deja = false;
+    try { deja = sessionStorage.getItem('evc-salon-adulte-ok') === '1'; } catch (e) {}
+    if (deja) return;
+    LivePrive.confirmerAdulte({
+        titre: '🔥 Salon Coquin 18+',
+        intro: 'Drague, séduction et discussions adultes entre majeurs consentants. Les caméras de ce salon sont vues par tout le monde : la nudité y reste interdite (elle est possible en live privé sans restriction).',
+        points: [
+            'J\'ai 18 ans ou plus.',
+            'Je veux lire des discussions adultes et parfois crues.',
+            'Je respecte le refus des autres : pas d\'insistance, pas de contenu envoyé à quelqu\'un qui n\'a rien demandé.'
+        ],
+        bouton: 'Entrer', boutonNon: 'Retour aux salons', opaque: true,
+        onOui: () => { try { sessionStorage.setItem('evc-salon-adulte-ok', '1'); } catch (e) {} },
+        onNon: () => { window.location.href = 'salons.html'; }
+    });
+}
+
 // Affiche le salon courant (titre, liste, adresse)
 function appliquerSalon(nom, slug) {
     currentSalon = nom;
@@ -141,6 +162,7 @@ function appliquerSalon(nom, slug) {
     const titleEl = document.getElementById('currentSalon');
     if (titleEl) titleEl.textContent = ((trouve && trouve.icon && !trouve.logoUrl) ? trouve.icon : '💬') + ' ' + nom;
     document.title = nom + ' — E-VISIOCAM';
+    verifierSalonAdulte();
     // 🕺 Salon Musique : le danseur disco s'invite dans le coin du chat
     if (typeof EvcDanseur !== 'undefined') {
         if (currentSlug === 'musique') {
@@ -410,9 +432,9 @@ function ouvrirLivePrive() {
     const liste = membres.filter(u => currentUser && u.id !== currentUser.id).map(u => ({ id: u.id, username: u.username }));
     if (!liste.length) { showToast("Aucun autre membre dans ce salon pour le moment", 'error'); return; }
     LivePrive.ouvrir({
-        membres: liste, titre: '🔒 Live privé', bouton: 'Passer en live privé',
-        onConfirm: (ids, noms) => {
-            try { sessionStorage.setItem('evc-live-prive', JSON.stringify({ invited: ids, names: noms, salon: currentSalon })); } catch (e) {}
+        membres: liste, titre: '🔒 Live privé', bouton: 'Passer en live privé', avecAdulte: true,
+        onConfirm: (ids, noms, opts) => {
+            try { sessionStorage.setItem('evc-live-prive', JSON.stringify({ invited: ids, names: noms, salon: currentSalon, adulte: !!(opts && opts.adulte) })); } catch (e) {}
             window.location.href = 'live.html?prive=1';
         }
     });
@@ -421,7 +443,7 @@ function ouvrirLivePrive() {
 function invitationLivePrive(d) {
     if (!d || typeof LivePrive === 'undefined') return;
     LivePrive.banniere({
-        de: d.broadcasterUsername,
+        de: d.broadcasterUsername, adulte: !!d.adulte, streamId: d.streamId, socket: socket,
         onRegarder: () => {
             const tuile = document.querySelector('[data-stream-id="' + CSS.escape(String(d.streamId)) + '"]');
             if (tuile) { tuile.scrollIntoView({ block: 'center' }); }

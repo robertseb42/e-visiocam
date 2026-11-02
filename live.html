@@ -20,7 +20,7 @@
     <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js"></script>
     <script src="auth-api.js?v=7"></script>
     <script src="sfu-client.js"></script>
-    <script src="live-prive.js"></script>
+    <script src="live-prive.js?v=2"></script>
     <script src="nav-auth.js?v=8" defer></script>
     <script src="legal-banner.js?v=4" defer></script>
     <style>
@@ -151,6 +151,9 @@
                         <div id="priveInvites" class="hidden mt-2">
                             <p class="text-slate-600">Invités : <span id="priveNoms" class="font-semibold"></span></p>
                             <button type="button" id="privePick" class="mt-1 text-brand-primary font-bold hover:underline">Choisir des invités</button>
+                            <label class="flex items-start gap-2 mt-2 text-slate-700 cursor-pointer">
+                                <input type="checkbox" id="priveAdulte" class="mt-0.5"> <span><b>🔞 Sans restriction</b> (adultes consentants) : chaque invité confirme qu'il est majeur et d'accord avant de vous voir.</span>
+                            </label>
                         </div>
                         <p class="text-[11px] text-slate-500 mt-1">Seuls les invités et l'équipe de modération voient votre caméra.</p>
                     </div>
@@ -198,7 +201,7 @@
     </div>
 </main>
 
-<script src="pages/live.js?v=6"></script>
+<script src="pages/live.js?v=7"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=7" defer></script>
