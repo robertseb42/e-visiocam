@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="persistent-radio-bootstrap.js"></script>
+    <script src="theme.js?v=2"></script>
+    <script src="actions.js?v=csp2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide libertin — espace équipe | E-VISIOCAM</title>
+    
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#111113">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js"></script>
+    <script src="auth-api.js?v=7"></script>
+    <script src="legal-banner.js?v=4" defer></script>
+    <script src="site-search.js" defer></script>
+<script src="nav-auth.js?v=10"></script>
+
+    <link rel="stylesheet" href="style.css?v=20261101-webp-i">
+    <link rel="stylesheet" href="guide.css?v=2">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+        <div class="flex items-center lg:w-64 lg:shrink-0">
+            <a class="flex items-center gap-2" href="index.html">
+                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid font-bold text-lg fa-video"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            </a>
+        </div>
+        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
+            <a class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold" href="guide.html">Guide libertin</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messagerie</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+        </nav>
+        <div class="ml-auto flex items-center gap-3 sm:gap-5">
+            <div class="cam-search relative hidden sm:block w-48 md:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+            </div>
+            <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
+            <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</header>
+
+<main class="gl max-w-[1400px] w-full mx-auto flex-1 p-3 md:p-6" id="glEquipe">
+    <p class="gl-ariane"><a href="guide.html">Guide libertin</a> › Espace équipe</p>
+    <div class="gl-tete">
+        <div>
+            <p class="gl-sur">Guide libertin · équipe</p>
+            <h1>Gérer le guide</h1>
+            <p class="gl-intro">Validez ce que proposent les membres, corrigez les fiches (horaires, tarifs, adresse) et retirez ce qui ne doit plus apparaître. Les lieux ajoutés ici sont publiés tout de suite et placés sur la carte d'après leur adresse.</p>
+        </div>
+        <button type="button" class="gl-btn gl-btn-jaune" id="glEqAjouter"><i class="fa-solid fa-plus" aria-hidden="true"></i> Ajouter un lieu</button>
+    </div>
+
+    <section id="glModeration" class="gl-moderation" hidden aria-labelledby="glModTitre">
+        <h2 id="glModTitre"><i class="fa-solid fa-inbox" aria-hidden="true"></i> À valider</h2>
+        <div id="glModContenu"></div>
+    </section>
+
+    <section class="gl-liste-bloc gl-eq-bloc" aria-labelledby="glEqTitre">
+        <div class="gl-liste-tete"><h2 id="glEqTitre">Tous les lieux</h2><small id="glEqCompte" class="gl-gris"></small></div>
+        <div class="gl-filtres">
+            <label class="gl-recherche"><span class="gl-sr">Rechercher</span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" id="glEqQ" placeholder="Nom ou ville…" maxlength="60"></label>
+            <label class="gl-select"><span class="gl-sr">Statut</span><select id="glEqStatut"><option value="">Tous les statuts</option><option value="publie">Publiés</option><option value="attente">En attente</option><option value="refuse">Retirés</option></select></label>
+        </div>
+        <div id="glEqListe" class="gl-liste"><p class="gl-vide">Chargement…</p></div>
+    </section>
+</main>
+
+<!-- Fenêtre : proposer un lieu -->
+<datalist id="glEspaces"><option value="Sauna"><option value="Discothèque"><option value="Club"><option value="Spa"><option value="Restaurant"><option value="Bar"></datalist>
+<div id="glFenetreLieu" class="gl-fond" hidden>
+    <form id="glFormLieu" class="gl-fenetre" role="dialog" aria-modal="true" aria-labelledby="glTitreLieu" novalidate>
+        <div class="gl-fenetre-tete"><h2 id="glTitreLieu">Proposer un lieu</h2><button type="button" class="gl-fermer" data-fermer aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="gl-fenetre-corps">
+            <p class="gl-aide">Club, sauna ou soirée privée : indiquez les informations publiques du lieu. La fiche sera publiée après vérification par la modération.</p>
+            <label class="gl-champ"><span>Nom du lieu *</span><input name="nom" maxlength="80" required></label>
+            <div class="gl-deux">
+                <label class="gl-champ"><span>Type *</span><select name="type"><option value="club">Club</option><option value="sauna">Sauna</option><option value="soiree">Soirée privée</option><option value="autre">Autre lieu</option></select></label>
+                <label class="gl-champ"><span>Région *</span><select name="region" data-regions required></select></label>
+            </div>
+            <div class="gl-deux">
+                <label class="gl-champ"><span>Ville *</span><input name="ville" maxlength="60" required></label>
+                <label class="gl-champ"><span>Adresse</span><input name="adresse" maxlength="160" placeholder="Pour placer le lieu sur la carte"></label>
+            </div>
+            <fieldset class="gl-champ"><legend>Public accepté</legend>
+                <label class="gl-case"><input type="checkbox" name="publics" value="couples"> Couples</label>
+                <label class="gl-case"><input type="checkbox" name="publics" value="femmes"> Femmes seules</label>
+                <label class="gl-case"><input type="checkbox" name="publics" value="hommes"> Hommes seuls</label>
+            </fieldset>
+            <label class="gl-champ"><span>Précision sur le public</span><input name="precisionPublic" maxlength="120" placeholder="ex. hommes seuls le jeudi uniquement"></label>
+            <fieldset class="gl-champ gl-planning-bloc"><legend>Horaires et tarifs</legend>
+                <p class="gl-aide">Un créneau par espace et par horaire (ex. sauna l'après-midi, discothèque le soir). Cochez les jours concernés ; un créneau qui finit après minuit se termine le lendemain. Laissez un prix vide s'il n'est pas connu.</p>
+                <div class="gl-planning" data-planning></div>
+                <button type="button" class="gl-btn" data-creneau-ajout><i class="fa-solid fa-plus" aria-hidden="true"></i> Ajouter un créneau</button>
+            </fieldset>
+            <label class="gl-champ"><span>Précisions sur les tarifs</span><textarea name="tarifs" rows="2" maxlength="600" placeholder="ex. après-midi + soir : 10 € de réduction sur le soir ; consommation comprise…"></textarea></label>
+            <div class="gl-deux">
+                <label class="gl-champ"><span>Équipements</span><input name="equipements" maxlength="300" placeholder="Bar, piste, jacuzzi…"></label>
+                <label class="gl-champ"><span>Tenue</span><input name="tenue" maxlength="120"></label>
+            </div>
+            <label class="gl-champ"><span>Site officiel</span><input name="site" maxlength="200" inputmode="url"></label>
+            <label class="gl-champ"><span>Description</span><textarea name="description" rows="4" maxlength="1500"></textarea></label>
+            <p class="gl-erreur" role="alert" hidden></p>
+        </div>
+        <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer à la modération</button></div>
+    </form>
+</div>
+<!-- Fenêtre : bon plan -->
+<div id="glFenetrePlan" class="gl-fond" hidden>
+    <form id="glFormPlan" class="gl-fenetre gl-petite" role="dialog" aria-modal="true" aria-labelledby="glTitrePlan" novalidate>
+        <div class="gl-fenetre-tete"><h2 id="glTitrePlan">Partager un bon plan</h2><button type="button" class="gl-fermer" data-fermer aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="gl-fenetre-corps">
+            <label class="gl-champ"><span>Région</span><select name="region" data-regions required></select></label>
+            <label class="gl-champ"><span>Votre bon plan *</span><textarea name="texte" rows="4" maxlength="400" placeholder="Soirée à thème, tarif réduit, nouveau lieu… (pas de nom ni de pseudo de membre)"></textarea></label>
+            <p class="gl-erreur" role="alert" hidden></p>
+        </div>
+        <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
+    </form>
+</div>
+<script src="pages/guide.js?v=2"></script>
+<script src="radio-widget.js?v=2"></script>
+<script src="radio-widget-floating.js?v=3"></script>
+<script src="footer.js?v=8" defer></script>
+</body>
+</html>

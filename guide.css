@@ -179,6 +179,85 @@ fieldset.gl-champ legend{width:100%}
 .gl .leaflet-control-attribution a{color:#ddd}
 .gl .leaflet-bar a{background:var(--g-panel);color:var(--g-text);border-color:var(--g-border)}
 
+/* ---------- Horaires et tarifs : éditeur ---------- */
+#glFenetreLieu .gl-fenetre{max-width:780px}
+fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
+.gl-planning{display:flex;flex-direction:column;gap:12px}
+.gl-creneau{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;border:1px solid var(--g-border);background:var(--g-panel2)}
+.gl-creneau-tete{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.gl-creneau-tete b{font-size:14px}
+.gl-creneau-tete span{display:flex;gap:14px}
+.gl-creneau-tete .gl-lien-btn{font-size:13px}
+.gl-jours{display:flex;gap:6px;flex-wrap:wrap}
+.gl-jours button{width:44px;height:44px;border-radius:10px;border:1px solid var(--g-border);background:var(--g-panel);color:var(--g-soft);font:700 14px Inter,Arial,sans-serif;cursor:pointer}
+.gl-jours button:hover{border-color:var(--g-accent)}
+.gl-jours button[aria-pressed="true"]{background:var(--g-accent);border-color:var(--g-accent);color:var(--g-accent-txt)}
+.gl-trois{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.gl-creneau .gl-champ input{background:var(--g-panel)}
+.gl-rouge{color:var(--g-danger)}
+
+/* ---------- Horaires et tarifs : fiche ---------- */
+.gl-horaires{display:flex;flex-direction:column;gap:14px;padding:20px;border-radius:18px;background:var(--g-panel);border:1px solid var(--g-border)}
+.gl-horaires-tete{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.gl-horaires-tete h2{margin:0;font-size:22px;font-weight:800}
+.gl-statut{margin:0;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:var(--g-tag);font-size:13px;font-weight:700;color:var(--g-text)}
+.gl-statut i{font-size:12px;color:var(--g-muted)}
+.gl-statut-ouvert{background:rgba(52,211,153,.14);color:var(--g-ok)}
+.gl-statut-ouvert i{color:var(--g-ok);font-size:9px}
+.gl-statut-ferme{color:var(--g-muted)}
+.gl-jours-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.gl-jour{padding:14px;border-radius:14px;background:var(--g-panel2);border:1px solid var(--g-border);display:flex;flex-direction:column;gap:10px}
+.gl-jour h3{margin:0;font-size:16px;font-weight:800;color:var(--g-accent);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gl-jour h3 span{padding:2px 9px;border-radius:999px;background:var(--g-pink);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.gl-jour-auj{border-color:var(--g-pink);box-shadow:0 0 0 1px var(--g-pink) inset}
+.gl-cr{display:flex;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--g-border)}
+.gl-jour h3+.gl-cr{border-top:0;padding-top:0}
+.gl-cr-txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gl-cr-txt b{font-size:15px}
+.gl-h{white-space:nowrap}
+.gl-cr-txt b em{font-style:normal;font-weight:600;color:var(--g-muted);margin-left:8px;font-size:13px}
+.gl-cr-txt strong{color:var(--g-pink-txt);font-size:14px}
+.gl-cr-txt small{color:var(--g-soft);font-size:13px;line-height:1.4}
+.gl-cr-txt .gl-cr-note{color:var(--g-muted);font-style:italic}
+.gl-prix{margin:0;display:flex;flex-direction:column;gap:3px;flex:none;min-width:118px}
+.gl-prix div{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.gl-prix dt{color:var(--g-muted)}
+.gl-prix dd{margin:0;font-weight:800;color:var(--g-text)}
+.gl-ferme,.gl-tarifs-note{margin:0;font-size:14px;color:var(--g-soft);white-space:pre-line}
+.gl-tarifs-note{padding:10px 12px;border-radius:12px;background:rgba(255,229,0,.08);border:1px solid rgba(255,229,0,.25)}
+.gl-maj{margin:0;font-size:12px;color:var(--g-muted)}
+.gl-ouvert{font-style:normal;font-size:11px;font-weight:800;color:var(--g-ok);background:rgba(52,211,153,.14);padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.gl-puces #glOuvert i{margin-right:4px}
+
+/* ---------- Équipe ---------- */
+.gl-tete-actions{display:flex;gap:10px;flex-wrap:wrap}
+.gl-btn-equipe{align-self:flex-start;min-height:40px;padding:8px 14px;font-size:13px}
+.gl-fiche-tete .gl-btn-equipe{margin-left:auto}
+.gl-eq-bloc{margin-top:20px}
+.gl-eq-bloc .gl-filtres{margin:4px 0 14px}
+.gl-eq-lieu{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 14px;border-radius:14px;border:1px solid var(--g-border);background:var(--g-panel2)}
+.gl-eq-txt{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gl-eq-txt b{font-size:15px}
+.gl-eq-txt small{color:var(--g-muted);font-size:13px}
+.gl-eq-lieu .gl-mod-actions{margin-top:0}
+.gl-pastille{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;vertical-align:middle}
+.gl-st-publie{background:rgba(52,211,153,.14);color:var(--g-ok)}
+.gl-st-attente{background:rgba(255,229,0,.14);color:var(--g-accent)}
+.gl-st-refuse{background:rgba(248,113,113,.14);color:var(--g-danger)}
+.gl-manque{color:var(--g-accent)}
+
+@media (max-width:640px){
+  .gl-trois{grid-template-columns:1fr 1fr}
+  .gl-trois .gl-champ:first-child{grid-column:1/-1}
+  .gl-jours button{width:38px;height:40px}
+  .gl-jours-grille{grid-template-columns:1fr}
+  .gl-cr{flex-direction:column}
+  .gl-prix{flex-direction:row;flex-wrap:wrap;gap:6px 14px}
+  .gl-prix div{gap:6px}
+  .gl-tete-actions{width:100%}
+  .gl-tete-actions .gl-btn{flex:1}
+}
+
 /* Tablette et téléphone */
 @media (max-width:1024px){
   .gl-grille,.gl-fiche-grille{grid-template-columns:1fr}

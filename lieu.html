@@ -21,10 +21,10 @@
     <script src="auth-api.js?v=7"></script>
     <script src="legal-banner.js?v=4" defer></script>
     <script src="site-search.js" defer></script>
-<script src="nav-auth.js?v=9"></script>
+<script src="nav-auth.js?v=10"></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
-    <link rel="stylesheet" href="guide.css?v=1">
+    <link rel="stylesheet" href="guide.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
     <script src="maintenance.js" defer></script>
@@ -73,6 +73,45 @@
 </main>
 
 <!-- Fenêtre : donner son avis -->
+<datalist id="glEspaces"><option value="Sauna"><option value="Discothèque"><option value="Club"><option value="Spa"><option value="Restaurant"><option value="Bar"></datalist>
+<div id="glFenetreLieu" class="gl-fond" hidden>
+    <form id="glFormLieu" class="gl-fenetre" role="dialog" aria-modal="true" aria-labelledby="glTitreLieu" novalidate>
+        <div class="gl-fenetre-tete"><h2 id="glTitreLieu">Proposer un lieu</h2><button type="button" class="gl-fermer" data-fermer aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="gl-fenetre-corps">
+            <p class="gl-aide">Club, sauna ou soirée privée : indiquez les informations publiques du lieu. La fiche sera publiée après vérification par la modération.</p>
+            <label class="gl-champ"><span>Nom du lieu *</span><input name="nom" maxlength="80" required></label>
+            <div class="gl-deux">
+                <label class="gl-champ"><span>Type *</span><select name="type"><option value="club">Club</option><option value="sauna">Sauna</option><option value="soiree">Soirée privée</option><option value="autre">Autre lieu</option></select></label>
+                <label class="gl-champ"><span>Région *</span><select name="region" data-regions required></select></label>
+            </div>
+            <div class="gl-deux">
+                <label class="gl-champ"><span>Ville *</span><input name="ville" maxlength="60" required></label>
+                <label class="gl-champ"><span>Adresse</span><input name="adresse" maxlength="160" placeholder="Pour placer le lieu sur la carte"></label>
+            </div>
+            <fieldset class="gl-champ"><legend>Public accepté</legend>
+                <label class="gl-case"><input type="checkbox" name="publics" value="couples"> Couples</label>
+                <label class="gl-case"><input type="checkbox" name="publics" value="femmes"> Femmes seules</label>
+                <label class="gl-case"><input type="checkbox" name="publics" value="hommes"> Hommes seuls</label>
+            </fieldset>
+            <label class="gl-champ"><span>Précision sur le public</span><input name="precisionPublic" maxlength="120" placeholder="ex. hommes seuls le jeudi uniquement"></label>
+            <fieldset class="gl-champ gl-planning-bloc"><legend>Horaires et tarifs</legend>
+                <p class="gl-aide">Un créneau par espace et par horaire (ex. sauna l'après-midi, discothèque le soir). Cochez les jours concernés ; un créneau qui finit après minuit se termine le lendemain. Laissez un prix vide s'il n'est pas connu.</p>
+                <div class="gl-planning" data-planning></div>
+                <button type="button" class="gl-btn" data-creneau-ajout><i class="fa-solid fa-plus" aria-hidden="true"></i> Ajouter un créneau</button>
+            </fieldset>
+            <label class="gl-champ"><span>Précisions sur les tarifs</span><textarea name="tarifs" rows="2" maxlength="600" placeholder="ex. après-midi + soir : 10 € de réduction sur le soir ; consommation comprise…"></textarea></label>
+            <div class="gl-deux">
+                <label class="gl-champ"><span>Équipements</span><input name="equipements" maxlength="300" placeholder="Bar, piste, jacuzzi…"></label>
+                <label class="gl-champ"><span>Tenue</span><input name="tenue" maxlength="120"></label>
+            </div>
+            <label class="gl-champ"><span>Site officiel</span><input name="site" maxlength="200" inputmode="url"></label>
+            <label class="gl-champ"><span>Description</span><textarea name="description" rows="4" maxlength="1500"></textarea></label>
+            <p class="gl-erreur" role="alert" hidden></p>
+        </div>
+        <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer à la modération</button></div>
+    </form>
+</div>
+
 <div id="glFenetreAvis" class="gl-fond" hidden>
     <form id="glFormAvis" class="gl-fenetre" role="dialog" aria-modal="true" aria-labelledby="glTitreAvis" novalidate>
         <div class="gl-fenetre-tete"><h2 id="glTitreAvis">Donner mon avis</h2><button type="button" class="gl-fermer" data-fermer aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
@@ -108,7 +147,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=1"></script>
+<script src="pages/guide.js?v=2"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=8" defer></script>

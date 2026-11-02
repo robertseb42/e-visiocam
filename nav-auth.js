@@ -129,6 +129,9 @@
                             <a href="moderation.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                                 <i class="fa-solid fa-shield-halved w-4 text-blue-500"></i> Modération
                             </a>
+                            <a href="guide-equipe.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                                <i class="fa-solid fa-map-location-dot w-4" style="color:#ff1680"></i> Guide libertin (équipe)
+                            </a>
                         ` : ''}
                         ${user.role === 'super_admin' ? `
                             <a href="admin.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">

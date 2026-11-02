@@ -21,10 +21,10 @@
     <script src="auth-api.js?v=7"></script>
     <script src="legal-banner.js?v=4" defer></script>
     <script src="site-search.js" defer></script>
-<script src="nav-auth.js?v=9"></script>
+<script src="nav-auth.js?v=10"></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
-    <link rel="stylesheet" href="guide.css?v=1">
+    <link rel="stylesheet" href="guide.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
     <script src="maintenance.js" defer></script>
@@ -74,7 +74,7 @@
             <h1 id="glTitre">Clubs, saunas et soirées libertines en France</h1>
             <p class="gl-intro">Les lieux de votre région, les avis des membres et leurs bons plans. Tout est relu par la modération, et on parle des lieux, jamais des personnes.</p>
         </div>
-        <button type="button" class="gl-btn gl-btn-jaune" id="glProposer"><i class="fa-solid fa-plus" aria-hidden="true"></i> Proposer un lieu</button>
+        <div class="gl-tete-actions"><a class="gl-btn" id="glLienEquipe" href="guide-equipe.html" hidden><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> Espace équipe</a><button type="button" class="gl-btn gl-btn-jaune" id="glProposer"><i class="fa-solid fa-plus" aria-hidden="true"></i> Proposer un lieu</button></div>
     </div>
 
     <form class="gl-filtres" id="glFiltres" role="search">
@@ -85,6 +85,7 @@
             <button type="button" data-type="sauna" aria-pressed="false">Saunas</button>
             <button type="button" data-type="soiree" aria-pressed="false">Soirées privées</button>
         </div>
+        <div class="gl-puces"><button type="button" id="glOuvert" aria-pressed="false"><i class="fa-regular fa-clock" aria-hidden="true"></i> Ouvert aujourd'hui</button></div>
         <label class="gl-select"><span class="gl-sr">Public</span><select id="glPublic"><option value="">Tous publics</option><option value="couples">Couples</option><option value="femmes">Femmes seules</option><option value="hommes">Hommes seuls</option></select></label>
     </form>
 
@@ -110,7 +111,7 @@
     </div>
 
     <section id="glModeration" class="gl-moderation" hidden aria-labelledby="glModTitre">
-        <h2 id="glModTitre"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> À valider (équipe)</h2>
+        <div class="gl-liste-tete"><h2 id="glModTitre"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> À valider (équipe)</h2><a class="gl-lien" href="guide-equipe.html">Tous les lieux et corrections →</a></div>
         <div id="glModContenu"></div>
     </section>
 
@@ -118,6 +119,7 @@
 </main>
 
 <!-- Fenêtre : proposer un lieu -->
+<datalist id="glEspaces"><option value="Sauna"><option value="Discothèque"><option value="Club"><option value="Spa"><option value="Restaurant"><option value="Bar"></datalist>
 <div id="glFenetreLieu" class="gl-fond" hidden>
     <form id="glFormLieu" class="gl-fenetre" role="dialog" aria-modal="true" aria-labelledby="glTitreLieu" novalidate>
         <div class="gl-fenetre-tete"><h2 id="glTitreLieu">Proposer un lieu</h2><button type="button" class="gl-fermer" data-fermer aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button></div>
@@ -138,10 +140,12 @@
                 <label class="gl-case"><input type="checkbox" name="publics" value="hommes"> Hommes seuls</label>
             </fieldset>
             <label class="gl-champ"><span>Précision sur le public</span><input name="precisionPublic" maxlength="120" placeholder="ex. hommes seuls le jeudi uniquement"></label>
-            <div class="gl-deux">
-                <label class="gl-champ"><span>Horaires</span><input name="horaires" maxlength="300"></label>
-                <label class="gl-champ"><span>Tarifs</span><input name="tarifs" maxlength="300"></label>
-            </div>
+            <fieldset class="gl-champ gl-planning-bloc"><legend>Horaires et tarifs</legend>
+                <p class="gl-aide">Un créneau par espace et par horaire (ex. sauna l'après-midi, discothèque le soir). Cochez les jours concernés ; un créneau qui finit après minuit se termine le lendemain. Laissez un prix vide s'il n'est pas connu.</p>
+                <div class="gl-planning" data-planning></div>
+                <button type="button" class="gl-btn" data-creneau-ajout><i class="fa-solid fa-plus" aria-hidden="true"></i> Ajouter un créneau</button>
+            </fieldset>
+            <label class="gl-champ"><span>Précisions sur les tarifs</span><textarea name="tarifs" rows="2" maxlength="600" placeholder="ex. après-midi + soir : 10 € de réduction sur le soir ; consommation comprise…"></textarea></label>
             <div class="gl-deux">
                 <label class="gl-champ"><span>Équipements</span><input name="equipements" maxlength="300" placeholder="Bar, piste, jacuzzi…"></label>
                 <label class="gl-champ"><span>Tenue</span><input name="tenue" maxlength="120"></label>
@@ -165,7 +169,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=1"></script>
+<script src="pages/guide.js?v=2"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=8" defer></script>
