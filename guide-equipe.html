@@ -83,7 +83,7 @@
 
     <section class="gl-liste-bloc gl-eq-bloc gl-import" aria-labelledby="glImpTitre">
         <div class="gl-liste-tete"><h2 id="glImpTitre"><i class="fa-solid fa-file-csv" aria-hidden="true"></i> Importer un annuaire (CSV)</h2><button type="button" class="gl-lien-btn" id="glImpModele">Télécharger le modèle CSV</button></div>
-        <p class="gl-aide">Une ligne par établissement, avec les colonnes : nom, categorie (club, sauna, mixte, soirée), adresse, code_postal, ville, departement, telephone, site, reseaux, statut, verifie_le, source, description. Séparateur « ; » ou « , » (Excel : Enregistrer sous → CSV UTF-8). Le code postal sert à trouver la région.</p>
+        <p class="gl-aide">Une ligne par établissement, avec les colonnes : nom, categorie (club, sauna, mixte, soirée), adresse, code_postal, ville, departement, telephone, site, reseaux, horaires, tarifs, statut, verifie_le, source, description. Dans « horaires », collez le texte des horaires tel quel (sur plusieurs lignes dans la cellule, ou séparé par « | ») : il est transformé en créneaux comme avec « coller les horaires ». Séparateur « ; » ou « , » (Excel : Enregistrer sous → CSV UTF-8). Le code postal sert à trouver la région.</p>
         <ul class="gl-aide gl-imp-regles">
             <li><b>Statut « actif confirmé »</b> : publié tout de suite. <b>« à vérifier »</b> (ou vide) : en attente de votre validation. <b>« fermé »</b> : ignoré.</li>
             <li><b>Doublons</b> (même nom et même ville) : la fiche existante est seulement complétée (téléphone, site…), jamais écrasée.</li>
@@ -166,7 +166,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=12"></script>
+<script src="pages/guide.js?v=13"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=8" defer></script>

@@ -602,9 +602,10 @@
     // ============================================================
     // IMPORT CSV (espace équipe)
     // ============================================================
-    var COLONNES = ['nom', 'categorie', 'adresse', 'code_postal', 'ville', 'departement', 'telephone', 'site', 'reseaux', 'statut', 'verifie_le', 'source', 'description'];
+    var COLONNES = ['nom', 'categorie', 'adresse', 'code_postal', 'ville', 'departement', 'telephone', 'site', 'reseaux', 'horaires', 'tarifs', 'statut', 'verifie_le', 'source', 'description'];
     var SYNONYMES = { etablissement: 'nom', nom_de_l_etablissement: 'nom', type: 'categorie', cp: 'code_postal', codepostal: 'code_postal', dep: 'departement', dept: 'departement',
         tel: 'telephone', telephones: 'telephone', site_internet: 'site', site_web: 'site', url: 'site', reseaux_sociaux: 'reseaux', facebook: 'reseaux', instagram: 'reseaux',
+        horaires_et_tarifs: 'horaires', horaire: 'horaires', heures: 'horaires', horaires_tarifs: 'horaires', planning: 'horaires', precisions_tarifs: 'tarifs', precisions_sur_les_tarifs: 'tarifs', consommations: 'tarifs',
         date_de_derniere_verification: 'verifie_le', derniere_verification: 'verifie_le', date_verification: 'verifie_le', date: 'verifie_le' };
     function sansAccentJs(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
     function lireCsv(texte) {
@@ -630,14 +631,23 @@
         var objets = lignes.slice(1).map(function (l) {
             var o = {};
             entetes.forEach(function (h, k) { var v = (l[k] || '').trim(); if (!v) return; o[h] = h === 'reseaux' && o[h] ? o[h] + ' ' + v : v; });
+            // Horaires en texte (retours à la ligne dans la cellule, ou séparés par « | ») → créneaux, comme « coller les horaires »
+            if (o.horaires) {
+                var texte = o.horaires.replace(/\s*\|\s*/g, '\n');
+                var r = analyserHoraires(texte); if (!r.creneaux.length) r = analyserParPublic(texte);
+                o.planning = r.creneaux;
+                if (r.reste) o.tarifs = (o.tarifs ? o.tarifs + '\n' : '') + r.reste;
+                if (!r.creneaux.length) o.tarifs = (o.tarifs ? o.tarifs + '\n' : '') + texte;   // illisible : gardé tel quel dans les précisions
+                delete o.horaires;
+            }
             return o;
         });
         return { entetes: entetes, objets: objets };
     }
     function telechargerModele() {
         var lignes = [COLONNES.join(';'),
-            'Le Velvet;club;9 Imp. du Château-Rouge;69530;Brignais;69;06 99 23 24 06;;;actif confirmé;2026-11-02;fiche existante;Discothèque libertine',
-            'Exemple sauna;sauna;1 rue Exemple;42000;Saint-Étienne;42;;https://www.exemple.fr;https://www.facebook.com/exemple;à vérifier;;site officiel;'];
+            'Le Velvet;club;9 Imp. du Château-Rouge;69530;Brignais;69;06 99 23 24 06;;;"Vendredi : 21h30 - 5h\nFemme seule : 10€\nCouple : 20€\nHomme seul : 10€ sur réservation\nSamedi : 21h30 - 5h Spécial rencontres\nCouple : 20€";Verre alcool et bières : 10 €;actif confirmé;2026-11-02;fiche existante;Discothèque libertine',
+            'Exemple sauna;sauna;1 rue Exemple;42000;Saint-Étienne;42;;https://www.exemple.fr;https://www.facebook.com/exemple;Du lundi au samedi : 14h - 20h | Couple : offert | Homme seul : 30€ avec une conso;;à vérifier;;site officiel;'];
         var b = new Blob(['﻿' + lignes.join('\r\n')], { type: 'text/csv;charset=utf-8' });
         var a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'guide-libertin-modele.csv';
         document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
@@ -657,8 +667,8 @@
                 if (manque.length || !importEnAttente.length) { z.innerHTML = '<p class="gl-erreur">' + (manque.length ? 'Colonnes obligatoires absentes : ' + manque.join(', ') + '.' : 'Aucune ligne lisible dans ce fichier.') + ' Téléchargez le modèle pour voir le format attendu.</p>'; return; }
                 var vues = r.entetes.filter(function (h) { return COLONNES.indexOf(h) >= 0; });
                 z.innerHTML = '<p><b>' + importEnAttente.length + ' établissement(s)</b> lus dans « ' + esc(f.name) + ' ». Colonnes reconnues : ' + esc(vues.join(', ')) + '.</p>' +
-                    '<div class="gl-imp-tableau"><table><thead><tr><th>Nom</th><th>Catégorie</th><th>Ville</th><th>CP</th><th>Téléphone</th><th>Statut</th></tr></thead><tbody>' +
-                    importEnAttente.slice(0, 8).map(function (o) { return '<tr><td>' + esc(o.nom) + '</td><td>' + esc(o.categorie || '') + '</td><td>' + esc(o.ville || '') + '</td><td>' + esc(o.code_postal || o.departement || '') + '</td><td>' + esc(o.telephone || '') + '</td><td>' + esc(o.statut || 'à vérifier') + '</td></tr>'; }).join('') +
+                    '<div class="gl-imp-tableau"><table><thead><tr><th>Nom</th><th>Catégorie</th><th>Ville</th><th>CP</th><th>Téléphone</th><th>Horaires</th><th>Statut</th></tr></thead><tbody>' +
+                    importEnAttente.slice(0, 8).map(function (o) { return '<tr><td>' + esc(o.nom) + '</td><td>' + esc(o.categorie || '') + '</td><td>' + esc(o.ville || '') + '</td><td>' + esc(o.code_postal || o.departement || '') + '</td><td>' + esc(o.telephone || '') + '</td><td>' + ((o.planning || []).length ? o.planning.length + ' créneau(x)' : '—') + '</td><td>' + esc(o.statut || 'à vérifier') + '</td></tr>'; }).join('') +
                     '</tbody></table></div>' + (importEnAttente.length > 8 ? '<p class="gl-aide">… et ' + (importEnAttente.length - 8) + ' autre(s).</p>' : '') +
                     '<button type="button" class="gl-btn gl-btn-jaune" id="glImpGo">Importer ' + importEnAttente.length + ' établissement(s)</button>';
             };
@@ -670,8 +680,8 @@
             b.disabled = true; b.textContent = 'Import en cours…';
             var total = { ajoutes: 0, completes: 0, doublons: 0, fermes: 0, erreurs: [] };
             try {
-                for (var i = 0; i < importEnAttente.length; i += 200) {
-                    var r = await api('/equipe/import', { method: 'POST', body: JSON.stringify({ lignes: importEnAttente.slice(i, i + 200) }) });
+                for (var i = 0; i < importEnAttente.length; i += 100) {
+                    var r = await api('/equipe/import', { method: 'POST', body: JSON.stringify({ lignes: importEnAttente.slice(i, i + 100) }) });
                     ['ajoutes', 'completes', 'doublons', 'fermes'].forEach(function (k) { total[k] += r[k] || 0; });
                     total.erreurs = total.erreurs.concat((r.erreurs || []).map(function (m) { return m.replace(/Ligne (\d+)/, function (x, n) { return 'Ligne ' + (+n + i); }); }));
                 }
