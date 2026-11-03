@@ -7,7 +7,7 @@
     var zone = document.getElementById('evCarteMap');
     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var JOURS = ['dim', 'lun', 'mar', 'mer', 'jeu', 'ven', 'sam'];
-    var NOMS = { club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant', autre: 'Lieu' };
+    var NOMS = { club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant', loveroom: 'Love room', autre: 'Lieu' };
     var lance = false;
 
     function charger(src, css) {

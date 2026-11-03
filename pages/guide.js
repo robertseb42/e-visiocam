@@ -9,7 +9,7 @@
     var REGIONS = [], etat = { region: '', type: '', public: '', q: '' }, carte = null, calque = null, lieuCourant = null;
     var TUILES = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';   // OpenStreetMap : gratuit, sans clé (assombri en CSS)
     var ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
-    var ICONES = { club: 'fa-champagne-glasses', sauna: 'fa-hot-tub-person', soiree: 'fa-masks-theater', autre: 'fa-location-dot' };
+    var ICONES = { club: 'fa-champagne-glasses', sauna: 'fa-hot-tub-person', soiree: 'fa-masks-theater', restaurant: 'fa-utensils', loveroom: 'fa-heart', autre: 'fa-location-dot' };
     // Centre de chaque région (quand elle n'a pas encore de lieu placé sur la carte)
     var CENTRES = { 'auvergne-rhone-alpes': [45.45, 4.6], 'bourgogne-franche-comte': [47.2, 5.0], 'bretagne': [48.1, -2.9], 'centre-val-de-loire': [47.5, 1.7],
         'corse': [42.15, 9.1], 'grand-est': [48.7, 5.6], 'hauts-de-france': [50.0, 2.8], 'ile-de-france': [48.75, 2.5], 'normandie': [49.1, 0.1],
@@ -377,6 +377,22 @@
         } catch (x) { toast(x.message, 'error'); }
         i.value = '';
     });
+    // Photo principale d'un lieu (équipe) : ajout / remplacement / retrait
+    document.addEventListener('change', async function (e) {
+        var i = e.target.closest('[data-photo-lieu]'); if (!i || !i.files[0]) return;
+        try {
+            var d = await reduireImage(i.files[0]);
+            await api('/lieux/' + i.getAttribute('data-photo-lieu') + '/photo', { method: 'PUT', body: JSON.stringify({ photo: d }) });
+            toast('Photo enregistrée.', 'success'); chargerFiche();
+        } catch (x) { toast(x.message, 'error'); }
+        i.value = '';
+    });
+    document.addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-photo-retirer]'); if (!b) return;
+        if (!confirm('Retirer la photo de ce lieu ?')) return;
+        try { await api('/lieux/' + b.getAttribute('data-photo-retirer') + '/photo', { method: 'PUT', body: JSON.stringify({ photo: null }) }); toast('Photo retirée.', 'success'); chargerFiche(); }
+        catch (x) { toast(x.message, 'error'); }
+    });
     document.addEventListener('click', async function (e) {
         var b = e.target.closest('[data-suppr-soiree]'); if (!b) return;
         b.disabled = true;
@@ -508,6 +524,7 @@
         remplirRegions(l ? l.region : etat.region);
         if (l) {
             ['nom', 'type', 'ville', 'adresse', 'telephone', 'email', 'equipements', 'tenue', 'site', 'description', 'tarifs'].forEach(function (k) { if (f[k]) f[k].value = l[k] || ''; });
+            if (f.prixDes) f.prixDes.value = l.prixDes != null ? l.prixDes : '';
             if (f.precisionPublic) f.precisionPublic.value = l.precisionPublic || '';
             f.querySelectorAll('input[name=publics]').forEach(function (c) { c.checked = (l.publics || []).indexOf(c.value) >= 0; });
             f.querySelectorAll('input[name=types]').forEach(function (c) { c.checked = c.value !== l.type && (l.types || []).indexOf(c.value) >= 0; });
@@ -845,7 +862,9 @@
             ['region', 'type', 'public', 'q'].forEach(function (k) { if (etat[k]) q.set(k, etat[k]); });
             var d = await api('/lieux?' + q);
             var l = (d.lieux || []).filter(function (x) { return !etat.ouvert || (x.jours || []).indexOf(jourDuJour()) >= 0; });
-            liste.innerHTML = l.length ? l.map(carteLieu).join('') :
+            var enPhotos = etat.type === 'loveroom';
+            liste.classList.toggle('gl-liste-photos', enPhotos);
+            liste.innerHTML = l.length ? l.map(enPhotos ? cartePhoto : carteLieu).join('') :
                 '<div class="gl-vide-bloc"><i class="fa-regular fa-map" aria-hidden="true"></i><p>' + (etat.q || etat.type || etat.public || etat.ouvert ? 'Aucun lieu ne correspond à ces filtres.' : 'Pas encore de lieu ' + (r ? 'en ' + esc(r.nom) : 'dans le guide') + '.') + '</p><p>Vous connaissez un club, un sauna ou une soirée ? <button type="button" class="gl-lien-btn" data-proposer>Proposez-le</button>, la communauté vous remerciera.</p></div>';
             placerSurCarte(l, r);
             chargerBandeau(r);
@@ -858,9 +877,16 @@
             liste.innerHTML = '<p class="gl-vide">Le guide ne peut pas être affiché pour le moment.</p>';
         }
     }
+    // Carte avec photo (love rooms) : photo, « à partir de … € », nom, ville, lien vers la fiche
+    function cartePhoto(l) {
+        return '<a class="gl-carte-photo" href="' + lienFiche(l) + '">' +
+            '<span class="gl-carte-photo-img">' + (l.photo ? '<img src="' + esc(urlApi(l.photo)) + '" alt="" loading="lazy">' : '<span class="gl-carte-photo-vide" aria-hidden="true"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '"></i></span>') +
+            (l.prixDes != null ? '<span class="gl-prix-des">à partir de ' + l.prixDes + ' €</span>' : '') + '</span>' +
+            '<span class="gl-carte-photo-txt"><b>' + esc(l.nom) + '</b><span><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(l.ville) + '</span><em>Voir la fiche →</em></span></span></a>';
+    }
     function carteLieu(l) {
         var pub = (l.publics || []).map(function (p) { return PUBLICS[p]; }).filter(Boolean).join(', ');
-        var NOMS_TYPES = { club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant', autre: 'Lieu' };
+        var NOMS_TYPES = { club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant', loveroom: 'Love room', autre: 'Lieu' };
         var badges = (l.types || [l.type]).map(function (t) { return '<span class="gl-mini gl-mini-' + t + '">' + (NOMS_TYPES[t] || 'Lieu') + '</span>'; }).join('') +
             ((l.jours || []).indexOf(jourDuJour()) >= 0 ? '<span class="gl-mini gl-ouvert">Ouvert aujourd\'hui</span>' : '') +
             (l.verifie ? '<span class="gl-mini gl-verifie"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Vérifiée</span>' : '');
@@ -998,11 +1024,11 @@
     // ============================================================
     // IMPORT CSV (espace équipe)
     // ============================================================
-    var COLONNES = ['nom', 'categorie', 'adresse', 'code_postal', 'ville', 'departement', 'telephone', 'email', 'site', 'reseaux', 'horaires', 'tarifs', 'statut', 'verifie_le', 'source', 'description'];
+    var COLONNES = ['nom', 'categorie', 'adresse', 'code_postal', 'ville', 'departement', 'telephone', 'email', 'site', 'reseaux', 'horaires', 'tarifs', 'statut', 'verifie_le', 'source', 'description', 'prix_des'];
     var SYNONYMES = { etablissement: 'nom', nom_de_l_etablissement: 'nom', type: 'categorie', cp: 'code_postal', codepostal: 'code_postal', dep: 'departement', dept: 'departement',
         tel: 'telephone', telephones: 'telephone', site_internet: 'site', site_web: 'site', url: 'site', reseaux_sociaux: 'reseaux', facebook: 'reseaux', instagram: 'reseaux',
         mail: 'email', e_mail: 'email', courriel: 'email', adresse_mail: 'email', adresse_e_mail: 'email', horaires_et_tarifs: 'horaires', horaire: 'horaires', heures: 'horaires', horaires_tarifs: 'horaires', planning: 'horaires', precisions_tarifs: 'tarifs', precisions_sur_les_tarifs: 'tarifs', consommations: 'tarifs',
-        date_de_derniere_verification: 'verifie_le', derniere_verification: 'verifie_le', date_verification: 'verifie_le', date: 'verifie_le' };
+        prix_a_partir_de: 'prix_des', a_partir_de: 'prix_des', prix_des: 'prix_des', date_de_derniere_verification: 'verifie_le', derniere_verification: 'verifie_le', date_verification: 'verifie_le', date: 'verifie_le' };
     function sansAccentJs(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
     function lireCsv(texte) {
         texte = texte.replace(/^﻿/, '');
@@ -1127,7 +1153,7 @@
             if ($('glArianeLieu')) $('glArianeLieu').textContent = l.nom;
             var pub = (l.publics || []).map(function (p) { return '<span class="gl-tag">' + PUBLICS[p] + '</span>'; }).join('');
             var aPlanning = (l.planning || []).length;
-            var infos = [['Adresse', l.adresse], ['Horaires', aPlanning ? '' : l.horaires], ['Tarifs', aPlanning ? '' : l.tarifs], ['Équipements', l.equipements], ['Tenue', l.tenue]]
+            var infos = [['Adresse', l.adresse], ['Prix', l.prixDes != null ? 'À partir de ' + l.prixDes + ' €' : ''], ['Horaires', aPlanning ? '' : l.horaires], ['Tarifs', aPlanning ? '' : l.tarifs], ['Équipements', l.equipements], ['Tenue', l.tenue]]
                 .filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('');
             if (l.telephone) infos += '<dt>Téléphone</dt><dd><a href="tel:' + esc(l.telephone.replace(/[^0-9+]/g, '')) + '">' + esc(l.telephone) + '</a></dd>';
             if ((l.reseaux || []).length) infos += '<dt>Réseaux</dt><dd class="gl-reseaux">' + l.reseaux.map(function (u) { var h = u.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]; var n = /facebook|fb\./.test(h) ? 'Facebook' : /instagram/.test(h) ? 'Instagram' : /tiktok/.test(h) ? 'TikTok' : /twitter|x\.com/.test(h) ? 'X' : h; return '<a href="' + esc(u) + '" target="_blank" rel="noopener nofollow">' + esc(n) + '</a>'; }).join(' · ') + '</dd>';
@@ -1145,6 +1171,8 @@
             var dn = d.notes || {}; var notes = [['Accueil', dn.accueil], ['Ambiance', dn.ambiance], ['Propreté', dn.proprete], ['Rapport qualité-prix', dn.prix]];
             zone.innerHTML =
                 '<div class="gl-fiche-grille"><div class="gl-fiche-principal">' +
+                (l.photo ? '<div class="gl-fiche-photo"><img src="' + esc(urlApi(l.photo)) + '" alt="' + esc(l.nom) + '">' + (l.prixDes != null ? '<span class="gl-prix-des">à partir de ' + l.prixDes + ' €</span>' : '') + '</div>' : '') +
+                (equipe() ? '<p class="gl-photo-equipe"><label class="gl-lien-btn">' + (l.photo ? 'Changer la photo du lieu' : 'Ajouter une photo du lieu') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-photo-lieu="' + l.id + '"></label>' + (l.photo ? ' <button type="button" class="gl-lien-btn gl-rouge" data-photo-retirer="' + l.id + '">Retirer la photo</button>' : '') + ' <small>Photo fournie par l\'établissement ou prise par l\'équipe uniquement.</small></p>' : '') +
                 (l.statut !== 'publie' ? '<p class="gl-attente">Fiche en attente de validation (visible par l\'équipe uniquement).</p>' : '') +
                 '<div class="gl-fiche-tete"><div><span class="gl-type"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '" aria-hidden="true"></i> ' + esc(l.typeLibelle) + '</span><h1>' + esc(l.nom) + '</h1><p class="gl-ville">' + esc(l.ville) + ' · ' + esc(l.regionNom) + '</p><div class="gl-tags">' + pub + (l.precisionPublic ? '<span class="gl-tag">' + esc(l.precisionPublic) + '</span>' : '') + '</div></div>' +
                 (equipe() ? '<button type="button" class="gl-btn gl-btn-equipe" id="glModifierLieu"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier la fiche</button>' : '') +

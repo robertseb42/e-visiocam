@@ -288,6 +288,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-mini-sauna{background:rgba(96,165,250,.14);color:#93c5fd}
 .gl-mini-soiree{background:rgba(167,139,250,.16);color:#c4b5fd}
 .gl-mini-restaurant{background:rgba(251,146,60,.15);color:#fdba74}
+.gl-mini-loveroom{background:rgba(244,63,94,.16);color:#fda4af}
 .gl-verifie{background:rgba(52,211,153,.14);color:var(--g-ok)}
 .gl-lieu-txt small{color:var(--g-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gl-liste{max-height:720px;overflow-y:auto;padding-right:4px}
@@ -440,3 +441,20 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-premier-avis p{margin:0 0 12px;color:var(--g-soft);font-size:14px;line-height:1.55}
 .gl-premier-avis strong{color:var(--g-text,inherit)}
 .gl-autre-horaire{margin:-4px 0 10px;font-size:13px}
+
+/* Love rooms : cartes avec photo et prix « à partir de » */
+.gl-liste.gl-liste-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;max-height:none}
+.gl-carte-photo{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;background:var(--g-panel2);border:1px solid var(--g-border);color:var(--g-text);text-decoration:none;transition:transform .15s,border-color .15s}
+.gl-carte-photo:hover{transform:translateY(-2px);border-color:var(--g-pink)}
+.gl-carte-photo-img{position:relative;display:block;aspect-ratio:4/3;background:#0d0d12}
+.gl-carte-photo-img img{width:100%;height:100%;object-fit:cover;display:block}
+.gl-carte-photo-vide{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:34px;color:var(--g-pink);background:var(--g-pink-bg)}
+.gl-prix-des{position:absolute;right:10px;bottom:10px;padding:5px 10px;border-radius:8px;background:#fff;color:#111113;font-size:13px;font-weight:800}
+.gl-carte-photo-txt{display:flex;flex-direction:column;gap:6px;padding:12px 14px}
+.gl-carte-photo-txt b{font-size:16px;font-weight:900}
+.gl-carte-photo-txt>span{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--g-muted);text-transform:uppercase;letter-spacing:.04em}
+.gl-carte-photo-txt em{font-style:normal;color:var(--g-pink);font-weight:800;text-transform:none;letter-spacing:0;white-space:nowrap}
+.gl-fiche-photo{position:relative;margin:0 0 14px;border-radius:16px;overflow:hidden;max-height:420px}
+.gl-fiche-photo img{width:100%;max-height:420px;object-fit:cover;display:block}
+.gl-photo-equipe{margin:0 0 12px;font-size:13px}
+.gl-photo-equipe small{color:var(--g-muted)}

@@ -22,9 +22,9 @@ const RACINE = 'club-libertin';
 const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slug = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'lieu';
 const JOURS = ['', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-const TYPES = { club: 'club', sauna: 'sauna', soiree: 'soirée privée', restaurant: 'restaurant', autre: 'lieu' };
+const TYPES = { club: 'club', sauna: 'sauna', soiree: 'soirée privée', restaurant: 'restaurant', loveroom: 'love room', autre: 'lieu' };
 const PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls', trans: 'Trans' };
-const ICONES = { club: 'fa-champagne-glasses', sauna: 'fa-hot-tub-person', soiree: 'fa-masks-theater', autre: 'fa-location-dot' };
+const ICONES = { club: 'fa-champagne-glasses', sauna: 'fa-hot-tub-person', soiree: 'fa-masks-theater', restaurant: 'fa-utensils', loveroom: 'fa-heart', autre: 'fa-location-dot' };
 const heureFr = h => (h ? h.replace(':', 'h') : '');
 const prixFr = n => (n == null || n === '' ? '' : n === 0 ? 'offert' : String(n).replace('.', ',') + ' €');
 const dateLongue = d => new Date(d + 'T12:00:00Z').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -50,7 +50,7 @@ function habiller(gabarit, o) {
     h = h.replace(/<meta property="og:[^>]*>\s*/gi, '');
     h = h.replace(/<link rel="canonical"[^>]*>/i, m => m + '\n    <meta property="og:type" content="website">\n    <meta property="og:title" content="' + esc(o.titre) + '">\n    <meta property="og:description" content="' + esc(o.description) + '">\n    <meta property="og:url" content="' + DOMAINE + o.chemin + '">' +
         '\n    <meta property="og:site_name" content="E-VISIOCAM">\n    <meta property="og:locale" content="fr_FR">' +
-        '\n    <meta property="og:image" content="' + DOMAINE + '/img/partage.jpg">\n    <meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">' +
+        '\n    <meta property="og:image" content="' + (o.image || DOMAINE + '/img/partage.jpg') + '">\n    <meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">' +
         (/twitter:card/.test(h) ? '' : '\n    <meta name="twitter:card" content="summary_large_image">'));
     if (o.ld) h = h.replace(/<\/head>/i, '    <script type="application/ld+json">' + JSON.stringify(o.ld).replace(/</g, '\\u003c') + '</script>\n</head>');
     if (o.main) h = h.replace(/<main[\s\S]*?<\/main>/i, o.main);
@@ -69,7 +69,7 @@ function ecrire(chemin, html) {
 // ---------- Morceaux de page ----------
 function urlFiche(l) { return l.url || 'lieu.html?l=' + encodeURIComponent(l.slug); }
 function carteLieu(l, avecRegion) {
-    const badges = (l.types || [l.type]).map(t => '<span class="gl-mini gl-mini-' + t + '">' + esc(({ club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant' })[t] || 'Lieu') + '</span>').join('') +
+    const badges = (l.types || [l.type]).map(t => '<span class="gl-mini gl-mini-' + t + '">' + esc(({ club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant', loveroom: 'Love room' })[t] || 'Lieu') + '</span>').join('') +
         (l.verifie ? '<span class="gl-mini gl-verifie"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Vérifiée</span>' : '');
     return '<a class="gl-lieu" href="' + esc(urlFiche(l)) + '"><span class="gl-lieu-ico" aria-hidden="true"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '"></i></span>' +
         '<span class="gl-lieu-txt"><b>' + esc(l.nom) + '</b><span class="gl-lieu-ville"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(l.ville) + (avecRegion ? ' · ' + esc(l.regionNom) : '') + '</span>' +
@@ -132,7 +132,8 @@ function horairesHTML(l) {
 function pageFiche(gab, l, soirees, lieuxParId, regionUrl, villeUrl) {
     const chemin = l.url;
     const types = (l.types || [l.type]).map(t => TYPES[t] || 'lieu');
-    const titre = l.nom + ' : ' + liste(types) + ' libertin à ' + l.ville + ' — horaires, tarifs, avis | E-VISIOCAM';
+    const titre = l.type === 'loveroom' ? l.nom + ' : love room à ' + l.ville + ' — tarifs, équipements, avis | E-VISIOCAM'
+        : l.nom + ' : ' + liste(types) + ' libertin à ' + l.ville + ' — horaires, tarifs, avis | E-VISIOCAM';
     const desc = texteCourt(l.nom + ', ' + liste(types) + ' libertin à ' + l.ville + ' (' + l.regionNom + '). ' + (l.description ? l.description + ' ' : '') + 'Horaires, tarifs, avis des membres et prochaines soirées.', 158);
     const ar = ariane([['Guide libertin', '/guide.html'], [l.regionNom, regionUrl], [l.ville, villeUrl], [l.nom, chemin]]);
     const infos = [['Adresse', l.adresse], ['Téléphone', l.telephone], ['Équipements', l.equipements], ['Tenue', l.tenue]].filter(x => x[1]).map(x => '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>').join('') +
@@ -160,7 +161,8 @@ function pageFiche(gab, l, soirees, lieuxParId, regionUrl, villeUrl) {
     if (l.lat != null) lieuLd.geo = { '@type': 'GeoCoordinates', latitude: l.lat, longitude: l.lng };
     if (l.nbAvis) lieuLd.aggregateRating = { '@type': 'AggregateRating', ratingValue: l.note, reviewCount: l.nbAvis, bestRating: 5, worstRating: 1 };
     const ld = { '@context': 'https://schema.org', '@graph': [lieuLd, ar.ld].concat(mesSoirees.slice(0, 10).map(s => evenementLd(s, l))) };
-    return { chemin, html: habiller(gab.fiche, { titre, description: desc, chemin, main, ld }) };
+    if (l.photo) lieuLd.image = 'https://api.e-visiocam.com' + l.photo;
+    return { chemin, html: habiller(gab.fiche, { titre, description: desc, chemin, main, ld, image: l.photo ? 'https://api.e-visiocam.com' + l.photo : '' }) };
 }
 
 function pageListe(gab, o) {
@@ -237,7 +239,8 @@ async function principal() {
             (notes.length ? 'Les membres ont laissé ' + pluriel(notes.reduce((a, l) => a + l.nbAvis, 0), 'avis', 'avis') + ' sur les lieux de la ville.' : '')) + '</p>';
         const autres = villesOk.filter(x => x.region === v.region && x !== v);
         const ar = ariane([['Guide libertin', '/guide.html'], [r.nom, cheminRegion(r.slug)], [v.nom, v.chemin]]);
-        const titreTypes = saunas && clubs ? 'Clubs et saunas libertins' : saunas ? 'Saunas libertins' : 'Clubs libertins';
+        const loves = parType('loveroom'), horsLove = n - loves;
+        const titreTypes = !horsLove ? 'Love rooms' : (saunas && clubs ? 'Clubs et saunas libertins' : saunas ? 'Saunas libertins' : 'Clubs libertins') + (loves ? ' et love rooms' : '');
         const html = pageListe(gab, {
             chemin: v.chemin, h1: titreTypes + ' à ' + v.nom,
             titre: titreTypes + ' à ' + v.nom + ' : ' + pluriel(n, 'adresse', 'adresses') + ', horaires et soirées | E-VISIOCAM',

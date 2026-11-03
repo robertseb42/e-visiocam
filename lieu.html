@@ -26,7 +26,7 @@
 <script src="nav-auth.js?v=12"></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
-    <link rel="stylesheet" href="guide.css?v=21">
+    <link rel="stylesheet" href="guide.css?v=22">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
     <script src="maintenance.js" defer></script>
@@ -83,7 +83,7 @@
             <p class="gl-aide">Club, sauna ou soirée privée : indiquez les informations publiques du lieu. La fiche sera publiée après vérification par la modération.</p>
             <label class="gl-champ"><span>Nom du lieu *</span><input name="nom" maxlength="80" required></label>
             <div class="gl-deux">
-                <label class="gl-champ"><span>Type principal *</span><select name="type"><option value="club">Club</option><option value="sauna">Sauna</option><option value="soiree">Soirée privée</option><option value="autre">Autre lieu</option></select></label>
+                <label class="gl-champ"><span>Type principal *</span><select name="type"><option value="club">Club</option><option value="sauna">Sauna</option><option value="soiree">Soirée privée</option><option value="loveroom">Love room</option><option value="autre">Autre lieu</option></select></label>
                 <label class="gl-champ"><span>Région *</span><select name="region" data-regions required></select></label>
             </div>
             <div class="gl-deux">
@@ -112,6 +112,7 @@
                 <label class="gl-champ"><span>Téléphone</span><input name="telephone" type="tel" maxlength="30" autocomplete="off" placeholder="ex. 04 77 00 00 00"></label>
                 <label class="gl-champ"><span>Site officiel</span><input name="site" maxlength="200" inputmode="url"></label>
             </div>
+            <label class="gl-champ"><span>Prix à partir de (€, facultatif)</span><input name="prixDes" inputmode="decimal" maxlength="6" placeholder="ex. 150 pour une nuit en love room"></label>
             <label class="gl-champ"><span>Adresse e-mail</span><input name="email" type="email" maxlength="120" autocomplete="off" placeholder="contact@club.fr"></label>
             <label class="gl-champ"><span>Description</span><textarea name="description" rows="4" maxlength="1500"></textarea></label>
             <fieldset class="gl-champ gl-planning-bloc"><legend>Horaires et tarifs</legend>
@@ -166,7 +167,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=38"></script>
+<script src="pages/guide.js?v=39"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=10" defer></script>
