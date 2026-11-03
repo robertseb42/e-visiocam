@@ -17,7 +17,7 @@
         });
     }
     function jourDuJour() { return new Date().getDay() || 7; }
-    function lien(l) { return '/lieu.html?l=' + encodeURIComponent(l.slug); }
+    function lien(l) { return l.url || '/lieu.html?l=' + encodeURIComponent(l.slug); }   // page fixe (Google) si le lieu est vérifié
 
     async function demarrer() {
         if (lance) return; lance = true;

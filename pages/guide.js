@@ -16,9 +16,9 @@
         'nouvelle-aquitaine': [45.2, 0.2], 'occitanie': [43.7, 2.2], 'pays-de-la-loire': [47.4, -0.8], 'provence-alpes-cote-d-azur': [43.95, 6.1], 'outre-mer': [14.6, -61.0] };
     // Pastilles de prix : symboles au lieu des mots (le mot reste lu par les lecteurs d'écran et au survol)
     var BOISSON_OFFERTE = /(boisson|conso|verre|soft|coupe|champagne|ap[eé]ritif)[^.·]*offert|offert[^.·]*(boisson|conso|verre|coupe|champagne)/i;   // « une boisson soft offerte » → petites coupes devant la précision
-    // Lien vers une fiche : toujours la fiche dynamique (à jour tout de suite). Les pages /club-libertin/… sont
-    // publiées pour Google après la republication automatique : y renvoyer trop tôt donnait une page introuvable.
-    function lienFiche(l) { return '/lieu.html?l=' + encodeURIComponent(l.slug); }
+    // Lien vers une fiche : la page fixe /club-libertin/<ville>/<lieu>/ (celle que Google référence) quand le lieu est vérifié,
+    // sinon la fiche dynamique. Si la page fixe n'est pas encore publiée (republication en cours), 404.html renvoie vers la fiche dynamique.
+    function lienFiche(l) { return l.url || '/lieu.html?l=' + encodeURIComponent(l.slug); }
     var SYMBOLES = { Hommes: ['♂', 'h'], Femmes: ['♀', 'f'], Couples: ['⚤', 'c'], Trans: ['⚧', 't'] };
     var PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls', trans: 'Trans' };
 
@@ -471,7 +471,7 @@
     // Données structurées pour Google (établissement + soirées), d'après les recommandations schema.org
     function donneesStructurees(l, soirees) {
         var ancien = document.getElementById('glLd'); if (ancien) ancien.remove();
-        var url = 'https://www.e-visiocam.com/lieu.html?l=' + encodeURIComponent(l.slug);
+        var url = 'https://www.e-visiocam.com' + (l.url || '/lieu.html?l=' + encodeURIComponent(l.slug));
         var lieu = { '@type': l.type === 'club' ? 'NightClub' : 'LocalBusiness', name: l.nom, url: url,
             address: { '@type': 'PostalAddress', streetAddress: l.adresse || undefined, addressLocality: l.ville, addressRegion: l.regionNom, addressCountry: 'FR' } };
         if (l.telephone) lieu.telephone = l.telephone;

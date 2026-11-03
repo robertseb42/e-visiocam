@@ -48,7 +48,10 @@ function habiller(gabarit, o) {
     h = h.replace(/<meta name="description"[^>]*>/i, '<meta name="description" content="' + esc(o.description) + '"/>');
     h = h.replace(/<link rel="canonical"[^>]*>/i, '<link rel="canonical" href="' + DOMAINE + o.chemin + '">');
     h = h.replace(/<meta property="og:[^>]*>\s*/gi, '');
-    h = h.replace(/<link rel="canonical"[^>]*>/i, m => m + '\n    <meta property="og:type" content="website">\n    <meta property="og:title" content="' + esc(o.titre) + '">\n    <meta property="og:description" content="' + esc(o.description) + '">\n    <meta property="og:url" content="' + DOMAINE + o.chemin + '">');
+    h = h.replace(/<link rel="canonical"[^>]*>/i, m => m + '\n    <meta property="og:type" content="website">\n    <meta property="og:title" content="' + esc(o.titre) + '">\n    <meta property="og:description" content="' + esc(o.description) + '">\n    <meta property="og:url" content="' + DOMAINE + o.chemin + '">' +
+        '\n    <meta property="og:site_name" content="E-VISIOCAM">\n    <meta property="og:locale" content="fr_FR">' +
+        '\n    <meta property="og:image" content="' + DOMAINE + '/img/partage.jpg">\n    <meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">' +
+        (/twitter:card/.test(h) ? '' : '\n    <meta name="twitter:card" content="summary_large_image">'));
     if (o.ld) h = h.replace(/<\/head>/i, '    <script type="application/ld+json">' + JSON.stringify(o.ld).replace(/</g, '\\u003c') + '</script>\n</head>');
     if (o.main) h = h.replace(/<main[\s\S]*?<\/main>/i, o.main);
     if (o.sansScriptGuide) {
@@ -291,6 +294,27 @@ async function principal() {
         ecrire(ch, html); urls.unshift(ch);
     }
 
+    // Pont chat → guide : sur chaque page « Chat webcam <région> », les lieux vérifiés et soirées de la région (liens internes pour Google)
+    const ANCRE_TCHAT = '<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">\n<h2 class="text-xl font-bold text-slate-900 mb-3">Les autres régions</h2>';
+    let tchats = 0;
+    for (const r of regions.values()) {
+        const f = path.join(SITE, 'tchat-' + r.slug + '.html');
+        if (!fs.existsSync(f)) continue;
+        const page = fs.readFileSync(f, 'utf8');
+        if (!page.includes(ANCRE_TCHAT)) continue;
+        const ver = lieux.filter(l => l.region === r.slug && l.url).sort((a, b) => (b.nbAvis - a.nbAvis) || a.nom.localeCompare(b.nom));
+        const sesSoirees = soirees.filter(s => s.lieu.region === r.slug || ver.some(l => l.id === s.lieu.id));
+        const lienRegion = regionsOk.some(x => x.slug === r.slug) ? cheminRegion(r.slug).replace(/^\//, '') : 'guide.html?region=' + encodeURIComponent(r.slug);
+        const section = '<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6" id="guide-region">\n' +
+            '<h2 class="text-xl font-bold text-slate-900 mb-1">Clubs et saunas libertins en ' + esc(r.nom) + '</h2>\n' +
+            '<p class="text-sm text-slate-500 mb-3">' + (ver.length ? esc(pluriel(ver.length, 'lieu vérifié', 'lieux vérifiés') + ' par l\'équipe, avec horaires, tarifs et avis des membres.') : 'Le guide de la région se construit avec les membres : proposez les lieux que vous connaissez.') + '</p>\n' +
+            (ver.length ? '<ul class="tr-puces">' + ver.slice(0, 12).map(l => '<li><a class="text-brand-primary" href="' + esc(l.url.replace(/^\//, '')) + '">' + esc(l.nom) + '</a> <span class="text-slate-500">· ' + esc(l.ville) + '</span></li>').join('') + '</ul>\n' : '') +
+            (sesSoirees.length ? '<p class="text-sm text-slate-600 mt-3 mb-0">' + esc(pluriel(sesSoirees.length, 'soirée annoncée', 'soirées annoncées')) + ' dans la région : programme dans le guide.</p>\n' : '') +
+            '<p class="text-sm text-slate-500 mt-4 mb-0"><a class="text-brand-primary font-semibold hover:underline" href="' + esc(lienRegion) + '">Tout le guide libertin en ' + esc(r.nom) + ' →</a></p>\n</section>\n';
+        fs.writeFileSync(f, page.replace(ANCRE_TCHAT, section + ANCRE_TCHAT));
+        tchats++;
+    }
+
     // Sitemap
     const sm = path.join(SITE, 'sitemap.xml');
     if (fs.existsSync(sm) && urls.length) {
@@ -298,7 +322,7 @@ async function principal() {
         const ajout = urls.map(u => '  <url><loc>' + DOMAINE + u + '</loc><lastmod>' + jour + '</lastmod></url>').join('\n');
         fs.writeFileSync(sm, fs.readFileSync(sm, 'utf8').replace('</urlset>', ajout + '\n</urlset>'));
     }
-    console.log('generer-guide : ' + verifies.length + ' fiche(s), ' + villesOk.length + ' ville(s), ' + regionsOk.length + ' région(s) — ' + urls.length + ' page(s) ajoutée(s) au sitemap.');
+    console.log('generer-guide : ' + verifies.length + ' fiche(s), ' + villesOk.length + ' ville(s), ' + regionsOk.length + ' région(s) — ' + urls.length + ' page(s) ajoutée(s) au sitemap, ' + tchats + ' page(s) de chat régional reliée(s) au guide.');
 }
 
 principal().catch(e => { console.warn('generer-guide : erreur (' + e.message + ') — site publié sans les pages fixes du guide.'); });
