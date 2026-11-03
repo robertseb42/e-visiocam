@@ -6,11 +6,11 @@
     if (!$('evxEspace')) return;
     var u = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
     if (!u) { location.href = 'login.html?redirect=espace-equipe.html'; return; }
-    if (u.role !== 'moderator' && u.role !== 'super_admin') {
+    if (['moderator', 'super_admin', 'guide_editor', 'animateur'].indexOf(u.role) < 0) {
         $('evxEspace').innerHTML = '<div class="evx-contenu"><h1>Accès réservé</h1><p class="gl-intro">Cet espace est réservé à l\'équipe du site.</p><a class="gl-btn gl-btn-jaune" href="index.html">Retour à l\'accueil</a></div>';
         return;
     }
-    var SUPER = u.role === 'super_admin';
+    var SUPER = u.role === 'super_admin', MOD = SUPER || u.role === 'moderator', GUIDE = MOD || u.role === 'guide_editor', ANIM = SUPER || u.role === 'animateur';
     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var nb = function (n) { return Number(n || 0).toLocaleString('fr-FR'); };
     function lire(chemin) { return typeof apiCall === 'function' ? apiCall(chemin).catch(function () { return null; }) : Promise.resolve(null); }
@@ -35,9 +35,9 @@
 
     async function charger() {
         var r = await Promise.all([
-            lire('/mod/alertes/compte'), lire('/mod/reports/count'), lire('/mod/appeals/count'), lire('/avatars/pending'),
-            lire('/equipe/candidatures/count'), lire('/guide/moderation'),
-            SUPER ? lire('/contact/admin/unread-count') : null, SUPER ? lire('/salons/access-requests') : null, lire('/espace/prises')
+            MOD ? lire('/mod/alertes/compte') : null, MOD ? lire('/mod/reports/count') : null, MOD ? lire('/mod/appeals/count') : null, MOD ? lire('/avatars/pending') : null,
+            MOD ? lire('/equipe/candidatures/count') : null, GUIDE ? lire('/guide/moderation') : null,
+            SUPER ? lire('/contact/admin/unread-count') : null, SUPER ? lire('/salons/access-requests') : null, GUIDE ? lire('/espace/prises') : null
         ]);
         PRIS = {}; ((r[8] && r[8].prises) || []).forEach(function (p) { PRIS[p.type] = (PRIS[p.type] || 0) + 1; });
         var al = r[0], rep = r[1], app = r[2], ph = r[3], cand = r[4], gu = r[5], con = r[6], vip = r[7];
@@ -48,7 +48,7 @@
             avisSignales: gu ? longueur(gu.signales) : null, soirees: gu ? longueur(gu.soirees) : null, corrections: gu ? longueur(gu.corrections) : null,
             contact: con ? con.count : null, vip: Array.isArray(vip) ? vip.filter(function (x) { return x.status === 'pending'; }).length : null
         };
-        var html = niveau('Urgent', 'à regarder en premier', 'evx-urgent', [
+        var html = (MOD ? niveau('Urgent', 'à regarder en premier', 'evx-urgent', [
                 carte(c.alertes, 'Alertes de modération ouvertes', 'moderation.html#alertes', 'fa-triangle-exclamation', c.alertes == null, ['alerte']),
                 carte(c.signalements, 'Signalements en attente', 'moderation.html#reports', 'fa-flag', c.signalements == null, ['signalement'])]) +
             niveau('Ordinaire', 'dans la journée', 'evx-ordinaire', [
@@ -56,14 +56,17 @@
                 carte(c.photos, 'Photos de profil à valider', 'moderation.html#photos', 'fa-image-portrait', c.photos == null, ['photo']),
                 carte(c.candidatures, 'Candidatures de modérateur', 'moderation.html#candidatures', 'fa-user-plus', c.candidatures == null)]
                 .concat(SUPER ? [carte(c.vip, 'Demandes d\'accès aux salons VIP', 'moderation-salons.html', 'fa-lock', c.vip == null),
-                                 carte(c.contact, 'Messages de contact non lus', 'admin.html#contact', 'fa-envelope', c.contact == null)] : [])) +
-            niveau('Éditorial', 'guide libertin', 'evx-editorial', [
+                                 carte(c.contact, 'Messages de contact non lus', 'admin.html#contact', 'fa-envelope', c.contact == null)] : [])) : '') +
+            (GUIDE ? niveau('Éditorial', 'guide libertin', 'evx-editorial', [
                 carte(c.lieux, 'Lieux proposés', 'guide-equipe.html#glModeration', 'fa-location-dot', c.lieux == null, ['guide-lieu']),
                 carte(c.avis, 'Avis à valider', 'guide-equipe.html#glModeration', 'fa-star', c.avis == null, ['guide-avis']),
                 carte(c.avisSignales, 'Avis signalés', 'guide-equipe.html#glModeration', 'fa-comment-slash', c.avisSignales == null, ['guide-signalement']),
                 carte(c.soirees, 'Soirées proposées', 'guide-equipe.html#glModeration', 'fa-calendar', c.soirees == null, ['guide-soiree']),
                 carte(c.corrections, 'Fermetures et erreurs signalées', 'guide-equipe.html#glModeration', 'fa-pen-to-square', c.corrections == null, ['guide-correction']),
-                carte(c.plans, 'Bons plans à valider', 'guide-equipe.html#glModeration', 'fa-lightbulb', c.plans == null, ['guide-bon-plan'])]);
+                carte(c.plans, 'Bons plans à valider', 'guide-equipe.html#glModeration', 'fa-lightbulb', c.plans == null, ['guide-bon-plan'])]) : '') +
+            (ANIM && !SUPER ? niveau('Animation', 'vos outils', 'evx-ordinaire', [
+                carte(null, 'Programme du site (soirées, quiz, blind tests)', 'communaute.html#programme', 'fa-calendar-days', true),
+                carte(null, 'Radios du site', 'communaute.html#radios', 'fa-radio', true)]) : '');
         $('evxTraiter').innerHTML = html;
         var total = Object.keys(c).reduce(function (a, k) { return a + (c[k] || 0); }, 0);
         var urgents = (c.alertes || 0) + (c.signalements || 0);

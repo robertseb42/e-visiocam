@@ -26,12 +26,14 @@
     function $(id) { return document.getElementById(id); }
     function moi() { try { return getCurrentUser() || {}; } catch (e) { return {}; } }
     function trouver(id) { return F.trouver(id); }
-    function ouvrirFiche(id, depuis) { return F.ouvrir(id, { api: '/admin', depuis: depuis }); }
+    // Liste unique : l'admin lit /api/admin, la modération /api/mod (même recherche côté serveur)
+    var API = window.EVC_MEMBRES_API || '/admin';
+    function ouvrirFiche(id, depuis) { return F.ouvrir(id, { api: API, depuis: depuis }); }
     function ouvrirMenu(u, bouton) { return F.ouvrirMenu(u, bouton); }
 
     // Fiche partagée : la page Admin lit /api/admin/… ; une action recharge la liste et le journal
     F.configurer({
-        api: '/admin',
+        api: API,
         trouver: function (id) { return liste.users.find(function (x) { return x.id === id; }) || null; },
         rafraichir: function () { charger(); try { if (typeof loadLogs === 'function') loadLogs(); } catch (e) {} }
     });
@@ -60,7 +62,7 @@
         var n = ++seq;
         if (!liste.users.length) tbody.innerHTML = '<tr><td colspan="6" class="evm-vide"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Chargement...</td></tr>';
         tbody.setAttribute('aria-busy', 'true');
-        return apiCall('/admin/users?' + chaine()).then(function (d) {
+        return apiCall(API + '/users?' + chaine()).then(function (d) {
             if (n !== seq) return;
             liste = d;
             if (d.page > d.pages && d.total) { filtres.page = d.pages; return charger(); }

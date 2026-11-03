@@ -15,9 +15,9 @@
 
     var MOTIF_MIN = 5;
     var NOTE_MAX = 1000;
-    var NIVEAUX = { super_admin: 100, moderator: 50, model: 20, user: 10, bot: 10 };
-    var ROLES = { user: 'Membre', model: 'Modèle', moderator: 'Modérateur', super_admin: 'Super Admin', bot: 'Animateur (IA)' };
-    var ROLE_BADGE = { super_admin: 'evm-b-info', moderator: 'evm-b-info', model: 'evm-b-ok', user: '', bot: 'evm-b-warn' };
+    var NIVEAUX = { super_admin: 100, moderator: 50, guide_editor: 25, animateur: 25, model: 20, user: 10, bot: 10 };
+    var ROLES = { user: 'Membre', model: 'Modèle', guide_editor: 'Éditeur du guide', animateur: 'Animateur', moderator: 'Modérateur', super_admin: 'Super Admin', bot: 'Animateur IA (DJ_Disco)' };
+    var ROLE_BADGE = { super_admin: 'evm-b-info', moderator: 'evm-b-info', guide_editor: 'evm-b-info', animateur: 'evm-b-info', model: 'evm-b-ok', user: '', bot: 'evm-b-warn' };
     var RAISONS = { contenu_illegal: 'Contenu illégal', mineur: 'Mineur', violence: 'Violence', harcelement: 'Harcèlement',
         contenu_sexuel_non_consenti: 'Contenu sexuel non consenti', spam: 'Spam', comportement: 'Comportement', autre: 'Autre' };
     var STATUTS_SIG = { pending: 'En attente', resolved: 'Traité', ignored: 'Ignoré', escalated: 'Transmis' };
@@ -263,7 +263,7 @@
     function changerRole(id, roleCible) {
         var u = trouver(id);
         var m = moi();
-        var options = ['user', 'model', 'moderator'].concat(m.role === 'super_admin' ? ['super_admin'] : []);
+        var options = ['user', 'model', 'guide_editor', 'animateur', 'moderator'].concat(m.role === 'super_admin' ? ['super_admin'] : []);
         dialogueMotif({
             titre: 'Changer le rôle de ' + u.username,
             texte: 'Rôle actuel : ' + (ROLES[u.role] || u.role) + '. Le membre est déconnecté du temps réel pour relire ses droits.',

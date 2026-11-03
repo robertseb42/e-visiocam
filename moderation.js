@@ -681,6 +681,7 @@ function loadUsers() {
 }
 
 function renderUsers(filter) {
+    if (window.EvcMembres) return;   // liste unique des membres (pages/admin-membres.js)
     filter = (filter || '').toLowerCase();
     var filtered = [];
     allUsers.forEach(function(u) {
@@ -770,6 +771,7 @@ function showTab(name, btn) {
     btn.classList.remove('text-slate-500', 'font-semibold');
 
     if (name === 'surveillance') loadAllStreams();
+    if (name === 'users' && window.EvcMembres) EvcMembres.charger();   // liste unique des membres
     if (name === 'viewlogs') loadViewLogs();
     if (name === 'reports') loadReports();
     if (name === 'users') loadUsers();

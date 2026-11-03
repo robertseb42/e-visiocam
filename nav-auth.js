@@ -125,7 +125,7 @@
                         <a href="aide.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-life-ring w-4" style="color:#22c55e"></i> Aide
                         </a>
-                        ${user.role === 'moderator' || user.role === 'super_admin' ? `
+                        ${['moderator', 'super_admin', 'guide_editor', 'animateur'].includes(user.role) ? `
                             <a href="espace-equipe.html" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                                 <div class="flex items-center gap-3">
                                     <i class="fa-solid fa-gauge-high w-4" style="color:#ff1680"></i> Espace équipe

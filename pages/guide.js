@@ -24,7 +24,7 @@
 
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function connecte() { return typeof getCurrentUser === 'function' && !!getCurrentUser(); }
-    function equipe() { var u = connecte() && getCurrentUser(); return !!u && (u.role === 'moderator' || u.role === 'super_admin'); }
+    function equipe() { var u = connecte() && getCurrentUser(); return !!u && (u.role === 'moderator' || u.role === 'super_admin' || u.role === 'guide_editor'); }
     function toast(t, type) { if (typeof showToast === 'function') showToast(t, type || 'info'); else alert(t); }
     function versConnexion() { location.href = 'login.html?redirect=' + encodeURIComponent(location.pathname.replace(/^\//, '') + location.search); }
     async function api(chemin, options) {

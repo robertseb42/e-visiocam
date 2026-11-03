@@ -4,7 +4,7 @@
 (function () {
     'use strict';
     var u = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-    if (!u || (u.role !== 'moderator' && u.role !== 'super_admin') || typeof apiCall !== 'function') return;
+    if (!u || ['moderator', 'super_admin', 'guide_editor'].indexOf(u.role) < 0 || typeof apiCall !== 'function') return;
     var prises = {}, dureeMin = 30;
     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 

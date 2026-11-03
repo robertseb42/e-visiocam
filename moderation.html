@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js"></script>
     <script src="auth-api.js?v=7"></script>
-    <script src="nav-auth.js?v=11" defer></script>
+    <script src="nav-auth.js?v=12" defer></script>
     <script src="legal-banner.js?v=4" defer></script>
     <style>
         .live-pulse { animation: pulse 1.5s infinite; }
@@ -270,31 +270,68 @@
         </div>
 
         <div id="tab-users" class="tab-content p-5 hidden">
-            <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
-                <input type="text" id="searchUser" placeholder="Rechercher..."
-                    class="px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary md:w-80">
-                <div class="flex items-center gap-3">
-                    <button type="button" data-click="offrirA" data-click-args='[""]' class="px-3 py-1.5 rounded-xl text-xs font-bold" style="background:#ffe500;color:#111113"><i class="fa-solid fa-gift mr-1"></i> Offrir des crédits</button>
-                    <button data-click="loadUsers" class="text-xs text-brand-primary font-bold hover:underline">
-                        <i class="fa-solid fa-refresh"></i> Rafraîchir
-                    </button>
+            <div class="evm">
+                <div class="evm-barre">
+                    <label class="evm-recherche">
+                        <span class="sr-only">Rechercher un membre (pseudo, e-mail ou numéro)</span>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="evmQ" placeholder="Pseudo, e-mail ou #numéro" autocomplete="off" maxlength="100">
+                    </label>
+                    <div class="evm-actions-haut">
+                        <button type="button" data-click="offrirA" data-click-args='[""]' class="evm-btn evm-btn-jaune"><i class="fa-solid fa-gift" aria-hidden="true"></i> Offrir des crédits</button>
+                        <button type="button" id="evmRafraichir" class="evm-btn evm-btn-ghost"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Rafraîchir</button>
+                    </div>
                 </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-100 text-left text-xs text-slate-500 uppercase font-bold">
-                            <th class="py-3 px-2">ID</th>
-                            <th class="py-3 px-2">Pseudo</th>
-                            <th class="py-3 px-2">Rôle</th>
-                            <th class="py-3 px-2">Statut</th>
-                            <th class="py-3 px-2 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTable">
-                        <tr><td colspan="5" class="py-8 text-center text-slate-400">Chargement...</td></tr>
-                    </tbody>
-                </table>
+                <div class="evm-filtres" role="group" aria-label="Filtres">
+                    <label class="evm-champ">Rôle
+                        <select id="evmRole">
+                            <option value="">Tous</option><option value="user">Membre</option><option value="model">Modèle</option>
+                            <option value="guide_editor">Éditeur du guide</option><option value="animateur">Animateur</option><option value="moderator">Modérateur</option><option value="super_admin">Super Admin</option><option value="bot">Animateur IA</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Statut
+                        <select id="evmStatut">
+                            <option value="">Tous</option><option value="actif">Actif</option><option value="muet">Muet</option>
+                            <option value="exclu">Exclu</option><option value="banni">Banni</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Inscription
+                        <select id="evmInscrits">
+                            <option value="">Toutes</option><option value="7j">7 derniers jours</option><option value="30j">30 derniers jours</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Trier par
+                        <select id="evmTri">
+                            <option value="inscription">Date d'inscription</option><option value="derniere_connexion">Dernière connexion</option>
+                            <option value="signalements">Signalements</option><option value="credits">Crédits</option><option value="pseudo">Pseudo</option>
+                        </select>
+                    </label>
+                    <label class="evm-champ">Ordre
+                        <select id="evmOrdre">
+                            <option value="">Par défaut</option><option value="desc">Décroissant</option><option value="asc">Croissant</option>
+                        </select>
+                    </label>
+                    <div class="evm-puces">
+                        <label class="evm-puce"><input type="checkbox" id="evmEnLigne"> 🟢 En ligne</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmSignale"> ⚠️ Signalés (3+)</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmNonVerifie"> ✉️ E-mail non vérifié</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmPhoto"> 📷 Photo en attente</label>
+                        <label class="evm-puce"><input type="checkbox" id="evmInactifs"> 💤 Inactifs 30 j</label>
+                        <button type="button" id="evmReset" class="evm-lien">Effacer les filtres</button>
+                    </div>
+                </div>
+                <p class="evm-resume" id="userCount" aria-live="polite">Chargement...</p>
+                <div class="evm-tableau">
+                    <table class="evm-table">
+                        <thead>
+                            <tr><th scope="col">Membre</th><th scope="col">Rôle</th><th scope="col">Statut</th><th scope="col">Dernière activité</th><th scope="col">Crédits</th><th scope="col"><span class="sr-only">Actions</span></th></tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr><td colspan="6" class="evm-vide"><i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i> Chargement...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <nav class="evm-pages" id="evmPages" aria-label="Pages de la liste des membres"></nav>
             </div>
         </div>
 
@@ -387,8 +424,10 @@
 <!-- ✅ LE SCRIPT EST MAINTENANT DANS UN FICHIER SÉPARÉ -->
 <script src="sanction-modal.js?v=4"></script>
 <script src="offrir-credits.js?v=2"></script>
-<script src="fiche-membre.js?v=3"></script>
-<script src="moderation.js?v=10"></script>
+<script src="fiche-membre.js?v=4"></script>
+<script src="pages/membres-mod.js?v=1"></script>
+<script src="pages/admin-membres.js?v=5"></script>
+<script src="moderation.js?v=12"></script>
 <script src="moderation-alertes.js?v=3"></script>
 <script src="moderation-photos.js?v=csp2-b"></script>
 <script src="moderation-equipe.js?v=csp2"></script>
@@ -397,7 +436,7 @@
 <script src="pages/moderation-demandes.js"></script>
 <script src="site-search.js" defer></script>
 <script src="footer.js?v=9" defer></script>
-<script src="pages/espace-menu.js?v=1"></script>
-<script src="pages/prise-en-charge.js?v=1"></script>
+<script src="pages/espace-menu.js?v=2"></script>
+<script src="pages/prise-en-charge.js?v=2"></script>
 </body>
 </html>
