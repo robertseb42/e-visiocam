@@ -22,9 +22,9 @@
             ['Programme du site', 'communaute.html#programme', A], ['Radios', 'communaute.html#radios', A], ['Salons et VIP', 'moderation-salons.html', S], ['Décor de l\'accueil', 'decor.html', S]] },
         { nom: 'Guide libertin', ico: 'fa-map-location-dot', roles: G, liens: [
             ['À valider', 'guide-equipe.html#glModeration', G], ['Fiches des lieux', 'guide-equipe.html#glEqTitre', G], ['Import CSV', 'guide-equipe.html#glImpTitre', G]] },
-        { nom: 'Statistiques', ico: 'fa-chart-column', roles: S, liens: [['Fréquentation', 'guide-equipe.html#evFreq', S], ['Activité des membres', 'admin.html#stats', S]] },
+        { nom: 'Statistiques', ico: 'fa-chart-column', roles: S, liens: [['Activité et fréquentation', 'admin.html#stats', S]] },
         { nom: 'Messages', ico: 'fa-envelope', roles: S, liens: [['Demandes de contact', 'admin.html#contact', S]] },
-        { nom: 'Système', ico: 'fa-gear', roles: S, liens: [['Maintenance et sauvegardes', 'admin.html', S], ['Journal des actions', 'admin.html#audit', S]] }
+        { nom: 'Système', ico: 'fa-gear', roles: S, liens: [['Maintenance et sauvegardes', 'admin.html#systeme', S], ['Journal (actions et événements)', 'admin.html#audit', S]] }
     ];
     var esc = function (t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var ici = location.pathname.split('/').pop() + location.hash;

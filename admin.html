@@ -41,7 +41,7 @@
     </style>
     <link rel="stylesheet" href="fiche-membre.css?v=3">
     <link rel="stylesheet" href="tailwind.css?v=20261009">
-    <link rel="stylesheet" href="espace.css?v=3">
+    <link rel="stylesheet" href="espace.css?v=4">
 </head>
 <body class="cam-home h-full flex flex-col font-sans">
 
@@ -86,50 +86,6 @@
         <div class="flex items-center gap-2 text-xs bg-purple-50 text-purple-700 px-3 py-2 rounded-xl border border-purple-200">
             <i class="fa-solid fa-shield-halved"></i>
             <span id="userBadge">Chargement...</span>
-        </div>
-    </div>
-
-    <div id="maintenanceCard" class="mb-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
-        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-            <div class="flex items-center gap-3 lg:w-80 shrink-0">
-                <div id="maintIcon" class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                <div>
-                    <p class="font-bold text-slate-900">Mode maintenance
-                        <span id="maintPill" class="ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">…</span>
-                    </p>
-                    <p class="text-xs text-slate-500" id="maintHint">Chargement...</p>
-                </div>
-            </div>
-            <input type="text" id="maintMessage" maxlength="300"
-                placeholder="Message affiché aux visiteurs (ex : Le site revient très vite)"
-                class="flex-1 px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
-            <button id="maintBtn" data-click="toggleMaintenance" disabled
-                class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-400 whitespace-nowrap">
-                Chargement...
-            </button>
-        </div>
-    </div>
-
-    <div id="backupCard" class="mb-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
-        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
-            <div class="flex items-center gap-3 lg:w-80 shrink-0">
-                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-database"></i></div>
-                <div>
-                    <p class="font-bold text-slate-900">Sauvegardes
-                        <span id="backupPill" class="ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">…</span>
-                    </p>
-                    <p class="text-xs text-slate-500" id="backupHint">Chargement...</p>
-                </div>
-            </div>
-            <p class="flex-1 text-xs text-slate-500" id="backupDetail"></p>
-            <div class="flex flex-wrap gap-2">
-                <button id="backupRunBtn" data-click="lancerSauvegarde" class="px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-brand-primary hover:bg-brand-hover whitespace-nowrap">
-                    <i class="fa-solid fa-floppy-disk mr-1"></i> Sauvegarder maintenant
-                </button>
-                <button id="backupDlBtn" data-click="telechargerSauvegarde" class="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">
-                    <i class="fa-solid fa-download mr-1"></i> Télécharger
-                </button>
-            </div>
         </div>
     </div>
 
@@ -184,7 +140,7 @@
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="flex border-b border-slate-100 overflow-x-auto scrollbar-none">
             <button id="statsTabBtn" data-click="showTab" data-click-args='["stats","$this"]' class="admin-tab px-5 py-3 text-sm font-bold text-brand-primary border-b-2 border-brand-primary bg-white whitespace-nowrap">
-                <i class="fa-solid fa-chart-column mr-1"></i> Statistiques
+                <i class="fa-solid fa-chart-column mr-1"></i> Statistiques et fréquentation
             </button>
             <button data-click="showTab" data-click-args='["users","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-users mr-1"></i> Utilisateurs
@@ -198,11 +154,11 @@
             <button data-click="showTab" data-click-args='["radios","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-radio mr-1"></i> Radios
             </button>
-            <button data-click="showTab" data-click-args='["logs","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
-                <i class="fa-solid fa-list mr-1"></i> Logs
-            </button>
             <button id="auditTabBtn" data-click="showTab" data-click-args='["audit","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
-                <i class="fa-solid fa-clipboard-list mr-1"></i> Journal des actions
+                <i class="fa-solid fa-clipboard-list mr-1"></i> Journal
+            </button>
+            <button id="systemeTabBtn" data-click="showTab" data-click-args='["systeme","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
+                <i class="fa-solid fa-gear mr-1"></i> Système
             </button>
             <button id="contactTabBtn" data-click="showTab" data-click-args='["contact","$this"]' class="admin-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-envelope mr-1"></i> Demandes de contact
@@ -287,6 +243,13 @@
             <p class="text-[11px] text-slate-400 mt-3">Jours comptés à l'heure de Paris. « Membres connectés » : membres différents venus sur le site ce jour-là (suivi précis à partir de cette mise à jour ; avant, seule la dernière connexion de chacun est connue).</p>
         
             <!-- Provenance : anciens domaines Saligane (page saligane.html) -->
+            <section class="evf evf-admin" id="evFreq" hidden aria-labelledby="evFreqTitre">
+        <div class="gl-liste-tete"><h2 id="evFreqTitre"><i class="fa-solid fa-chart-column" aria-hidden="true"></i> Fréquentation (visites, Google, clics vers les clubs)</h2>
+            <label class="gl-select"><span class="gl-sr">Période</span><select id="evFreqJours"><option value="7">7 derniers jours</option><option value="30" selected>30 derniers jours</option><option value="90">90 derniers jours</option><option value="365">12 derniers mois</option></select></label></div>
+        <p class="gl-aide">Mesure anonyme : aucun cookie, aucune adresse IP ni identité enregistrée, seulement des compteurs par jour. Les robots (Google…) ne sont pas comptés.</p>
+        <div id="evFreqContenu"></div>
+    </section>
+
             <section id="statsProvenance" class="rounded-2xl border border-slate-200 p-4 mt-6" aria-labelledby="provTitre">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
                     <div>
@@ -485,14 +448,6 @@
             </div>
         </div>
 
-        <div id="tab-logs" class="tab-content p-5 hidden">
-            <div id="logsList" class="space-y-2 max-h-[500px] overflow-y-auto">
-                <p class="text-center text-slate-400 py-8 text-sm">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...
-                </p>
-            </div>
-        </div>
-
         <div id="tab-audit" class="tab-content p-5 hidden">
             <div class="evm">
                 <div class="evm-titre">
@@ -516,6 +471,69 @@
                 </div>
                 <nav class="evm-pages" id="evaPages" aria-label="Pages du journal"></nav>
             </div>
+            <!-- Événements du site (ancien onglet « Logs »), classés par catégorie -->
+            <div class="evm" style="margin-top:22px">
+                <div class="evm-titre"><div><h3>Événements du site</h3><p>Connexions, comptes, modération et administration, du plus récent au plus ancien (200 derniers). Les erreurs techniques du serveur restent dans les journaux de Render.</p></div></div>
+                <div class="evm-puces" id="logsCategories" role="group" aria-label="Catégorie">
+                    <button type="button" class="evm-puce evm-puce-active" data-log-cat="">Tout</button>
+                    <button type="button" class="evm-puce" data-log-cat="connexions">Connexions et comptes</button>
+                    <button type="button" class="evm-puce" data-log-cat="moderation">Modération</button>
+                    <button type="button" class="evm-puce" data-log-cat="administration">Administration</button>
+                    <button type="button" class="evm-puce" data-log-cat="activite">Activité des membres</button>
+                    <button type="button" class="evm-puce" data-log-cat="erreurs">Erreurs</button>
+                </div>
+                <div id="logsList" class="space-y-2 max-h-[560px] overflow-y-auto" style="margin-top:10px">
+                    <p class="text-center text-slate-400 py-8 text-sm"><i class="fa-solid fa-circle-notch fa-spin"></i> Chargement...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="tab-systeme" class="tab-content p-5 hidden">
+    <div id="maintenanceCard" class="mb-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div class="flex items-center gap-3 lg:w-80 shrink-0">
+                <div id="maintIcon" class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                <div>
+                    <p class="font-bold text-slate-900">Mode maintenance
+                        <span id="maintPill" class="ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">…</span>
+                    </p>
+                    <p class="text-xs text-slate-500" id="maintHint">Chargement...</p>
+                </div>
+            </div>
+            <input type="text" id="maintMessage" maxlength="300"
+                placeholder="Message affiché aux visiteurs (ex : Le site revient très vite)"
+                class="flex-1 px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+            <button id="maintBtn" data-click="toggleMaintenance" disabled
+                class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-slate-400 whitespace-nowrap">
+                Chargement...
+            </button>
+        </div>
+    </div>
+
+    <div id="backupCard" class="mb-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div class="flex items-center gap-3 lg:w-80 shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-database"></i></div>
+                <div>
+                    <p class="font-bold text-slate-900">Sauvegardes
+                        <span id="backupPill" class="ml-1 align-middle text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">…</span>
+                    </p>
+                    <p class="text-xs text-slate-500" id="backupHint">Chargement...</p>
+                </div>
+            </div>
+            <p class="flex-1 text-xs text-slate-500" id="backupDetail"></p>
+            <div class="flex flex-wrap gap-2">
+                <button id="backupRunBtn" data-click="lancerSauvegarde" class="px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-brand-primary hover:bg-brand-hover whitespace-nowrap">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> Sauvegarder maintenant
+                </button>
+                <button id="backupDlBtn" data-click="telechargerSauvegarde" class="px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 whitespace-nowrap">
+                    <i class="fa-solid fa-download mr-1"></i> Télécharger
+                </button>
+            </div>
+        </div>
+    </div>
+
         </div>
 
         <div id="tab-contact" class="tab-content p-5 hidden">
@@ -660,7 +678,7 @@
     </div>
 </div>
 
-<script src="pages/admin.js?v=7"></script>
+<script src="pages/admin.js?v=8"></script>
 <script src="fiche-membre.js?v=4"></script>
 <script src="pages/admin-membres.js?v=5"></script>
 
@@ -668,7 +686,8 @@
 <script src="pages/admin-demandes.js"></script>
 <script src="pages/admin-programme.js?v=2"></script>
 <script src="admin-provenance.js?v=1"></script>
+<script src="pages/frequentation.js?v=3"></script>
 <script src="footer.js?v=9" defer></script>
-<script src="pages/espace-menu.js?v=3"></script>
+<script src="pages/espace-menu.js?v=4"></script>
 </body>
 </html>

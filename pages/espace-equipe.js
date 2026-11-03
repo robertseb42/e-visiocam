@@ -88,8 +88,8 @@
         var dateFr = function (d) { return new Date(d).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
         var sauvOk = bk && bk.lastOk && !bk.lastError && (Date.now() - Date.parse(bk.lastOk)) < 36 * 3600 * 1000;
         $('evxSysteme').innerHTML =
-            etat(!(ma && ma.enabled), 'Site ' + (ma && ma.enabled ? 'en maintenance' : 'ouvert'), ma && ma.enabled ? (ma.message || 'Les visiteurs voient la page de maintenance') : 'Accessible à tous', 'admin.html') +
-            etat(sauvOk, 'Sauvegarde', !bk ? 'État inconnu' : bk.lastError ? 'Erreur : ' + bk.lastError : bk.lastOk ? 'Dernière réussie : ' + dateFr(bk.lastOk) + (bk.emailConfigure ? '' : ' (envoi par e-mail non configuré)') : 'Aucune sauvegarde pour l\'instant', 'admin.html');
+            etat(!(ma && ma.enabled), 'Site ' + (ma && ma.enabled ? 'en maintenance' : 'ouvert'), ma && ma.enabled ? (ma.message || 'Les visiteurs voient la page de maintenance') : 'Accessible à tous', 'admin.html#systeme') +
+            etat(sauvOk, 'Sauvegarde', !bk ? 'État inconnu' : bk.lastError ? 'Erreur : ' + bk.lastError : bk.lastOk ? 'Dernière réussie : ' + dateFr(bk.lastOk) + (bk.emailConfigure ? '' : ' (envoi par e-mail non configuré)') : 'Aucune sauvegarde pour l\'instant', 'admin.html#systeme');
         $('evxSystemeBloc').hidden = false;
     }
 

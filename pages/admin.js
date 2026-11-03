@@ -150,28 +150,39 @@ async function loadUsers() {
 }
 
 // ---------- CHARGER LES LOGS ----------
-async function loadLogs() {
-    const list = document.getElementById('logsList');
-    try {
-        const data = await apiCall('/admin/logs');
-        const logs = data.logs;
-        if (!logs || logs.length === 0) {
-            list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Aucun log pour le moment</p>';
-            return;
-        }
-        list.innerHTML = logs.map(log => {
-            const date = dateServeur(log.created_at).toLocaleString('fr-FR');
-            return '<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50">' +
-                '<span class="text-xs font-bold uppercase text-slate-600">' + escapeHtml(log.type) + '</span>' +
-                '<div class="flex-1">' +
-                '<p class="text-sm text-slate-700">' + escapeHtml(log.message) + '</p>' +
-                '<p class="text-xs text-slate-400 mt-1">' + date + '</p>' +
-                '</div></div>';
-        }).join('');
-    } catch (err) {
-        list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + escapeHtml(err.message) + '</p>';
-    }
+// Événements du site, classés par catégorie (Journal, refonte P5)
+var LOGS = [], LOG_CAT = '';
+function categorieLog(type) {
+    var t = String(type || '').toUpperCase();
+    if (/ERR|ECHEC|FAIL/.test(t)) return 'erreurs';
+    if (/^(LOGIN|LOGOUT|REGISTER|PASSWORD_(CHANGE|CHANGED|RESET|RESET_REQUESTED)$|EMAIL_|GOOGLE_|DELETE_SELF|PROFILE_UPDATE)/.test(t)) return 'connexions';
+    if (/^(WARN|BAN|UNBAN|KICK|MUTE|SANCTION|REPORT_|MOD_|BANNED_WORD|USER_(UN)?BLOCK|PRISE_EN_CHARGE|LIVE_)/.test(t)) return 'moderation';
+    if (/^(CREDITS_PURCHASE|GIFT_SENT|CAM_REQUEST|REFERRAL)/.test(t)) return 'activite';
+    return 'administration';
 }
+function afficherLogs() {
+    var list = document.getElementById('logsList'); if (!list) return;
+    var logs = LOGS.filter(function (l) { return !LOG_CAT || categorieLog(l.type) === LOG_CAT; });
+    document.querySelectorAll('[data-log-cat]').forEach(function (b) { b.classList.toggle('evm-puce-active', b.getAttribute('data-log-cat') === LOG_CAT); });
+    if (!logs.length) { list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">' + (LOG_CAT === 'erreurs' ? 'Aucune erreur enregistrée ici (les erreurs techniques sont dans les journaux de Render).' : 'Aucun événement dans cette catégorie.') + '</p>'; return; }
+    var NOMS = { connexions: 'Compte', moderation: 'Modération', administration: 'Admin', activite: 'Activité', erreurs: 'Erreur' };
+    list.innerHTML = logs.map(function (log) {
+        var cat = categorieLog(log.type);
+        return '<div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50">' +
+            '<span class="evx-log-cat evx-log-' + cat + '">' + NOMS[cat] + '</span>' +
+            '<div class="flex-1"><p class="text-sm text-slate-700"><b class="text-xs uppercase text-slate-500">' + escapeHtml(log.type) + '</b> · ' + escapeHtml(log.message) + '</p>' +
+            '<p class="text-xs text-slate-400 mt-1">' + dateServeur(log.created_at).toLocaleString('fr-FR') + '</p></div></div>';
+    }).join('');
+}
+async function loadLogs() {
+    var list = document.getElementById('logsList'); if (!list) return;
+    try { LOGS = (await apiCall('/admin/logs')).logs || []; afficherLogs(); }
+    catch (err) { list.innerHTML = '<p class="text-center text-rose-500 py-8 text-sm">' + escapeHtml(err.message) + '</p>'; }
+}
+document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-log-cat]'); if (!b) return;
+    LOG_CAT = b.getAttribute('data-log-cat'); afficherLogs();
+});
 
 // ---------- STATS ----------
 function updateStats() {
@@ -578,7 +589,7 @@ function showTab(name, btn) {
     if (name === 'stats') chargerStats();
     if (name === 'logs') loadLogs();
     if (name === 'users' && window.EvcMembres) EvcMembres.charger();
-    if (name === 'audit' && window.EvcMembres) EvcMembres.chargerJournal();
+    if (name === 'audit') { if (window.EvcMembres) EvcMembres.chargerJournal(); loadLogs(); }
     if (name === 'contact') loadContactMessages();
     if (name === 'programme' && window.EvcProgramme) EvcProgramme.charger();
     if (location.hash !== '#' + name && name === 'contact') history.replaceState(null, '', '#contact');

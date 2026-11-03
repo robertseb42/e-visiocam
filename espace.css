@@ -75,5 +75,56 @@ html[data-theme="light"] .evp-moi{color:#059669}html[data-theme="light"] .evp-au
 @media(max-width:900px){.evx-cadre{grid-template-columns:1fr;padding:12px 12px 0;gap:10px}}
 
 /* Couleurs du menu, même sur les pages sans guide.css */
-.evx-menu,.evx-cadre .evp{--g-panel:#1c1c20;--g-panel2:#232329;--g-tag:#262630;--g-border:#2f2f36;--g-text:#f5f5f7;--g-soft:#d4d4dc;--g-muted:#b1b1bd;--g-accent:#ffe500;--g-accent-txt:#111113;--g-pink:#ff1680;--g-pink-bg:rgba(255,22,128,.12);--g-pink-txt:#ffb3d4;--g-ok:#34d399;--g-danger:#f87171}
-html[data-theme="light"] .evx-menu{--g-panel:#fff;--g-panel2:#f8fafc;--g-tag:#f1f5f9;--g-border:#e2e8f0;--g-text:#0f172a;--g-soft:#334155;--g-muted:#64748b;--g-accent:#e91e63;--g-accent-txt:#fff;--g-pink:#e91e63;--g-pink-bg:#fdf2f8;--g-pink-txt:#9d174d;--g-ok:#059669;--g-danger:#dc2626}
+.evx-menu,.evx-cadre .evp,.evf{--g-panel:#1c1c20;--g-panel2:#232329;--g-tag:#262630;--g-border:#2f2f36;--g-text:#f5f5f7;--g-soft:#d4d4dc;--g-muted:#b1b1bd;--g-accent:#ffe500;--g-accent-txt:#111113;--g-pink:#ff1680;--g-pink-bg:rgba(255,22,128,.12);--g-pink-txt:#ffb3d4;--g-ok:#34d399;--g-danger:#f87171}
+html[data-theme="light"] .evx-menu,html[data-theme="light"] .evf{--g-panel:#fff;--g-panel2:#f8fafc;--g-tag:#f1f5f9;--g-border:#e2e8f0;--g-text:#0f172a;--g-soft:#334155;--g-muted:#64748b;--g-accent:#e91e63;--g-accent-txt:#fff;--g-pink:#e91e63;--g-pink-bg:#fdf2f8;--g-pink-txt:#9d174d;--g-ok:#059669;--g-danger:#dc2626}
+
+/* P5 : catégories du journal */
+[data-log-cat]{padding:6px 12px;border-radius:999px;border:1px solid rgba(127,127,140,.35);background:transparent;color:inherit;font:600 12.5px Inter,Arial,sans-serif;cursor:pointer}
+[data-log-cat].evm-puce-active{background:#ffe500;color:#111113;border-color:#ffe500}
+.evx-log-cat{flex:none;min-width:86px;text-align:center;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;background:rgba(127,127,140,.18);color:#c8c8d0}
+.evx-log-connexions{background:rgba(90,174,255,.15);color:#7cc0ff}.evx-log-moderation{background:rgba(248,113,113,.15);color:#fca5a5}
+.evx-log-administration{background:rgba(255,229,0,.12);color:#ffe500}.evx-log-activite{background:rgba(52,211,153,.13);color:#6ee7b7}.evx-log-erreurs{background:rgba(248,113,113,.3);color:#fff}
+
+/* Espace équipe : fréquentation */
+.evf-tuiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.evf-tuile{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:14px;background:var(--g-panel2);border:1px solid var(--g-border)}
+.evf-tuile span{font-size:12.5px;color:var(--g-muted)}
+.evf-tuile b{font-size:28px;font-weight:900;color:var(--g-text);letter-spacing:-.5px;line-height:1.15}
+.evf-tuile small{font-size:12px;font-weight:700}
+.evf-tuile em{font-style:normal;font-size:12px;color:var(--g-muted)}
+.evf-hausse{color:var(--g-ok)}.evf-baisse{color:var(--g-danger)}.evf-neutre{color:var(--g-muted)}
+.evf-compare{margin:6px 2px 12px;font-size:12px;color:var(--g-muted)}
+.evf-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.evf-carte{padding:14px 16px;border-radius:14px;background:var(--g-panel2);border:1px solid var(--g-border);min-width:0}
+.evf-large{grid-column:1/-1}
+.evf-carte h3{margin:0 0 10px;font-size:14px;font-weight:800;color:var(--g-text)}
+.evf-carte h3 small{font-weight:500;color:var(--g-muted)}
+.evf-rang{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.evf-rang li{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;align-items:center;gap:10px;font-size:13px;color:var(--g-soft)}
+.evf-nom{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.evf-nom a{color:inherit}
+.evf-barre{height:8px;border-radius:4px;background:var(--g-tag);overflow:hidden}
+.evf-barre i{display:block;height:100%;border-radius:4px;background:var(--g-pink)}
+.evf-rang b{color:var(--g-text);font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.evf-graph{position:relative;display:flex;align-items:flex-end;gap:2px;height:160px;padding-top:30px;border-bottom:1px solid var(--g-border)}
+.evf-col{flex:1;height:100%;display:flex;align-items:flex-end;cursor:default;outline:none}
+.evf-col i{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--g-pink);opacity:.85;transition:opacity .15s}
+.evf-col:hover i,.evf-col.actif i,.evf-col:focus i{opacity:1;box-shadow:0 0 0 2px var(--g-panel2),0 0 0 3px var(--g-pink)}
+.evf-bulle{position:absolute;top:0;padding:4px 9px;border-radius:8px;background:var(--g-panel);border:1px solid var(--g-border);color:var(--g-text);font-size:12px;white-space:nowrap;pointer-events:none}
+.evf-axe{display:flex;justify-content:space-between;margin-top:6px;font-size:11.5px;color:var(--g-muted)}
+.evf-conseils ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--g-soft)}
+.evf-conseils h3 i{color:var(--g-accent)}
+.evf-tableau{overflow-x:auto}
+.evf-tableau table{width:100%;border-collapse:collapse;font-size:13px}
+.evf-tableau th{text-align:left;font-weight:700;color:var(--g-muted);padding:6px 8px;border-bottom:1px solid var(--g-border);white-space:nowrap}
+.evf-tableau td{padding:7px 8px;border-bottom:1px solid var(--g-border);color:var(--g-soft);font-variant-numeric:tabular-nums}
+.evf-tableau td a{color:var(--g-text);font-weight:600}
+.evf-zero{color:var(--g-muted);opacity:.6}
+.evf-vide{margin:0;color:var(--g-muted);font-size:13px}
+@media(max-width:820px){.evf-tuiles{grid-template-columns:1fr 1fr}.evf-grille{grid-template-columns:1fr}.evf-tuile b{font-size:22px}}
+
+.evf-admin{margin-top:24px;padding:18px;border-radius:16px;background:var(--g-panel);border:1px solid var(--g-border);color:var(--g-text)}
+.evf-admin .gl-liste-tete{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.evf-admin h2{margin:0;font-size:17px;font-weight:800;color:var(--g-text)}
+.evf-admin .gl-aide{font-size:12.5px;color:var(--g-muted)}
+.evf-admin select{padding:7px 10px;border-radius:10px;background:var(--g-panel2);border:1px solid var(--g-border);color:var(--g-text)}
