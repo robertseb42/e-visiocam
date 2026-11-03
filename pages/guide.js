@@ -312,7 +312,9 @@
             img.src = url;
         });
     }
+    var SOIREES_VUES = {};   // soirées affichées, pour « Modifier » (équipe)
     function soireeHTML(s, avecLieu) {
+        SOIREES_VUES[s.id] = s;
         var d = new Date(s.date + 'T12:00:00');
         return '<article class="gl-soiree"><div class="gl-soiree-date" aria-hidden="true"><small>' + JOURS_C[d.getDay()] + '</small><b>' + d.getDate() + '</b><small>' + MOIS_C[d.getMonth()] + '</small></div>' +
             '<div class="gl-soiree-txt"><h3>' + esc(adoucir(s.titre)) + (s.recurrenceLibelle ? ' <span class="gl-mini gl-recurrence"><i class="fa-solid fa-rotate" aria-hidden="true"></i> ' + esc(s.recurrenceLibelle) + '</span>' : '') + '</h3>' +
@@ -321,7 +323,7 @@
             (avecLieu ? '<a href="lieu.html?l=' + encodeURIComponent(s.lieu.slug) + '"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(s.lieu.nom) + ' · ' + esc(s.lieu.ville) + '</a>' : '') +
             (s.prix ? '<span class="gl-soiree-prix">' + esc(s.prix) + '</span>' : '') + '</p>' +
             (s.description ? texteRepliable(adoucir(s.description), 'gl-soiree-desc', 160) : '') +
-            (equipe() ? '<div class="gl-soiree-equipe"><label class="gl-lien-btn gl-gris">' + (s.visuel ? 'Changer le visuel' : 'Ajouter le visuel') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-visuel-soiree="' + s.id + '"></label><button type="button" class="gl-lien-btn gl-rouge" data-suppr-soiree="' + s.id + '">Retirer de l\'agenda</button></div>' : '') + '</div>' +
+            (equipe() ? '<div class="gl-soiree-equipe"><button type="button" class="gl-lien-btn" data-modif-soiree="' + s.id + '"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier</button><label class="gl-lien-btn gl-gris">' + (s.visuel ? 'Changer le visuel' : 'Ajouter le visuel') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-visuel-soiree="' + s.id + '"></label><button type="button" class="gl-lien-btn gl-rouge" data-suppr-soiree="' + s.id + '">Retirer de l\'agenda</button></div>' : '') + '</div>' +
             (s.visuel ? '<a class="gl-soiree-visuel" href="' + esc(urlApi(s.visuel)) + '" target="_blank" rel="noopener"><img src="' + esc(urlApi(s.visuel)) + '" alt="Affiche : ' + esc(s.titre) + '" loading="lazy"></a>' : '') + '</article>';
     }
     // Bandeau d'affiches en haut de la page du guide : les prochaines soirées de la région (ou de France)
@@ -427,13 +429,29 @@
         fs.querySelector('[data-recurrence]').addEventListener('change', majRepetition);
         $('glFormSoiree').addEventListener('submit', async function (e) {
             e.preventDefault();
-            var f = this, d = Object.fromEntries(new FormData(f).entries()); d.lieuId = lieuCourant.id;
+            var f = this, d = Object.fromEntries(new FormData(f).entries()), idModif = f.dataset.modif;
+            if (!idModif) d.lieuId = lieuCourant.id;
             if (!d.titre || !d.date) { erreur(f, 'Indiquez au moins le nom et la date de la soirée.'); return; }
             if (!d.recurrence) d.jusquAu = '';
-            if (visuelChoisi) d.visuel = visuelChoisi;
-            try { var r = await api('/soirees', { method: 'POST', body: JSON.stringify(d) }); fermer($('glFenetreSoiree')); f.reset(); toast(r.message, 'success'); fs.querySelector('[data-jusqu]').hidden = true; visuelChoisi = ''; fs.querySelector('[data-visuel-apercu]').hidden = true; majRepetition(); chargerAgendaFiche(); }
+            if (visuelChoisi && !idModif) d.visuel = visuelChoisi;
+            try {
+                var r = await api(idModif ? '/soirees/' + idModif : '/soirees', { method: idModif ? 'PUT' : 'POST', body: JSON.stringify(d) });
+                if (idModif && visuelChoisi) await api('/soirees/' + idModif + '/visuel', { method: 'PUT', body: JSON.stringify({ visuel: visuelChoisi }) });
+                fermer($('glFenetreSoiree')); f.reset(); toast(r.message, 'success'); fs.querySelector('[data-jusqu]').hidden = true; visuelChoisi = ''; fs.querySelector('[data-visuel-apercu]').hidden = true; majRepetition();
+                if (idModif) { delete f.dataset.modif; if ($('glAgendaLieu') && lieuCourant) chargerAgendaFiche(); else location.reload(); } else chargerAgendaFiche();
+            }
             catch (x) { erreur(f, x.message); }
         });
+        // Mode du formulaire : proposer (vide) ou modifier une soirée existante (préremplie)
+        fs.modeSoiree = function (s) {
+            fs.reset(); visuelChoisi = ''; fs.querySelector('[data-visuel-apercu]').hidden = true;
+            var titre = $('glTitreSoiree'), bouton = fs.querySelector('button[type=submit]');
+            if (!s) { delete fs.dataset.modif; titre.textContent = 'Proposer une soirée'; bouton.textContent = equipe() ? 'Publier dans l\'agenda' : 'Envoyer à la modération'; majRepetition(); return; }
+            fs.dataset.modif = s.id; titre.textContent = 'Modifier la soirée'; bouton.textContent = 'Enregistrer les modifications';
+            fs.titre.value = s.titre || ''; fs.date.removeAttribute('min'); fs.date.value = s.dateDebut || s.date || '';
+            fs.debut.value = s.debut || ''; fs.fin.value = s.fin || ''; fs.prix.value = s.prix || ''; fs.description.value = s.description || '';
+            majRepetition(); fs.recurrence.value = s.recurrence || ''; majRepetition(); fs.jusquAu.value = s.jusquAu || '';
+        };
         $('glFormCorrection').addEventListener('submit', async function (e) {
             e.preventDefault();
             var f = this, d = Object.fromEntries(new FormData(f).entries());
@@ -445,7 +463,9 @@
         return chargerAgenda($('glAgendaLieu'), { lieu: lieuCourant.id, jours: 365 }, false, 'Aucune soirée annoncée pour le moment.').then(function (s) { donneesStructurees(lieuCourant, s); });
     }
     document.addEventListener('click', function (e) {
-        if (e.target.closest('#glProposerSoiree')) { if (!connecte()) return versConnexion(); ouvrir('glFenetreSoiree'); }
+        if (e.target.closest('#glProposerSoiree')) { if (!connecte()) return versConnexion(); $('glFormSoiree').modeSoiree(null); ouvrir('glFenetreSoiree'); }
+        var m = e.target.closest('[data-modif-soiree]');
+        if (m && equipe()) { var s = SOIREES_VUES[m.getAttribute('data-modif-soiree')]; if (!s) return; ajouterFenetresFiche(); $('glFormSoiree').modeSoiree(s); ouvrir('glFenetreSoiree'); }
         if (e.target.closest('#glSignalerLieu')) { if (!connecte()) return versConnexion(); ouvrir('glFenetreCorrection'); }
     });
     // Données structurées pour Google (établissement + soirées), d'après les recommandations schema.org
