@@ -287,6 +287,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-mini-club{background:var(--g-pink-bg);color:var(--g-pink-txt)}
 .gl-mini-sauna{background:rgba(96,165,250,.14);color:#93c5fd}
 .gl-mini-soiree{background:rgba(167,139,250,.16);color:#c4b5fd}
+.gl-mini-restaurant{background:rgba(251,146,60,.15);color:#fdba74}
 .gl-verifie{background:rgba(52,211,153,.14);color:var(--g-ok)}
 .gl-lieu-txt small{color:var(--g-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gl-liste{max-height:720px;overflow-y:auto;padding-right:4px}

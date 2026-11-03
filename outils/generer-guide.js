@@ -22,7 +22,7 @@ const RACINE = 'club-libertin';
 const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slug = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'lieu';
 const JOURS = ['', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-const TYPES = { club: 'club', sauna: 'sauna', soiree: 'soirée privée', autre: 'lieu' };
+const TYPES = { club: 'club', sauna: 'sauna', soiree: 'soirée privée', restaurant: 'restaurant', autre: 'lieu' };
 const PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls', trans: 'Trans' };
 const ICONES = { club: 'fa-champagne-glasses', sauna: 'fa-hot-tub-person', soiree: 'fa-masks-theater', autre: 'fa-location-dot' };
 const heureFr = h => (h ? h.replace(':', 'h') : '');
@@ -69,7 +69,7 @@ function ecrire(chemin, html) {
 // ---------- Morceaux de page ----------
 function urlFiche(l) { return l.url || 'lieu.html?l=' + encodeURIComponent(l.slug); }
 function carteLieu(l, avecRegion) {
-    const badges = (l.types || [l.type]).map(t => '<span class="gl-mini gl-mini-' + t + '">' + esc(({ club: 'Club', sauna: 'Sauna', soiree: 'Soirées' })[t] || 'Lieu') + '</span>').join('') +
+    const badges = (l.types || [l.type]).map(t => '<span class="gl-mini gl-mini-' + t + '">' + esc(({ club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant' })[t] || 'Lieu') + '</span>').join('') +
         (l.verifie ? '<span class="gl-mini gl-verifie"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Vérifiée</span>' : '');
     return '<a class="gl-lieu" href="' + esc(urlFiche(l)) + '"><span class="gl-lieu-ico" aria-hidden="true"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '"></i></span>' +
         '<span class="gl-lieu-txt"><b>' + esc(l.nom) + '</b><span class="gl-lieu-ville"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(l.ville) + (avecRegion ? ' · ' + esc(l.regionNom) : '') + '</span>' +

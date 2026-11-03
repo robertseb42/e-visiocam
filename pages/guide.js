@@ -851,7 +851,7 @@
     }
     function carteLieu(l) {
         var pub = (l.publics || []).map(function (p) { return PUBLICS[p]; }).filter(Boolean).join(', ');
-        var NOMS_TYPES = { club: 'Club', sauna: 'Sauna', soiree: 'Soirées', autre: 'Lieu' };
+        var NOMS_TYPES = { club: 'Club', sauna: 'Sauna', soiree: 'Soirées', restaurant: 'Restaurant', autre: 'Lieu' };
         var badges = (l.types || [l.type]).map(function (t) { return '<span class="gl-mini gl-mini-' + t + '">' + (NOMS_TYPES[t] || 'Lieu') + '</span>'; }).join('') +
             ((l.jours || []).indexOf(jourDuJour()) >= 0 ? '<span class="gl-mini gl-ouvert">Ouvert aujourd\'hui</span>' : '') +
             (l.verifie ? '<span class="gl-mini gl-verifie"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Vérifiée</span>' : '');
