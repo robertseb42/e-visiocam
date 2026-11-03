@@ -431,3 +431,10 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
   .gl-fenetre{max-height:92vh;border-radius:18px 18px 0 0}
 }
 
+
+/* Campagne des premiers avis (fiche sans avis) */
+.gl-premier-avis{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:14px;border:1px dashed var(--g-accent);background:var(--g-pink-bg);margin-top:6px}
+.gl-premier-avis .gl-premier-ico{font-size:26px;line-height:1}
+.gl-premier-avis b{display:block;font-size:15px;margin-bottom:4px}
+.gl-premier-avis p{margin:0 0 12px;color:var(--g-soft);font-size:14px;line-height:1.55}
+.gl-premier-avis strong{color:var(--g-text,inherit)}

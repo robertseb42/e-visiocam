@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <script src="persistent-radio-bootstrap.js?v=3"></script>
+    <script src="theme.js?v=2"></script>
+    <script src="mesure.js?v=1" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Établissements libertins : badge vérifié et fiche du guide — E-VISIOCAM</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#111113">
+    <meta name="description" content="Clubs, saunas et soirées libertines : votre fiche gratuite dans le guide E-VISIOCAM, le badge « Lieu vérifié » pour votre site et vos réponses aux avis des membres."/>
+    <link rel="canonical" href="https://www.e-visiocam.com/etablissements.html">
+    <meta name="rating" content="adult">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="E-VISIOCAM">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:title" content="Établissements libertins : badge vérifié et fiche du guide — E-VISIOCAM">
+    <meta property="og:description" content="Clubs, saunas et soirées libertines : votre fiche gratuite dans le guide E-VISIOCAM, le badge « Lieu vérifié » pour votre site et vos réponses aux avis des membres.">
+    <meta property="og:url" content="https://www.e-visiocam.com/etablissements.html">
+    <meta property="og:image" content="https://www.e-visiocam.com/img/partage.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            color: #0f172a;
+            border-left: 4px solid #e91e63;
+            padding-left: 12px;
+        }
+        .legal-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+        .legal-content p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #475569;
+        }
+        .legal-content ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #475569;
+            list-style: disc;
+        }
+        .legal-content li {
+            margin-bottom: 0.4rem;
+            line-height: 1.6;
+        }
+        .legal-content strong { color: #0f172a; }
+        .legal-content a { color: #e91e63; text-decoration: underline; }
+    </style>
+
+    <link rel="stylesheet" href="style.css?v=20261101-webp-i">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+        <div class="flex items-center lg:w-64 lg:shrink-0">
+            <a class="flex items-center gap-2" href="index.html">
+                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid font-bold text-lg fa-video"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            </a>
+        </div>
+        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="guide.html">Guide libertin</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messagerie</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+        </nav>
+        <div class="ml-auto flex items-center gap-3 sm:gap-5">
+            <div class="cam-search relative hidden sm:block w-48 md:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+            </div>
+            <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
+            <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-[900px] w-full mx-auto flex-1 p-6">
+<style>
+.etb-badges{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:12px 0}
+.etb-badges img{max-width:100%;height:auto}
+.etb-res{display:grid;gap:8px;margin-top:12px}
+.etb-res button{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:10px 14px;border-radius:12px;border:1px solid #e2e8f0;background:#f8fafc;color:#0f172a;cursor:pointer;font:inherit}
+.etb-res button:hover,.etb-res button[aria-pressed="true"]{border-color:#e91e63}
+.etb-code{width:100%;min-height:96px;font:12px/1.5 ui-monospace,Consolas,monospace;padding:10px;border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc;color:#0f172a}
+.etb-choix{display:flex;gap:16px;flex-wrap:wrap;margin:8px 0 10px;font-size:14px;color:#334155}
+html[data-theme="dark"] .etb-res button{background:#232329;border-color:#2f2f36;color:#f5f5f7}
+html[data-theme="dark"] .etb-code{background:#1c1c20;border-color:#2f2f36;color:#f5f5f7}
+html[data-theme="dark"] .etb-choix{color:#d4d4dc}
+</style>
+<p class="text-sm text-slate-500 mb-2"><a class="text-brand-primary font-semibold hover:underline" href="guide.html">Guide libertin</a> › Établissements</p>
+<h1 class="text-3xl font-black text-slate-900 mb-3">Vous gérez un club, un sauna ou des soirées libertines ?</h1>
+<p class="text-slate-600 mb-6 leading-relaxed">Le guide E-VISIOCAM recense les lieux libertins de France, région par région, avec horaires, tarifs, soirées et avis des membres. La fiche de votre établissement est gratuite. Une fois vérifiée par notre équipe, elle a sa propre page sur Google et vous pouvez afficher le badge « Lieu vérifié » sur votre site.</p>
+
+<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+<h2 class="text-xl font-bold text-slate-900 mb-2">Le badge « Lieu vérifié »</h2>
+<p class="text-slate-600 mb-2 leading-relaxed">Il montre à vos clients que vos horaires et tarifs sont relus par une équipe, et les envoie vers votre fiche et ses avis. Deux versions, pour fond sombre ou clair :</p>
+<div class="etb-badges"><img src="img/badge/verifie-sombre.svg" width="240" height="72" alt="Badge Lieu vérifié, version sombre"><img src="img/badge/verifie-clair.svg" width="240" height="72" alt="Badge Lieu vérifié, version claire"></div>
+<h3 class="text-lg font-bold text-slate-900 mt-4 mb-1">Récupérer le code de votre badge</h3>
+<p class="text-slate-600 mb-2 leading-relaxed">Cherchez votre établissement, puis copiez le code dans votre site (bas de page ou page « Infos pratiques »).</p>
+<label class="block text-sm font-semibold text-slate-700 mb-1" for="etbQ">Nom ou ville de l'établissement</label>
+<input id="etbQ" type="search" autocomplete="off" maxlength="60" class="w-full px-4 py-2 rounded-xl border border-slate-300 focus:border-brand-primary focus:outline-none" placeholder="Ex. : Le Velvet, Toulouse…">
+<div id="etbRes" class="etb-res" aria-live="polite"></div>
+<div id="etbCode" hidden>
+<div class="etb-choix" role="radiogroup" aria-label="Version du badge"><label><input type="radio" name="etbTheme" value="sombre" checked> Fond sombre</label><label><input type="radio" name="etbTheme" value="clair"> Fond clair</label></div>
+<div class="etb-badges"><a id="etbApercuLien" href="#" target="_blank" rel="noopener"><img id="etbApercu" src="img/badge/verifie-sombre.svg" width="240" height="72" alt="Aperçu du badge"></a></div>
+<textarea id="etbTexte" class="etb-code" readonly aria-label="Code HTML du badge"></textarea>
+<p class="mt-2"><button type="button" id="etbCopier" class="px-4 py-2 rounded-xl bg-brand-primary text-white font-semibold">Copier le code</button> <span id="etbCopie" class="text-sm text-slate-500"></span></p>
+</div>
+<p id="etbPasVerifie" class="text-slate-600 mt-3 leading-relaxed" hidden></p>
+</section>
+
+<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+<h2 class="text-xl font-bold text-slate-900 mb-2">Faire vérifier votre fiche</h2>
+<ul class="text-slate-600 space-y-1 mb-0" style="list-style:disc;padding-left:1.25rem">
+<li>Votre lieu n'est pas encore dans le guide : <a class="text-brand-primary font-semibold hover:underline" href="guide.html?proposer=1">proposez-le</a> (un compte membre gratuit suffit).</li>
+<li>Il y est déjà : <a class="text-brand-primary font-semibold hover:underline" href="contact.html">écrivez-nous</a> avec le nom du lieu et vos horaires et tarifs à jour (ou le lien de votre site ou page Facebook). L'équipe met la fiche à jour et la marque comme vérifiée.</li>
+<li>Une information change (fermeture, nouveaux tarifs, soirée) : prévenez-nous de la même façon.</li>
+</ul>
+</section>
+
+<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-6">
+<h2 class="text-xl font-bold text-slate-900 mb-2">Les avis des membres</h2>
+<p class="text-slate-600 mb-0 leading-relaxed">Les avis portent sur l'établissement (accueil, ambiance, propreté, prix), jamais sur des personnes. Chaque avis est relu par la modération avant publication. Vous pouvez répondre publiquement à un avis : envoyez votre réponse via la page <a class="text-brand-primary font-semibold hover:underline" href="contact.html">Contact</a> en précisant l'avis concerné, elle sera affichée sous l'avis comme « Réponse de l'établissement ». Un avis faux ou injurieux peut être signalé depuis la fiche.</p>
+</section>
+
+<section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+<h2 class="text-xl font-bold text-slate-900 mb-2">Annoncer vos soirées</h2>
+<p class="text-slate-600 mb-0 leading-relaxed">Vos soirées à thème peuvent apparaître dans l'agenda du guide, sur votre fiche et sur la page de votre ville. Depuis votre fiche, bouton « Proposer une soirée » : date, horaires, prix, description et visuel. Le guide est réservé aux majeurs ; les titres et visuels doivent rester sobres.</p>
+</section>
+</main>
+
+
+<script src="footer.js?v=10" defer></script>
+
+<script src="auth-api.js?v=7" defer></script>
+<script src="nav-auth.js?v=12" defer></script>
+<script src="site-search.js" defer></script>
+<script src="pages/etablissements.js?v=1" defer></script>
+</body>
+</html>

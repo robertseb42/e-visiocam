@@ -611,6 +611,7 @@ const RWA_CHAMPS = [
     ['liveHeure', 'Live (modèles) : crédits par heure'], ['liveMaxJour', 'Live : plafond par jour'],
     ['parrainage', 'Parrainage : crédits'], ['parrainageJoursActifs', 'Parrainage : jours actifs du filleul'], ['parrainageMaxMois', 'Parrainage : maximum par mois'],
     ['signalement', 'Signalement confirmé : crédits'], ['signalementMaxSemaine', 'Signalements payés par semaine'],
+    ['avis', 'Avis publié sur un lieu du guide : crédits'], ['avisPremier', 'Premier avis d\'un lieu : crédits'], ['avisMaxSemaine', 'Avis payés par semaine'],
     ['modoOffreMax', 'Modérateurs : crédits offerts par envoi (0 = interdit)'], ['modoOffreJour', 'Modérateurs : crédits offerts par jour']
 ];
 let rwaData = null;

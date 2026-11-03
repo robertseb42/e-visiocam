@@ -1093,6 +1093,13 @@
     // ============================================================
     // FICHE D'UN LIEU
     // ============================================================
+    // Campagne des premiers avis : encart quand personne n'a encore donné son avis (crédits si le programme de récompenses est actif)
+    function premierAvis(rec) {
+        return '<div class="gl-premier-avis"><span class="gl-premier-ico" aria-hidden="true">⭐</span><div><b>Personne n\'a encore donné son avis sur ce lieu</b>' +
+            '<p>Vous y êtes allé ? Racontez l\'accueil, l\'ambiance, la propreté et les prix, pour aider les autres membres à choisir. Parlez du lieu, jamais des autres clients.' +
+            (rec && rec.premier ? ' <strong>+' + rec.premier + ' crédits</strong> si votre avis est le premier publié.' : '') + '</p>' +
+            '<button type="button" class="gl-btn gl-btn-jaune" id="glPremierAvis">Donner le premier avis</button></div></div>';
+    }
     async function chargerFiche() {
         // lieu.html?l=<slug>, ou page fixe /club-libertin/<ville>/<lieu>/ (le slug est dans data-slug)
         var slug = new URLSearchParams(location.search).get('l') || ($('glFiche') && $('glFiche').getAttribute('data-slug')) || '';
@@ -1139,12 +1146,12 @@
                 (l.nbAvis ? '<div class="gl-notes-detail">' + notes.map(function (n) { return '<div><small>' + n[0] + '</small><b>' + note(n[1]) + '</b></div>'; }).join('') + '</div>' : '') +
                 '<section class="gl-avis-bloc"><div class="gl-avis-entete"><h2>Avis des membres</h2><button type="button" class="gl-btn gl-btn-jaune" id="glDonnerAvis">' + (mon ? 'Modifier mon avis' : 'Donner mon avis') + '</button></div>' +
                 (mon && mon.statut !== 'publie' ? '<p class="gl-attente">' + (mon.statut === 'attente' ? 'Votre avis est en cours de relecture par la modération.' : 'Votre avis n\'a pas été publié' + (mon.motif ? ' : ' + esc(mon.motif) : '.') + ' Vous pouvez le modifier.') + '</p>' : '') +
-                (avis || '<p class="gl-vide">Soyez le premier à donner votre avis sur ce lieu.</p>') + '</section></div>' +
+                (avis || (mon ? '' : premierAvis(d.recompenseAvis))) + '</section></div>' +
                 '<aside class="gl-fiche-cote">' +
                 '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div>' + itineraire(l) + '<button type="button" class="gl-lien-btn gl-gris gl-signaler-lieu" id="glSignalerLieu"><i class="fa-regular fa-flag" aria-hidden="true"></i> Signaler une fermeture ou une erreur</button></section>' +
                 habituesHTML(d.habitues) +
                 '<section class="gl-encart"><h2>Bons plans</h2>' + (d.bonsPlans.length ? '<ul class="gl-plans-fiche">' + d.bonsPlans.map(function (b) { return '<li>' + esc(b.texte) + '<small>' + esc(dateFr(b.date)) + '</small></li>'; }).join('') + '</ul>' : '<p class="gl-vide-plan">Pas encore de bon plan.</p>') + '<button type="button" class="gl-lien-btn" id="glPlanLieu">Partager un bon plan →</button></section>' +
-                '<section class="gl-encart gl-pointille"><b>Vous gérez ce lieu ?</b><p>Contactez-nous pour mettre la fiche à jour, ajouter vos photos officielles et répondre aux avis.</p><a class="gl-lien" href="contact.html">Revendiquer cette fiche →</a></section>' +
+                '<section class="gl-encart gl-pointille"><b>Vous gérez ce lieu ?</b><p>Contactez-nous pour mettre la fiche à jour, ajouter vos photos officielles et répondre aux avis.' + (l.url ? ' Affichez aussi le badge « Lieu vérifié » sur votre site.' : '') + '</p><a class="gl-lien" href="/etablissements.html">' + (l.url ? 'Badge et mise à jour de la fiche →' : 'Faire vérifier cette fiche →') + '</a></section>' +
                 (l.salon ? '<a class="gl-btn gl-large" href="chat.html?theme=' + encodeURIComponent(l.salon) + '">Discuter dans le salon ' + esc(l.regionNom) + '</a>' : '') +
                 '</aside></div>';
             if (l.lat != null && window.L) {
@@ -1152,6 +1159,7 @@
                 L.tileLayer(TUILES, { attribution: ATTRIB }).addTo(m);
                 L.circleMarker([l.lat, l.lng], { radius: 9, color: '#111113', weight: 2, fillColor: '#ff1680', fillOpacity: 1 }).addTo(m);
             }
+            if ($('glPremierAvis')) $('glPremierAvis').addEventListener('click', function () { $('glDonnerAvis').click(); });
             $('glDonnerAvis').addEventListener('click', function () {
                 if (!connecte()) return versConnexion();
                 var f = $('glFormAvis');

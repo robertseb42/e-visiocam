@@ -96,6 +96,7 @@ function afficher(r) {
         ['📅', 'Passer chaque jour', '+' + c.quotidien + ' / jour', 'Puis +' + c.quotidienSerie + ' par jour à partir de ' + c.serieJours + ' jours de suite.'],
         ['💬', 'Participer', '+' + c.actif15 + ' / 15 min', 'Écrire dans les salons, réagir, envoyer des messages ou des cadeaux. ' + c.actifMaxJour + ' crédits par jour au plus.'],
         ['🤝', 'Parrainer un ami', '+' + c.parrainage, 'Quand votre filleul a confirmé son compte et participé ' + c.parrainageJoursActifs + ' jours.'],
+        ['⭐', 'Donner votre avis sur un lieu du guide', '+' + c.avis, 'Quand la modération le publie ; +' + c.avisPremier + ' si c\'est le premier avis du lieu. ' + c.avisMaxSemaine + ' avis par semaine au plus.'],
         ['🛡️', 'Signaler un abus', '+' + c.signalement, 'Si la modération confirme le signalement. ' + c.signalementMaxSemaine + ' par semaine au plus.'],
         ['🎙️', 'Animer des lives (modèles)', '+' + c.liveHeure + ' / heure', 'Live public uniquement. ' + c.liveMaxJour + ' crédits par jour au plus.']
     ];

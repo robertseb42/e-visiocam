@@ -20,6 +20,7 @@
             ['salons.html', 'Salons'],
             ['tchat-regions.html', 'Chat par région'],
             ['guide.html', 'Guide libertin des clubs'],
+            ['etablissements.html', 'Établissements : badge vérifié'],
             ['programme.html', 'Programme des soirées'],
             ['modeles.html', 'Modèles'],
             ['credits.html', 'Récompenses'],
