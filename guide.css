@@ -195,6 +195,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-jours button:hover{border-color:var(--g-accent)}
 .gl-jours button[aria-pressed="true"]{background:var(--g-accent);border-color:var(--g-accent);color:var(--g-accent-txt)}
 .gl-trois{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.gl-quatre{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .gl-creneau .gl-champ input{background:var(--g-panel)}
 .gl-rouge{color:var(--g-danger)}
 
@@ -393,6 +394,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 
 @media (max-width:640px){
   .gl-trois{grid-template-columns:1fr 1fr}
+  .gl-quatre{grid-template-columns:1fr 1fr}
   .gl-trois .gl-champ:first-child{grid-column:1/-1}
   .gl-jours button{width:38px;height:40px}
   .gl-jours-grille{grid-template-columns:1fr}

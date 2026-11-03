@@ -92,8 +92,9 @@
             champ('debut', 'De', c.debut, 'type="time"') + champ('fin', 'À', c.fin, 'type="time"') + '</div>' +
             '<div class="gl-deux">' + champ('titre', 'Soirée / thème (facultatif)', c.titre, 'maxlength="80" placeholder="ex. Soirée à thème avec repas"') +
             champ('public', 'Public accepté (facultatif)', c.public, 'maxlength="120" placeholder="ex. femmes et couples uniquement"') + '</div>' +
-            '<div class="gl-trois">' + champ('hommes', 'Hommes (€)', p.hommes, 'inputmode="decimal" maxlength="7"') +
-            champ('femmes', 'Femmes (€)', p.femmes, 'inputmode="decimal" maxlength="7"') + champ('couples', 'Couples (€)', p.couples, 'inputmode="decimal" maxlength="7"') + '</div>' +
+            '<div class="gl-quatre">' + champ('hommes', 'Hommes (€)', p.hommes, 'inputmode="decimal" maxlength="7"') +
+            champ('femmes', 'Femmes (€)', p.femmes, 'inputmode="decimal" maxlength="7"') + champ('couples', 'Couples (€)', p.couples, 'inputmode="decimal" maxlength="7"') +
+            champ('trans', 'Trans (€)', p.trans, 'inputmode="decimal" maxlength="7"') + '</div>' +
             champ('note', 'Précision (facultatif)', c.note, 'maxlength="200" placeholder="ex. avec une consommation, repas compris…"') +
             '</div>';
     }
@@ -107,7 +108,7 @@
             return {
                 jours: [].slice.call(b.querySelectorAll('[data-jour][aria-pressed="true"]')).map(function (x) { return +x.getAttribute('data-jour'); }),
                 espace: v('espace'), debut: v('debut'), fin: v('fin'), titre: v('titre'), public: v('public'), note: v('note'),
-                prix: { hommes: v('hommes').replace(',', '.'), femmes: v('femmes').replace(',', '.'), couples: v('couples').replace(',', '.') }
+                prix: { hommes: v('hommes').replace(',', '.'), femmes: v('femmes').replace(',', '.'), couples: v('couples').replace(',', '.'), trans: v('trans').replace(',', '.') }
             };
         }).filter(function (c) { return c.jours.length && (c.debut || c.titre); });
     }
@@ -207,7 +208,7 @@
             var estAuj = g.jours.indexOf(auj) >= 0;
             return '<div class="gl-jour' + (estAuj ? ' gl-jour-auj' : '') + '"><h3>' + libelleJours(g.jours) + (estAuj ? ' <span>Aujourd\'hui</span>' : '') + '</h3>' +
                 g.liste.map(function (c) {
-                    var p = c.prix || {}, prix = [['Hommes', p.hommes], ['Femmes', p.femmes], ['Couples', p.couples]].filter(function (x) { return x[1] != null; });
+                    var p = c.prix || {}, prix = [['Hommes', p.hommes], ['Femmes', p.femmes], ['Couples', p.couples], ['Trans', p.trans]].filter(function (x) { return x[1] != null && x[1] !== ''; });
                     return '<div class="gl-cr"><div class="gl-cr-tete">' + (c.debut ? '<span class="gl-h">' + heureFr(c.debut) + (c.fin ? ' – ' + heureFr(c.fin) : '') + '</span>' : '') + (c.espace ? '<span class="gl-espace">' + esc(c.espace) + '</span>' : '') + '</div>' +
                         (c.titre ? '<strong class="gl-cr-titre">' + esc(adoucir(c.titre)) + '</strong>' : '') +
                         (c.public ? '<p class="gl-cr-public"><i class="fa-solid fa-user-group" aria-hidden="true"></i> ' + esc(adoucir(c.public).replace(/\s*,\s*/g, ', ')) + '</p>' : '') +
@@ -514,7 +515,7 @@
     }
     function analyserHoraires(texte) {
         var blocs = [], bloc = null, joursEnAttente = null, sousPrix = null, general = [];
-        var CAT = [[/^femmes?(\s+seules?)?\b/, 'femmes', 'Femmes'], [/^couples?\b/, 'couples', 'Couples'], [/^hommes?(\s+seuls?)?\b/, 'hommes', 'Hommes']];
+        var CAT = [[/^(trans(genres?)?|travestis?)\b/, 'trans', 'Trans'], [/^femmes?(\s+seules?)?\b/, 'femmes', 'Femmes'], [/^couples?\b/, 'couples', 'Couples'], [/^hommes?(\s+seuls?)?\b/, 'hommes', 'Hommes']];
         function ajouterNote(b, t) { t = t.trim(); if (!t) return; b.note = (b.note ? b.note + ' · ' : '') + t; }
         String(texte || '').split(/\r?\n/).forEach(function (brut) {
             var l = brut.trim(); if (!l) return;
@@ -526,7 +527,7 @@
                     .replace(/\b(du|au|et|de|à|a partir|tous les jours|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)s?\b/gi, ' ')
                     .replace(/(^|\s)(am|pm|apr[eè]s[- ]midi|soir|matin|midi|journ[ée]e)(?=\s|$|[:,+])/gi, ' ')
                     .replace(/[,:+&\/–—-]/g, ' ').replace(/\s+/g, ' ').trim();
-                bloc = { jours: jours.length ? jours : joursEnAttente, espace: '', debut: heure(plage[1], plage[2]), fin: heure(plage[3], plage[4]), titre: titre, public: '', note: '', prix: { hommes: '', femmes: '', couples: '' } };
+                bloc = { jours: jours.length ? jours : joursEnAttente, espace: '', debut: heure(plage[1], plage[2]), fin: heure(plage[3], plage[4]), titre: titre, public: '', note: '', prix: { hommes: '', femmes: '', couples: '', trans: '' } };
                 blocs.push(bloc); joursEnAttente = null; sousPrix = null; return;
             }
             // 2) Des jours seuls (l'horaire est sur la ligne suivante)
@@ -540,7 +541,7 @@
                 var reste = l.replace(/^[-•*\s]*/, '').replace(/^[^:]*:\s*/, l.indexOf(':') >= 0 ? '' : '$&');
                 if (l.indexOf(':') < 0) reste = l.replace(/^[-•*\s]*\S+(\s+seule?s?)?(\s+f\/h|\s+h\/f)?/i, '');
                 var p = prixDe(reste);
-                if (p && p.refuse) { bloc.prix[cat[1]] = ''; bloc.public = (bloc.public ? bloc.public + ' · ' : '') + cat[2] + ' seuls non admis'; sousPrix = null; return; }
+                if (p && p.refuse) { bloc.prix[cat[1]] = ''; bloc.public = (bloc.public ? bloc.public + ' · ' : '') + ({ hommes: 'Hommes seuls', femmes: 'Femmes seules', couples: 'Couples', trans: 'Personnes trans' })[cat[1]] + ' non admis'; sousPrix = null; return; }
                 if (p) bloc.prix[cat[1]] = p.prix;
                 var detail = reste.replace(/^\s*(offert|gratuit)\s*/i, '').replace(/^\s*\d+(?:[.,]\d{1,2})?\s*(?:€|euros?|eur)?\s*/i, '').trim();
                 if (detail) ajouterNote(bloc, cat[2] + ' : ' + detail);
@@ -561,7 +562,7 @@
     }
     // Deuxième forme courante : tarifs rangés PAR PUBLIC (« Hommes seuls » puis « Après-midi : 25 € », « Soir à partir de 20h : 30 €»…)
     function analyserParPublic(texte) {
-        var RUB = [[/travesti|trans\b|transgenre/, 'autre', 'Travestis'], [/couples?.*(dames?|femmes?)|(dames?|femmes?).*couples?/, 'couples+femmes', ''],
+        var RUB = [[/travesti|trans\b|transgenre/, 'trans', 'Trans'], [/couples?.*(dames?|femmes?)|(dames?|femmes?).*couples?/, 'couples+femmes', ''],
             [/^(les\s+)?(dames?|femmes?)(\s+seules?)?\b/, 'femmes', ''], [/^(les\s+)?couples?\b/, 'couples', ''], [/^(les\s+)?(hommes?|messieurs)(\s+seuls?)?\b/, 'hommes', '']];
         var rubrique = null, periodes = {}, ordre = [], general = [], partout = [];
         function cle(p) { return p.jours.join('') + '|' + p.debut + '|' + p.fin + '|' + p.titre; }
@@ -572,14 +573,14 @@
         }
         function appliquer(per, prix, detail) {
             var k = cle(per);
-            if (!periodes[k]) { periodes[k] = { jours: per.jours, espace: '', debut: per.debut, fin: per.fin, titre: per.titre, public: '', note: '', prix: { hommes: '', femmes: '', couples: '' } }; ordre.push(k); }
+            if (!periodes[k]) { periodes[k] = { jours: per.jours, espace: '', debut: per.debut, fin: per.fin, titre: per.titre, public: '', note: '', prix: { hommes: '', femmes: '', couples: '', trans: '' } }; ordre.push(k); }
             remplir(periodes[k], prix, detail);
         }
         function remplir(c, prix, detail) {
             var cibles = rubrique[1] === 'couples+femmes' ? ['couples', 'femmes'] : [rubrique[1]];
             if (rubrique[1] === 'autre') { c.note = (c.note ? c.note + ' · ' : '') + rubrique[2] + ' : ' + (prix && prix.prix === 0 ? 'offert' : prix ? String(prix.prix).replace('.', ',') + ' €' : detail); return; }
             cibles.forEach(function (x) { if (prix && !prix.refuse) c.prix[x] = prix.prix; });
-            if (prix && prix.refuse) c.public = (c.public ? c.public + ' · ' : '') + (cibles[0] === 'hommes' ? 'Hommes seuls' : cibles[0] === 'femmes' ? 'Femmes seules' : 'Couples') + ' non admis';
+            if (prix && prix.refuse) c.public = (c.public ? c.public + ' · ' : '') + ({ hommes: 'Hommes seuls', femmes: 'Femmes seules', couples: 'Couples', trans: 'Personnes trans' })[cibles[0]] + ' non admis';
             if (detail) c.note = (c.note ? c.note + ' · ' : '') + detail;
         }
         String(texte || '').split(/\r?\n/).forEach(function (brut) {

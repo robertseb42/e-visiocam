@@ -112,7 +112,7 @@ function horairesHTML(l) {
     const maj = t => t.replace(/^./, c => c.toUpperCase());
     const nomJours = j => j.length === 1 ? maj(JOURS[j[0]]) : j.length === 2 ? maj(JOURS[j[0]]) + ' et ' + JOURS[j[1]] : 'Du ' + JOURS[j[0]] + ' au ' + JOURS[j[j.length - 1]];
     const jours = groupes.filter(g => g.cr.length).map(g => '<div class="gl-jour"><h3>' + nomJours(g.jours) + '</h3>' + g.cr.map(c => {
-        const p = c.prix || {}, prix = [['Hommes', p.hommes], ['Femmes', p.femmes], ['Couples', p.couples]].filter(x => x[1] != null && x[1] !== '');
+        const p = c.prix || {}, prix = [['Hommes', p.hommes], ['Femmes', p.femmes], ['Couples', p.couples], ['Trans', p.trans]].filter(x => x[1] != null && x[1] !== '');
         return '<div class="gl-cr"><div class="gl-cr-tete">' + (c.debut ? '<span class="gl-h">' + heureFr(c.debut) + (c.fin ? ' – ' + heureFr(c.fin) : '') + '</span>' : '') + (c.espace ? '<span class="gl-espace">' + esc(c.espace) + '</span>' : '') + '</div>' +
             (c.titre ? '<strong class="gl-cr-titre">' + esc(c.titre) + '</strong>' : '') + (c.public ? '<p class="gl-cr-public">' + esc(c.public) + '</p>' : '') +
             (prix.length ? '<ul class="gl-prix">' + prix.map(x => '<li>' + x[0] + ' <b>' + prixFr(x[1]) + '</b></li>').join('') + '</ul>' : '') +
