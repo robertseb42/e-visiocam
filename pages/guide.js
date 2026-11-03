@@ -508,9 +508,11 @@
     function heure(h, m) { h = +h; if (h === 24) h = 0; return (h < 10 ? '0' : '') + h + ':' + (m || '00'); }
     function prixDe(t) {
         var s = minusc(t);
-        if (/offert|gratuit|free/.test(s)) return { prix: 0 };
-        if (/pas autoris|non autoris|interdit|non admis|pas admis|refus/.test(s)) return { refuse: true };
         var m = s.match(/(\d+(?:[.,]\d{1,2})?)\s*(?:€|euros?|eur)/) || s.match(/^\s*(\d+(?:[.,]\d{1,2})?)\b/);
+        var g = s.search(/offert|gratuit|free/);
+        // « 40 euros (une boisson soft offerte) » : le prix vient avant « offert », c'est bien 40 €
+        if (g >= 0 && !(m && s.indexOf(m[0]) < g)) return { prix: 0 };
+        if (/pas autoris|non autoris|interdit|non admis|pas admis|refus/.test(s)) return { refuse: true };
         return m ? { prix: Number(m[1].replace(',', '.')) } : null;
     }
     function analyserHoraires(texte) {
@@ -609,11 +611,94 @@
         return { creneaux: cr, reste: general.join('\n') };
     }
 
+    // Troisième forme : une rubrique « Horaires » (« lundi 12h à 18h et de 20h30 à 1h ») et des rubriques
+    // « Tarifs après-midi » / « Tarifs en soirée » avec des groupes de jours (« Lundis, mardis… » puis « Vendredis, samedis »).
+    // Chaque jour reçoit les heures de sa ligne et les prix de son groupe ; les jours identiques sont regroupés en un créneau.
+    var RE_PLAGES = /(\d{1,2})\s*(?:h|:)?\s*(\d{2})?\s*(?:-|–|—|à|a|jusqu'?à)\s*(\d{1,2})\s*(?:h|:)?\s*(\d{2}(?!\d))?/gi;
+    function periodeDeTexte(t) { t = minusc(t); return /apres[- ]?midi|journee|\bam\b|midi/.test(t) ? 'am' : /soir|nuit|\bpm\b/.test(t) ? 'soir' : ''; }
+    function estGrilleTarifs(texte) {
+        var t = minusc(texte);
+        return /(^|\n)\s*horaires?\s*:?\s*($|\n)/.test(t) && /(^|\n)\s*tarifs?\b/.test(t);
+    }
+    function analyserGrilles(texte) {
+        var CAT = [[/^(trans(genres?)?|travestis?)\b/, 'trans', 'Trans'], [/^(dames?|femmes?)(\s+seules?)?\b/, 'femmes', 'Femmes'], [/^couples?\b/, 'couples', 'Couples'], [/^(hommes?|messieurs)(\s+seuls?)?\b/, 'hommes', 'Hommes']];
+        var TOUS = [1, 2, 3, 4, 5, 6, 7], general = [];
+        var horaires = {};              // jour → [{debut, fin, per}]
+        var groupes = [];               // {per, jours, prix:{}, notes:[]}
+        var section = '', per = '', groupe = null, gratuits = [];
+        function nouveauGroupe(jours) { groupe = { per: per, jours: jours, prix: { hommes: '', femmes: '', couples: '', trans: '' }, notes: [] }; groupes.push(groupe); return groupe; }
+        String(texte || '').split(/\r?\n/).forEach(function (brut) {
+            var l = brut.replace(/^[\s*•·-]+/, '').trim(); if (!l) return;
+            var t = minusc(l), jours = joursDans(l);
+            if (/^horaires?\b/.test(t) && l.length < 40) { section = 'horaires'; return; }
+            if (/^tarifs?\b/.test(t) && l.length < 60) { section = 'tarifs'; per = periodeDeTexte(l); groupe = null; return; }
+            if (section === 'horaires' && jours.length) {
+                var plages = [], m; RE_PLAGES.lastIndex = 0;
+                while ((m = RE_PLAGES.exec(l))) plages.push({ debut: heure(m[1], m[2]), fin: heure(m[3], m[4]) });
+                plages.forEach(function (p, i) {
+                    var h = +p.debut.slice(0, 2);
+                    p.per = plages.length > 1 ? (i === 0 ? 'am' : 'soir') : (h >= 19 || h < 6 ? 'soir' : 'am');
+                    jours.forEach(function (j) { (horaires[j] = horaires[j] || []).push(p); });
+                });
+                if (!plages.length) general.push(l);
+                return;
+            }
+            if (section !== 'tarifs') { general.push(l); return; }
+            var cat = null; CAT.forEach(function (c) { if (!cat && c[0].test(t)) cat = c; });
+            // « Gratuit pour les Dames » : vaut pour toute la rubrique
+            var g = t.match(/^(gratuit|offert|entree offerte)\s+(pour\s+)?(les\s+)?(dames?|femmes?|couples?|hommes?)/);
+            if (g) { var k = /dame|femme/.test(g[4]) ? 'femmes' : /couple/.test(g[4]) ? 'couples' : 'hommes'; gratuits.push({ per: per, cat: k }); return; }
+            // Ligne de jours seule : « Lundis, Mardis, … » ou « Dimanches après midi : »
+            if (jours.length && !cat && !prixDe(l)) { var p2 = periodeDeTexte(l); if (p2) per = p2; nouveauGroupe(jours); return; }
+            if (cat) {
+                var reste = l.indexOf(':') >= 0 ? l.slice(l.indexOf(':') + 1) : l.replace(/^\S+(\s+seule?s?)?/i, '');
+                var pr = prixDe(reste);
+                if (!groupe) nouveauGroupe(TOUS.slice());
+                if (pr && pr.refuse) groupe.notes.push(cat[2] + ' non admis');
+                else if (pr) groupe.prix[cat[1]] = pr.prix;
+                var detail = reste.replace(/^\s*\d+(?:[.,]\d{1,2})?\s*(?:€|euros?|eur)?\s*/i, '').replace(/^\s*\(\s*|\s*\)\s*$/g, '').trim();
+                if (detail && !/^(offerte?|gratuite?)$/i.test(detail)) groupe.notes.push(cat[2] + ' : ' + detail);
+                return;
+            }
+            general.push(l);
+        });
+        gratuits.forEach(function (x) { groupes.forEach(function (gr) { if (gr.per === x.per && gr.prix[x.cat] === '') gr.prix[x.cat] = 0; }); });
+        function groupeDe(per, j) {
+            var trouve = null;
+            groupes.forEach(function (gr) { if ((gr.per === per || !gr.per) && gr.jours.indexOf(j) >= 0) trouve = gr; });
+            return trouve;
+        }
+        // Une note commune (« une boisson soft offerte » pour tous) est dite une seule fois
+        function noteDe(gr) {
+            if (!gr) return '';
+            var d = gr.notes.map(function (n) { return n.replace(/^[^:]+:\s*/, ''); });
+            return d.length > 1 && d.every(function (x) { return x === d[0]; }) && gr.notes.length === Object.keys(gr.prix).filter(function (k) { return gr.prix[k] !== '' && gr.prix[k] !== 0; }).length ? d[0] : gr.notes.join(' · ');
+        }
+        var cr = {}, ordre = [];
+        TOUS.forEach(function (j) {
+            (horaires[j] || []).forEach(function (p) {
+                var gr = groupeDe(p.per, j), note = noteDe(gr);
+                var cle = p.per + '|' + p.debut + '|' + p.fin + '|' + JSON.stringify(gr ? gr.prix : {}) + '|' + note;
+                if (!cr[cle]) { cr[cle] = { jours: [], espace: '', debut: p.debut, fin: p.fin, titre: p.per === 'soir' ? 'Soirée' : 'Après-midi', public: '', note: note.slice(0, 200), prix: gr ? Object.assign({}, gr.prix) : { hommes: '', femmes: '', couples: '', trans: '' } }; ordre.push(cle); }
+                cr[cle].jours.push(j);
+            });
+        });
+        var liste = ordre.map(function (k) { return cr[k]; });
+        liste.sort(function (a, b) { return (a.titre === b.titre ? 0 : a.titre === 'Après-midi' ? -1 : 1) || a.jours[0] - b.jours[0]; });
+        return { creneaux: liste, reste: general.filter(function (x, i) { return general.indexOf(x) === i; }).join('\n') };
+    }
+    // Choisit la bonne lecture selon la forme du texte
+    function analyserTexteHoraires(texte) {
+        var r = estGrilleTarifs(texte) ? analyserGrilles(texte) : { creneaux: [] };
+        if (!r.creneaux.length) r = analyserHoraires(texte);
+        if (!r.creneaux.length) r = analyserParPublic(texte);
+        return r;
+    }
+
     document.addEventListener('click', function (e) {
         var b = e.target.closest('[data-coller-go]'); if (!b) return;
         var f = b.closest('form'), zone = f.querySelector('[data-coller]'), msg = f.querySelector('[data-coller-msg]');
-        var r = analyserHoraires(zone.value);
-        if (!r.creneaux.length) r = analyserParPublic(zone.value);
+        var r = analyserTexteHoraires(zone.value);
         if (!r.creneaux.length) { msg.textContent = 'Rien de reconnu. Il faut soit des jours avec leurs heures (« Samedi : 21h - 5h » puis « Couple : 20 € »), soit des rubriques par public (« Hommes seuls » puis « Soir à partir de 20h : 30 € »).'; return; }
         // Les créneaux déjà saisis sont GARDÉS : les nouveaux s'ajoutent à la suite (ex. le matin d'abord, puis le soir).
         // Un créneau identique (mêmes jours, heures et titre) n'est pas ajouté deux fois.
@@ -893,7 +978,7 @@
             // Horaires en texte (retours à la ligne dans la cellule, ou séparés par « | ») → créneaux, comme « coller les horaires »
             if (o.horaires) {
                 var texte = o.horaires.replace(/\s*\|\s*/g, '\n');
-                var r = analyserHoraires(texte); if (!r.creneaux.length) r = analyserParPublic(texte);
+                var r = analyserTexteHoraires(texte);
                 o.planning = r.creneaux;
                 if (r.reste) o.tarifs = (o.tarifs ? o.tarifs + '\n' : '') + r.reste;
                 if (!r.creneaux.length) o.tarifs = (o.tarifs ? o.tarifs + '\n' : '') + texte;   // illisible : gardé tel quel dans les précisions
