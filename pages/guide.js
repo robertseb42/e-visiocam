@@ -727,6 +727,19 @@
         var cible = f.querySelectorAll('.gl-creneau')[avant.length] || f.querySelector('.gl-creneau');
         if (cible) cible.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+    // « Copier le modèle » : la mise en forme conseillée, à coller dans un bloc-notes ou à envoyer à un club
+    var MODELE_HORAIRES = [
+        'Du lundi au jeudi après-midi : 12h - 18h', 'Couple : 40€ avec une boisson soft offerte', 'Homme seul : 50€', 'Femme seule : offert', 'Trans : 25€', '',
+        'Vendredi et samedi soir : 21h - 2h', 'Couple : 40€', 'Homme seul : 60€', 'Femme seule : offert', 'Trans : non admis', '',
+        'Dimanche : 14h - 19h', 'Couple : 40€', 'Homme seul : 50€', 'Femme seule : offert'
+    ].join('\n');
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-coller-modele]'); if (!b) return;
+        var f = b.closest('form'), zone = f.querySelector('[data-coller]'), msg = f.querySelector('[data-coller-msg]');
+        function dansLaZone() { if (!zone.value.trim()) zone.value = MODELE_HORAIRES; zone.focus(); msg.textContent = 'Modèle placé dans la zone : remplacez les jours, heures et prix, puis « Créer les créneaux ».'; }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(MODELE_HORAIRES).then(function () { msg.textContent = 'Modèle copié ! Collez-le où vous voulez (Ctrl+V), ou directement dans la zone ci-dessus.'; }, dansLaZone);
+        else dansLaZone();
+    });
     document.addEventListener('click', function (e) {
         var b = e.target.closest('[data-coller-remplacer]'); if (!b) return;
         var f = b.closest('form'); if (!f._dernierCollage) return;
