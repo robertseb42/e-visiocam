@@ -3,6 +3,8 @@
 // il ajoute une barre « ← Espace équipe » en haut, en attendant leur intégration complète (étapes P2 à P5).
 (function () {
     'use strict';
+    // Ancienne adresse : la fréquentation a quitté la page du guide pour l'onglet Statistiques de l'admin (refonte P6)
+    if (/guide-equipe(\.html)?$/.test(location.pathname) && location.hash === '#evFreq') { location.replace('admin.html#stats'); return; }
     var u = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
     var EQUIPE = ['moderator', 'super_admin', 'guide_editor', 'animateur'];
     if (!u || EQUIPE.indexOf(u.role) < 0) return;
@@ -17,7 +19,7 @@
             ['Historique', 'moderation.html#viewlogs', M]] },
         { nom: 'Membres et équipe', ico: 'fa-users', roles: M, liens: [
             ['Membres', R === 'super_admin' ? 'admin.html#users' : 'moderation.html#users', M], ['Candidatures', 'moderation.html#candidatures', M],
-            ['Rôles de l\'équipe', 'admin.html#users', S], ['Crédits et récompenses', 'admin.html#rewards', S]] },
+            ['Équipe et rôles', 'admin.html#mods', S], ['Crédits et récompenses', 'admin.html#rewards', S]] },
         { nom: 'Communauté', ico: 'fa-people-group', roles: A, liens: [
             ['Programme du site', 'communaute.html#programme', A], ['Radios', 'communaute.html#radios', A], ['Salons et VIP', 'moderation-salons.html', S], ['Décor de l\'accueil', 'decor.html', S]] },
         { nom: 'Guide libertin', ico: 'fa-map-location-dot', roles: G, liens: [

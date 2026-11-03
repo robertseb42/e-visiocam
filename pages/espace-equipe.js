@@ -82,7 +82,7 @@
         var auj = st && st.aujourdhui || {};
         $('evxJour').innerHTML = t('Connectés maintenant', st && st.maintenant ? st.maintenant.membres : null, st && st.maintenant ? nb(st.maintenant.lives) + ' caméra' + (st.maintenant.lives > 1 ? 's' : '') + ' en direct' : '') +
             t('Inscriptions', st ? auj.inscriptions : null) + t('Membres actifs', st ? auj.actifs : null) +
-            t('Visites du site', fr ? fr.totaux.visites : null, fr ? nb(fr.totaux.clics) + ' clics vers les clubs' : '');
+            t('Visites du site', fr && fr.totaux ? fr.totaux.visites : null, fr && fr.totaux ? nb(fr.totaux.clics) + ' clics vers les clubs' : '');
         $('evxJourBloc').hidden = false;
         var etat = function (ok, titre, texte, lien) { return '<a class="evx-etat ' + (ok ? 'evx-ok' : 'evx-ko') + '" href="' + lien + '"><i class="fa-solid ' + (ok ? 'fa-circle-check' : 'fa-circle-exclamation') + '" aria-hidden="true"></i><span><b>' + titre + '</b><small>' + esc(texte) + '</small></span></a>'; };
         var dateFr = function (d) { return new Date(d).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };

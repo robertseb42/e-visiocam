@@ -196,23 +196,25 @@ function updateStats() {
 const roleBadges = {
     super_admin: '<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-xs font-bold">👑 Super Admin</span>',
     moderator:   '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-bold">🔵 Modérateur</span>',
+    guide_editor: '<span class="bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full text-xs font-bold">🗺️ Éditeur du guide</span>',
+    animateur:   '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-bold">🎙️ Animateur</span>',
     model:       '<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-bold">🟢 Modèle</span>',
     user:        '<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-xs font-bold">⚪ Utilisateur</span>',
     bot:         '<span class="bg-yellow-100 text-amber-700 px-2 py-0.5 rounded-full text-xs font-bold">🤖 Animateur (IA)</span>'
 };
 
 function renderMods() {
-    const mods = allUsers.filter(u => u.role === 'moderator' || u.role === 'super_admin');
+    const mods = allUsers.filter(u => ['super_admin', 'moderator', 'guide_editor', 'animateur'].includes(u.role));
     document.getElementById('modsList').innerHTML = mods.length === 0
-        ? '<p class="text-sm text-slate-400 py-4">Aucun modérateur</p>'
+        ? '<p class="text-sm text-slate-400 py-4">Aucun membre dans l\'équipe</p>'
         : mods.map(u => {
             let html = '<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">';
             html += '<div class="flex items-center gap-3">';
             html += '<div class="w-9 h-9 rounded-full ' + (u.role === 'super_admin' ? 'bg-purple-500' : 'bg-blue-500') + ' text-white flex items-center justify-center font-bold text-sm">' + u.username[0].toUpperCase() + '</div>';
             html += '<div><p class="font-bold text-slate-900 text-sm">' + escapeHtml(u.username) + '</p>';
             html += '<p class="text-xs text-slate-500">' + (roleBadges[u.role] || u.role) + '</p></div></div>';
-            if (u.role === 'moderator' && currentUser && u.id !== currentUser.id) {
-                html += '<button data-adm="handleRevokeMod" data-adm-args="' + argsAdm(u.id) + '" class="text-xs text-rose-600 hover:text-rose-800 font-bold"><i class="fa-solid fa-user-minus mr-1"></i>Révoquer</button>';
+            if (u.role !== 'super_admin' && currentUser && u.id !== currentUser.id) {
+                html += '<button data-adm="handleRevokeMod" data-adm-args="' + argsAdm(u.id) + '" class="text-xs text-rose-600 hover:text-rose-800 font-bold"><i class="fa-solid fa-user-minus mr-1"></i>Retirer de l\'équipe</button>';
             }
             html += '</div>';
             return html;
@@ -229,7 +231,8 @@ function renderMods() {
 function handlePromoteMod(userId) {
     const id = userId || parseInt(document.getElementById('promoteModSelect').value);
     if (!id) return showToast('Choisissez un utilisateur', 'error');
-    EvcMembres.changerRole(id, 'moderator');
+    const sel = document.getElementById('promoteRoleSelect');
+    EvcMembres.changerRole(id, sel ? sel.value : 'moderator');
 }
 
 function handleRevokeMod(userId) {
@@ -322,6 +325,7 @@ async function loadRadios() {
         const list = document.getElementById('radiosAdminList');
         const stat = document.getElementById('statRadios');
         if (stat) stat.textContent = radios.length;
+        if (!list) return;   // la gestion des radios est dans Espace équipe › Communauté
 
         if (radios.length === 0) {
             list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Aucune radio. Cliquez sur « Ajouter une radio » !</p>';
@@ -346,6 +350,7 @@ async function loadRadios() {
         });
         list.innerHTML = html;
     } catch (err) {
+        if (!document.getElementById('radiosAdminList')) return;
         document.getElementById('radiosAdminList').innerHTML = '<p class="text-rose-500 text-center py-8 text-sm">' + escapeHtml(err.message) + '</p>';
     }
 }
@@ -928,8 +933,11 @@ document.addEventListener('click', function(e) {
 
 // Espace équipe : un lien « page.html#onglet » ouvre directement l'onglet (ex. moderation.html#photos, admin.html#radios)
 (function () {
-    var ALIAS = { contestations: 'appeals' };
+    var ALIAS = { contestations: 'appeals', logs: 'audit', journal: 'audit', mods: 'mods', maintenance: 'systeme', sauvegardes: 'systeme' };
+    // Anciennes adresses déplacées vers Communauté (refonte P6)
+    var AILLEURS = { radios: 'communaute.html#radios', programme: 'communaute.html#programme' };
     function ouvrir() {
+        if (AILLEURS[location.hash.slice(1)]) { location.replace(AILLEURS[location.hash.slice(1)]); return; }
         var nom = ALIAS[location.hash.slice(1)] || location.hash.slice(1);
         if (!nom || typeof showTab !== 'function') return;
         var b = document.querySelector('[data-click="showTab"][data-click-args^=\'["' + nom.replace(/[^a-z-]/g, '') + '"\']');
