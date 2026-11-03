@@ -15,5 +15,7 @@
   // Pages rangées dans un dossier (ex. /club-libertin/lyon/) : on garde tout le chemin
   var chemin = location.pathname.replace(/^\/+/, '');
   var target = (chemin.indexOf('/') !== -1 ? chemin : file) + location.search + location.hash;
+  // Mesure d'audience : on garde la provenance réelle (Google…) avant d'entrer dans le cadre radio
+  try { if (!sessionStorage.getItem('evm_ref')) sessionStorage.setItem('evm_ref', document.referrer || '-'); } catch (e) {}
   location.replace('app-shell.html?page=' + encodeURIComponent(target));
 })();
