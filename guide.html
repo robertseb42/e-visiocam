@@ -88,7 +88,7 @@
             <button type="button" data-type="soiree" aria-pressed="false">Soirées privées</button>
         </div>
         <div class="gl-puces"><button type="button" id="glOuvert" aria-pressed="false"><i class="fa-regular fa-clock" aria-hidden="true"></i> Ouvert aujourd'hui</button></div>
-        <label class="gl-select"><span class="gl-sr">Public</span><select id="glPublic"><option value="">Tous publics</option><option value="couples">Couples</option><option value="femmes">Femmes seules</option><option value="hommes">Hommes seuls</option></select></label>
+        <label class="gl-select"><span class="gl-sr">Public</span><select id="glPublic"><option value="">Tous publics</option><option value="couples">Couples</option><option value="femmes">Femmes seules</option><option value="hommes">Hommes seuls</option><option value="trans">Trans</option></select></label>
     </form>
 
     <div class="gl-grille">
@@ -145,6 +145,7 @@
                 <label class="gl-case"><input type="checkbox" name="publics" value="couples"> Couples</label>
                 <label class="gl-case"><input type="checkbox" name="publics" value="femmes"> Femmes seules</label>
                 <label class="gl-case"><input type="checkbox" name="publics" value="hommes"> Hommes seuls</label>
+                <label class="gl-case"><input type="checkbox" name="publics" value="trans"> Trans</label>
             </fieldset>
             <label class="gl-champ"><span>Précision sur le public</span><input name="precisionPublic" maxlength="120" placeholder="ex. hommes seuls le jeudi uniquement"></label>
             <label class="gl-champ"><span>Précisions sur les tarifs</span><textarea name="tarifs" rows="2" maxlength="600" placeholder="ex. après-midi + soir : 10 € de réduction sur le soir ; consommation comprise…"></textarea></label>
@@ -186,7 +187,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=30"></script>
+<script src="pages/guide.js?v=31"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=3"></script>
 <script src="footer.js?v=8" defer></script>

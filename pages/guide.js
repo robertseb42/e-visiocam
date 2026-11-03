@@ -20,7 +20,7 @@
     // publiées pour Google après la republication automatique : y renvoyer trop tôt donnait une page introuvable.
     function lienFiche(l) { return '/lieu.html?l=' + encodeURIComponent(l.slug); }
     var SYMBOLES = { Hommes: ['♂', 'h'], Femmes: ['♀', 'f'], Couples: ['⚤', 'c'], Trans: ['⚧', 't'] };
-    var PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls' };
+    var PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls', trans: 'Trans' };
 
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function connecte() { return typeof getCurrentUser === 'function' && !!getCurrentUser(); }
