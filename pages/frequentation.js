@@ -102,6 +102,7 @@
         var u = typeof getCurrentUser === 'function' && getCurrentUser();
         if (!u || (u.role !== 'moderator' && u.role !== 'super_admin')) return;
         bloc.hidden = false; charger();
+        if (location.hash === '#evFreq') setTimeout(function () { bloc.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 300);   // lien « Fréquentation » de l'admin
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', demarrer); else demarrer();
 })();
