@@ -4,7 +4,8 @@
       // Sécurité : uniquement une page locale du site, sous la forme « nom.html?…#… » (ou « nom » sans .html).
       // Liste blanche plutôt que liste noire : l'ancienne laissait passer data:… et \\autre-site.com
       // (le navigateur lit « \ » comme « / »), qui affichaient un contenu étranger dans le cadre.
-      if (!/^[a-z0-9_-]+(?:\.html)?(?:[?#].*)?$/i.test(p)) p = 'index.html';
+      // Pages rangées dans un dossier (guide par ville : « club-libertin/lyon/ ») : segments de lettres, chiffres, - et _ seulement
+      if (!/^(?:[a-z0-9_-]+\/)*[a-z0-9_-]+(?:\.html)?(?:[?#].*)?$/i.test(p) && !/^(?:[a-z0-9_-]+\/)+(?:[?#].*)?$/i.test(p)) p = 'index.html';
       var frame = document.getElementById('evcPage');
       var observeur = null;
       var observeurPage = null;
@@ -127,7 +128,8 @@
         // Titre et adresse : un rechargement ou un favori ramène sur la bonne page
         try {
           document.title = doc.title || 'E-VISIOCAM';
-          var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(win.location.pathname.split('/').pop()) || 'index.html') + win.location.search + win.location.hash;
+          var dossier = win.location.pathname.replace(/^\/+/, '');
+          var page = (dossier.indexOf('/') !== -1 ? dossier : ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(win.location.pathname.split('/').pop()) || 'index.html')) + win.location.search + win.location.hash;
           // Adresse propre (/salons.html, /chat.html?theme=…) au lieu de app-shell.html?page=… :
           // les liens copiés et partagés pointent vers la vraie page, que Google peut indexer.
           // Un rechargement repasse par la page, qui renvoie aussitôt dans ce cadre.

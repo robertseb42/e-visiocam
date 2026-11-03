@@ -12,6 +12,8 @@
   ];
   if (excluded.indexOf(file) !== -1) return;
 
-  var target = file + location.search + location.hash;
+  // Pages rangées dans un dossier (ex. /club-libertin/lyon/) : on garde tout le chemin
+  var chemin = location.pathname.replace(/^\/+/, '');
+  var target = (chemin.indexOf('/') !== -1 ? chemin : file) + location.search + location.hash;
   location.replace('app-shell.html?page=' + encodeURIComponent(target));
 })();
