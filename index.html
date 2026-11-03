@@ -39,7 +39,7 @@
 <script defer="" src="nav-auth.js?v=12"></script>
 <link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=6" rel="stylesheet"/>
-<link href="index-carte.css?v=2" rel="stylesheet"/>
+<link href="index-carte.css?v=3" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -149,6 +149,11 @@
 <i class="fa-solid fa-gift w-5 text-center text-amber-500"></i><span>Mes récompenses</span>
 </a>
 </nav>
+<!-- Soirées des clubs (agenda du Guide libertin) qui défilent : pages/index-soirees.js -->
+<section aria-labelledby="sbSoireesTitre" class="sb-soirees bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80" hidden id="sbSoirees">
+<div class="sb-soirees-tete"><h2 id="sbSoireesTitre"><i aria-hidden="true" class="fa-regular fa-calendar"></i> Soirées des clubs</h2><a href="guide.html">Tout voir</a></div>
+<div class="sb-soirees-fenetre"><ul class="sb-soirees-liste" id="sbSoireesListe"></ul></div>
+</section>
 <!-- 📻 PLATINE RADIO E-VISIOCAM (styles : style.css → « PLATINE RADIO ») -->
 <div aria-label="Radio" class="evc-deck" id="radioWidget">
 <div class="evc-deck-head">
@@ -352,6 +357,7 @@
 <script src="pages/index-cameras.js?v=2"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
 <script defer="" src="pages/index-carte.js?v=5"></script>
+<script defer="" src="pages/index-soirees.js?v=1"></script>
 <script src="pages/index-membres.js"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
 <script defer="" src="footer.js?v=10"></script>
