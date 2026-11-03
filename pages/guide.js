@@ -16,6 +16,9 @@
         'nouvelle-aquitaine': [45.2, 0.2], 'occitanie': [43.7, 2.2], 'pays-de-la-loire': [47.4, -0.8], 'provence-alpes-cote-d-azur': [43.95, 6.1], 'outre-mer': [14.6, -61.0] };
     // Pastilles de prix : symboles au lieu des mots (le mot reste lu par les lecteurs d'écran et au survol)
     var BOISSON_OFFERTE = /(boisson|conso|verre|soft|coupe|champagne|ap[eé]ritif)[^.·]*offert|offert[^.·]*(boisson|conso|verre|coupe|champagne)/i;   // « une boisson soft offerte » → petites coupes devant la précision
+    // Lien vers une fiche : toujours la fiche dynamique (à jour tout de suite). Les pages /club-libertin/… sont
+    // publiées pour Google après la republication automatique : y renvoyer trop tôt donnait une page introuvable.
+    function lienFiche(l) { return '/lieu.html?l=' + encodeURIComponent(l.slug); }
     var SYMBOLES = { Hommes: ['♂', 'h'], Femmes: ['♀', 'f'], Couples: ['⚤', 'c'], Trans: ['⚧', 't'] };
     var PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls' };
 
@@ -818,7 +821,7 @@
         var badges = (l.types || [l.type]).map(function (t) { return '<span class="gl-mini gl-mini-' + t + '">' + (NOMS_TYPES[t] || 'Lieu') + '</span>'; }).join('') +
             ((l.jours || []).indexOf(jourDuJour()) >= 0 ? '<span class="gl-mini gl-ouvert">Ouvert aujourd\'hui</span>' : '') +
             (l.verifie ? '<span class="gl-mini gl-verifie"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Vérifiée</span>' : '');
-        return '<a class="gl-lieu" href="' + (l.url ? esc(l.url) : 'lieu.html?l=' + encodeURIComponent(l.slug)) + '">' +
+        return '<a class="gl-lieu" href="' + lienFiche(l) + '">' +
             '<span class="gl-lieu-ico" aria-hidden="true"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '"></i></span>' +
             '<span class="gl-lieu-txt"><b>' + esc(l.nom) + '</b>' +
             '<span class="gl-lieu-ville"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(l.ville) + (etat.region ? '' : ' · ' + esc(l.regionNom)) + '</span>' +
@@ -844,7 +847,7 @@
             var metropole = l.lat > 41 && l.lat < 51.6 && l.lng > -5.6 && l.lng < 10;
             if (om || metropole) pts.push([l.lat, l.lng]); else if (l.region !== 'outre-mer') return;
             L.circleMarker([l.lat, l.lng], { radius: 8, color: '#111113', weight: 2, fillColor: '#ff1680', fillOpacity: 0.95 })
-                .bindPopup('<b>' + esc(l.nom) + '</b><br>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + '<br><a href="' + (l.url ? esc(l.url) : 'lieu.html?l=' + encodeURIComponent(l.slug)) + '">Voir la fiche</a>')
+                .bindPopup('<b>' + esc(l.nom) + '</b><br>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + '<br><a href="' + lienFiche(l) + '">Voir la fiche</a>')
                 .addTo(calque);
         });
         if (!region && !om) carte.fitBounds([[42.2, -4.9], [51.2, 8.4]], { padding: [10, 10] });
