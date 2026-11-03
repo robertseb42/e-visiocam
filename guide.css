@@ -439,3 +439,4 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-premier-avis b{display:block;font-size:15px;margin-bottom:4px}
 .gl-premier-avis p{margin:0 0 12px;color:var(--g-soft);font-size:14px;line-height:1.55}
 .gl-premier-avis strong{color:var(--g-text,inherit)}
+.gl-autre-horaire{margin:-4px 0 10px;font-size:13px}

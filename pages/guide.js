@@ -96,6 +96,7 @@
             '<div class="gl-jours" role="group" aria-label="Jours du créneau">' + j + '</div>' +
             '<div class="gl-trois">' + champ('espace', 'Espace', c.espace, 'maxlength="40" list="glEspaces" placeholder="Sauna, discothèque…"') +
             champ('debut', 'De', c.debut, 'type="time"') + champ('fin', 'À', c.fin, 'type="time"') + '</div>' +
+            '<p class="gl-autre-horaire"><button type="button" class="gl-lien-btn" data-creneau-horaire><i class="fa-solid fa-plus" aria-hidden="true"></i> Autre horaire ces jours-là (ex. 21h – 23h)</button></p>' +
             '<div class="gl-deux">' + champ('titre', 'Soirée / thème (facultatif)', c.titre, 'maxlength="80" placeholder="ex. Soirée à thème avec repas"') +
             champ('public', 'Public accepté (facultatif)', c.public, 'maxlength="120" placeholder="ex. femmes et couples uniquement"') + '</div>' +
             '<div class="gl-quatre">' + champ('hommes', 'Hommes (€)', p.hommes, 'inputmode="decimal" maxlength="7"') +
@@ -129,6 +130,14 @@
             b.querySelectorAll('input').forEach(function (i, k) { n.querySelectorAll('input')[k].value = i.value; });
             n.querySelectorAll('[data-jour]').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
             b.after(n); n.querySelector('[data-jour]').focus(); return;
+        }
+        // Deuxième horaire les mêmes jours (ex. 12h15 – 18h puis 21h – 23h) : mêmes jours, espace et tarifs, heures à saisir
+        var h = e.target.closest('[data-creneau-horaire]');
+        if (h) {
+            var src = h.closest('.gl-creneau'), cp = src.cloneNode(true);
+            src.querySelectorAll('input').forEach(function (i, k) { cp.querySelectorAll('input')[k].value = i.value; });
+            ['debut', 'fin', 'titre', 'note'].forEach(function (k) { var i = cp.querySelector('[data-k="' + k + '"]'); if (i) i.value = ''; });
+            src.after(cp); cp.querySelector('[data-k="debut"]').focus(); return;
         }
         var s = e.target.closest('[data-creneau-suppr]');
         if (s) { var bl = s.closest('.gl-creneau'), zz = bl.parentNode; bl.remove(); if (!zz.children.length) zz.insertAdjacentHTML('beforeend', creneauHTML()); }
