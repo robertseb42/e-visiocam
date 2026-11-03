@@ -35,8 +35,13 @@
     function fermer(f) { f.hidden = true; }
     document.addEventListener('click', function (e) {
         var b = e.target.closest('[data-fermer]'); if (b) fermer(b.closest('.gl-fond'));
-        if (e.target.classList && e.target.classList.contains('gl-fond')) fermer(e.target);
+        // Clic sur le fond sombre = fermer, mais seulement si le clic a COMMENCÉ sur le fond :
+        // une sélection de texte faite en glissant hors de la fenêtre ne doit pas la fermer (et perdre la saisie)
+        if (e.target.classList && e.target.classList.contains('gl-fond') && fondAppuye === e.target) fermer(e.target);
+        fondAppuye = null;
     });
+    var fondAppuye = null;
+    document.addEventListener('mousedown', function (e) { fondAppuye = e.target.classList && e.target.classList.contains('gl-fond') ? e.target : null; });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') document.querySelectorAll('.gl-fond:not([hidden])').forEach(fermer); });
     function erreur(form, msg) { var e = form.querySelector('.gl-erreur'); e.textContent = msg; e.hidden = false; }
     function remplirRegions(defaut) {
