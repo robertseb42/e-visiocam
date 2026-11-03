@@ -615,9 +615,28 @@
         var r = analyserHoraires(zone.value);
         if (!r.creneaux.length) r = analyserParPublic(zone.value);
         if (!r.creneaux.length) { msg.textContent = 'Rien de reconnu. Il faut soit des jours avec leurs heures (« Samedi : 21h - 5h » puis « Couple : 20 € »), soit des rubriques par public (« Hommes seuls » puis « Soir à partir de 20h : 30 € »).'; return; }
-        remplirPlanning(f, r.creneaux);
+        // Les créneaux déjà saisis sont GARDÉS : les nouveaux s'ajoutent à la suite (ex. le matin d'abord, puis le soir).
+        // Un créneau identique (mêmes jours, heures et titre) n'est pas ajouté deux fois.
+        var avant = lirePlanningForm(f);
+        var cle = function (c) { return c.jours.join(',') + '|' + c.debut + '|' + c.fin + '|' + (c.titre || '').toLowerCase() + '|' + (c.espace || '').toLowerCase(); };
+        var vus = avant.map(cle);
+        var nouveaux = r.creneaux.filter(function (c) { var k = cle(c); if (vus.indexOf(k) >= 0) return false; vus.push(k); return true; });
+        f._dernierCollage = r.creneaux;
+        remplirPlanning(f, avant.concat(nouveaux));
         if (r.reste && f.tarifs && f.tarifs.value.indexOf(r.reste) < 0) f.tarifs.value = (f.tarifs.value ? f.tarifs.value + '\n' : '') + r.reste;
-        msg.textContent = r.creneaux.length + ' créneau(x) créé(s). Vérifiez-les ci-dessous (jours, heures, prix)' + (r.creneaux.some(function (c) { return !c.debut || !c.fin; }) ? ', ajoutez les heures d\'ouverture qui manquent' : '') + ', puis enregistrez.';
+        var manque = nouveaux.some(function (c) { return !c.debut || !c.fin; }) ? ', ajoutez les heures d\'ouverture qui manquent' : '';
+        msg.innerHTML = nouveaux.length + ' créneau(x) ajouté(s)' + (avant.length ? ' à la suite des ' + avant.length + ' déjà saisi(s)' : '') +
+            (nouveaux.length < r.creneaux.length ? ' (' + (r.creneaux.length - nouveaux.length) + ' déjà présent(s), ignoré(s))' : '') +
+            '. Vérifiez-les ci-dessous' + manque + ', puis enregistrez.' +
+            (avant.length ? ' <button type="button" class="gl-lien-btn" data-coller-remplacer>Remplacer plutôt les anciens créneaux</button>' : '');
+        var cible = f.querySelectorAll('.gl-creneau')[avant.length] || f.querySelector('.gl-creneau');
+        if (cible) cible.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-coller-remplacer]'); if (!b) return;
+        var f = b.closest('form'); if (!f._dernierCollage) return;
+        remplirPlanning(f, f._dernierCollage);
+        f.querySelector('[data-coller-msg]').textContent = 'Anciens créneaux remplacés par les ' + f._dernierCollage.length + ' du texte collé. Vérifiez puis enregistrez.';
         f.querySelector('.gl-creneau').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 
