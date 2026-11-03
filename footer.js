@@ -115,7 +115,7 @@
 
         // 💬 Assistant d'aide (bulle en bas à gauche), sauf là où il gênerait la saisie ou l'équipe
         var page = ((function (p) { return p && p.indexOf('.') === -1 ? p + '.html' : p; })(location.pathname.split('/').pop()) || 'index.html').toLowerCase();
-        var sansAssistant = ['apercu.html', 'chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html'];
+        var sansAssistant = ['apercu.html', 'chat.html', 'live.html', 'messages.html', 'room.html', 'admin.html', 'moderation.html', 'moderation-salons.html', 'decor.html', 'dashboard.html', 'espace-equipe.html', 'guide-equipe.html'];
         if (sansAssistant.indexOf(page) === -1 && !document.querySelector('script[src*="assistant.js"]')) {
             var as = document.createElement('script');
             as.src = 'assistant.js?v=6';

@@ -1,0 +1,59 @@
+/* Espace équipe (refonte de l'administration, étape P1) */
+.evx{display:grid;grid-template-columns:250px minmax(0,1fr);gap:24px;max-width:1500px;width:100%;margin:0 auto;padding:24px;flex:1;align-items:start}
+.evx-menu{position:sticky;top:84px;max-height:calc(100vh - 100px);overflow-y:auto;padding:14px;border-radius:16px;background:var(--g-panel);border:1px solid var(--g-border)}
+.evx-menu details>summary{display:none}
+.evx-famille+.evx-famille{margin-top:12px;padding-top:12px;border-top:1px solid var(--g-border)}
+.evx-famille-nom{margin:0 0 4px;padding:0 8px;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--g-muted)}
+.evx-famille-nom i{width:16px;color:var(--g-pink)}
+.evx-famille ul{list-style:none;margin:0;padding:0}
+.evx-famille a{display:block;padding:7px 10px 7px 32px;border-radius:9px;color:var(--g-soft);font-size:14px;text-decoration:none}
+.evx-famille a:hover{background:var(--g-tag);color:var(--g-text)}
+.evx-famille a[aria-current="page"]{background:var(--g-pink-bg);color:var(--g-text);font-weight:700;box-shadow:inset 3px 0 0 var(--g-pink)}
+.evx-contenu{min-width:0}
+.evx-tete{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+.evx-tete h1{margin:0;font-size:clamp(24px,2.4vw,32px);font-weight:900;letter-spacing:-.5px}
+.evx-bloc{margin-top:18px;padding:18px 20px;border-radius:16px;background:var(--g-panel);border:1px solid var(--g-border)}
+.evx-bloc-tete{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.evx-bloc-tete h2{margin:0;font-size:18px;font-weight:800}
+.evx-total{font-size:14px;color:var(--g-muted)}.evx-total b{color:var(--g-text);font-size:16px}
+.evx-rouge{color:var(--g-danger);font-weight:700}.evx-vert{color:var(--g-ok);font-weight:700}
+.evx-lien{color:var(--g-accent);font-weight:700;font-size:13px;text-decoration:none}
+.evx-niveau+.evx-niveau{margin-top:16px}
+.evx-niveau h3{margin:0 0 8px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.evx-niveau h3 small{margin-left:6px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--g-muted)}
+.evx-urgent h3{color:var(--g-danger)}.evx-ordinaire h3{color:var(--g-accent)}.evx-editorial h3{color:var(--g-pink)}
+.evx-cartes{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.evx-carte{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--g-panel2);border:1px solid var(--g-border);color:var(--g-text);text-decoration:none;transition:border-color .15s,transform .15s}
+.evx-carte:hover{border-color:var(--g-pink);transform:translateY(-1px)}
+.evx-carte-ico{flex:none;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--g-tag);color:var(--g-soft)}
+.evx-urgent .evx-carte:not(.evx-carte-vide){border-color:var(--g-danger)}
+.evx-urgent .evx-carte:not(.evx-carte-vide) .evx-carte-ico{background:rgba(248,113,113,.15);color:var(--g-danger)}
+.evx-ordinaire .evx-carte:not(.evx-carte-vide) .evx-carte-ico{background:rgba(255,229,0,.12);color:var(--g-accent)}
+.evx-editorial .evx-carte:not(.evx-carte-vide) .evx-carte-ico{background:var(--g-pink-bg);color:var(--g-pink)}
+.evx-carte-txt{display:flex;flex-direction:column;min-width:0;flex:1}
+.evx-carte-txt b{font-size:22px;font-weight:900;line-height:1.1}
+.evx-carte-txt span{font-size:13px;color:var(--g-soft)}
+.evx-carte-vide{opacity:.55}.evx-carte-vide b{color:var(--g-muted)}
+.evx-carte-fleche{color:var(--g-muted);font-size:12px}
+.evx-tuiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.evx-tuile{display:flex;flex-direction:column;gap:2px;padding:12px 14px;border-radius:12px;background:var(--g-panel2);border:1px solid var(--g-border)}
+.evx-tuile span{font-size:12.5px;color:var(--g-muted)}.evx-tuile b{font-size:24px;font-weight:900;color:var(--g-text)}.evx-tuile em{font-style:normal;font-size:12px;color:var(--g-muted)}
+.evx-etats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.evx-etat{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--g-panel2);border:1px solid var(--g-border);text-decoration:none;color:var(--g-text)}
+.evx-etat i{font-size:20px}.evx-ok i{color:var(--g-ok)}.evx-ko{border-color:var(--g-danger)}.evx-ko i{color:var(--g-danger)}
+.evx-etat span{display:flex;flex-direction:column}.evx-etat small{color:var(--g-muted);font-size:12.5px}
+.evx-vide{margin:0;color:var(--g-muted)}
+/* Barre « ← Espace équipe » sur les anciennes pages */
+.evx-retour{display:flex;align-items:center;gap:8px;margin:0 0 14px;font-size:13px;color:#a6a6b1}
+.evx-retour a{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:rgba(255,22,128,.12);color:#ff7ab8;font-weight:700;text-decoration:none}
+html[data-theme="light"] .evx-retour a{background:#fdf2f8;color:#9d174d}
+@media(max-width:900px){
+  .evx{grid-template-columns:1fr;padding:14px;gap:12px}
+  .evx-menu{position:static;max-height:none;padding:0;background:none;border:0}
+  .evx-menu details>summary{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;background:var(--g-panel);border:1px solid var(--g-border);font-weight:700;cursor:pointer;list-style:none}
+  .evx-menu details[open]>summary{margin-bottom:8px}
+  .evx-menu details[open]{padding-bottom:4px}
+  .evx-tuiles{grid-template-columns:1fr 1fr}.evx-etats{grid-template-columns:1fr}
+  .evx-cartes{grid-template-columns:1fr 1fr}.evx-carte{padding:10px;gap:8px}.evx-carte-ico,.evx-carte-fleche{display:none}
+  .evx-tete{flex-direction:column}
+}

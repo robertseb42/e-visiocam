@@ -914,3 +914,16 @@ document.addEventListener('click', function(e) {
     var args = JSON.parse(b.dataset.admArgs || '[]').map(function(a) { return a === '$this' ? b : a; });
     ACTIONS_ADM[b.dataset.adm].apply(null, args);
 });
+
+// Espace équipe : un lien « page.html#onglet » ouvre directement l'onglet (ex. moderation.html#photos, admin.html#radios)
+(function () {
+    var ALIAS = { contestations: 'appeals' };
+    function ouvrir() {
+        var nom = ALIAS[location.hash.slice(1)] || location.hash.slice(1);
+        if (!nom || typeof showTab !== 'function') return;
+        var b = document.querySelector('[data-click="showTab"][data-click-args^=\'["' + nom.replace(/[^a-z-]/g, '') + '"\']');
+        if (b) showTab(nom, b);
+    }
+    window.addEventListener('hashchange', ouvrir);
+    if (document.readyState === 'complete') setTimeout(ouvrir, 0); else window.addEventListener('load', ouvrir);
+})();

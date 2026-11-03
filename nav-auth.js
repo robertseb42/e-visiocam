@@ -126,22 +126,11 @@
                             <i class="fa-solid fa-life-ring w-4" style="color:#22c55e"></i> Aide
                         </a>
                         ${user.role === 'moderator' || user.role === 'super_admin' ? `
-                            <a href="moderation.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
-                                <i class="fa-solid fa-shield-halved w-4 text-blue-500"></i> Modération
-                            </a>
-                            <a href="guide-equipe.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
-                                <i class="fa-solid fa-map-location-dot w-4" style="color:#ff1680"></i> Guide libertin (équipe)
-                            </a>
-                        ` : ''}
-                        ${user.role === 'super_admin' ? `
-                            <a href="admin.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
-                                <i class="fa-solid fa-crown w-4 text-purple-500"></i> Admin
-                            </a>
-                            <a href="admin.html#contact" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                            <a href="espace-equipe.html" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                                 <div class="flex items-center gap-3">
-                                    <i class="fa-solid fa-envelope w-4 text-rose-500"></i> Demandes de contact
+                                    <i class="fa-solid fa-gauge-high w-4" style="color:#ff1680"></i> Espace équipe
                                 </div>
-                                <span id="navContactBadge" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+                                ${user.role === 'super_admin' ? '<span id="navContactBadge" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full" title="Messages de contact non lus">0</span>' : ''}
                             </a>
                         ` : ''}
                     </div>
