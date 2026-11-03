@@ -702,7 +702,7 @@
         var badges = (l.types || [l.type]).map(function (t) { return '<span class="gl-mini gl-mini-' + t + '">' + (NOMS_TYPES[t] || 'Lieu') + '</span>'; }).join('') +
             ((l.jours || []).indexOf(jourDuJour()) >= 0 ? '<span class="gl-mini gl-ouvert">Ouvert aujourd\'hui</span>' : '') +
             (l.verifie ? '<span class="gl-mini gl-verifie"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Vérifiée</span>' : '');
-        return '<a class="gl-lieu" href="lieu.html?l=' + encodeURIComponent(l.slug) + '">' +
+        return '<a class="gl-lieu" href="' + (l.url ? esc(l.url) : 'lieu.html?l=' + encodeURIComponent(l.slug)) + '">' +
             '<span class="gl-lieu-ico" aria-hidden="true"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '"></i></span>' +
             '<span class="gl-lieu-txt"><b>' + esc(l.nom) + '</b>' +
             '<span class="gl-lieu-ville"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(l.ville) + (etat.region ? '' : ' · ' + esc(l.regionNom)) + '</span>' +
@@ -728,7 +728,7 @@
             var metropole = l.lat > 41 && l.lat < 51.6 && l.lng > -5.6 && l.lng < 10;
             if (om || metropole) pts.push([l.lat, l.lng]); else if (l.region !== 'outre-mer') return;
             L.circleMarker([l.lat, l.lng], { radius: 8, color: '#111113', weight: 2, fillColor: '#ff1680', fillOpacity: 0.95 })
-                .bindPopup('<b>' + esc(l.nom) + '</b><br>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + '<br><a href="lieu.html?l=' + encodeURIComponent(l.slug) + '">Voir la fiche</a>')
+                .bindPopup('<b>' + esc(l.nom) + '</b><br>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + '<br><a href="' + (l.url ? esc(l.url) : 'lieu.html?l=' + encodeURIComponent(l.slug)) + '">Voir la fiche</a>')
                 .addTo(calque);
         });
         if (!region && !om) carte.fitBounds([[42.2, -4.9], [51.2, 8.4]], { padding: [10, 10] });
@@ -941,14 +941,21 @@
     // FICHE D'UN LIEU
     // ============================================================
     async function chargerFiche() {
-        var slug = new URLSearchParams(location.search).get('l') || '';
+        // lieu.html?l=<slug>, ou page fixe /club-libertin/<ville>/<lieu>/ (le slug est dans data-slug)
+        var slug = new URLSearchParams(location.search).get('l') || ($('glFiche') && $('glFiche').getAttribute('data-slug')) || '';
         var zone = $('glFiche');
         try {
             var d = await api('/lieux/' + encodeURIComponent(slug));
             var l = lieuCourant = d.lieu;
+            // Référencement : lieu.html?l=… renvoie vers la page fixe du lieu si elle existe ; sinon (fiche non vérifiée) pas d'indexation
+            if (!$('glFiche').getAttribute('data-slug')) {
+                var can = document.querySelector('link[rel="canonical"]');
+                if (l.url && can) can.href = 'https://www.e-visiocam.com' + l.url;
+                else if (!l.url && !document.querySelector('meta[name="robots"]')) document.head.insertAdjacentHTML('beforeend', '<meta name="robots" content="noindex, follow">');
+            }
             document.title = l.nom + ' — ' + l.typeLibelle + ' libertin à ' + l.ville + ' | Guide E-VISIOCAM';
-            $('glArianeRegion').textContent = l.regionNom; $('glArianeRegion').href = 'guide.html?region=' + encodeURIComponent(l.region);
-            $('glArianeLieu').textContent = l.nom;
+            if ($('glArianeRegion')) { $('glArianeRegion').textContent = l.regionNom; $('glArianeRegion').href = 'guide.html?region=' + encodeURIComponent(l.region); }
+            if ($('glArianeLieu')) $('glArianeLieu').textContent = l.nom;
             var pub = (l.publics || []).map(function (p) { return '<span class="gl-tag">' + PUBLICS[p] + '</span>'; }).join('');
             var aPlanning = (l.planning || []).length;
             var infos = [['Adresse', l.adresse], ['Horaires', aPlanning ? '' : l.horaires], ['Tarifs', aPlanning ? '' : l.tarifs], ['Équipements', l.equipements], ['Tenue', l.tenue]]
@@ -1008,6 +1015,7 @@
             $('glPlanLieu').addEventListener('click', function () { if (!connecte()) return versConnexion(); ouvrir('glFenetrePlan'); });
         } catch (e) {
             if (window.console) console.warn('Guide', e);
+            if (zone.getAttribute('data-slug')) return;   // page fixe : son contenu (déjà affiché) reste en place
             zone.innerHTML = '<div class="gl-vide-bloc"><p>Ce lieu est introuvable ou n\'est pas encore publié.</p><a class="gl-lien" href="guide.html">← Retour au guide</a></div>';
         }
     }

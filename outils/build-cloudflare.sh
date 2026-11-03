@@ -11,4 +11,6 @@ tar \
   --exclude='./ambiance-lounge.jpg' --exclude='./ambiance-musique.jpg' --exclude='./ambiance-rencontres.jpg' \
   --exclude='./hero-neon.jpg' --exclude='./partage.jpg' --exclude='./Claude outputs' \
   -cf - . | tar -xf - -C _site
+# Pages fixes du Guide libertin (une par ville, région et lieu vérifié), lisibles par Google — sans échec si l'API ne répond pas
+node outils/generer-guide.js _site || echo "Pages du guide non générées"
 echo "Site prêt dans _site : $(find _site -type f | wc -l) fichiers"
