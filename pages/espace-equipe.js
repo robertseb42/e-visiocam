@@ -20,11 +20,13 @@
     $('evxBonjour').textContent = 'Bonjour ' + (u.username || '') + ' 👋';
 
     // Une carte « à traiter » : nombre, libellé, lien direct
-    function carte(n, lib, lien, ico, inconnu) {
+    var PRIS = {};
+    function carte(n, lib, lien, ico, inconnu, types) {
         var vide = !inconnu && !n;
+        var pris = (types || []).reduce(function (a, t) { return a + (PRIS[t] || 0); }, 0);
         return '<a class="evx-carte' + (vide ? ' evx-carte-vide' : '') + '" href="' + lien + '">' +
             '<span class="evx-carte-ico" aria-hidden="true"><i class="fa-solid ' + ico + '"></i></span>' +
-            '<span class="evx-carte-txt"><b>' + (inconnu ? '–' : nb(n)) + '</b><span>' + esc(lib) + '</span></span>' +
+            '<span class="evx-carte-txt"><b>' + (inconnu ? '–' : nb(n)) + '</b><span>' + esc(lib) + '</span>' + (pris && n ? '<span class="evx-pris">✋ ' + nb(pris) + ' pris en charge</span>' : '') + '</span>' +
             '<i class="fa-solid fa-chevron-right evx-carte-fleche" aria-hidden="true"></i></a>';
     }
     function niveau(titre, aide, classe, cartes) {
@@ -35,8 +37,9 @@
         var r = await Promise.all([
             lire('/mod/alertes/compte'), lire('/mod/reports/count'), lire('/mod/appeals/count'), lire('/avatars/pending'),
             lire('/equipe/candidatures/count'), lire('/guide/moderation'),
-            SUPER ? lire('/contact/admin/unread-count') : null, SUPER ? lire('/salons/access-requests') : null
+            SUPER ? lire('/contact/admin/unread-count') : null, SUPER ? lire('/salons/access-requests') : null, lire('/espace/prises')
         ]);
+        PRIS = {}; ((r[8] && r[8].prises) || []).forEach(function (p) { PRIS[p.type] = (PRIS[p.type] || 0) + 1; });
         var al = r[0], rep = r[1], app = r[2], ph = r[3], cand = r[4], gu = r[5], con = r[6], vip = r[7];
         var c = {
             alertes: al ? al.ouvertes : null, signalements: rep ? rep.pending : null, contestations: app ? app.pending : null,
@@ -46,21 +49,21 @@
             contact: con ? con.count : null, vip: Array.isArray(vip) ? vip.filter(function (x) { return x.status === 'pending'; }).length : null
         };
         var html = niveau('Urgent', 'à regarder en premier', 'evx-urgent', [
-                carte(c.alertes, 'Alertes de modération ouvertes', 'moderation.html#alertes', 'fa-triangle-exclamation', c.alertes == null),
-                carte(c.signalements, 'Signalements en attente', 'moderation.html#reports', 'fa-flag', c.signalements == null)]) +
+                carte(c.alertes, 'Alertes de modération ouvertes', 'moderation.html#alertes', 'fa-triangle-exclamation', c.alertes == null, ['alerte']),
+                carte(c.signalements, 'Signalements en attente', 'moderation.html#reports', 'fa-flag', c.signalements == null, ['signalement'])]) +
             niveau('Ordinaire', 'dans la journée', 'evx-ordinaire', [
-                carte(c.contestations, 'Contestations de sanction', 'moderation.html#contestations', 'fa-scale-balanced', c.contestations == null),
-                carte(c.photos, 'Photos de profil à valider', 'moderation.html#photos', 'fa-image-portrait', c.photos == null),
+                carte(c.contestations, 'Contestations de sanction', 'moderation.html#contestations', 'fa-scale-balanced', c.contestations == null, ['contestation']),
+                carte(c.photos, 'Photos de profil à valider', 'moderation.html#photos', 'fa-image-portrait', c.photos == null, ['photo']),
                 carte(c.candidatures, 'Candidatures de modérateur', 'moderation.html#candidatures', 'fa-user-plus', c.candidatures == null)]
                 .concat(SUPER ? [carte(c.vip, 'Demandes d\'accès aux salons VIP', 'moderation-salons.html', 'fa-lock', c.vip == null),
                                  carte(c.contact, 'Messages de contact non lus', 'admin.html#contact', 'fa-envelope', c.contact == null)] : [])) +
             niveau('Éditorial', 'guide libertin', 'evx-editorial', [
-                carte(c.lieux, 'Lieux proposés', 'guide-equipe.html#glModeration', 'fa-location-dot', c.lieux == null),
-                carte(c.avis, 'Avis à valider', 'guide-equipe.html#glModeration', 'fa-star', c.avis == null),
-                carte(c.avisSignales, 'Avis signalés', 'guide-equipe.html#glModeration', 'fa-comment-slash', c.avisSignales == null),
-                carte(c.soirees, 'Soirées proposées', 'guide-equipe.html#glModeration', 'fa-calendar', c.soirees == null),
-                carte(c.corrections, 'Fermetures et erreurs signalées', 'guide-equipe.html#glModeration', 'fa-pen-to-square', c.corrections == null),
-                carte(c.plans, 'Bons plans à valider', 'guide-equipe.html#glModeration', 'fa-lightbulb', c.plans == null)]);
+                carte(c.lieux, 'Lieux proposés', 'guide-equipe.html#glModeration', 'fa-location-dot', c.lieux == null, ['guide-lieu']),
+                carte(c.avis, 'Avis à valider', 'guide-equipe.html#glModeration', 'fa-star', c.avis == null, ['guide-avis']),
+                carte(c.avisSignales, 'Avis signalés', 'guide-equipe.html#glModeration', 'fa-comment-slash', c.avisSignales == null, ['guide-signalement']),
+                carte(c.soirees, 'Soirées proposées', 'guide-equipe.html#glModeration', 'fa-calendar', c.soirees == null, ['guide-soiree']),
+                carte(c.corrections, 'Fermetures et erreurs signalées', 'guide-equipe.html#glModeration', 'fa-pen-to-square', c.corrections == null, ['guide-correction']),
+                carte(c.plans, 'Bons plans à valider', 'guide-equipe.html#glModeration', 'fa-lightbulb', c.plans == null, ['guide-bon-plan'])]);
         $('evxTraiter').innerHTML = html;
         var total = Object.keys(c).reduce(function (a, k) { return a + (c[k] || 0); }, 0);
         var urgents = (c.alertes || 0) + (c.signalements || 0);
