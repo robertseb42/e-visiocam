@@ -67,3 +67,13 @@ html[data-theme="light"] .evx-retour a{background:#fdf2f8;color:#9d174d}
 .evp-pris-autre{opacity:.72}
 html[data-theme="light"] .evp-moi{color:#059669}html[data-theme="light"] .evp-autre{color:#b45309}
 .evx-pris{display:block;margin-top:2px;font-size:11.5px;color:#fbbf24;font-weight:600}
+
+/* P4 : menu latéral commun sur toutes les pages de l'équipe */
+.evx-cadre{display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px;max-width:1720px;width:100%;margin:0 auto;padding:24px 24px 0;align-items:start;flex:1}
+.evx-cadre>main{max-width:none!important;width:auto!important;margin:0!important;padding:0 0 24px!important;min-width:0}
+.evx-cadre>.evx-menu{top:84px}
+@media(max-width:900px){.evx-cadre{grid-template-columns:1fr;padding:12px 12px 0;gap:10px}}
+
+/* Couleurs du menu, même sur les pages sans guide.css */
+.evx-menu,.evx-cadre .evp{--g-panel:#1c1c20;--g-panel2:#232329;--g-tag:#262630;--g-border:#2f2f36;--g-text:#f5f5f7;--g-soft:#d4d4dc;--g-muted:#b1b1bd;--g-accent:#ffe500;--g-accent-txt:#111113;--g-pink:#ff1680;--g-pink-bg:rgba(255,22,128,.12);--g-pink-txt:#ffb3d4;--g-ok:#34d399;--g-danger:#f87171}
+html[data-theme="light"] .evx-menu{--g-panel:#fff;--g-panel2:#f8fafc;--g-tag:#f1f5f9;--g-border:#e2e8f0;--g-text:#0f172a;--g-soft:#334155;--g-muted:#64748b;--g-accent:#e91e63;--g-accent-txt:#fff;--g-pink:#e91e63;--g-pink-bg:#fdf2f8;--g-pink-txt:#9d174d;--g-ok:#059669;--g-danger:#dc2626}

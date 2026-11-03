@@ -40,14 +40,21 @@
     }
     function brancher() {
         var nav = document.getElementById('evxMenu');
+        if (nav && nav.closest('.evx-cadre')) { nav.querySelector('details').innerHTML = '<summary><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu de l\'équipe</summary>' + menuHTML(); return; }
         if (nav) {
             nav.innerHTML = '<details class="evx-menu-mobile" open><summary><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu de l\'équipe</summary>' + menuHTML() + '</details>';
             if (window.matchMedia && matchMedia('(max-width: 900px)').matches) nav.querySelector('details').open = false;
             return;
         }
-        // Anciennes pages : barre de retour vers l'Espace équipe
+        // Autres pages de l'équipe (admin, modération, guide, salons, décor) : même menu latéral que l'Espace équipe (P4)
         if (document.getElementById('evxRetour')) return;
         var main = document.querySelector('main'); if (!main) return;
+        var cadre = document.createElement('div'); cadre.className = 'evx-cadre';
+        main.parentNode.insertBefore(cadre, main);
+        var menu = document.createElement('nav'); menu.className = 'evx-menu gl'; menu.id = 'evxMenu'; menu.setAttribute('aria-label', 'Menu de l\'équipe');
+        cadre.appendChild(menu); cadre.appendChild(main);
+        menu.innerHTML = '<details class="evx-menu-mobile" open><summary><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu de l\'équipe</summary>' + menuHTML() + '</details>';
+        if (window.matchMedia && matchMedia('(max-width: 900px)').matches) menu.querySelector('details').open = false;
         var titre = { 'admin.html': 'Administration', 'moderation.html': 'Modération', 'guide-equipe.html': 'Guide libertin', 'moderation-salons.html': 'Salons et VIP', 'decor.html': 'Décor de l\'accueil', 'communaute.html': 'Communauté' }[location.pathname.split('/').pop()] || document.title;
         main.insertAdjacentHTML('afterbegin', '<p id="evxRetour" class="evx-retour"><a href="espace-equipe.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Espace équipe</a><span aria-hidden="true">›</span><span>' + esc(titre) + '</span></p>');
     }
