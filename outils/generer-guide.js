@@ -131,7 +131,7 @@ function pageFiche(gab, l, soirees, lieuxParId, regionUrl, villeUrl) {
     const desc = texteCourt(l.nom + ', ' + liste(types) + ' libertin à ' + l.ville + ' (' + l.regionNom + '). ' + (l.description ? l.description + ' ' : '') + 'Horaires, tarifs, avis des membres et prochaines soirées.', 158);
     const ar = ariane([['Guide libertin', '/guide.html'], [l.regionNom, regionUrl], [l.ville, villeUrl], [l.nom, chemin]]);
     const infos = [['Adresse', l.adresse], ['Téléphone', l.telephone], ['Équipements', l.equipements], ['Tenue', l.tenue]].filter(x => x[1]).map(x => '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>').join('') +
-        (l.site ? '<dt>Site</dt><dd><a href="' + esc(l.site) + '" rel="noopener nofollow ugc" target="_blank">' + esc(l.site.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></dd>' : '');
+        (l.email ? '<dt>E-mail</dt><dd><a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a></dd>' : '') + (l.site ? '<dt>Site</dt><dd><a href="' + esc(l.site) + '" rel="noopener nofollow ugc" target="_blank">' + esc(l.site.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></dd>' : '');
     const pubs = (l.publics || []).map(p => '<span class="gl-tag">' + PUBLICS[p] + '</span>').join('') + (l.precisionPublic ? '<span class="gl-tag">' + esc(l.precisionPublic) + '</span>' : '');
     const avis = (l.avis || []).map(a => '<article class="gl-avis"><div class="gl-avis-tete"><span><b>' + esc(a.auteur) + '</b></span><span>Avis du ' + esc(dateCourte(a.date)) + '</span></div>' +
         '<div class="gl-avis-titre">' + a.note + '/5' + (a.titre ? ' <b>' + esc(a.titre) + '</b>' : '') + '</div><p>' + esc(a.texte) + '</p>' +
@@ -151,6 +151,7 @@ function pageFiche(gab, l, soirees, lieuxParId, regionUrl, villeUrl) {
     const lieuLd = { '@type': (l.types || []).includes('club') ? 'NightClub' : 'LocalBusiness', name: l.nom, url: DOMAINE + chemin,
         address: { '@type': 'PostalAddress', streetAddress: l.adresse || undefined, addressLocality: l.ville, addressRegion: l.regionNom, addressCountry: 'FR' } };
     if (l.telephone) lieuLd.telephone = l.telephone;
+    if (l.email) lieuLd.email = l.email;
     if (l.lat != null) lieuLd.geo = { '@type': 'GeoCoordinates', latitude: l.lat, longitude: l.lng };
     if (l.nbAvis) lieuLd.aggregateRating = { '@type': 'AggregateRating', ratingValue: l.note, reviewCount: l.nbAvis, bestRating: 5, worstRating: 1 };
     const ld = { '@context': 'https://schema.org', '@graph': [lieuLd, ar.ld].concat(mesSoirees.slice(0, 10).map(s => evenementLd(s, l))) };

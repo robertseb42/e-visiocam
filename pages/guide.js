@@ -466,7 +466,7 @@
         var aide = f.querySelector('.gl-aide'); if (aide) aide.textContent = l ? 'Les modifications sont visibles tout de suite sur la fiche.' : (equipe() ? 'Indiquez les informations publiques du lieu. Il sera publié tout de suite et placé sur la carte d\'après son adresse.' : 'Club, sauna ou soirée privée : indiquez les informations publiques du lieu. La fiche sera publiée après vérification par la modération.');
         remplirRegions(l ? l.region : etat.region);
         if (l) {
-            ['nom', 'type', 'ville', 'adresse', 'telephone', 'equipements', 'tenue', 'site', 'description', 'tarifs'].forEach(function (k) { if (f[k]) f[k].value = l[k] || ''; });
+            ['nom', 'type', 'ville', 'adresse', 'telephone', 'email', 'equipements', 'tenue', 'site', 'description', 'tarifs'].forEach(function (k) { if (f[k]) f[k].value = l[k] || ''; });
             if (f.precisionPublic) f.precisionPublic.value = l.precisionPublic || '';
             f.querySelectorAll('input[name=publics]').forEach(function (c) { c.checked = (l.publics || []).indexOf(c.value) >= 0; });
             f.querySelectorAll('input[name=types]').forEach(function (c) { c.checked = c.value !== l.type && (l.types || []).indexOf(c.value) >= 0; });
@@ -836,10 +836,10 @@
     // ============================================================
     // IMPORT CSV (espace équipe)
     // ============================================================
-    var COLONNES = ['nom', 'categorie', 'adresse', 'code_postal', 'ville', 'departement', 'telephone', 'site', 'reseaux', 'horaires', 'tarifs', 'statut', 'verifie_le', 'source', 'description'];
+    var COLONNES = ['nom', 'categorie', 'adresse', 'code_postal', 'ville', 'departement', 'telephone', 'email', 'site', 'reseaux', 'horaires', 'tarifs', 'statut', 'verifie_le', 'source', 'description'];
     var SYNONYMES = { etablissement: 'nom', nom_de_l_etablissement: 'nom', type: 'categorie', cp: 'code_postal', codepostal: 'code_postal', dep: 'departement', dept: 'departement',
         tel: 'telephone', telephones: 'telephone', site_internet: 'site', site_web: 'site', url: 'site', reseaux_sociaux: 'reseaux', facebook: 'reseaux', instagram: 'reseaux',
-        horaires_et_tarifs: 'horaires', horaire: 'horaires', heures: 'horaires', horaires_tarifs: 'horaires', planning: 'horaires', precisions_tarifs: 'tarifs', precisions_sur_les_tarifs: 'tarifs', consommations: 'tarifs',
+        mail: 'email', e_mail: 'email', courriel: 'email', adresse_mail: 'email', adresse_e_mail: 'email', horaires_et_tarifs: 'horaires', horaire: 'horaires', heures: 'horaires', horaires_tarifs: 'horaires', planning: 'horaires', precisions_tarifs: 'tarifs', precisions_sur_les_tarifs: 'tarifs', consommations: 'tarifs',
         date_de_derniere_verification: 'verifie_le', derniere_verification: 'verifie_le', date_verification: 'verifie_le', date: 'verifie_le' };
     function sansAccentJs(t) { return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
     function lireCsv(texte) {
@@ -962,6 +962,7 @@
                 .filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('');
             if (l.telephone) infos += '<dt>Téléphone</dt><dd><a href="tel:' + esc(l.telephone.replace(/[^0-9+]/g, '')) + '">' + esc(l.telephone) + '</a></dd>';
             if ((l.reseaux || []).length) infos += '<dt>Réseaux</dt><dd class="gl-reseaux">' + l.reseaux.map(function (u) { var h = u.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]; var n = /facebook|fb\./.test(h) ? 'Facebook' : /instagram/.test(h) ? 'Instagram' : /tiktok/.test(h) ? 'TikTok' : /twitter|x\.com/.test(h) ? 'X' : h; return '<a href="' + esc(u) + '" target="_blank" rel="noopener nofollow">' + esc(n) + '</a>'; }).join(' · ') + '</dd>';
+            if (l.email) infos += '<dt>E-mail</dt><dd><a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a></dd>';
             if (l.site) infos += '<dt>Site</dt><dd><a href="' + esc(l.site) + '" target="_blank" rel="noopener nofollow ugc">' + esc(l.site.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')) + '</a></dd>';
             var mon = d.monAvis;
             var avis = d.avis.map(function (a) {
