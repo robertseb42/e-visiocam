@@ -535,6 +535,7 @@
                     .replace(/\b(du|au|et|de|à|a partir|tous les jours|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)s?\b/gi, ' ')
                     .replace(/(^|\s)(am|pm|apr[eè]s[- ]midi|soir|matin|midi|journ[ée]e)(?=\s|$|[:,+])/gi, ' ')
                     .replace(/[,:+&\/–—-]/g, ' ').replace(/\s+/g, ' ').trim();
+                if (!titre) titre = periodeDeTexte(l) === 'am' ? 'Après-midi' : periodeDeTexte(l) === 'soir' ? 'Soirée' : '';   // « Mardi soir : 19h - 1h » → Soirée
                 bloc = { jours: jours.length ? jours : joursEnAttente, espace: '', debut: heure(plage[1], plage[2]), fin: heure(plage[3], plage[4]), titre: titre, public: '', note: '', prix: { hommes: '', femmes: '', couples: '', trans: '' } };
                 blocs.push(bloc); joursEnAttente = null; sousPrix = null; return;
             }
