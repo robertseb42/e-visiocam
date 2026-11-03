@@ -234,6 +234,10 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-prix{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
 .gl-prix li{padding:5px 10px;border-radius:10px;background:var(--g-panel);border:1px solid var(--g-border);font-size:13px;color:var(--g-muted)}
 .gl-prix b{color:var(--g-accent);font-weight:800;margin-left:2px}
+.gl-prix li{display:inline-flex;align-items:center;gap:4px}
+.gl-sym{font:700 17px/1 "Segoe UI Symbol","Noto Sans Symbols 2","DejaVu Sans",sans-serif;font-variant-emoji:text}
+.gl-sym-h{color:#5aaeff}.gl-sym-f{color:#ff5fa2}.gl-sym-c{color:#c08bff}.gl-sym-t{color:#6fe0ee}
+.gl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .gl-cr-note{color:var(--g-muted);font-size:13px;line-height:1.5}
 .gl-cr-note p{margin:0}
 .gl-replie{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}

@@ -14,6 +14,9 @@
     var CENTRES = { 'auvergne-rhone-alpes': [45.45, 4.6], 'bourgogne-franche-comte': [47.2, 5.0], 'bretagne': [48.1, -2.9], 'centre-val-de-loire': [47.5, 1.7],
         'corse': [42.15, 9.1], 'grand-est': [48.7, 5.6], 'hauts-de-france': [50.0, 2.8], 'ile-de-france': [48.75, 2.5], 'normandie': [49.1, 0.1],
         'nouvelle-aquitaine': [45.2, 0.2], 'occitanie': [43.7, 2.2], 'pays-de-la-loire': [47.4, -0.8], 'provence-alpes-cote-d-azur': [43.95, 6.1], 'outre-mer': [14.6, -61.0] };
+    // Pastilles de prix : symboles au lieu des mots (le mot reste lu par les lecteurs d'écran et au survol)
+    var BOISSON_OFFERTE = /(boisson|conso|verre|soft|coupe|champagne|ap[eé]ritif)[^.·]*offert|offert[^.·]*(boisson|conso|verre|coupe|champagne)/i;   // « une boisson soft offerte » → petites coupes devant la précision
+    var SYMBOLES = { Hommes: ['♂', 'h'], Femmes: ['♀', 'f'], Couples: ['⚤', 'c'], Trans: ['⚧', 't'] };
     var PUBLICS = { couples: 'Couples', femmes: 'Femmes seules', hommes: 'Hommes seuls' };
 
     function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -212,8 +215,8 @@
                     return '<div class="gl-cr"><div class="gl-cr-tete">' + (c.debut ? '<span class="gl-h">' + heureFr(c.debut) + (c.fin ? ' – ' + heureFr(c.fin) : '') + '</span>' : '') + (c.espace ? '<span class="gl-espace">' + esc(c.espace) + '</span>' : '') + '</div>' +
                         (c.titre ? '<strong class="gl-cr-titre">' + esc(adoucir(c.titre)) + '</strong>' : '') +
                         (c.public ? '<p class="gl-cr-public"><i class="fa-solid fa-user-group" aria-hidden="true"></i> ' + esc(adoucir(c.public).replace(/\s*,\s*/g, ', ')) + '</p>' : '') +
-                        (prix.length ? '<ul class="gl-prix">' + prix.map(function (x) { return '<li>' + x[0] + ' <b>' + prixFr(x[1]) + '</b></li>'; }).join('') + '</ul>' : '') +
-                        (c.note ? texteRepliable(adoucir(c.note), 'gl-cr-note', 170) : '') + '</div>';
+                        (prix.length ? '<ul class="gl-prix">' + prix.map(function (x) { return '<li title="' + x[0] + '"><span class="gl-sym gl-sym-' + SYMBOLES[x[0]][1] + '" aria-hidden="true">' + SYMBOLES[x[0]][0] + '</span><span class="gl-sr">' + x[0] + '</span> <b>' + prixFr(x[1]) + '</b></li>'; }).join('') + '</ul>' : '') +
+                        (c.note ? texteRepliable((BOISSON_OFFERTE.test(c.note) ? '🥂 ' : '') + adoucir(c.note), 'gl-cr-note', 170) : '') + '</div>';
                 }).join('') + '</div>';
         }).join('');
         return '<section class="gl-horaires" aria-labelledby="glHorTitre"><div class="gl-horaires-tete"><h2 id="glHorTitre">Horaires et tarifs</h2>' + etatOuverture(pl) + '</div>' +
@@ -702,7 +705,10 @@
         if (!r.creneaux.length) { msg.textContent = 'Rien de reconnu. Il faut soit des jours avec leurs heures (« Samedi : 21h - 5h » puis « Couple : 20 € »), soit des rubriques par public (« Hommes seuls » puis « Soir à partir de 20h : 30 € »).'; return; }
         // Les créneaux déjà saisis sont GARDÉS : les nouveaux s'ajoutent à la suite (ex. le matin d'abord, puis le soir).
         // Un créneau identique (mêmes jours, heures et titre) n'est pas ajouté deux fois.
-        var avant = lirePlanningForm(f);
+        var avant = lirePlanningForm(f).filter(function (c) {
+            var vide = !c.titre && !c.note && !c.public && ['hommes', 'femmes', 'couples', 'trans'].every(function (k) { return c.prix[k] === ''; });
+            return !(vide && r.creneaux.some(function (n) { return n.debut === c.debut && n.fin === c.fin && n.jours.some(function (j) { return c.jours.indexOf(j) >= 0; }); }));
+        });
         var cle = function (c) { return c.jours.join(',') + '|' + c.debut + '|' + c.fin + '|' + (c.titre || '').toLowerCase() + '|' + (c.espace || '').toLowerCase(); };
         var vus = avant.map(cle);
         var nouveaux = r.creneaux.filter(function (c) { var k = cle(c); if (vus.indexOf(k) >= 0) return false; vus.push(k); return true; });

@@ -109,14 +109,16 @@ function horairesHTML(l) {
         const der = groupes[groupes.length - 1];
         if (der && der.cle === cle && der.jours[der.jours.length - 1] === d - 1) der.jours.push(d); else groupes.push({ jours: [d], cr, cle });
     }
+    const BOISSON_OFFERTE = /(boisson|conso|verre|soft|coupe|champagne|ap[eé]ritif)[^.·]*offert|offert[^.·]*(boisson|conso|verre|coupe|champagne)/i;
+    const SYMBOLES = { Hommes: ['♂', 'h'], Femmes: ['♀', 'f'], Couples: ['⚤', 'c'], Trans: ['⚧', 't'] };
     const maj = t => t.replace(/^./, c => c.toUpperCase());
     const nomJours = j => j.length === 1 ? maj(JOURS[j[0]]) : j.length === 2 ? maj(JOURS[j[0]]) + ' et ' + JOURS[j[1]] : 'Du ' + JOURS[j[0]] + ' au ' + JOURS[j[j.length - 1]];
     const jours = groupes.filter(g => g.cr.length).map(g => '<div class="gl-jour"><h3>' + nomJours(g.jours) + '</h3>' + g.cr.map(c => {
         const p = c.prix || {}, prix = [['Hommes', p.hommes], ['Femmes', p.femmes], ['Couples', p.couples], ['Trans', p.trans]].filter(x => x[1] != null && x[1] !== '');
         return '<div class="gl-cr"><div class="gl-cr-tete">' + (c.debut ? '<span class="gl-h">' + heureFr(c.debut) + (c.fin ? ' – ' + heureFr(c.fin) : '') + '</span>' : '') + (c.espace ? '<span class="gl-espace">' + esc(c.espace) + '</span>' : '') + '</div>' +
             (c.titre ? '<strong class="gl-cr-titre">' + esc(c.titre) + '</strong>' : '') + (c.public ? '<p class="gl-cr-public">' + esc(c.public) + '</p>' : '') +
-            (prix.length ? '<ul class="gl-prix">' + prix.map(x => '<li>' + x[0] + ' <b>' + prixFr(x[1]) + '</b></li>').join('') + '</ul>' : '') +
-            (c.note ? '<div class="gl-cr-note"><p>' + esc(c.note) + '</p></div>' : '') + '</div>';
+            (prix.length ? '<ul class="gl-prix">' + prix.map(x => '<li title="' + x[0] + '"><span class="gl-sym gl-sym-' + SYMBOLES[x[0]][1] + '" aria-hidden="true">' + SYMBOLES[x[0]][0] + '</span><span class="gl-sr">' + x[0] + '</span> <b>' + prixFr(x[1]) + '</b></li>').join('') + '</ul>' : '') +
+            (c.note ? '<div class="gl-cr-note"><p>' + (BOISSON_OFFERTE.test(c.note) ? '🥂 ' : '') + esc(c.note) + '</p></div>' : '') + '</div>';
     }).join('') + '</div>');
     const fermes = groupes.filter(g => !g.cr.length).reduce((a, g) => a.concat(g.jours), []);
     return '<section class="gl-horaires"><div class="gl-horaires-tete"><h2>Horaires et tarifs</h2></div><div class="gl-jours-grille">' + jours.join('') + '</div>' + (fermes.length ? '<p class="gl-ferme">Fermé le ' + fermes.map(d => JOURS[d]).join(', ') + '.</p>' : '') +
