@@ -1082,6 +1082,8 @@
         if (equipe() && $('glLienEquipe')) $('glLienEquipe').hidden = false;
         chargerRegions();
         chargerModeration();
+        // Lien « Ajouter un lieu » depuis l'accueil : guide.html?proposer=1
+        if (/[?&]proposer=1/.test(location.search)) window.addEventListener('load', function () { setTimeout(function () { var b = $('glProposer'); if (b) b.click(); }, 400); });
         // Leaflet est chargé en « defer » : on redessine la carte dès qu'il est prêt
         if (!window.L) window.addEventListener('load', function () { if (!carte) charger(); });
     });

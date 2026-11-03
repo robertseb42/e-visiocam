@@ -38,6 +38,7 @@
 <script defer="" src="nav-auth.js?v=10"></script>
 <link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=6" rel="stylesheet"/>
+<link href="index-carte.css?v=1" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -271,6 +272,22 @@
 </article>
 </div>
 </section>
+<section aria-labelledby="carteTitre" class="evc" id="evCarte">
+<div class="ev-section-head">
+<h2 id="carteTitre">🗺️ La carte libertine</h2>
+<a href="guide.html">Tout le guide <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+</div>
+<p class="evc-sous">Clubs, saunas et soirées partout en France, avec les avis des membres.</p>
+<p aria-live="polite" class="evc-stats" id="evCarteStats"></p>
+<div class="evc-cadre">
+<div aria-label="Carte des clubs et saunas libertins" class="evc-map" id="evCarteMap" role="region"></div>
+<div aria-hidden="true" class="evc-legende"><span><i style="background:#2ee59d"></i>Ouvert aujourd’hui</span><span><i style="background:#ff1680"></i>Autres jours</span></div>
+</div>
+<div class="evc-actions">
+<a class="ev-btn" href="guide.html"><i aria-hidden="true" class="fa-solid fa-map-location-dot"></i>Explorer le guide</a>
+<a class="ev-btn-ghost" href="guide.html?proposer=1"><i aria-hidden="true" class="fa-solid fa-plus"></i>Ajouter un lieu</a>
+</div>
+</section>
 <!-- Pourquoi E-VISIOCAM est différent : uniquement ce que le site fait vraiment -->
 <section aria-labelledby="diffTitre" class="ev-features">
 <h2 id="diffTitre">Pourquoi E-VISIOCAM est différent</h2>
@@ -341,6 +358,7 @@
 <script defer="" src="couple-danse.js?v=8"></script>
 <script src="pages/index-cameras.js"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
+<script defer="" src="pages/index-carte.js?v=1"></script>
 <script src="pages/index-membres.js"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
 <script defer="" src="footer.js?v=8"></script>
