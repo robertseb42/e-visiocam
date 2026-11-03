@@ -1,5 +1,5 @@
 /* Accueil : carte du Guide libertin */
-.evc{position:relative;padding:22px 24px 24px;border-radius:18px;background:radial-gradient(120% 140% at 85% 0%,#ff168022 0%,transparent 55%),var(--h-panel);border:1px solid var(--h-border);color:var(--h-text);overflow:hidden}
+.evc{position:relative;padding:18px 22px 20px;border-radius:18px;background:radial-gradient(120% 140% at 85% 0%,#ff168022 0%,transparent 55%),var(--h-panel);border:1px solid var(--h-border);color:var(--h-text);overflow:hidden}
 .evc .ev-section-head{margin-bottom:6px}
 .evc-sous{margin:0 0 14px;font-size:14px;color:var(--h-muted)}
 .evc-stats{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:0 0 14px;font-size:14px;color:var(--h-muted);min-height:20px}
@@ -7,7 +7,7 @@
 .evc-stats b{margin-right:4px;color:var(--h-text);font-size:17px;font-weight:900}
 .evc-stats .evc-vert{color:#2ee59d}
 .evc-cadre{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--h-border);box-shadow:0 0 0 1px #ff168018,0 18px 50px -20px #ff168055}
-.evc-map{height:clamp(320px,46vw,520px);background:#0d0d12}
+.evc-map{height:clamp(240px,26vw,330px);background:#0d0d12}
 .evc-map::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:450;box-shadow:inset 0 0 80px 10px #0a0a0fcc;border-radius:16px}
 .evc-map .leaflet-tile-pane{filter:invert(1) hue-rotate(200deg) brightness(.75) contrast(1.05) saturate(.35)}
 .evc-map .leaflet-container,.evc-map.leaflet-container{background:#0d0d12;font:13px Inter,Arial,sans-serif}
@@ -27,9 +27,15 @@
 @media(prefers-reduced-motion:reduce){.evc-pt span::after{animation:none}}
 .evc-legende{display:flex;flex-wrap:wrap;gap:6px 14px;padding:9px 12px;background:#0d0d12;color:#ccc;font-size:12px;border-top:1px solid #ffffff10}
 .evc-legende i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
-.evc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.evc-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
 .evc-vide{display:flex;align-items:center;justify-content:center;height:100%;margin:0;padding:20px;text-align:center;color:#bbb}
 .evc-vide a{color:#ff1680;font-weight:700;margin-left:6px}
 html[data-theme="light"] .evc-map .leaflet-tile-pane{filter:saturate(.7)}
 html[data-theme="light"] .evc-map::after{box-shadow:inset 0 0 40px 4px #0000001f}
 @media(max-width:640px){.evc{padding:18px 16px}}
+/* Accueil allégé */
+.ev-live[hidden]{display:none!important}
+.ev-seo-ligne{margin:0;padding:0 4px;font-size:12.5px;color:var(--h-muted)}
+.ev-seo-ligne a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.ev-invite .ev-guides{display:flex!important;flex-wrap:wrap;gap:6px 18px}
+.ev-invite .ev-guides li{padding:2px 0!important}

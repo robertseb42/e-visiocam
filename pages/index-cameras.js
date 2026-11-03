@@ -12,6 +12,6 @@
         const btn = document.getElementById('liveAction');
         btn.style.display = "";
         btn.onclick = () => { window.location.href = 'live.html'; };
-        document.getElementById('liveNow').classList.add('is-live');
+        const bloc = document.getElementById('liveNow'); bloc.hidden = false; bloc.classList.add('is-live');
     } catch (e) { /* le message d'accueil reste affiché */ }
 })();

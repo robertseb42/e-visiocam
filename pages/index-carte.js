@@ -28,7 +28,7 @@
                 window.L ? null : Promise.all([charger(base + 'leaflet.min.css', true), charger(base + 'leaflet.min.js')])
             ]);
             var lieux = (res[0] && res[0].lieux) || [];
-            var carte = L.map(zone, { scrollWheelZoom: false, zoomControl: true, attributionControl: true, worldCopyJump: true, minZoom: 3 })
+            var carte = L.map(zone, { scrollWheelZoom: false, zoomControl: true, attributionControl: true, worldCopyJump: true, minZoom: 3, zoomSnap: 0.25 })
                 .setView([46.6, 2.4], 5);
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>', maxZoom: 18
@@ -49,8 +49,8 @@
                         '<br><a href="' + esc(lien(l)) + '">Voir la fiche</a>')
                     .addTo(carte);
             });
-            carte.fitBounds([[42.2, -4.9], [51.2, 8.4]], { padding: [6, 6] });
-            setTimeout(function () { carte.invalidateSize(); }, 60);
+            var cadrer = function () { carte.invalidateSize(); carte.fitBounds([[41.3, -4.8], [51.1, 8.6]], { padding: [0, 0] }); };
+            cadrer(); setTimeout(cadrer, 80);
 
             var stats = [];
             if (nb.club) stats.push('<b>' + nb.club + '</b> club' + (nb.club > 1 ? 's' : ''));

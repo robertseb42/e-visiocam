@@ -38,7 +38,7 @@
 <script defer="" src="nav-auth.js?v=10"></script>
 <link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=6" rel="stylesheet"/>
-<link href="index-carte.css?v=1" rel="stylesheet"/>
+<link href="index-carte.css?v=2" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -230,8 +230,8 @@
 </div>
 <div class="ev-qui-liste" id="quiListe"></div>
 </section>
-<!-- Direct : message d'accueil, remplacé par la liste quand des caméras sont en ligne -->
-<section aria-live="polite" class="ev-live" id="liveNow">
+<!-- Direct : affiché seulement quand des caméras sont en ligne -->
+<section aria-live="polite" class="ev-live" hidden="" id="liveNow">
 <div aria-hidden="true" class="ev-live-icon"><i class="fa-solid fa-video"></i></div>
 <div class="ev-live-text">
 <h2 id="liveTitle">Le direct commence avec vous</h2>
@@ -277,7 +277,6 @@
 <h2 id="carteTitre">🗺️ La carte libertine</h2>
 <a href="guide.html">Tout le guide <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
 </div>
-<p class="evc-sous">Clubs, saunas et soirées partout en France, avec les avis des membres.</p>
 <p aria-live="polite" class="evc-stats" id="evCarteStats"></p>
 <div class="evc-cadre">
 <div aria-label="Carte des clubs et saunas libertins" class="evc-map" id="evCarteMap" role="region"></div>
@@ -295,27 +294,19 @@
 <article class="ev-diff">
 <i aria-hidden="true" class="fa-solid fa-user-shield"></i>
 <h3>Une vraie modération, avec des preuves</h3>
-<p>Une équipe de modérateurs humains, prévenue par des alertes automatiques. Quand vous signalez un message, il est joint au signalement : la modération voit exactement ce qui a été écrit. Et vous pouvez bloquer un membre en un clic.</p>
+<p>Des modérateurs humains alertés en direct. Le message signalé est joint : ils voient exactement ce qui a été écrit. Blocage en un clic.</p>
 </article>
 <article class="ev-diff">
 <i aria-hidden="true" class="fa-solid fa-user-secret"></i>
 <h3>Votre vie privée d’abord</h3>
-<p>Vous n’êtes qu’un pseudo. Votre ville n’est jamais affichée (seul votre département l’est), votre e-mail non plus. Les traces anti-fraude ne gardent pas votre adresse IP en clair, seulement une empreinte, effacée après 90 jours.</p>
+<p>Vous n’êtes qu’un pseudo : ni ville ni e-mail affichés, seulement votre département. Pas d’adresse IP en clair, une empreinte effacée après 90 jours.</p>
 </article>
 <article class="ev-diff">
 <i aria-hidden="true" class="fa-solid fa-compact-disc"></i>
 <h3>Une ambiance, pas juste un chat</h3>
-<p>La radio du site tourne en continu, DJ_Disco, notre animateur virtuel (une IA), lance quiz et sujets, et chaque semaine des <a href="programme.html">soirées à heure fixe</a> réunissent tout le monde au même moment.</p>
+<p>Radio en continu, DJ_Disco (notre animateur IA) lance quiz et sujets, et des <a href="programme.html">soirées à heure fixe</a> chaque semaine.</p>
 </article>
 </div>
-</section>
-<section aria-labelledby="featuresTitle" class="ev-features">
-<h2 id="featuresTitle">À chacun sa façon de participer</h2>
-<ul>
-<li><i aria-hidden="true" class="fa-regular fa-comment-dots"></i><div><h3>Discutez librement</h3><p>Échangez par écrit avec la communauté dans les salons.</p></div></li>
-<li><i aria-hidden="true" class="fa-solid fa-video"></i><div><h3>Activez votre caméra</h3><p>Passez en vidéo quand vous le souhaitez depuis un salon.</p></div></li>
-<li><i aria-hidden="true" class="fa-solid fa-shield-halved"></i><div><h3>Gardez le contrôle</h3><p>Choisissez quand et comment vous participez, à votre rythme.</p></div></li>
-</ul>
 </section>
 <section aria-labelledby="inviteTitle" class="ev-features ev-invite">
 <div class="ev-invite-grid">
@@ -330,6 +321,7 @@
 <li><a href="guide-chat-webcam.html">Le guide pour bien débuter</a></li>
 <li><a href="securite-chat-webcam.html">Sécurité : 10 conseils essentiels</a></li>
 <li><a href="aide.html">Centre d’aide</a></li>
+<li><a href="tchat-regions.html">Le chat par région</a> · <a href="programme.html">Programme des soirées</a></li>
 </ul>
 </div>
 </div>
@@ -346,7 +338,7 @@
 <a class="ev-btn" href="devenir-moderateur.html"><i aria-hidden="true" class="fa-solid fa-shield-halved"></i>Devenir modérateur</a>
 </div>
 </section>
-<section aria-labelledby="seo-discover-title" class="ev-features" id="seo-discover"><div class="ev-features-head"><h2 id="seo-discover-title">Découvrir le chat webcam E-VISIOCAM</h2><p>Rejoignez les <a href="salons.html">salons de chat webcam entre adultes</a>, consultez notre <a href="guide-chat-webcam.html">guide pour bien débuter</a> et découvrez les <a href="securite-chat-webcam.html">conseils de sécurité</a> avant votre première diffusion. Envie de discuter près de chez vous ? Essayez le <a href="tchat-regions.html">chat par région</a>, et ne manquez pas le <a href="programme.html">programme des soirées</a>.</p></div></section></main>
+<p class="ev-seo-ligne" id="seo-discover">E-VISIOCAM : <a href="salons.html">salons de chat webcam entre adultes</a>, gratuits et modérés, avec le <a href="guide.html">guide libertin</a> des clubs et saunas en France.</p></main>
 </div>
 <script src="pages/index-recrutement.js"></script>
 <script src="app.js"></script>
@@ -356,9 +348,9 @@
 <script defer="" src="site-search.js"></script>
 <script defer="" src="boule-facette.js?v=3"></script>
 <script defer="" src="couple-danse.js?v=8"></script>
-<script src="pages/index-cameras.js"></script>
+<script src="pages/index-cameras.js?v=2"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
-<script defer="" src="pages/index-carte.js?v=1"></script>
+<script defer="" src="pages/index-carte.js?v=2"></script>
 <script src="pages/index-membres.js"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
 <script defer="" src="footer.js?v=8"></script>
