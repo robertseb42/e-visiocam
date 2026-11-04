@@ -249,7 +249,7 @@ function goLive() {
     }
 }
 
-function goModels() { window.location.href = 'modeles.html'; }
+function goModels() { window.location.href = 'membres.html'; }
 function goSalons() { window.location.href = 'salons.html'; }
 
 function goMessages() {

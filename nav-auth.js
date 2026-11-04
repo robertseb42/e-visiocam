@@ -485,6 +485,10 @@
                     el.querySelector('button').addEventListener('click', function () { el.remove(); });
                     document.body.appendChild(el); setTimeout(function () { el.remove(); }, 20000);
                 });
+                // 💞 Découverte : c'est réciproque
+                unreadSocket.on('decouverte:reciproque', function(d) {
+                    if (d && d.username && typeof showToast === 'function') showToast('💞 C\u2019est réciproque avec ' + d.username + ' ! Écrivez-lui depuis « Découverte ».', 'success');
+                });
                 // 🔒 Album privé : demande d'accès reçue, accès accordé
                 unreadSocket.on('album:demande', function(d) {
                     if (d && d.de && typeof showToast === 'function') showToast('🔒 ' + d.de.username + ' demande l\u2019accès à votre album privé (Mon compte)', 'info');

@@ -79,3 +79,34 @@ html[data-theme="light"] .mbr{--m-fond:#f1f5f9;--m-panneau:#fff;--m-bord:#e2e8f0
 .vis-explication{margin:-6px 0 16px;max-width:80ch}
 .mbr-tete .mbr-interrupteur{margin-top:0}
 .mbr-niv{display:inline-block;margin-left:4px;padding:1px 6px;border-radius:999px;background:color-mix(in srgb,var(--m-or) 18%,transparent);color:var(--m-texte);font-style:normal;font-size:10px;font-weight:800;vertical-align:2px}
+/* Découverte : un profil à la fois */
+.dec-rayon select{min-width:180px}
+.dec-grille{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:22px;align-items:start}
+.dec-scene{display:flex;justify-content:center}
+.dec-carte{width:100%;max-width:440px;border-radius:24px;overflow:hidden;background:var(--m-panneau);border:1px solid var(--m-bord);box-shadow:0 20px 50px #0006;transition:transform .25s,opacity .25s}
+.dec-carte.part-droite{transform:translateX(120px) rotate(8deg);opacity:0}
+.dec-carte.part-gauche{transform:translateX(-120px) rotate(-8deg);opacity:0}
+.dec-visuel{position:relative;aspect-ratio:4/4.2;background:var(--m-fond)}
+.dec-visuel img,.dec-visuel svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.dec-visuel .mbr-dispo{top:12px;left:12px}
+.dec-corps{padding:14px 18px 6px}
+.dec-corps h2{margin:0;font-size:22px;font-weight:900}
+.dec-qui{margin:4px 0 0;font-size:14px;font-weight:600}
+.dec-lieu{margin:4px 0 0;font-size:13px;color:var(--m-doux)}
+.dec-annonce{margin:10px 0 0;font-size:13.5px;line-height:1.5;white-space:pre-line}
+.dec-actions{display:flex;align-items:center;justify-content:center;gap:16px;padding:14px 18px 18px}
+.dec-actions button{border:0;cursor:pointer;font-family:inherit;font-weight:800}
+.dec-non,.dec-oui{width:62px;height:62px;border-radius:50%;font-size:24px;box-shadow:0 6px 18px #0005}
+.dec-non{background:var(--m-panneau);color:var(--m-texte);border:2px solid var(--m-bord)!important}
+.dec-oui{background:var(--m-rose);color:#fff}
+.dec-profil{padding:10px 16px;border-radius:999px;background:transparent;color:var(--m-texte);border:1px solid var(--m-bord)!important;font-size:13px}
+.dec-reciproques{padding:16px;border-radius:18px;background:var(--m-panneau);border:1px solid var(--m-bord)}
+.dec-reciproques h2{margin:0 0 10px;font-size:15px;font-weight:900}
+.dec-rec{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--m-bord);font-size:13.5px}
+.dec-rec button{border:0;background:none;color:var(--m-texte);font-family:inherit;font-weight:700;cursor:pointer;padding:0}
+.dec-rec a{color:var(--m-rose);font-weight:800;text-decoration:none}
+.dec-bravo{position:fixed;inset:0;z-index:100003;display:grid;place-items:center;padding:20px;background:#000c}
+.dec-bravo>div{max-width:420px;padding:28px 24px;border-radius:24px;background:#1c1c20;color:#f5f5f7;text-align:center;border:1px solid #ff1680}
+.dec-bravo-titre{margin:0 0 8px;font-size:26px;font-weight:900}
+@media (max-width:900px){.dec-grille{grid-template-columns:minmax(0,1fr)}}
+.mbr-corps .mbr-voyage{color:var(--m-or);font-weight:700}

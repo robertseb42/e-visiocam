@@ -41,7 +41,7 @@
         if (q !== derniere) return;
         var html = '';
         (d.models || []).forEach(function (m) {
-            html += '<a role="option" href="' + (m.isLive ? 'live.html' : 'modeles.html?q=' + encodeURIComponent(m.username)) + '">' +
+            html += '<a role="option" href="' + (m.isLive ? 'live.html' : 'membres.html?q=' + encodeURIComponent(m.username)) + '">' +
                 '<span class="ev-suggest-ico">' + esc(m.username.charAt(0).toUpperCase()) + '</span>' +
                 '<span class="ev-suggest-txt"><b>' + esc(m.username) + '</b><small>' + (m.isLive ? '● En direct · ' + esc(m.liveSalon) : 'Modèle') + '</small></span></a>';
         });
@@ -50,7 +50,7 @@
                 '<span class="ev-suggest-ico">' + esc(s.icon) + '</span>' +
                 '<span class="ev-suggest-txt"><b>' + esc(s.name) + '</b><small>Salon' + (s.isPrivate ? ' VIP' : '') + '</small></span></a>';
         });
-        html += '<a role="option" class="ev-suggest-all" href="modeles.html?q=' + encodeURIComponent(q) + '">Voir tous les résultats pour « ' + esc(q) + ' »</a>';
+        html += '<a role="option" class="ev-suggest-all" href="membres.html?q=' + encodeURIComponent(q) + '">Voir tous les résultats pour « ' + esc(q) + ' »</a>';
         liste.innerHTML = html;
         liste.hidden = false;
         champ.setAttribute('aria-expanded', 'true');
@@ -67,7 +67,7 @@
             var it = items();
             if (actif >= 0 && it[actif]) { window.location.href = it[actif].href; return; }
             var q = champ.value.trim();
-            if (q) window.location.href = 'modeles.html?q=' + encodeURIComponent(q);
+            if (q) window.location.href = 'membres.html?q=' + encodeURIComponent(q);
         }
     });
     document.addEventListener('click', function (e) { if (!boite.contains(e.target)) fermer(); });

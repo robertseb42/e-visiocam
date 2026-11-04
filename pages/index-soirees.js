@@ -76,8 +76,21 @@
                 '<span class="evx-visuel">' + (x.visuel ? '<img src="' + esc(BASE + x.visuel) + '" alt="" loading="lazy">' : '<i class="fa-solid fa-champagne-glasses" aria-hidden="true"></i>') +
                 '</span>' +
                 '<span class="evx-corps"><small>' + esc(quand(x)) + '</small><b>' + esc(x.titre) + '</b><span>' + esc(l.nom || '') + (l.ville ? ' · ' + esc(l.ville) : '') + '</span>' +
-                '<em class="evx-cta"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Voir la soirée</em></span></a></li>';
+                '<span class="evx-jv" data-jv="' + Number(x.id) + '_' + esc(x.date) + '" hidden></span>' +
+                '<em class="evx-cta"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Voir la soirée · J\u2019y vais</em></span></a></li>';
         }).join('');
+        // 🙋 « J'y vais » : combien de membres y vont (membres connectés ; le bouton est sur la fiche du lieu)
+        if (moi) {
+            var cles = s.map(function (x) { return Number(x.id) + '_' + x.date; }).join(',');
+            fetch(API_URL + '/guide/participations?cles=' + encodeURIComponent(cles), { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (p) {
+                if (!p) return;
+                document.querySelectorAll('#clubsRangee [data-jv]').forEach(function (el) {
+                    var i = p[el.getAttribute('data-jv')]; if (!i || !i.nb) return;
+                    el.textContent = '🙋 ' + i.nb + ' membre' + (i.nb > 1 ? 's y vont' : ' y va') + (i.moi ? ' · vous aussi' : '');
+                    el.hidden = false;
+                });
+            }).catch(function () {});
+        }
         mentionProche($('clubsPres'), s, depS);
         var bouton = document.querySelector('[data-evx-filtre="clubs"]'); if (bouton) bouton.hidden = false;
         var actif = document.querySelector('[data-evx-filtre][aria-pressed="true"]');

@@ -20,6 +20,9 @@
 
     // Choix gardés pour la prochaine visite (pratique seulement)
     try { var g = JSON.parse(localStorage.getItem('evcMembresFiltres') || 'null'); if (g && Array.isArray(g.cherche)) filtres = Object.assign(filtres, g, { q: '' }); } catch (e) {}
+    // Recherche du site (pseudo) : membres.html?q=pseudo
+    var qUrl = (new URLSearchParams(location.search).get('q') || '').trim().slice(0, 30);
+    if (qUrl) { filtres.q = qUrl; filtres.ou = 'partout'; }
     // Lien « Membres en ligne » du menu : membres.html?enligne=1
     if (new URLSearchParams(location.search).get('enligne') === '1') { filtres.enligne = true; filtres.tri = 'connectes'; }
     function memoriser() { try { localStorage.setItem('evcMembresFiltres', JSON.stringify(filtres)); } catch (e) {} }
@@ -44,6 +47,7 @@
         $('mbrOu').value = filtres.ou;
         $('mbrCorrespond').checked = filtres.correspond; $('mbrPhoto').checked = filtres.photo; $('mbrCertifie').checked = !!filtres.certifie; $('mbrEnLigne').checked = filtres.enligne;
         $('mbrInteret').value = filtres.interet;
+        if ($('mbrQ') && filtres.q && !$('mbrQ').value) $('mbrQ').value = filtres.q;
         var dep = moi && moi.departement, rayon = RAYONS.indexOf(filtres.ou) >= 0;
         // Message « indiquez votre ville » : rayon sans ville connue, ou département/région sans département
         $('mbrOuNote').hidden = filtres.ou === 'partout' || (rayon ? maVille !== false : !!dep);
@@ -64,6 +68,7 @@
             (m.distance ? '<span class="mbr-km">' + (m.distance <= 5 ? '− de 5 km' : '≈ ' + m.distance + ' km') + '</span>' : '') + '</span>' +
             '<span class="mbr-corps"><b>' + esc(m.username) + (m.certifie ? ' <i class="mbr-certif" title="Profil certifié par l’équipe" aria-label="Profil certifié">✔</i>' : '') + (m.niveau ? ' <i class="mbr-niv" title="Niveau ' + m.niveau.n + ' sur 8 : ' + esc(m.niveau.nom) + '">Niv. ' + m.niveau.n + '</i>' : '') + '</b><span>' + esc(libelle(m)) + '</span>' +
             '<small>' + [(m.ages || []).length ? m.ages.join('/') + ' ans' : '', m.ville ? esc(m.ville) + (m.departement ? ' (' + esc(m.departement) + ')' : '') : (m.departement ? esc(m.departement) + (dep ? ' · ' + esc(dep) : '') : '')].filter(Boolean).join(' · ') + '</small>' +
+            (m.voyage ? '<small class="mbr-voyage">✈️ À ' + esc(m.voyage.ville) + ' du ' + new Date(m.voyage.du + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + ' au ' + new Date(m.voyage.au + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + '</small>' : '') +
             ((m.interets || []).length ? '<span class="mbr-tags">' + m.interets.slice(0, 3).map(function (k) { return '<i>' + esc(OPT.interets[k] || k) + '</i>'; }).join('') + '</span>' : '') +
             '</span></button>';
     }

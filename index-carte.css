@@ -187,3 +187,5 @@ html[data-theme="light"] .evx-corps small{color:#be185d}
 .evm-anonyme .evm-dep{max-width:80px;margin-left:auto;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ev-qui-liste:has(.evm-invite-bas){flex-direction:column;align-items:stretch;overflow:visible}
 .evm-invite-bas{margin-top:10px;padding-top:14px;border-top:1px solid var(--h-border,#2f2f36)}
+.evx-jv{display:block;margin-top:4px;font-size:12px;font-weight:800;color:#ffe500}
+html[data-theme="light"] .evx-jv{color:#e91e63}

@@ -52,7 +52,7 @@ async function chargerFavoris() {
         // Membres et modèles ne font plus qu'un : la section « Modèles suivis » n'apparaît que si elle n'est pas vide
         document.getElementById('favModels').closest('section').hidden = !(d.models || []).length;
         document.getElementById('favModels').innerHTML = (d.models || []).length ? d.models.map(ligneModele).join('')
-            : '<p class="text-sm text-slate-500 py-6 text-center">Aucun modèle suivi. Touchez le ❤️ sur la page <a href="modeles.html" class="text-brand-primary font-bold underline">Modèles</a>.</p>';
+            : '<p class="text-sm text-slate-500 py-6 text-center">Aucun modèle suivi. Touchez le ❤️ sur la page <a href="membres.html" class="text-brand-primary font-bold underline">Membres</a>.</p>';
         document.getElementById('favSalons').innerHTML = (d.salons || []).length ? d.salons.map(ligneSalon).join('')
             : '<p class="text-sm text-slate-500 py-6 text-center">Aucun salon favori. Touchez le ❤️ sur la page <a href="salons.html" class="text-brand-primary font-bold underline">Salons</a>.</p>';
     } catch (e) {

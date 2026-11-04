@@ -66,3 +66,9 @@ html[data-theme="light"] .plib{--pl-fond:#f1f5f9;--pl-bord:#e2e8f0;--pl-texte:#0
 .alb-accord input{margin-top:2px;accent-color:var(--pl-rose)}
 .alb-accord a{color:var(--pl-rose)}
 .alb-bloque{opacity:.45;cursor:not-allowed}
+.voy-form{display:grid;grid-template-columns:minmax(0,2fr) 1fr 1fr auto;gap:10px;align-items:end}
+.voy-label{display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+.voy .evc-ville-aide{display:none}
+.voy-form input{width:100%;padding:8px 10px;border-radius:12px;border:1px solid transparent;background:var(--pl-fond);color:var(--pl-texte);font:inherit;font-size:13px}
+.voy-ville{position:relative;min-width:0}
+@media (max-width:640px){.voy-form{grid-template-columns:1fr 1fr}.voy-ville,.voy-form .cert-btn{grid-column:1/-1}}
