@@ -39,7 +39,7 @@
 <script defer="" src="nav-auth.js?v=12"></script>
 <link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=6" rel="stylesheet"/>
-<link href="index-carte.css?v=6" rel="stylesheet"/>
+<link href="index-carte.css?v=7" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -83,7 +83,7 @@
 <!-- Même grille que .cam-layout (padding + colonne sidebar w-64 + gouttière 24px)
          pour que "Accueil" démarre pile sur le bord gauche du rectangle "Chat Cam En direct" -->
 <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
-<div class="flex items-center lg:w-64 lg:shrink-0">
+<div class="flex items-center lg:shrink-0">
 <a class="flex items-center gap-2" href="index.html">
 <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
 <i class="fa-solid font-bold text-lg fa-video"></i>
@@ -122,53 +122,7 @@
 </div>
 </header>
 <div class="cam-layout max-w-[1700px] w-full mx-auto flex-1 flex p-3 md:p-6 gap-6">
-<aside class="hidden lg:flex flex-col w-64 shrink-0 gap-6" id="sidebar">
-<!-- Soirées des clubs (agenda du Guide libertin) qui défilent : pages/index-soirees.js -->
-<section aria-labelledby="sbSoireesTitre" class="sb-soirees bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80" hidden id="sbSoirees">
-<div class="sb-soirees-tete"><span aria-hidden="true" class="sb-ico sb-ico-soirees"><i class="fa-solid fa-champagne-glasses"></i></span><div class="sb-titres"><h2 id="sbSoireesTitre">Soirées des clubs</h2><small>L'agenda libertin</small></div><a aria-label="Voir toutes les soirées" class="sb-voir" href="guide.html" title="Tout voir"><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
-<div class="sb-soirees-fenetre"><ul class="sb-soirees-liste" id="sbSoireesListe"></ul></div>
-</section>
-<!-- Love rooms du guide (photo principale) en diaporama : pages/index-soirees.js — futur emplacement des fiches mises en avant -->
-<section aria-labelledby="sbLoveRoomsTitre" class="sb-soirees bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80" hidden id="sbLoveRooms">
-<div class="sb-soirees-tete"><span aria-hidden="true" class="sb-ico sb-ico-love"><i class="fa-solid fa-heart"></i></span><div class="sb-titres"><h2 id="sbLoveRoomsTitre">Love rooms</h2><small>Jacuzzis privatifs</small></div><a aria-label="Voir toutes les love rooms" class="sb-voir" href="guide.html?type=loveroom" title="Tout voir"><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
-<div class="sb-lr-fenetre"></div>
-</section>
-<!-- 📻 PLATINE RADIO E-VISIOCAM (styles : style.css → « PLATINE RADIO ») -->
-<div aria-label="Radio" class="evc-deck" id="radioWidget">
-<div class="evc-deck-head">
-<span class="evc-deck-brand"><i></i>E-VISIOCAM <b>RADIO</b></span>
-<span class="evc-deck-tag"><i></i>LIVE</span>
-</div>
-<div class="evc-deck-platter">
-<div class="evc-deck-vinyl" id="radioVinyl">
-<div class="evc-deck-label"><i class="fa-solid fa-music"></i></div>
-<div class="evc-deck-spindle"></div>
-</div>
-<div class="evc-deck-arm" id="radioTonearm"><span class="evc-deck-weight"></span><span class="evc-deck-headshell"></span></div>
-<span class="evc-deck-adapter"></span>
-<span class="evc-deck-onair"><i></i>ON AIR</span>
-<p class="hidden text-white text-xs" id="radioPlaceholder">📻 Sélectionnez une radio</p>
-</div>
-<div class="evc-deck-controls" id="radioAudioControls" style="display: none;">
-<div class="evc-deck-row">
-<button aria-label="Lecture / pause" class="evc-deck-play" id="radioPlayBtn" data-click="togglePlay" type="button">
-<i class="fa-solid fa-play"></i>
-</button>
-<input aria-label="Volume" class="evc-deck-volume" max="1" min="0" data-input="setVolume" data-input-args='["$value"]' step="0.05" type="range" value="0.6"/>
-</div>
-<div class="evc-deck-row">
-<div class="evc-deck-group">
-<button aria-label="Radio précédente" class="evc-deck-btn" data-click="prevRadio" type="button"><i class="fa-solid fa-backward-step"></i></button>
-<button aria-label="Radio suivante" class="evc-deck-btn" data-click="nextRadio" type="button"><i class="fa-solid fa-forward-step"></i></button>
-<div aria-hidden="true" class="evc-deck-speed"><span>33</span><span>45</span></div>
-</div>
-<span class="evc-deck-status"><i></i><span id="radioStatus">PRÊT</span></span>
-</div>
-<p class="evc-deck-display" id="radioNowPlaying">---</p>
-</div>
-</div>
-</aside>
-<main class="flex-1 space-y-6">
+<main class="flex-1 min-w-0 space-y-6">
 <section aria-labelledby="cam-banner-title" class="evh">
 <picture class="evh-photo">
 <source srcset="img/hero-visio.webp" type="image/webp"/>
@@ -198,13 +152,23 @@
 <!-- 📅 Prochaines soirées : rendez-vous réguliers (pages/evenements.js, API /evenements/prochains) -->
 <section aria-labelledby="soireesTitre" class="ev-soirees" id="soirees">
 <div class="ev-soirees-tete">
-<h2 id="soireesTitre">🪩 Prochaines soirées</h2>
-<a href="programme.html">Tout le programme <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+<h2 id="soireesTitre">🪩 Prochaines soirées &amp; événements</h2>
+<div aria-label="Filtrer les soirées" class="evx-filtres" role="group">
+<button aria-pressed="true" data-evx-filtre="tous" type="button">Tous</button>
+<button aria-pressed="false" data-evx-filtre="site" type="button"><i aria-hidden="true" class="fa-solid fa-video"></i> Événements E-VISIOCAM</button>
+<button aria-pressed="false" data-evx-filtre="clubs" hidden="" type="button"><i aria-hidden="true" class="fa-solid fa-champagne-glasses"></i> Soirées des clubs</button>
 </div>
-<div class="ev-soirees-grille">
+</div>
+<div class="ev-soirees-grille" data-evx-groupe="site">
 <div class="ev-une" id="soireeUne" style="min-height:236px"><p class="ev-soirees-vide">Chargement du programme…</p></div>
 <ol aria-label="Soirées suivantes" class="ev-liste" id="soireesListe"></ol>
 </div>
+<!-- Soirées des clubs partenaires (agenda du guide) : pages/index-soirees.js -->
+<div class="evx-bloc" data-evx-groupe="clubs" hidden="" id="clubsSoirees">
+<div class="evx-sous-tete"><h3><i aria-hidden="true" class="fa-solid fa-champagne-glasses"></i> Soirées des clubs</h3><p class="evx-pres" id="clubsPres"></p><a href="guide.html">Agenda des clubs <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
+<div class="evx-defile"><button aria-label="Soirées précédentes" class="evx-fl evx-prec" type="button"><i aria-hidden="true" class="fa-solid fa-chevron-left"></i></button><ul class="evx-rangee" id="clubsRangee"></ul><button aria-label="Soirées suivantes" class="evx-fl evx-suiv" type="button"><i aria-hidden="true" class="fa-solid fa-chevron-right"></i></button></div>
+</div>
+<div class="ev-soirees-actions"><a href="programme.html">Tout le programme E-VISIOCAM <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
 <p aria-live="polite" class="ev-sr" id="soireeAnnonce"></p>
 </section>
 <!-- 👥 Qui est là ? Les membres connectés en ce moment (photos pour les membres, nombre seul pour les visiteurs) -->
@@ -272,6 +236,12 @@
 <a class="ev-btn-ghost" href="guide.html?proposer=1"><i aria-hidden="true" class="fa-solid fa-plus"></i>Ajouter un lieu</a>
 </div>
 </section>
+<!-- Love rooms à la une (photo principale, près de chez le membre d'abord) : pages/index-soirees.js — futur emplacement des fiches mises en avant -->
+<section aria-labelledby="loveTitre" class="evx-bloc evx-love" hidden="" id="loveUne">
+<div class="ev-section-head"><h2 id="loveTitre">💗 Love rooms à la une</h2><a href="guide.html?type=loveroom">Toutes les love rooms <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
+<p class="evx-pres" id="lovePres"></p>
+<div class="evx-defile"><button aria-label="Love rooms précédentes" class="evx-fl evx-prec" type="button"><i aria-hidden="true" class="fa-solid fa-chevron-left"></i></button><ul class="evx-rangee" id="loveRangee"></ul><button aria-label="Love rooms suivantes" class="evx-fl evx-suiv" type="button"><i aria-hidden="true" class="fa-solid fa-chevron-right"></i></button></div>
+</section>
 <!-- Pourquoi E-VISIOCAM est différent : uniquement ce que le site fait vraiment -->
 <section aria-labelledby="diffTitre" class="ev-features">
 <h2 id="diffTitre">Pourquoi E-VISIOCAM est différent</h2>
@@ -292,6 +262,12 @@
 <p>Radio en continu, DJ_Disco (notre animateur IA) lance quiz et sujets, et des <a href="programme.html">soirées à heure fixe</a> chaque semaine.</p>
 </article>
 </div>
+</section>
+<!-- Bandeau établissements -->
+<section aria-labelledby="proTitre" class="evx-pro">
+<i aria-hidden="true" class="fa-solid fa-handshake evx-pro-ico"></i>
+<div class="evx-pro-txt"><h2 id="proTitre">Vous gérez un <span>club</span>, un sauna ou une love room ?</h2><p>Ajoutez votre établissement gratuitement, publiez vos soirées et touchez une communauté adulte active et ciblée.</p></div>
+<div class="evx-pro-actions"><a class="ev-btn" href="guide.html?proposer=1">Proposer mon établissement <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a><a class="evx-pro-lien" href="etablissements.html">Badge « Lieu vérifié »</a></div>
 </section>
 <section aria-labelledby="inviteTitle" class="ev-features ev-invite">
 <div class="ev-invite-grid">
@@ -335,7 +311,7 @@
 <script src="pages/index-ambiances.js?v=2"></script>
 <script defer="" src="pages/index-carte.js?v=6"></script>
 <script defer="" src="departements-data.js?v=2"></script>
-<script defer="" src="pages/index-soirees.js?v=4"></script>
+<script defer="" src="pages/index-soirees.js?v=5"></script>
 <script src="pages/index-membres.js"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
 <script defer="" src="footer.js?v=11"></script>

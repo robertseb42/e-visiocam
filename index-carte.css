@@ -99,3 +99,66 @@ html[data-theme="light"] .sb-pres{color:#be185d}
 .sb-ico{width:36px;height:36px}
 .sb-soirees-tete .sb-titres h2{white-space:normal;font-size:15.5px;line-height:1.15}
 .sb-soirees-tete{gap:9px}
+/* ===== Accueil pleine largeur (refonte) ===== */
+/* Filtres des soirées */
+.ev-soirees-tete{align-items:center;flex-wrap:wrap}
+.evx-filtres{display:flex;gap:8px;flex-wrap:wrap}
+.evx-filtres button{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:999px;border:1px solid var(--h-border,#2f2f36);background:transparent;color:var(--h-text,#f5f5f7);font:700 13px Inter,system-ui,sans-serif;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.evx-filtres button:hover{border-color:#ff1680}
+.evx-filtres button[aria-pressed="true"]{background:#ffe500;border-color:#ffe500;color:#111113}
+.evx-filtres button[hidden]{display:none}
+.ev-soirees-actions{margin-top:14px;text-align:right}
+.ev-soirees-actions a{font-size:13px;font-weight:700;color:var(--h-yellow,#ffe500);text-decoration:none}
+.ev-soirees-actions a:hover{text-decoration:underline}
+/* Bloc avec une rangée de cartes */
+.evx-bloc[hidden],[data-evx-groupe][hidden]{display:none!important}
+#clubsSoirees{margin-top:18px}
+.evx-sous-tete{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.evx-sous-tete h3{margin:0;font-size:16px;font-weight:800}
+.evx-sous-tete h3 i{color:#ff1680;margin-right:4px}
+.evx-sous-tete a{margin-left:auto;font-size:13px;font-weight:700;color:var(--h-yellow,#ffe500);text-decoration:none}
+.evx-pres{margin:0;font-size:12.5px;font-weight:700;color:#ffe500;display:flex;align-items:center;gap:6px}
+.evx-pres[hidden],.evx-pres:empty{display:none}
+.evx-pres a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+html[data-theme="light"] .evx-pres{color:#be185d}
+.evx-defile{position:relative}
+.evx-rangee{list-style:none;margin:0;padding:2px 2px 8px;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.evx-rangee::-webkit-scrollbar{display:none}
+.evx-rangee>li{flex:0 0 clamp(190px,18%,232px);scroll-snap-align:start}
+.evx-fl{position:absolute;top:42%;transform:translateY(-50%);z-index:2;width:40px;height:40px;border-radius:50%;border:1px solid #ffffff30;background:rgba(17,17,19,.85);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px #0008}
+.evx-fl:hover{background:#ff1680;border-color:#ff1680}
+.evx-fl[hidden]{display:none}
+.evx-prec{left:-14px}.evx-suiv{right:-14px}
+/* Carte (soirée club ou love room) */
+.evx-carte{display:flex;flex-direction:column;height:100%;border-radius:16px;overflow:hidden;background:var(--h-panel,#1c1c20);border:1px solid var(--h-border,#2f2f36);color:var(--h-text,#f5f5f7);text-decoration:none;transition:transform .2s,border-color .2s,box-shadow .2s}
+.evx-carte:hover{transform:translateY(-3px);border-color:#ff1680;box-shadow:0 12px 30px -12px #ff168088}
+.evx-carte:focus-visible{outline:2px solid #ffe500;outline-offset:2px}
+.evx-visuel{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:4/5;background:linear-gradient(135deg,#ff168033,#7c3aed33);color:#ff1680;font-size:34px;overflow:hidden}
+.evx-lr .evx-visuel{aspect-ratio:4/3}
+.evx-visuel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.evx-carte:hover .evx-visuel img{transform:scale(1.04)}
+.evx-etiquette{position:absolute;top:10px;left:10px;background:#ffe500;color:#111;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px}
+.evx-prix{position:absolute;top:10px;right:10px;background:#fff;color:#111;font-size:12.5px;font-weight:800;padding:4px 10px;border-radius:999px;box-shadow:0 2px 8px #0005}
+.evx-corps{display:flex;flex-direction:column;gap:3px;padding:12px 14px 14px;line-height:1.3;flex:1}
+.evx-corps small{font-size:11.5px;font-weight:800;color:#ffe500;text-transform:uppercase;letter-spacing:.03em}
+html[data-theme="light"] .evx-corps small{color:#be185d}
+.evx-corps b{font-size:15px;font-weight:800;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.evx-corps>span{font-size:12.5px;opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evx-cta{margin-top:auto;padding-top:8px;font-style:normal;font-size:12.5px;font-weight:800;color:#ff1680;display:flex;align-items:center;gap:6px}
+/* Love rooms à la une */
+.evx-love{padding:18px 22px 20px;border-radius:18px;background:radial-gradient(120% 140% at 10% 0%,#e11d4822 0%,transparent 55%),var(--h-panel,#1c1c20);border:1px solid var(--h-border,#2f2f36);color:var(--h-text,#f5f5f7)}
+.evx-love .evx-pres{margin:-4px 0 12px}
+/* Bandeau établissements */
+.evx-pro{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:22px 26px;border-radius:18px;background:linear-gradient(100deg,#ff168030 0%,#7c3aed26 55%,transparent 100%),var(--h-panel,#1c1c20);border:1px solid #ff168055;color:var(--h-text,#f5f5f7)}
+.evx-pro-ico{font-size:34px;color:#ff1680;flex:none}
+.evx-pro-txt{flex:1;min-width:240px}
+.evx-pro-txt h2{margin:0 0 4px;font-size:clamp(18px,1.8vw,22px);font-weight:900;letter-spacing:-.3px}
+.evx-pro-txt h2 span{color:#ff1680}
+.evx-pro-txt p{margin:0;font-size:14px;opacity:.8}
+.evx-pro-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.evx-pro-actions .ev-btn{background:transparent;color:#ffe500;border:2px solid #ffe500;box-shadow:0 0 18px #ffe50033}
+.evx-pro-actions .ev-btn:hover{background:#ffe500;color:#111113}
+.evx-pro-lien{font-size:12.5px;font-weight:700;color:var(--h-muted,#b1b1bd);text-decoration:underline;text-underline-offset:2px}
+@media(max-width:640px){.evx-rangee>li{flex-basis:70%}.evx-fl{display:none}.evx-pro-actions{align-items:stretch;width:100%}.evx-love{padding:16px 14px}}
+/* Une seule colonne : largeur de lecture confortable, en-tête aligné sur le contenu */
+.cam-home .cam-layout,.cam-home .cam-header>div{max-width:1560px;margin-left:auto;margin-right:auto}

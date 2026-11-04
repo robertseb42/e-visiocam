@@ -42,38 +42,41 @@
           return { centre: Math.round(droite + marge / 2), haut: Math.round(haut), largeur: Math.round(marge) };
         } catch (e) { return null; }
       }
-      // Accueil (grand écran) : la radio se range dans la colonne de gauche, juste sous « Besoin d'aide ? »,
-      // à la même largeur ; un emplacement vide de sa hauteur lui est réservé dans la page et elle suit le défilement
-      function emplacementGauche() {
+      // Grand écran : la radio se range dans l'en-tête, juste avant le bouton clair / sombre
+      // (pastille réduite à sa place ; ouverte, la platine s'affiche juste en dessous, alignée à droite)
+      function emplacementEntete() {
         try {
           var doc = frame.contentDocument, win = frame.contentWindow;
-          if (!doc || !win || win.innerWidth < 1024) return null;
-          var col = doc.getElementById('sidebar');
-          if (!col || !col.getBoundingClientRect().width) return null;
-          var aide = col.querySelector('.evc-as');
+          if (!doc || !win || win.innerWidth < 1280) return null;
+          var tete = doc.querySelector('header');
+          var ref = tete && (tete.querySelector('[data-theme-toggle]') || tete.querySelector('#navAuth'));
+          if (!ref || !ref.getBoundingClientRect().width) return null;
           var slot = doc.getElementById('evcRadioPlace');
-          if (!slot) { slot = doc.createElement('div'); slot.id = 'evcRadioPlace'; slot.setAttribute('aria-hidden', 'true'); slot.style.flex = 'none'; }
-          if (aide ? slot.previousElementSibling !== aide : slot.parentNode !== col) { if (aide) aide.insertAdjacentElement('afterend', slot); else col.appendChild(slot); }
+          if (!slot) { slot = doc.createElement('div'); slot.id = 'evcRadioPlace'; slot.setAttribute('aria-hidden', 'true'); slot.style.cssText = 'flex:none;width:176px;height:38px'; }
+          if (slot.nextElementSibling !== ref) ref.insertAdjacentElement('beforebegin', slot);
           return slot;
         } catch (e) { return null; }
       }
       function placerRadio() {
         var w = document.getElementById('radioWidgetFloating');
         if (!w) return;
-        var slot = emplacementGauche();
+        var slot = emplacementEntete();
         if (slot) {
-          w.classList.remove('evc-coin'); w.classList.add('evc-gauche');
-          var r = slot.getBoundingClientRect(), largeur = Math.round(r.width);
-          w.style.cssText = 'position:fixed;z-index:9999;right:auto;bottom:auto;transform:none;left:' + Math.round(r.left) + 'px;top:' + Math.round(r.top) + 'px;width:' + largeur + 'px';
-          var h = w.offsetHeight;
-          if (Math.abs(slot.offsetHeight - h) > 1) { slot.style.height = h + 'px'; r = slot.getBoundingClientRect(); w.style.top = Math.round(r.top) + 'px'; }
-          // Sous l'en-tête collant (page défilée) : on la masque plutôt que de la superposer au menu
-          var tete = 64; try { var t = frame.contentDocument.querySelector('header'); if (t) tete = t.getBoundingClientRect().bottom; } catch (e) {}
-          if (r.top < tete || fenetreModaleOuverte()) w.style.visibility = 'hidden';
-          annoncer({ colonne: false, gauche: true });
+          w.classList.remove('evc-coin'); w.classList.add('evc-entete');
+          var r = slot.getBoundingClientRect();
+          var mini = document.getElementById('radioWidgetMinimized');
+          var reduite = mini && !mini.classList.contains('hidden');
+          if (reduite) {
+            w.style.cssText = 'position:fixed;z-index:9999;right:auto;bottom:auto;transform:none;left:' + Math.round(r.left) + 'px;top:' + Math.round(r.top) + 'px;width:' + Math.round(r.width) + 'px';
+            var h = w.offsetHeight; w.style.top = Math.round(r.top + (r.height - h) / 2) + 'px';
+          } else {
+            w.style.cssText = 'position:fixed;z-index:9999;left:auto;bottom:auto;transform:none;top:' + Math.round(r.bottom + 10) + 'px;right:' + Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
+          }
+          if (fenetreModaleOuverte()) w.style.visibility = 'hidden';
+          annoncer({ colonne: false, entete: true });
           return;
         }
-        w.classList.remove('evc-gauche'); w.style.width = '';
+        w.classList.remove('evc-entete');
         // Colonne de droite UNIQUEMENT sur l'accueil (qui publie __evcColonne : la radio y est placée
         // bas, sous la boule à facettes). PARTOUT AILLEURS : coin bas-droit, pour ne jamais recouvrir
         // le menu du compte qui s'ouvre en haut à droite. (La bulle « Besoin d'aide ? » va alors en bas à gauche.)

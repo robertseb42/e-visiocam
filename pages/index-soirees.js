@@ -1,105 +1,108 @@
-// E-VISIOCAM — Accueil : les prochaines soirées des clubs (agenda du Guide libertin) défilent sous le menu latéral.
-// Défilement vertical en boucle, en pause au survol ou au clavier ; arrêté si l'utilisateur préfère moins d'animations.
+// E-VISIOCAM — Accueil : soirées des clubs (agenda du Guide libertin) et love rooms à la une,
+// en rangées de cartes qui défilent horizontalement (flèches, glisser, molette).
+// Membre connecté avec un département : les lieux de chez lui d'abord, puis sa région, puis le reste.
 (function () {
     'use strict';
-    var bloc = document.getElementById('sbSoirees'), liste = document.getElementById('sbSoireesListe');
-    if (!bloc || !liste || typeof API_URL === 'undefined') return;
+    if (typeof API_URL === 'undefined') return;
+    var $ = function (id) { return document.getElementById(id); };
     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     var BASE = API_URL.replace(/\/api\/?$/, '');
-    // « Près de chez vous » : département du membre connecté (facultatif, renseigné dans son compte)
+
+    // ---- « Près de chez vous » ----
     var moi = (typeof getCurrentUser === 'function' && getCurrentUser()) || null;
     var monDep = moi && moi.departement ? String(moi.departement).toUpperCase() : '';
     function rang(dep) { var p = monDep && window.evcProximite ? window.evcProximite(monDep, dep) : ''; return p === 'departement' ? 0 : p === 'region' ? 1 : 2; }
-    function trierProches(liste, depDe) {   // tri stable : département, puis région, puis le reste (ordre d'origine conservé)
+    function trierProches(liste, depDe) {   // tri stable : département, puis région, puis le reste
         if (!monDep) return liste;
         return liste.map(function (x, i) { return { x: x, i: i, r: rang(depDe(x)) }; }).sort(function (a, b) { return a.r - b.r || a.i - b.i; }).map(function (o) { return o.x; });
     }
-    function mentionProche(section, liste, depDe) {
-        var t = section.querySelector('.sb-pres'); if (t) t.remove();
+    function mentionProche(el, liste, depDe) {
+        if (!el) return;
         var html = '';
         if (monDep && liste.some(function (x) { return rang(depDe(x)) < 2; })) {
             var nom = (window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[monDep]) || monDep;
-            html = '<i class="fa-solid fa-location-dot" aria-hidden="true"></i> Près de chez vous : ' + esc(nom);
+            html = '<i class="fa-solid fa-location-dot" aria-hidden="true"></i> Près de chez vous : ' + esc(nom) + ' d\'abord';
         } else if (moi && !monDep) html = '<a href="compte.html"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Indiquez votre département pour voir les lieux près de chez vous</a>';
-        if (!html) return;
-        var p = document.createElement('p'); p.className = 'sb-pres'; p.innerHTML = html;
-        section.querySelector('.sb-soirees-tete').insertAdjacentElement('afterend', p);
+        el.innerHTML = html; el.hidden = !html;
     }
+
+    // ---- Dates ----
     var MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
-    var JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+    var JOURS = ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'];
     function quand(s) {
         var d = new Date(s.date + 'T12:00:00Z'), auj = new Date(), dem = new Date(Date.now() + 864e5);
         var iso = function (x) { return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
         var j = s.date === iso(auj) ? 'Ce soir' : s.date === iso(dem) ? 'Demain' : JOURS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MOIS[d.getUTCMonth()];
         return j + (s.debut ? ' · ' + s.debut.replace(':', 'h') : '');
     }
-    function carte(s) {
-        var l = s.lieu || {};
-        return '<li><a class="sb-soiree" href="/lieu.html?l=' + encodeURIComponent(l.slug || '') + '">' +
-            (s.visuel ? '<img src="' + esc(BASE + s.visuel) + '" alt="" loading="lazy" width="52" height="52">' : '<span class="sb-soiree-ico" aria-hidden="true"><i class="fa-solid fa-champagne-glasses"></i></span>') +
-            '<span class="sb-soiree-txt"><small>' + esc(quand(s)) + '</small><b>' + esc(s.titre) + '</b><span>' + esc(l.nom) + (l.ville ? ' · ' + esc(l.ville) : '') + '</span></span></a></li>';
-    }
-    // Diaporama plein cadre générique : items = [{ href, img, alt, haut, bas, badge }]
-    function diapo(fen, items) {
-        fen.className = 'sb-diapo';
-        fen.innerHTML = items.map(function (x, i) {
-            return '<a class="sb-diapo-vue' + (i ? '' : ' actif') + '" href="' + esc(x.href) + '"' + (i ? ' tabindex="-1" aria-hidden="true"' : '') + '>' +
-                '<img src="' + esc(x.img) + '" alt="' + esc(x.alt) + '"' + (i > 1 ? ' loading="lazy"' : '') + '>' +
-                (x.badge ? '<span class="sb-diapo-badge">' + esc(x.badge) + '</span>' : '') +
-                '<span class="sb-diapo-info"><small>' + esc(x.haut) + '</small><span>' + esc(x.bas) + '</span></span></a>';
-        }).join('') + (items.length > 1 ? '<div class="sb-diapo-points" aria-hidden="true">' + items.map(function (x, i) { return '<i' + (i ? '' : ' class="actif"') + '></i>'; }).join('') + '</div>' : '');
-        if (items.length < 2) return;
-        var vues = fen.querySelectorAll('.sb-diapo-vue'), pts = fen.querySelectorAll('.sb-diapo-points i'), n = 0, pause = false;
-        function aller(k) {
-            vues[n].classList.remove('actif'); vues[n].setAttribute('aria-hidden', 'true'); vues[n].tabIndex = -1; pts[n].classList.remove('actif');
-            n = (k + vues.length) % vues.length;
-            vues[n].classList.add('actif'); vues[n].removeAttribute('aria-hidden'); vues[n].removeAttribute('tabindex'); pts[n].classList.add('actif');
+
+    // ---- Rangée qui défile : flèches + glisser au doigt (défilement natif) ----
+    function rangee(bloc) {
+        var ul = bloc.querySelector('.evx-rangee'), prec = bloc.querySelector('.evx-prec'), suiv = bloc.querySelector('.evx-suiv');
+        function etat() {
+            var max = ul.scrollWidth - ul.clientWidth - 2;
+            if (prec) prec.hidden = ul.scrollLeft <= 2;
+            if (suiv) suiv.hidden = ul.scrollLeft >= max;
         }
-        fen.addEventListener('mouseenter', function () { pause = true; });
-        fen.addEventListener('mouseleave', function () { pause = false; });
-        var x0 = null;
-        fen.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
-        fen.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) aller(n + (dx < 0 ? 1 : -1)); x0 = null; });
-        if (!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) setInterval(function () { if (!pause && !document.hidden) aller(n + 1); }, 4500 + Math.round(Math.random() * 800));
+        function pas() { var li = ul.querySelector('li'); return li ? (li.getBoundingClientRect().width + 16) * Math.max(1, Math.floor(ul.clientWidth / (li.getBoundingClientRect().width + 16))) : ul.clientWidth; }
+        if (prec) prec.onclick = function () { ul.scrollBy({ left: -pas(), behavior: 'smooth' }); };
+        if (suiv) suiv.onclick = function () { ul.scrollBy({ left: pas(), behavior: 'smooth' }); };
+        ul.addEventListener('scroll', etat, { passive: true });
+        window.addEventListener('resize', etat);
+        etat(); setTimeout(etat, 600);
     }
-    function diaporama(s) {
-        diapo(bloc.querySelector('.sb-soirees-fenetre'), s.map(function (x) {
+
+    // ---- Filtres « Tous / Événements E-VISIOCAM / Soirées des clubs » ----
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-evx-filtre]'); if (!b) return;
+        var f = b.getAttribute('data-evx-filtre');
+        document.querySelectorAll('[data-evx-filtre]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+        document.querySelectorAll('[data-evx-groupe]').forEach(function (g) {
+            var vide = g.getAttribute('data-vide') === '1';
+            g.hidden = vide || !(f === 'tous' || g.getAttribute('data-evx-groupe') === f);
+        });
+        var c = $('clubsSoirees'); if (c && !c.hidden) rangee(c);
+    });
+
+    // ---- Soirées des clubs ----
+    var blocClubs = $('clubsSoirees');
+    if (blocClubs) fetch(API_URL + '/guide/soirees?jours=30').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        var depS = function (x) { return (x.lieu || {}).dep; };
+        var s = trierProches((d && d.soirees) || [], depS).slice(0, 16);
+        if (!s.length) { blocClubs.setAttribute('data-vide', '1'); return; }
+        $('clubsRangee').innerHTML = s.map(function (x) {
             var l = x.lieu || {};
-            return { href: '/lieu.html?l=' + encodeURIComponent(l.slug || ''), img: BASE + x.visuel, alt: 'Soirée ' + (l.nom || '') + ', ' + quand(x), haut: quand(x), bas: (l.nom || '') + (l.ville ? ' · ' + l.ville : '') };
-        }));
-        bloc.hidden = false;
-    }
-    // Love rooms du guide (photo principale) : encart qui pourra accueillir des fiches mises en avant
-    var blocLR = document.getElementById('sbLoveRooms');
-    if (blocLR) fetch(API_URL + '/guide/lieux?type=loveroom').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+            return '<li><a class="evx-carte evx-club" href="/lieu.html?l=' + encodeURIComponent(l.slug || '') + '">' +
+                '<span class="evx-visuel">' + (x.visuel ? '<img src="' + esc(BASE + x.visuel) + '" alt="" loading="lazy">' : '<i class="fa-solid fa-champagne-glasses" aria-hidden="true"></i>') +
+                '<span class="evx-etiquette">Club partenaire</span></span>' +
+                '<span class="evx-corps"><small>' + esc(quand(x)) + '</small><b>' + esc(x.titre) + '</b><span>' + esc(l.nom || '') + (l.ville ? ' · ' + esc(l.ville) : '') + '</span>' +
+                '<em class="evx-cta"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Voir la soirée</em></span></a></li>';
+        }).join('');
+        mentionProche($('clubsPres'), s, depS);
+        var bouton = document.querySelector('[data-evx-filtre="clubs"]'); if (bouton) bouton.hidden = false;
+        var actif = document.querySelector('[data-evx-filtre][aria-pressed="true"]');
+        var f = actif ? actif.getAttribute('data-evx-filtre') : 'tous';
+        blocClubs.hidden = !(f === 'tous' || f === 'clubs');
+        rangee(blocClubs);
+    }).catch(function () {});
+
+    // ---- Love rooms à la une (photo principale) : futur emplacement des fiches mises en avant ----
+    var blocLove = $('loveUne');
+    if (blocLove) fetch(API_URL + '/guide/lieux?type=loveroom').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
         var l = ((d && d.lieux) || []).filter(function (x) { return x.photo; });
         if (!l.length) return;
         for (var i = l.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = l[i]; l[i] = l[j]; l[j] = t; }   // ordre varié à chaque visite
         var depL = function (x) { return x.dep; };
-        l = trierProches(l, depL);   // près de chez le membre d'abord (ordre varié à l'intérieur)
-        mentionProche(blocLR, l, depL);
-        diapo(blocLR.querySelector('.sb-lr-fenetre'), l.slice(0, 12).map(function (x) {
-            return { href: x.url || '/lieu.html?l=' + encodeURIComponent(x.slug), img: BASE + x.photo, alt: 'Love room ' + x.nom + ', ' + x.ville, haut: x.ville || '', bas: x.nom, badge: x.prixDes != null ? 'dès ' + x.prixDes + ' €' : '' };
-        }));
-        blocLR.hidden = false;
-    }).catch(function () {});
-    fetch(API_URL + '/guide/soirees?jours=30').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-        var tout = (d && d.soirees) || [];
-        if (!tout.length) return;
-        // Soirées avec visuel : diaporama plein cadre (une affiche à la fois, fondu enchaîné)
-        var depS = function (x) { return (x.lieu || {}).dep; };
-        tout = trierProches(tout, depS);
-        var av = tout.filter(function (x) { return x.visuel; }).slice(0, 12);
-        mentionProche(bloc, av.length ? av : tout, depS);
-        if (av.length) return diaporama(av);
-        var s = tout.slice(0, 12);
-        var html = s.map(carte).join('');
-        bloc.hidden = false;
-        // Assez de soirées pour défiler : la liste est doublée pour une boucle sans saut (la copie est masquée aux lecteurs d'écran)
-        if (s.length >= 3) {
-            liste.innerHTML = html + html.replace(/<li>/g, '<li aria-hidden="true">').replace(/<a /g, '<a tabindex="-1" ');
-            liste.classList.add('sb-defile');
-            liste.style.setProperty('--sb-duree', (s.length * 4) + 's');
-        } else liste.innerHTML = html;
+        l = trierProches(l, depL).slice(0, 16);
+        $('loveRangee').innerHTML = l.map(function (x) {
+            return '<li><a class="evx-carte evx-lr" href="' + esc(x.url || '/lieu.html?l=' + encodeURIComponent(x.slug)) + '">' +
+                '<span class="evx-visuel"><img src="' + esc(BASE + x.photo) + '" alt="' + esc('Love room ' + x.nom + ', ' + x.ville) + '" loading="lazy">' +
+                (x.prixDes != null ? '<span class="evx-prix">dès ' + x.prixDes + ' €</span>' : '') + '</span>' +
+                '<span class="evx-corps"><b>' + esc(x.nom) + '</b><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(x.ville || '') + '</span>' +
+                '<em class="evx-cta">Voir la fiche <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></em></span></a></li>';
+        }).join('');
+        mentionProche($('lovePres'), l, depL);
+        blocLove.hidden = false;
+        rangee(blocLove);
     }).catch(function () {});
 })();
