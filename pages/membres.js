@@ -62,7 +62,7 @@
             '<span class="mbr-visuel">' + (photo ? '<img src="' + esc(photo) + '" alt="" loading="lazy">' : (typeof evcMasque === 'function' ? evcMasque(m.genre, m.id) : '')) +
             (m.online ? '<span class="mbr-enligne" title="En ligne"></span>' : '') + (m.correspond ? '<span class="mbr-match">Vous recherche</span>' : '') + (m.dispo ? '<span class="mbr-dispo">' + (m.dispo.type === 'soir' ? '🌙 Libre ce soir' : '📅 Libre ce week-end') + '</span>' : '') +
             (m.distance ? '<span class="mbr-km">' + (m.distance <= 5 ? '− de 5 km' : '≈ ' + m.distance + ' km') + '</span>' : '') + '</span>' +
-            '<span class="mbr-corps"><b>' + esc(m.username) + (m.certifie ? ' <i class="mbr-certif" title="Profil certifié par l’équipe" aria-label="Profil certifié">✔</i>' : '') + '</b><span>' + esc(libelle(m)) + '</span>' +
+            '<span class="mbr-corps"><b>' + esc(m.username) + (m.certifie ? ' <i class="mbr-certif" title="Profil certifié par l’équipe" aria-label="Profil certifié">✔</i>' : '') + (m.niveau ? ' <i class="mbr-niv" title="Niveau ' + m.niveau.n + ' sur 8 : ' + esc(m.niveau.nom) + '">Niv. ' + m.niveau.n + '</i>' : '') + '</b><span>' + esc(libelle(m)) + '</span>' +
             '<small>' + [(m.ages || []).length ? m.ages.join('/') + ' ans' : '', m.ville ? esc(m.ville) + (m.departement ? ' (' + esc(m.departement) + ')' : '') : (m.departement ? esc(m.departement) + (dep ? ' · ' + esc(dep) : '') : '')].filter(Boolean).join(' · ') + '</small>' +
             ((m.interets || []).length ? '<span class="mbr-tags">' + m.interets.slice(0, 3).map(function (k) { return '<i>' + esc(OPT.interets[k] || k) + '</i>'; }).join('') + '</span>' : '') +
             '</span></button>';

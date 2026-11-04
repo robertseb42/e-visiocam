@@ -50,3 +50,15 @@ html[data-theme="light"] .plib{--pl-fond:#f1f5f9;--pl-bord:#e2e8f0;--pl-texte:#0
 .alb-ligne{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;background:var(--pl-fond);font-size:13px}
 .alb-ligne div{display:flex;gap:6px}
 .alb-sous{margin:4px 0 0;font-size:12px;font-weight:800}
+.niv-carte{display:grid;gap:12px;padding:14px;border-radius:14px;border:1px solid var(--pl-bord);background:linear-gradient(120deg,color-mix(in srgb,var(--pl-rose) 14%,var(--pl-fond)),var(--pl-fond))}
+.niv-tete{display:flex;align-items:center;gap:12px}
+.niv-num{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--pl-rose);color:#fff;font-size:24px;font-weight:900}
+.niv-tete b{display:block;font-size:16px}
+.niv-tete div span{font-size:12.5px;color:var(--pl-doux)}
+.niv-barre{height:9px;border-radius:999px;background:var(--pl-fond);overflow:hidden}
+.niv-barre i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pl-rose),#ffb800)}
+.niv-etapes{list-style:none;margin:0;padding:0;display:grid;gap:5px;font-size:12.5px}
+.niv-etapes li{display:flex;justify-content:space-between;gap:10px;padding:6px 9px;border-radius:9px;background:var(--pl-fond)}
+.niv-etapes li.fait{opacity:.6}
+.niv-etapes em{font-style:normal;font-weight:800;color:var(--pl-or);white-space:nowrap}
+.niv-conseil{margin:0;font-size:13px;padding:10px 12px;border-radius:10px;border:1px dashed var(--pl-rose)}

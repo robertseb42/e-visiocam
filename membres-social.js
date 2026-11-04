@@ -228,6 +228,7 @@
         if (m.ville) lignes.push('📍 ' + m.ville + (m.departement ? ' (' + m.departement + ')' : ''));
         else if (m.departement) lignes.push('📍 ' + m.departement + (window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[m.departement] ? ' · ' + window.EVC_DEPARTEMENTS[m.departement] : ''));
         if (m.certifie) lignes.push('✔ Profil certifié');
+        if (m.niveau) lignes.push('⭐ Niveau ' + m.niveau.n + '/8 · ' + m.niveau.nom);
         // « Libre ce soir / ce week-end »
         if (m.dispo) lignes.push((m.dispo.type === 'soir' ? '🌙 Libre ce soir' : '📅 Libre ce week-end') + (m.dispo.envie ? ' (' + ({ sortir: 'envie de sortir', recevoir: 'peut recevoir', rencontrer: 'envie de se rencontrer', cam: 'envie de cam' })[m.dispo.envie] + ')' : ''));
         // Distance approximative entre nos deux villes (par tranches de 5 km)

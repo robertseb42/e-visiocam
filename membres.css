@@ -78,3 +78,4 @@ html[data-theme="light"] .mbr{--m-fond:#f1f5f9;--m-panneau:#fff;--m-bord:#e2e8f0
 .mbr-certif{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:4px;border-radius:50%;background:#10b981;color:#fff;font-style:normal;font-size:10px;vertical-align:2px}
 .vis-explication{margin:-6px 0 16px;max-width:80ch}
 .mbr-tete .mbr-interrupteur{margin-top:0}
+.mbr-niv{display:inline-block;margin-left:4px;padding:1px 6px;border-radius:999px;background:color-mix(in srgb,var(--m-or) 18%,transparent);color:var(--m-texte);font-style:normal;font-size:10px;font-weight:800;vertical-align:2px}
