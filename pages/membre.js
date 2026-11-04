@@ -1,7 +1,8 @@
 // ============================================================
 // Profil d'un membre : membre.html?u=<pseudo>
 // ------------------------------------------------------------
-// Photo (seulement si validée par la modération), pseudo, rôle, département (jamais la ville),
+// Photo (seulement si validée par la modération), pseudo, rôle, ville si le membre l'affiche (sinon département),
+// certification, niveau, compteurs, onglets Présentation · Rencontre · Photos (album privé),
 // date d'inscription, présence, bio, live en cours, et les actions : écrire, demander la cam,
 // favoris (modèles), signaler, bloquer. Les données viennent de GET /api/users/profile/:pseudo,
 // qui répond 404 si l'un des deux membres a bloqué l'autre.
@@ -77,19 +78,34 @@
         lignes.appendChild(statut);
         var depuis = dateMois(m.createdAt);
         if (depuis) lignes.appendChild(el('span', '', 'Membre depuis ' + depuis));
-        if (m.departement) lignes.appendChild(el('span', '', '📍 ' + m.departement + (m.departementNom ? ' · ' + m.departementNom : '')));
+        if (m.villeAffichee) lignes.appendChild(el('span', '', '📍 ' + m.villeAffichee + (m.departement ? ' (' + m.departement + ')' : '')));
+        else if (m.departement) lignes.appendChild(el('span', '', '📍 ' + m.departement + (m.departementNom ? ' · ' + m.departementNom : '')));
+        if (m.distance) lignes.appendChild(el('span', '', '🚗 ' + (m.distance <= 5 ? 'À moins de 5 km' : 'À environ ' + m.distance + ' km')));
         bloc.appendChild(lignes);
         tete.appendChild(bloc);
         carte.appendChild(tete);
 
         // ---------- Badges du programme de récompenses ----------
         var chips = [];
+        if (m.certifie) chips.push('✔ Profil certifié');
+        if (m.niveau) chips.push('⭐ Niveau ' + m.niveau.n + '/8 · ' + m.niveau.nom);
+        if (m.dispo) chips.push(m.dispo.type === 'soir' ? '🌙 Libre ce soir' : '📅 Libre ce week-end');
         if (m.insigne && m.insigne.nom) chips.push((m.insigne.icone || '') + ' ' + m.insigne.nom);
         (m.badges || []).forEach(function (b) { if (b && b.nom) chips.push((b.icone || '') + ' ' + b.nom); });
         if (chips.length) {
             var bd = el('div', 'mb-badges');
             chips.forEach(function (c) { bd.appendChild(el('span', 'mb-badge', c.trim())); });
             carte.appendChild(bd);
+        }
+
+        // ---------- Compteurs ----------
+        if (m.compteurs) {
+            var cpt = el('div', 'mb-compteurs');
+            [[m.compteurs.suivis, 'abonné'], [m.compteurs.amis, 'ami'], [m.compteurs.photos, 'photo privée', 'photos privées']].forEach(function (c) {
+                var b = el('div', 'mb-compteur'); b.appendChild(el('b', '', String(c[0] || 0))); b.appendChild(el('span', '', (c[0] > 1 ? (c[2] || c[1] + 's') : c[1])));
+                cpt.appendChild(b);
+            });
+            carte.appendChild(cpt);
         }
 
         // ---------- Live en cours ----------
@@ -104,20 +120,16 @@
             carte.appendChild(lv);
         }
 
-        // ---------- Bio ----------
-        if (m.bio) {
-            var bio = el('div', 'mb-bio text-slate-700');
-            bio.appendChild(el('h2', '', 'À propos'));
-            bio.appendChild(el('p', '', m.bio));
-            carte.appendChild(bio);
-        }
 
         // ---------- Actions ----------
         var act = el('div', 'mb-actions');
         if (m.moi) {
             act.appendChild(lien('principal', '✏️ Modifier mon profil', 'compte.html'));
+            act.appendChild(lien('', '👁 Mes visiteurs', 'visiteurs.html'));
+            act.appendChild(boutonPartager(m));
             carte.appendChild(act);
             carte.appendChild(el('p', 'mb-note', 'C’est votre profil tel que les autres membres le voient.'));
+            onglets(m);
             return;
         }
         act.appendChild(lien('principal', '💬 Envoyer un message', 'messages.html?ecrire=' + Number(m.id)));
@@ -150,7 +162,25 @@
             });
             act.appendChild(fav);
         }
+        // ❤ Favori membre (les modèles gardent leur favori avec alerte de live)
+        if (!m.peutFavori) {
+            var favM = bouton('', '');
+            var majFavM = function () { favM.textContent = m.favoriMembre ? '♥ Dans mes favoris' : '♡ Ajouter aux favoris'; favM.classList.toggle('actif', !!m.favoriMembre); };
+            majFavM();
+            favM.addEventListener('click', async function () {
+                favM.disabled = true;
+                try {
+                    await apiCall('/favorites/membre/' + Number(m.id), { method: m.favoriMembre ? 'DELETE' : 'PUT', body: m.favoriMembre ? undefined : JSON.stringify({}) });
+                    m.favoriMembre = !m.favoriMembre; majFavM();
+                    info(m.favoriMembre ? m.username + ' est dans vos favoris.' : m.username + ' est retiré de vos favoris.', 'success');
+                } catch (e) { info(e.message || 'Action impossible', 'error'); }
+                favM.disabled = false;
+            });
+            act.appendChild(favM);
+        }
+        act.appendChild(boutonPartager(m));
         carte.appendChild(act);
+        onglets(m);
 
         // Signaler · Bloquer (l'équipe de modération ne peut pas être bloquée)
         var sec = el('div', 'mb-securite');
@@ -169,6 +199,96 @@
         }
         carte.appendChild(sec);
         if (!m.isLive) carte.appendChild(el('p', 'mb-note', m.online ? 'Pour la cam, il ou elle pourra accepter ou refuser.' : 'Demande de cam possible quand il ou elle est connecté.'));
+    }
+
+    // ---------- Partager le profil (lien réservé aux membres connectés) ----------
+    function boutonPartager(m) {
+        var b = bouton('', '🔗 Partager');
+        b.addEventListener('click', async function () {
+            var url = location.origin + '/membre.html?u=' + encodeURIComponent(m.username);
+            try {
+                if (navigator.share) { await navigator.share({ title: m.username + ' sur E-VISIOCAM', url: url }); return; }
+                await navigator.clipboard.writeText(url);
+                info('Lien du profil copié (visible seulement par les membres connectés).', 'success');
+            } catch (e) {}
+        });
+        return b;
+    }
+
+    // ---------- Onglets : Présentation · Rencontre · Photos ----------
+    var OPTIONS = null;
+    async function options() {
+        if (OPTIONS) return OPTIONS;
+        try { OPTIONS = await (await fetch(API_URL + '/models/profil-options')).json(); } catch (e) { OPTIONS = {}; }
+        return OPTIONS;
+    }
+    function onglets(m) {
+        var zone = el('div', 'mb-onglets-zone');
+        var barre = el('div', 'mb-onglets'); barre.setAttribute('role', 'tablist');
+        var panneau = el('div', 'mb-panneau'); panneau.setAttribute('role', 'tabpanel');
+        var liste = [['presentation', 'Présentation'], ['rencontre', 'Rencontre'], ['photos', 'Photos' + (m.compteurs && m.compteurs.photos ? ' (' + m.compteurs.photos + ')' : '')]];
+        liste.forEach(function (o, i) {
+            var t = bouton('mb-onglet', o[1]); t.setAttribute('role', 'tab'); t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+            t.addEventListener('click', function () {
+                barre.querySelectorAll('.mb-onglet').forEach(function (x) { x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
+                remplir(o[0]);
+            });
+            barre.appendChild(t);
+        });
+        zone.appendChild(barre); zone.appendChild(panneau); carte.appendChild(zone);
+        function bloc(titre, texte) { var b = el('div', 'mb-bio'); b.appendChild(el('h2', '', titre)); if (texte !== undefined) b.appendChild(el('p', '', texte)); panneau.appendChild(b); return b; }
+        function puces(parent, cles, dico) { var d = el('div', 'mb-badges'); cles.forEach(function (k) { d.appendChild(el('span', 'mb-badge', (dico || {})[k] || k)); }); parent.appendChild(d); }
+        async function remplir(quoi) {
+            panneau.textContent = '';
+            var pr = m.profil || {}, o = await options();
+            if (quoi === 'presentation') {
+                var GENRES = { couple: 'Couple', femme: 'Femme', homme: 'Homme', trans: 'Trans' };
+                var qui = [GENRES[m.genre] || 'Membre'];
+                if ((pr.ages || []).length) qui.push(pr.ages.join(' / ') + ' ans');
+                bloc('Qui', qui.join(' · '));
+                if (pr.annonce) bloc('Annonce', pr.annonce);
+                if (m.bio) bloc('À propos', m.bio);
+                if (!pr.annonce && !m.bio) panneau.appendChild(el('p', 'mb-note', m.moi ? 'Ajoutez une annonce dans Mon compte pour vous présenter.' : m.username + ' n’a pas encore écrit d’annonce.'));
+            } else if (quoi === 'rencontre') {
+                var T = o.tendances || {}, S = o.silhouettes || {};
+                var noms = { hf: ['Monsieur', 'Madame'], ff: ['Elle', 'Elle'], hh: ['Lui', 'Lui'] }[pr.couple] || ['', ''];
+                [pr.p1, pr.p2].forEach(function (x, i) {
+                    if (!x || !(x.tendance || x.silhouette || x.taille)) return;
+                    var d = [T[x.tendance], S[x.silhouette], x.taille ? x.taille + ' cm' : ''].filter(Boolean).join(' · ');
+                    bloc(m.genre === 'couple' ? noms[i] : 'Profil', d);
+                });
+                if ((pr.recherche || []).length) puces(bloc('Recherche'), pr.recherche, o.recherche);
+                if ((pr.interets || []).length) puces(bloc('Intérêts'), pr.interets, o.interets);
+                if (m.dispo) bloc('Disponibilité', (m.dispo.type === 'soir' ? 'Libre ce soir' : 'Libre ce week-end') + (m.dispo.envie && o.envies ? ' · ' + (o.envies[m.dispo.envie] || '') : ''));
+                if (!panneau.childNodes.length) panneau.appendChild(el('p', 'mb-note', 'Profil de rencontre pas encore rempli.'));
+            } else {
+                var d;
+                try { d = await apiCall('/albums/membre/' + Number(m.id)); } catch (e) { panneau.appendChild(el('p', 'mb-note', 'Album indisponible pour le moment.')); return; }
+                if (!d.nb && !(d.photos || []).length) { panneau.appendChild(el('p', 'mb-note', m.moi ? 'Votre album privé est vide : ajoutez des photos dans Mon compte.' : 'Aucune photo privée.')); return; }
+                if (d.verrouille) {
+                    var v = el('div', 'mb-vide'); v.appendChild(el('div', 'mb-icone', '🔒'));
+                    v.appendChild(el('p', 'text-lg font-bold', 'Album privé · ' + d.nb + ' photo' + (d.nb > 1 ? 's' : '')));
+                    var dem = bouton('principal', d.demande ? '⏳ Demande envoyée' : '🔑 Demander l’accès'); dem.disabled = !!d.demande; dem.style.display = 'inline-flex'; dem.style.marginTop = '10px';
+                    dem.addEventListener('click', async function () {
+                        dem.disabled = true;
+                        try { await apiCall('/albums/membre/' + Number(m.id) + '/demande', { method: 'POST', body: '{}' }); dem.textContent = '⏳ Demande envoyée'; }
+                        catch (e) { info(e.message, 'error'); dem.disabled = false; }
+                    });
+                    v.appendChild(dem); panneau.appendChild(v); return;
+                }
+                var g = el('div', 'mb-galerie'), base = String(API_URL).replace(/\/api\/?$/, '');
+                (d.photos || []).forEach(function (p) {
+                    var b = bouton('mb-vignette', ''); var img = el('img'); img.alt = p.legende || ''; b.appendChild(img);
+                    fetch(base + p.url, { credentials: 'include' }).then(function (r) { return r.ok ? r.blob() : null; }).then(function (bl) { if (bl) img.src = URL.createObjectURL(bl); });
+                    // Agrandir : la mini-fiche (membres-social.js) propose aussi « Signaler »
+                    b.addEventListener('click', function () { var f = el('button'); f.hidden = true; f.setAttribute('data-fiche', Number(m.id)); document.body.appendChild(f); f.click(); f.remove(); });
+                    g.appendChild(b);
+                });
+                panneau.appendChild(g);
+                if (!m.moi) panneau.appendChild(el('p', 'mb-note', 'Pour agrandir ou signaler une photo, touchez-la : la fiche du membre s’ouvre.'));
+            }
+        }
+        remplir('presentation');
     }
 
     // ---------- Amis : Ajouter / Demande envoyée / Accepter / Ami ✓ — Retirer ----------

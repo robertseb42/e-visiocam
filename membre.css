@@ -44,3 +44,17 @@ html[data-theme="light"] .mb-btn.principal:hover{background:#d81b60}
   .mb-nom{font-size:23px}
   .mb-actions{grid-template-columns:1fr}
 }
+.mb-compteurs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;text-align:center}
+.mb-compteur{padding:10px 6px;border-radius:14px;background:rgba(127,127,127,.1)}
+.mb-compteur b{display:block;font-size:20px;font-weight:900}
+.mb-compteur span{font-size:12px;opacity:.75}
+.mb-onglets-zone{margin-top:20px}
+.mb-onglets{display:flex;gap:6px;border-bottom:1px solid rgba(127,127,127,.25)}
+.mb-btn.mb-onglet{flex:1;min-height:42px;border-radius:12px 12px 0 0;background:transparent;font-size:14px;opacity:.7}
+.mb-btn.mb-onglet[aria-selected="true"]{opacity:1;background:rgba(127,127,127,.14);box-shadow:inset 0 -3px 0 #ffe500}
+html[data-theme="light"] .mb-btn.mb-onglet[aria-selected="true"]{box-shadow:inset 0 -3px 0 #e91e63}
+.mb-panneau .mb-bio{margin-top:12px}
+.mb-panneau .mb-badges{margin-top:6px}
+.mb-galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:14px}
+.mb-btn.mb-vignette{padding:0;min-height:0;aspect-ratio:1;overflow:hidden;border-radius:12px}
+.mb-vignette img{width:100%;height:100%;object-fit:cover;display:block}
