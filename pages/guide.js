@@ -348,6 +348,7 @@
             (avecLieu ? '<a href="lieu.html?l=' + encodeURIComponent(s.lieu.slug) + '"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ' + esc(s.lieu.nom) + ' · ' + esc(s.lieu.ville) + '</a>' : '') +
             (s.prix ? '<span class="gl-soiree-prix">' + esc(s.prix) + '</span>' : '') + '</p>' +
             (s.description ? texteRepliable(adoucir(s.description), 'gl-soiree-desc', 160) : '') +
+            '<div class="gl-jv" data-jv="' + Number(s.id) + '_' + esc(s.date) + '" data-soiree="' + Number(s.id) + '" data-date="' + esc(s.date) + '"></div>' +
             (equipe() ? '<div class="gl-soiree-equipe"><button type="button" class="gl-lien-btn" data-modif-soiree="' + s.id + '"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier</button><label class="gl-lien-btn gl-gris">' + (s.visuel ? 'Changer le visuel' : 'Ajouter le visuel') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-visuel-soiree="' + s.id + '"></label><button type="button" class="gl-lien-btn gl-rouge" data-suppr-soiree="' + s.id + '">Retirer de l\'agenda</button></div>' : '') + '</div>' +
             (s.visuel ? '<a class="gl-soiree-visuel" href="' + esc(urlApi(s.visuel)) + '" target="_blank" rel="noopener"><img src="' + esc(urlApi(s.visuel)) + '" alt="Affiche : ' + esc(s.titre) + '" loading="lazy"></a>' : '') + '</article>';
     }
@@ -375,11 +376,55 @@
         } catch (e) { sec.hidden = true; }
     }
 
+    // ---------- « J'y vais » : nombre de membres, et qui y va (visible seulement si l'on y va soi-même) ----------
+    function dessinerJv(z, info) {
+        var nb = info ? info.nb : 0, moi = info && info.moi;
+        z.innerHTML = '<button type="button" class="gl-btn' + (moi ? ' gl-btn-jaune' : '') + '" data-jv-btn aria-pressed="' + (moi ? 'true' : 'false') + '">🙋 ' + (moi ? 'J\u2019y vais ✓' : 'J\u2019y vais') + '</button>' +
+            (moi ? '' : '<label class="gl-jv-discret"><input type="checkbox" data-jv-discret> en toute discrétion</label>') +
+            '<span class="gl-jv-nb">' + (nb ? nb + ' membre' + (nb > 1 ? 's y vont' : ' y va') : 'Soyez le premier à le dire') + '</span>' +
+            (moi && nb > 1 ? '<button type="button" class="gl-lien-btn" data-jv-qui>👀 Voir qui y va</button>' : '') + '<div class="gl-jv-liste" hidden></div>';
+    }
+    async function participations(zone) {
+        var blocs = [].slice.call(zone.querySelectorAll('.gl-jv')); if (!blocs.length) return;
+        if (!connecte()) { blocs.forEach(function (z) { z.innerHTML = '<a class="gl-lien-btn" href="login.html?redirect=' + encodeURIComponent(location.pathname.slice(1) + location.search) + '">🙋 Connectez-vous pour dire « J\u2019y vais »</a>'; }); return; }
+        var d = {};
+        try { d = await api('/participations?cles=' + encodeURIComponent(blocs.map(function (z) { return z.getAttribute('data-jv'); }).join(','))); } catch (e) {}
+        blocs.forEach(function (z) { dessinerJv(z, d[z.getAttribute('data-jv')]); });
+    }
+    document.addEventListener('click', async function (e) {
+        var z = e.target.closest('.gl-jv'); if (!z) return;
+        var id = z.getAttribute('data-soiree'), date = z.getAttribute('data-date');
+        var b = e.target.closest('[data-jv-btn]');
+        if (b) {
+            b.disabled = true;
+            var oui = b.getAttribute('aria-pressed') !== 'true';
+            try {
+                var discret = z.querySelector('[data-jv-discret]');
+                var r = oui ? await api('/soirees/' + id + '/participer', { method: 'POST', body: JSON.stringify({ date: date, discret: !!(discret && discret.checked) }) })
+                            : await api('/soirees/' + id + '/participer?date=' + encodeURIComponent(date), { method: 'DELETE' });
+                dessinerJv(z, { nb: r.nb, moi: oui });
+                toast(oui ? 'C\u2019est noté : vous y allez ! Vous pouvez voir qui d\u2019autre y va.' : 'Vous n\u2019y allez plus.', 'success');
+            } catch (x) { toast(x.message, 'error'); b.disabled = false; }
+            return;
+        }
+        if (e.target.closest('[data-jv-qui]')) {
+            var liste = z.querySelector('.gl-jv-liste');
+            if (!liste.hidden) { liste.hidden = true; return; }
+            try {
+                var p = await api('/soirees/' + id + '/participants?date=' + encodeURIComponent(date));
+                liste.innerHTML = (p.membres.length ? p.membres.map(function (m) { return '<button type="button" class="gl-mini" data-fiche="' + Number(m.id) + '">' + esc(m.username) + '</button>'; }).join('') : '') +
+                    (p.discrets ? '<span class="gl-gris">+ ' + p.discrets + ' en toute discrétion</span>' : '') + (!p.membres.length && !p.discrets ? '<span class="gl-gris">Personne d\u2019autre pour l\u2019instant.</span>' : '');
+                liste.hidden = false;
+            } catch (x) { toast(x.message, 'error'); }
+        }
+    });
+
     async function chargerAgenda(zone, params, avecLieu, vide) {
         if (!zone) return [];
         try {
             var d = await api('/soirees?' + new URLSearchParams(params));
             zone.innerHTML = d.soirees.length ? d.soirees.map(function (s) { return soireeHTML(s, avecLieu); }).join('') : '<p class="gl-vide-plan">' + vide + '</p>';
+            participations(zone);
             return d.soirees;
         } catch (e) { zone.innerHTML = ''; return []; }
     }

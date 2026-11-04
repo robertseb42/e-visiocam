@@ -509,3 +509,9 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 
 .gl-eq-exclure{display:grid;gap:10px;margin-top:10px;padding:12px 14px;border-radius:12px;background:var(--g-panel2);border:1px solid #e11d48}
 .gl-eq-exclure .gl-aide{margin:0}
+.gl-jv{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:10px}
+.gl-jv .gl-btn{min-height:36px;padding:6px 14px;font-size:13px}
+.gl-jv-nb{font-size:12.5px;font-weight:700;opacity:.8}
+.gl-jv-discret{display:inline-flex;align-items:center;gap:5px;font-size:12px;opacity:.85;cursor:pointer}
+.gl-jv-liste{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.gl-jv-liste button{cursor:pointer;border:0}
