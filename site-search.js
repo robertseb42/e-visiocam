@@ -1,8 +1,8 @@
 // ============================================================
 // E-VISIOCAM - Barre de recherche de l'en-tête
 // ------------------------------------------------------------
-// Suggestions en direct (modèles + salons) sous le champ, navigation au clavier,
-// Entrée = page Modèles filtrée. Se branche sur .cam-search input ou [data-site-search].
+// Suggestions en direct (membres en live + salons) sous le champ, navigation au clavier,
+// Entrée = page Membres filtrée. Se branche sur .cam-search input ou [data-site-search].
 // ============================================================
 (function () {
     'use strict';
@@ -43,7 +43,7 @@
         (d.models || []).forEach(function (m) {
             html += '<a role="option" href="' + (m.isLive ? 'live.html' : 'membres.html?q=' + encodeURIComponent(m.username)) + '">' +
                 '<span class="ev-suggest-ico">' + esc(m.username.charAt(0).toUpperCase()) + '</span>' +
-                '<span class="ev-suggest-txt"><b>' + esc(m.username) + '</b><small>' + (m.isLive ? '● En direct · ' + esc(m.liveSalon) : 'Modèle') + '</small></span></a>';
+                '<span class="ev-suggest-txt"><b>' + esc(m.username) + '</b><small>' + (m.isLive ? '● En direct · ' + esc(m.liveSalon) : 'Membre') + '</small></span></a>';
         });
         (d.salons || []).forEach(function (s) {
             html += '<a role="option" href="' + (s.isPrivate ? 'salons.html' : 'chat.html?theme=' + encodeURIComponent(s.slug)) + '">' +

@@ -9,7 +9,7 @@ const TOUS_BADGES = [
     { id: 'fidele', icone: '🔥', nom: 'Fidèle', aide: '7 jours de suite' },
     { id: 'pilier', icone: '🏛️', nom: 'Pilier', aide: '30 jours de suite' },
     { id: 'parrain', icone: '🤝', nom: 'Parrain', aide: '1 filleul validé' },
-    { id: 'animateur', icone: '🎙️', nom: 'Animateur', aide: '10 h de live (modèles)' },
+    { id: 'animateur', icone: '🎙️', nom: 'Animateur', aide: '10 h de live (animateurs)' },
     { id: 'ancien', icone: '⭐', nom: 'Ancien', aide: 'Membre depuis 1 an' }
 ];
 
@@ -98,7 +98,7 @@ function afficher(r) {
         ['🤝', 'Parrainer un ami', '+' + c.parrainage, 'Quand votre filleul a confirmé son compte et participé ' + c.parrainageJoursActifs + ' jours.'],
         ['⭐', 'Donner votre avis sur un lieu du guide', '+' + c.avis, 'Quand la modération le publie ; +' + c.avisPremier + ' si c\'est le premier avis du lieu. ' + c.avisMaxSemaine + ' avis par semaine au plus.'],
         ['🛡️', 'Signaler un abus', '+' + c.signalement, 'Si la modération confirme le signalement. ' + c.signalementMaxSemaine + ' par semaine au plus.'],
-        ['🎙️', 'Animer des lives (modèles)', '+' + c.liveHeure + ' / heure', 'Live public uniquement. ' + c.liveMaxJour + ' crédits par jour au plus.']
+        ['🎙️', 'Animer des lives (animateurs désignés par l’équipe)', '+' + c.liveHeure + ' / heure', 'Live public uniquement. ' + c.liveMaxJour + ' crédits par jour au plus.']
     ];
     document.getElementById('gagnerListe').innerHTML = g.map(x => '<div><span class="amt">' + escapeHtml(x[2]) + '</span><p>' + x[0] + ' ' + escapeHtml(x[1]) + '</p><small>' + escapeHtml(x[3]) + '</small></div>').join('');
 }

@@ -92,7 +92,7 @@
         <div class="ml-auto flex items-center gap-3 sm:gap-5">
             <div class="cam-search relative hidden sm:block w-48 md:w-64">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+                <input aria-label="Rechercher un membre ou un salon" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un membre, un salon…" type="text"/>
             </div>
             <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
             <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
@@ -209,6 +209,7 @@
                     <!-- 💞 Profil libertin : partenaires, recherche, intérêts, annonce (pages/profil-libertin.js) -->
                     <div class="plib">
                         <h4 class="plib-titre">Mon profil libertin</h4>
+                        <p class="text-xs text-slate-500" style="margin:0 0 8px">Tout est facultatif et visible seulement des membres connectés. Ces informations touchent à votre vie intime : en les remplissant, vous acceptez qu’elles soient affichées sur votre profil ; vous pouvez les effacer à tout moment (<a href="rgpd.html#profil" class="underline">en savoir plus</a>).</p>
                         <div id="profilLibertin"><p class="text-xs text-slate-400">Chargement…</p></div>
                     </div>
                     <!-- ✈️ Mes voyages : apparaître dans les recherches autour d'une autre ville (pages/voyages.js) -->
@@ -343,6 +344,6 @@
 
 <script src="footer.js?v=12" defer></script>
 
-<script src="site-search.js" defer></script>
+<script src="site-search.js?v=2" defer></script>
 </body>
 </html>

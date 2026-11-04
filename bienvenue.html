@@ -21,7 +21,7 @@
     <!-- Temps réel : bonus de bienvenue crédité à la connexion, messages non lus -->
     <script src="https://api.e-visiocam.com/socket.io/socket.io.min.js"></script>
     <script src="auth-api.js?v=7"></script>
-    <script src="site-search.js" defer></script>
+    <script src="site-search.js?v=2" defer></script>
 <script src="nav-auth.js?v=16" defer></script>
     <script src="legal-banner.js?v=4" defer></script>
 
@@ -86,7 +86,7 @@
         <div class="ml-auto flex items-center gap-3 sm:gap-5">
             <div class="cam-search relative hidden sm:block w-48 md:w-64">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+                <input aria-label="Rechercher un membre ou un salon" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un membre, un salon…" type="text"/>
             </div>
             <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
             <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
@@ -116,9 +116,9 @@
         <!-- 2. Photo de profil -->
         <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col" aria-labelledby="bvPhotoTitre">
             <div class="text-3xl mb-3" aria-hidden="true">📷</div>
-            <h2 id="bvPhotoTitre" class="font-bold text-slate-900">Ajouter une photo de profil</h2>
-            <p class="text-xs text-slate-500 mt-1 mb-4 flex-1">Les membres vous reconnaîtront plus facilement. Votre photo est vérifiée par la modération avant d’être visible des autres.</p>
-            <a href="compte.html" class="block text-center w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors">Ajouter ma photo</a>
+            <h2 id="bvPhotoTitre" class="font-bold text-slate-900">Compléter votre profil</h2>
+            <p class="text-xs text-slate-500 mt-1 mb-4 flex-1">Photo, ce que vous recherchez, votre ville (affichée seulement si vous le voulez) : un profil complet attire plus de visites. La photo est visible tout de suite ; la modération peut la contrôler et retirer une photo contraire aux règles.</p>
+            <a href="compte.html" class="block text-center w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors">Compléter mon profil</a>
         </section>
 
         <!-- 3. Crédits offerts -->

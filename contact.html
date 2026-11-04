@@ -138,7 +138,7 @@
         <div class="ml-auto flex items-center gap-3 sm:gap-5">
             <div class="cam-search relative hidden sm:block w-48 md:w-64">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+                <input aria-label="Rechercher un membre ou un salon" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un membre, un salon…" type="text"/>
             </div>
             <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
             <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
@@ -242,7 +242,7 @@
                     <option value="suggestion">💡 Suggestion d'amélioration</option>
                     <option value="paiement">🎁 Crédits et récompenses</option>
                     <option value="compte">👤 Problème de compte</option>
-                    <option value="partenariat">🤝 Partenariat / Modèle</option>
+                    <option value="partenariat">🤝 Établissement / Partenariat</option>
                     <option value="rgpd">🛡️ Demande RGPD</option>
                     <option value="autre">📝 Autre</option>
                 </select>
@@ -311,13 +311,13 @@
 
             <div class="contact-card">
                 <div class="text-xl mb-2">💼</div>
-                <h3 class="font-bold text-slate-900 mb-1 text-sm">Devenir Modèle</h3>
+                <h3 class="font-bold text-slate-900 mb-1 text-sm">Établissements et partenariats</h3>
                 <p class="text-xs text-slate-600 mb-2">
-                    Vous souhaitez rejoindre notre équipe de modèles ?
+                    Vous gérez un club, un sauna ou une love room ? Fiche gratuite dans le guide et badge « Lieu vérifié » : <a href="etablissements.html">tout savoir</a>.
                 </p>
                 <ul class="text-xs text-slate-600 m-0 pl-4">
                     <li><strong>Email :</strong> contact@e-visiocam.com</li>
-                    <li><strong>Sujet :</strong> "Candidature Modèle"</li>
+                    <li><strong>Sujet :</strong> "Établissement" + le nom du lieu</li>
                 </ul>
             </div>
 
@@ -361,11 +361,11 @@
 
         <details class="mb-3 border border-slate-200 rounded-xl p-4">
             <summary class="font-bold text-slate-900 cursor-pointer text-sm">
-                ❓ Les crédits sont-ils remboursables ?
+                ❓ Faut-il payer pour utiliser le site ?
             </summary>
             <p class="text-xs text-slate-600 mt-3 mb-0">
-                Non, les crédits ne sont pas remboursables (conformément à l'article L.221-28 du Code de la
-                consommation relatif aux contenus numériques).
+                Non. E-VISIOCAM est gratuit : les crédits ne s'achètent pas, ils se gagnent en participant
+                et n'ont aucune valeur en argent. Personne ne doit vous demander de paiement : signalez-le.
             </p>
         </details>
 
@@ -381,11 +381,11 @@
 
         <details class="mb-0 border border-slate-200 rounded-xl p-4">
             <summary class="font-bold text-slate-900 cursor-pointer text-sm">
-                ❓ Comment devenir modèle sur E-VISIOCAM ?
+                ❓ Comment devenir modérateur ?
             </summary>
             <p class="text-xs text-slate-600 mt-3 mb-0">
-                Envoyez un email à contact@e-visiocam.com avec le sujet "Candidature Modèle".
-                Notre équipe vous répondra sous 72 heures.
+                Remplissez le formulaire de la page <a href="devenir-moderateur.html">Devenir modérateur</a>
+                (compte de plus de 15 jours, aucune sanction depuis 90 jours). La modération est bénévole.
             </p>
         </details>
     </div>
@@ -398,6 +398,6 @@
 <script src="footer.js?v=12" defer></script>
 
 <script src="nav-auth.js?v=16" defer></script>
-<script src="site-search.js" defer></script>
+<script src="site-search.js?v=2" defer></script>
 </body>
 </html>

@@ -88,7 +88,7 @@
         <div class="ml-auto flex items-center gap-3 sm:gap-5">
             <div class="cam-search relative hidden sm:block w-48 md:w-64">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+                <input aria-label="Rechercher un membre ou un salon" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un membre, un salon…" type="text"/>
             </div>
             <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
             <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
@@ -214,10 +214,10 @@
         </section>
         <section class="rw-card">
             <h2>🏆 Classement du mois <span class="rw-muted text-xs font-semibold" id="classementMois"></span></h2>
-            <p class="rw-sub">Membres les plus actifs et modèles les plus gâtés en cadeaux.</p>
+            <p class="rw-sub">Membres les plus actifs et membres les plus gâtés en cadeaux.</p>
             <div class="rw-grid two" style="gap:20px">
-                <div><p class="text-xs font-bold rw-muted" style="margin:0 0 4px">MEMBRES</p><ol class="rw-rank" id="rangMembres"></ol></div>
-                <div><p class="text-xs font-bold rw-muted" style="margin:0 0 4px">MODÈLES</p><ol class="rw-rank" id="rangModeles"></ol></div>
+                <div><p class="text-xs font-bold rw-muted" style="margin:0 0 4px">LES PLUS ACTIFS</p><ol class="rw-rank" id="rangMembres"></ol></div>
+                <div><p class="text-xs font-bold rw-muted" style="margin:0 0 4px">LES PLUS GÂTÉS</p><ol class="rw-rank" id="rangModeles"></ol></div>
             </div>
         </section>
     </div>
@@ -256,12 +256,12 @@
     <p class="text-xs text-slate-400 mt-4">E-VISIOCAM est entièrement gratuit. Les crédits ne s’achètent pas : ils sont sans valeur en argent et ne peuvent être ni vendus ni échangés contre de l’argent. Les crédits obtenus de façon artificielle (comptes multiples, triche) peuvent être retirés. Règles : <a href="cgu.html#credits" class="underline">CGU, article 7</a>.</p>
 </main>
 
-<script src="pages/credits.js?v=3"></script>
+<script src="pages/credits.js?v=4"></script>
 
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=4"></script>
 <script src="footer.js?v=12" defer></script>
 
-<script src="site-search.js" defer></script>
+<script src="site-search.js?v=2" defer></script>
 </body>
 </html>
