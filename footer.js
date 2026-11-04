@@ -24,7 +24,7 @@
             ['programme.html', 'Programme des soirées'],
             ['membres.html', 'Rencontres : les membres'],
             ['credits.html', 'Récompenses'],
-            ['guides.html', 'Guides du chat webcam'],
+            ['guides.html', 'Guides : chat, rencontres, sécurité'],
             ['equipe.html', 'L\'équipe'],
             ['devenir-moderateur.html', 'Devenir modérateur'],
             ['contact.html', 'Nous contacter']

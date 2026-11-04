@@ -8,7 +8,7 @@
     var nb = function (n) { return Number(n || 0).toLocaleString('fr-FR'); };
     var PAGES = { index: 'Accueil', guide: 'Guide libertin (liste)', lieu: 'Fiche d\'un lieu', 'club-libertin/fiche': 'Fiche (page Google)', 'club-libertin/liste': 'Ville / région (page Google)',
         salons: 'Salons', chat: 'Salon de chat', live: 'En direct', modeles: 'Modèles', programme: 'Programme des soirées', messages: 'Messagerie', credits: 'Récompenses',
-        'guide-equipe': 'Espace équipe guide', 'tchat-regions': 'Chat par région', register: 'Inscription', login: 'Connexion', profile: 'Profil', membre: 'Profil d\'un membre',
+        'guide-equipe': 'Espace équipe guide', 'tchat-regions': 'Chat par région', 'premiere-rencontre': 'Guide première rencontre', register: 'Inscription', login: 'Connexion', profile: 'Profil', membre: 'Profil d\'un membre',
         'guide-chat-webcam': 'Guide pour débuter', 'securite-chat-webcam': 'Conseils de sécurité', aide: 'Centre d\'aide', roulette: 'Roulette', compte: 'Mon compte' };
     var SOURCES = { google: 'Google', direct: 'Accès direct / favoris', interne: 'Lien interne', 'autres moteurs': 'Autres moteurs (Bing, Qwant…)', 'réseaux sociaux': 'Réseaux sociaux', 'autres sites': 'Autres sites' };
     function nomPage(p) { return PAGES[p] || (/^tchat-/.test(p) ? 'Chat ' + p.replace(/^tchat-/, '').replace(/-/g, ' ') : p); }
