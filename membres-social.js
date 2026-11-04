@@ -219,6 +219,19 @@
         if (!m.moi) {
             var rel = await relation;
             if (rel) act.appendChild(boutonsAmi(m, rel));
+            // ❤ Favori (membres suivis, page Mes favoris)
+            var fav = el('button', 'evs-btn', m.favori ? '💔 Retirer des favoris' : '❤️ Ajouter aux favoris'); fav.type = 'button';
+            fav.addEventListener('click', async function () {
+                fav.disabled = true;
+                try {
+                    var r = await fetch(API_URL + '/favorites/membre/' + Number(m.id), { method: m.favori ? 'DELETE' : 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: m.favori ? undefined : '{}' });
+                    if (!r.ok) throw new Error();
+                    m.favori = !m.favori; fav.textContent = m.favori ? '💔 Retirer des favoris' : '❤️ Ajouter aux favoris';
+                    if (typeof showToast === 'function') showToast(m.favori ? m.username + ' ajouté(e) à vos favoris' : 'Retiré(e) de vos favoris', 'success');
+                } catch (x) { if (typeof showToast === 'function') showToast('Impossible pour le moment', 'error'); }
+                fav.disabled = false;
+            });
+            act.appendChild(fav);
             act.appendChild(lien('', '👤 Voir le profil', 'membre.html?u=' + encodeURIComponent(m.username)));
             // 🚩 Signaler · 🚫 Bloquer (voir securite-membres.js ; l'équipe de modération ne peut pas être bloquée)
             if (window.EvcSecurite) {

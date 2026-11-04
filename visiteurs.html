@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html class="h-full bg-slate-100" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+<meta content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'" http-equiv="Content-Security-Policy"/>
+<script src="persistent-radio-bootstrap.js?v=3"></script>
+<script src="theme.js?v=2"></script>
+<script src="mesure.js?v=1" defer></script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Qui a vu mon profil | E-VISIOCAM</title>
+<link href="favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="favicon-32.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="apple-touch-icon.png" rel="apple-touch-icon"/>
+<meta content="#111113" name="theme-color"/>
+<meta content="Recherchez des couples, femmes, hommes et trans libertins près de chez vous sur E-VISIOCAM." name="description"/>
+<link href="https://www.e-visiocam.com/visiteurs.html" rel="canonical"/>
+<meta content="adult" name="rating"/>
+<!-- Annuaire réservé aux membres connectés : pas d'indexation -->
+<meta content="noindex, follow" name="robots"/>
+<meta content="website" property="og:type"/>
+<meta content="E-VISIOCAM" property="og:site_name"/>
+<meta content="fr_FR" property="og:locale"/>
+<meta content="Qui a vu mon profil | E-VISIOCAM" property="og:title"/>
+<meta content="Couples, femmes, hommes et trans libertins près de chez vous." property="og:description"/>
+<meta content="https://www.e-visiocam.com/visiteurs.html" property="og:url"/>
+<meta content="https://www.e-visiocam.com/img/partage.jpg" property="og:image"/>
+<meta content="1200" property="og:image:width"/>
+<meta content="630" property="og:image:height"/>
+<meta content="summary_large_image" name="twitter:card"/>
+<script src="app.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" rel="stylesheet" crossorigin="anonymous"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script src="auth-api.js?v=7"></script>
+<script defer="" src="nav-auth.js?v=13"></script>
+<script src="legal-banner.js?v=4" defer></script>
+<link href="style.css?v=20261101-webp-i" rel="stylesheet"/>
+<link href="menu-haut.css?v=1" rel="stylesheet"/>
+<script defer="" src="maintenance.js"></script>
+<link href="tailwind.css?v=20261009" rel="stylesheet"/>
+<style>
+    /* Galerie des membres : photo carrée, pseudo seul ; point rouge = en direct, jaune = connecté */
+    .ev-membres{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+    .ev-membre{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:#2a2a30;box-shadow:0 4px 14px #0003}
+    .ev-membre img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease,filter .35s ease}
+    .ev-membre.est-live{box-shadow:0 0 0 3px #f43f5e,0 0 22px #f43f5e66}
+    .ev-membre.est-absent img{filter:saturate(.7) brightness(.8)}
+    .ev-membre-bas{position:absolute;inset:auto 0 0 0;padding:28px 12px 10px;background:linear-gradient(to top,#000b,#0005 60%,transparent)}
+    .ev-membre-nom{margin:0;display:flex;align-items:center;gap:7px;color:#fff;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #0008}
+    .ev-membre-pseudo{overflow:hidden;text-overflow:ellipsis;min-width:0}
+    .ev-membre-dep{flex:none;margin-left:-3px;font-weight:600;opacity:.85}
+    .ev-point{flex:none;width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 2px #0006}
+    .ev-point-on{background:#ffe500}
+    .ev-point-live{background:#f43f5e;animation:evPoint 1.4s ease-in-out infinite}
+    @keyframes evPoint{0%,100%{box-shadow:0 0 0 2px #0006,0 0 0 0 #f43f5ecc}50%{box-shadow:0 0 0 2px #0006,0 0 0 7px #f43f5e00}}
+    /* Actions au survol (ou au toucher sur téléphone) : Message · Demander la cam · Voir sa caméra */
+    .ev-membre-actions{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px 10px 40px;
+        background:#0008;opacity:0;transition:opacity .2s ease}
+    .ev-membre.a-actions:hover .ev-membre-actions,.ev-membre.a-actions:focus-within .ev-membre-actions{opacity:1}
+    .ev-membre.a-actions:hover img{transform:scale(1.07)}
+    .ev-action{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:150px;padding:7px 10px;border-radius:999px;
+        background:#fff;color:#111113;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 4px 12px #0005;transition:transform .15s ease}
+    .ev-action:hover,.ev-action:focus-visible{transform:scale(1.05)}
+    .ev-action-cam{background:#ffe500;border:0;cursor:pointer;font-family:inherit}
+    .ev-membre{cursor:pointer}
+    @media (hover:none){.ev-membre-actions{opacity:1;background:linear-gradient(to bottom,transparent 30%,#0007);justify-content:flex-end;padding-bottom:42px}}
+    @media (prefers-reduced-motion:reduce){.ev-point-live{animation:none}.ev-membre img,.ev-membre-actions,.ev-action{transition:none}}
+</style>
+<link href="membres.css?v=5" rel="stylesheet"/>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+        <div class="flex items-center lg:w-64 lg:shrink-0">
+            <a class="flex items-center gap-2" href="index.html">
+                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid font-bold text-lg fa-video"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            </a>
+        </div>
+        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium" aria-label="Menu principal">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold" href="membres.html" aria-haspopup="true">Rencontres<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="membres.html"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Rechercher des membres<small>Par ville, profil et envies</small></span></a>
+<a href="membres.html?enligne=1"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i><span>Membres en ligne<small>Connectés en ce moment</small></span></a>
+<a href="visiteurs.html" aria-current="page"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>Qui a vu mon profil<small>Vos visiteurs récents</small></span></a>
+<a href="amis.html"><i class="fa-solid fa-user-group" aria-hidden="true"></i><span>Mes amis<small>Demandes et amis</small></span></a>
+<a href="favoris.html"><i class="fa-solid fa-heart" aria-hidden="true"></i><span>Mes favoris<small>Profils et salons suivis</small></span></a>
+<a href="roulette.html"><i class="fa-solid fa-shuffle" aria-hidden="true"></i><span>Rencontre surprise<small>Chat roulette modéré</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html" aria-haspopup="true">En direct<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="live.html"><i class="fa-solid fa-video" aria-hidden="true"></i><span>Lives en cours<small>Les caméras en direct</small></span></a>
+<a href="programme.html"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i><span>Programme des soirées<small>Les rendez-vous chat</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html" aria-haspopup="true">Salons<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="salons.html"><i class="fa-solid fa-comments" aria-hidden="true"></i><span>Tous les salons<small>Discuter en direct</small></span></a>
+<a href="tchat-regions.html"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i><span>Salons par région<small>Près de chez vous</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="guide.html" aria-haspopup="true">Sorties &amp; lieux<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="guide.html"><i class="fa-solid fa-martini-glass-citrus" aria-hidden="true"></i><span>Clubs, saunas et soirées<small>Le guide par région</small></span></a>
+<a href="etablissements.html"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Établissements<small>Badge vérifié et fiche du guide</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html" aria-haspopup="true">Communauté<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="credits.html"><i class="fa-solid fa-trophy" aria-hidden="true"></i><span>Mes récompenses<small>Badges et points</small></span></a>
+<a href="equipe.html"><i class="fa-solid fa-users" aria-hidden="true"></i><span>L’équipe<small>Qui veille sur le site</small></span></a>
+<a href="guides.html"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Guides et sécurité<small>Bien débuter, rester discret</small></span></a>
+<a href="devenir-moderateur.html"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Devenir modérateur<small>Rejoindre l’équipe</small></span></a>
+<a href="aide.html"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>Centre d’aide<small>Questions fréquentes</small></span></a>
+</div></div>
+</nav>
+        <div class="ml-auto flex items-center gap-3 sm:gap-5">
+            <div class="cam-search relative hidden sm:block w-48 md:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+            </div>
+            <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
+            <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</header>
+<main class="w-full flex-1 p-3 md:p-6">
+<div class="mbr">
+<div class="mbr-tete">
+<div><h1>Qui a vu mon profil</h1><p id="visResume">Les membres qui ont regardé votre profil ces 30 derniers jours.</p></div>
+<label class="mbr-interrupteur" title="Vos visites ne sont plus notées, et vous ne voyez plus vos visiteurs"><input type="checkbox" id="visDiscret"><span></span>Visite discrète</label>
+</div>
+<p class="mbr-note vis-explication">Avec la <b>visite discrète</b>, les profils que vous regardez ne voient pas votre passage. En échange, vous ne voyez plus qui a regardé le vôtre. L’équipe de modération n’apparaît jamais dans cette liste.</p>
+<div class="mbr-liste" id="visListe" aria-live="polite"><p class="mbr-vide">Chargement…</p></div>
+</div>
+</main>
+<script src="departements-data.js?v=2"></script>
+<script src="avatars-masques.js?v=1"></script>
+<script src="pages/visiteurs.js?v=1"></script>
+<script src="radio-widget.js?v=2"></script>
+<script src="radio-widget-floating.js?v=4"></script>
+<script defer="" src="footer.js?v=12"></script>
+<script src="site-search.js" defer></script>
+</body>
+</html>

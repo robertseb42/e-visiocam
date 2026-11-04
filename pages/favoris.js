@@ -1,6 +1,6 @@
 // Extrait de favoris.html (CSP stricte : plus de script inline dans les pages)
 // ============================================================
-// Mes favoris : modèles suivis (alerte email réglable) et salons
+// Mes favoris : membres suivis, modèles suivis (alerte email réglable) et salons
 // ============================================================
 if (!isLoggedIn()) window.location.href = 'login.html?redirect=favoris.html';
 const escF = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -19,6 +19,20 @@ function ligneModele(m) {
         <button type="button" class="ev-fav" data-fav="model:${m.id}" aria-pressed="true" title="Retirer des favoris"><i class="fa-solid fa-heart"></i></button>
     </div>`;
 }
+// Membres suivis : clic sur le nom → mini-fiche (membres-social.js, data-fiche)
+function ligneMembre(m) {
+    const photo = typeof urlAvatar === 'function' ? urlAvatar(m.avatar) : null;
+    const genre = { couple: 'Couple', femme: 'Femme', homme: 'Homme', trans: 'Trans' }[m.genre] || 'Membre';
+    return `<div class="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+        ${photo ? `<img src="${escF(photo)}" alt="" class="w-11 h-11 rounded-full object-cover">` : `<div class="w-11 h-11 rounded-full bg-gradient-to-tr from-brand-primary to-purple-600 text-white flex items-center justify-center font-black">${escF(m.username.charAt(0).toUpperCase())}</div>`}
+        <div class="flex-1 min-w-[160px]">
+            <button type="button" data-fiche="${Number(m.id)}" class="font-bold text-slate-900 hover:underline text-left">${escF(m.username)}${m.certifie ? ' <span class="text-emerald-500" title="Profil certifié">✔</span>' : ''}</button>
+            <p class="text-xs text-slate-500">${m.online ? '🟢 En ligne · ' : ''}${escF(genre)}${m.departement ? ' · ' + escF(m.departement) : ''}</p>
+        </div>
+        <a href="messages.html?ecrire=${Number(m.id)}" class="px-4 py-2 bg-brand-primary hover:bg-brand-hover text-white text-xs font-bold rounded-xl">Écrire</a>
+        <button type="button" class="ev-fav" data-fav="membre:${Number(m.id)}" aria-pressed="true" title="Retirer des favoris"><i class="fa-solid fa-heart"></i></button>
+    </div>`;
+}
 function ligneSalon(s) {
     return `<div class="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
         <div class="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center text-2xl">${escF(s.icon)}</div>
@@ -33,6 +47,10 @@ function ligneSalon(s) {
 async function chargerFavoris() {
     try {
         const d = await apiCall('/favorites');
+        document.getElementById('favMembres').innerHTML = (d.membres || []).length ? d.membres.map(ligneMembre).join('')
+            : '<p class="text-sm text-slate-500 py-6 text-center">Aucun membre suivi. Ouvrez une fiche depuis la page <a href="membres.html" class="text-brand-primary font-bold underline">Membres</a> et touchez « Ajouter aux favoris ».</p>';
+        // Membres et modèles ne font plus qu'un : la section « Modèles suivis » n'apparaît que si elle n'est pas vide
+        document.getElementById('favModels').closest('section').hidden = !(d.models || []).length;
         document.getElementById('favModels').innerHTML = (d.models || []).length ? d.models.map(ligneModele).join('')
             : '<p class="text-sm text-slate-500 py-6 text-center">Aucun modèle suivi. Touchez le ❤️ sur la page <a href="modeles.html" class="text-brand-primary font-bold underline">Modèles</a>.</p>';
         document.getElementById('favSalons').innerHTML = (d.salons || []).length ? d.salons.map(ligneSalon).join('')

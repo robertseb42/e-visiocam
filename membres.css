@@ -76,3 +76,5 @@ html[data-theme="light"] .mbr{--m-fond:#f1f5f9;--m-panneau:#fff;--m-bord:#e2e8f0
 .mbr-libre.est-libre .mbr-libre-txt span{color:var(--m-texte)}
 .mbr-cache{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .mbr-certif{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:4px;border-radius:50%;background:#10b981;color:#fff;font-style:normal;font-size:10px;vertical-align:2px}
+.vis-explication{margin:-6px 0 16px;max-width:80ch}
+.mbr-tete .mbr-interrupteur{margin-top:0}

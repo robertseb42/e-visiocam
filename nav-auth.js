@@ -116,6 +116,12 @@
                             </div>
                             <span data-nav-amis-badge title="Demandes d’ami reçues" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
                         </a>
+                        <a href="visiteurs.html" class="flex items-center justify-between gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-eye w-4" style="color:#f59e0b"></i> Qui a vu mon profil
+                            </div>
+                            <span data-nav-visites-badge title="Nouvelles visites" class="hidden bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+                        </a>
                         <a href="favoris.html" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg">
                             <i class="fa-solid fa-heart w-4" style="color:#ff1680"></i> Mes favoris
                         </a>
@@ -417,6 +423,20 @@
         document.addEventListener('visibilitychange', function () { if (!document.hidden) poulsAmis(); });
     }
     window.EvcAmis = { badge: majBadgeAmis, actualiser: poulsAmis };
+    // « Qui a vu mon profil » : pastille du menu du compte (nouvelles visites)
+    var visitesN = 0;
+    function majBadgeVisites() {
+        document.querySelectorAll('[data-nav-visites-badge]').forEach(function (el) { el.textContent = visitesN > 99 ? '99+' : visitesN; el.classList.toggle('hidden', !visitesN || /visiteurs\.html$/.test(location.pathname)); });
+    }
+    var visitesAt = 0;
+    async function poulsVisites() {
+        if (document.hidden || typeof apiCall !== 'function' || typeof isLoggedIn !== 'function' || !isLoggedIn()) return;
+        if (Date.now() - visitesAt < 60000) { majBadgeVisites(); return; }
+        visitesAt = Date.now();
+        try { var r = await apiCall('/models/visiteurs/compte'); visitesN = (r && r.nouveaux) || 0; } catch (e) {}
+        majBadgeVisites();
+    }
+    window.EvcVisites = { actualiser: poulsVisites };
 
     let unreadSocket = null;
     let pollingInterval = null;
@@ -471,6 +491,7 @@
             }
         }
         demarrerAmis();
+        poulsVisites();
 
         if (pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(refreshUnreadCount, 30000);
