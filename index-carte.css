@@ -63,3 +63,16 @@ html[data-theme="light"] .evc-map::after{box-shadow:inset 0 0 40px 4px #0000001f
 html[data-theme="light"] .sb-soiree{border-color:#e2e8f0;background:#f8fafc}
 html[data-theme="light"] .sb-soiree-txt small{color:#e91e63}
 html:not([data-theme="light"]) .sb-soirees{background:var(--cam-panel,#1c1c20);border:1px solid var(--cam-border,#2f2f36);border-radius:16px;color:#f5f5f7}
+/* Soirées des clubs : diaporama d'affiches plein cadre */
+.sb-diapo{position:relative;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:#000}
+.sb-diapo-vue{position:absolute;inset:0;opacity:0;transition:opacity .8s ease;color:#fff;text-decoration:none;pointer-events:none}
+.sb-diapo-vue.actif{opacity:1;pointer-events:auto}
+.sb-diapo-vue img{width:100%;height:100%;object-fit:cover;display:block}
+.sb-diapo-info{position:absolute;left:0;right:0;bottom:0;padding:28px 12px 22px;background:linear-gradient(transparent,rgba(0,0,0,.85));display:flex;flex-direction:column;line-height:1.3}
+.sb-diapo-info small{font-size:11px;font-weight:800;color:#ffe500;text-transform:uppercase;letter-spacing:.03em}
+.sb-diapo-info span{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-diapo-vue:focus-visible{outline:2px solid #ff1680;outline-offset:-2px}
+.sb-diapo-points{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:5px;pointer-events:none}
+.sb-diapo-points i{width:6px;height:6px;border-radius:50%;background:#ffffff55;transition:background .3s,width .3s}
+.sb-diapo-points i.actif{background:#ff1680;width:14px;border-radius:3px}
+@media(prefers-reduced-motion:reduce){.sb-diapo-vue{transition:none}}

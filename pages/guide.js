@@ -382,15 +382,15 @@
         var i = e.target.closest('[data-photo-lieu]'); if (!i || !i.files[0]) return;
         try {
             var d = await reduireImage(i.files[0]);
-            await api('/lieux/' + i.getAttribute('data-photo-lieu') + '/photo', { method: 'PUT', body: JSON.stringify({ photo: d }) });
-            toast('Photo enregistrée.', 'success'); chargerFiche();
+            var r = await api('/lieux/' + i.getAttribute('data-photo-lieu') + '/photo', { method: 'PUT', body: JSON.stringify({ photo: d }) });
+            toast('Photo enregistrée.', 'success'); apresPhoto(i.getAttribute('data-photo-lieu'), (r && r.photo) || d);
         } catch (x) { toast(x.message, 'error'); }
         i.value = '';
     });
     document.addEventListener('click', async function (e) {
         var b = e.target.closest('[data-photo-retirer]'); if (!b) return;
         if (!confirm('Retirer la photo de ce lieu ?')) return;
-        try { await api('/lieux/' + b.getAttribute('data-photo-retirer') + '/photo', { method: 'PUT', body: JSON.stringify({ photo: null }) }); toast('Photo retirée.', 'success'); chargerFiche(); }
+        try { await api('/lieux/' + b.getAttribute('data-photo-retirer') + '/photo', { method: 'PUT', body: JSON.stringify({ photo: null }) }); toast('Photo retirée.', 'success'); apresPhoto(b.getAttribute('data-photo-retirer'), null); }
         catch (x) { toast(x.message, 'error'); }
     });
     document.addEventListener('click', async function (e) {
@@ -513,10 +513,33 @@
         document.head.appendChild(sc);
     }
 
+    // Photo du lieu dans la fenêtre « Modifier » (équipe, fiche existante uniquement)
+    function photoDansForm(f, l) {
+        var z = f.querySelector('.gl-photo-form');
+        if (!z) {
+            z = document.createElement('div'); z.className = 'gl-champ gl-photo-form';
+            var ref = f.prixDes && f.prixDes.closest('label');
+            if (ref) ref.insertAdjacentElement('afterend', z); else f.querySelector('[type=submit]').insertAdjacentElement('beforebegin', z);
+        }
+        z.hidden = !(l && equipe());
+        if (z.hidden) { z.innerHTML = ''; return; }
+        z.innerHTML = '<span>Photo du lieu</span><div class="gl-photo-form-ligne">' +
+            (l.photo ? '<img src="' + esc(/^data:/.test(l.photo) ? l.photo : urlApi(l.photo)) + '" alt="">' : '<div class="gl-photo-form-vide"><i class="fa-regular fa-image" aria-hidden="true"></i></div>') +
+            '<div><label class="gl-btn">' + (l.photo ? 'Changer la photo' : 'Ajouter une photo') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-photo-lieu="' + l.id + '"></label>' +
+            (l.photo ? ' <button type="button" class="gl-btn gl-btn-rouge" data-photo-retirer="' + l.id + '">Retirer</button>' : '') +
+            '<small>Enregistrée tout de suite (pas besoin de cliquer sur « Enregistrer »). Créditée à l\'établissement, qui peut demander son retrait.</small></div></div>';
+    }
+    function apresPhoto(id, photo) {
+        var l = (surFiche ? lieuCourant : (typeof LIEUX_EQ !== 'undefined' && LIEUX_EQ[id])) || null;
+        if (l) { l.photo = photo; var f = $('glFormLieu'); if (f && f.dataset.id == id) photoDansForm(f, l); }
+        if (surFiche) chargerFiche(); else if ($('glEquipe')) chargerEquipe(); else charger();
+    }
+
     // ---- Formulaire lieu : proposer (POST) ou modifier (PUT, équipe) ----
     function ouvrirFormLieu(l) {
         var f = $('glFormLieu'); if (!f) return;
         f.reset();
+        if (!l) photoDansForm(f, null);
         f.dataset.id = l ? l.id : '';
         $('glTitreLieu').textContent = l ? 'Modifier « ' + l.nom + ' »' : 'Proposer un lieu';
         f.querySelector('[type=submit]').textContent = l ? 'Enregistrer' : (equipe() ? 'Publier' : 'Envoyer à la modération');
@@ -525,6 +548,7 @@
         if (l) {
             ['nom', 'type', 'ville', 'adresse', 'telephone', 'email', 'equipements', 'tenue', 'site', 'description', 'tarifs'].forEach(function (k) { if (f[k]) f[k].value = l[k] || ''; });
             if (f.prixDes) f.prixDes.value = l.prixDes != null ? l.prixDes : '';
+            photoDansForm(f, l);
             if (f.precisionPublic) f.precisionPublic.value = l.precisionPublic || '';
             f.querySelectorAll('input[name=publics]').forEach(function (c) { c.checked = (l.publics || []).indexOf(c.value) >= 0; });
             f.querySelectorAll('input[name=types]').forEach(function (c) { c.checked = c.value !== l.type && (l.types || []).indexOf(c.value) >= 0; });

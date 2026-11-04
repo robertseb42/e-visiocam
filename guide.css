@@ -460,3 +460,8 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-photo-credit a{color:inherit;text-decoration:underline}
 .gl-photo-equipe{margin:0 0 12px;font-size:13px}
 .gl-photo-equipe small{color:var(--g-muted)}
+.gl-photo-form-ligne{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.gl-photo-form-ligne img,.gl-photo-form-vide{width:120px;height:80px;border-radius:10px;object-fit:cover;flex:none}
+.gl-photo-form-vide{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:var(--g-muted);font-size:24px}
+.gl-photo-form-ligne small{display:block;margin-top:6px;color:var(--g-muted);font-size:12px}
+.gl-photo-form-ligne .gl-btn{cursor:pointer}
