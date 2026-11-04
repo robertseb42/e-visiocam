@@ -14,7 +14,7 @@
     var OPT = { tendances: {}, interets: {} };
     var GENRES = { couple: 'Couple', femme: 'Femme', homme: 'Homme', trans: 'Trans', autre: 'Membre', '': 'Membre' };
     var COUPLES = { hf: 'Couple', ff: 'Couple de femmes', hh: 'Couple d\'hommes' };
-    var filtres = { cherche: ['couples', 'femmes', 'hommes', 'trans'], correspond: false, ou: '50', photo: false, enligne: false, interet: '', tri: 'recents', q: '' };
+    var filtres = { cherche: ['couples', 'femmes', 'hommes', 'trans'], correspond: false, ou: '50', photo: false, enligne: false, interet: '', tri: 'recents', q: '', dispo: '' };
     var page = 1, attente = null, demande = 0, maVille = null;
     var RAYONS = ['10', '25', '50', '100', '200'];
 
@@ -40,7 +40,7 @@
         });
     }
     function majControles() {
-        presse('mbrCherche', 'cherche', true); presse('mbrTri', 'tri');
+        presse('mbrCherche', 'cherche', true); presse('mbrTri', 'tri'); presse('mbrDispo', 'dispo');
         $('mbrOu').value = filtres.ou;
         $('mbrCorrespond').checked = filtres.correspond; $('mbrPhoto').checked = filtres.photo; $('mbrEnLigne').checked = filtres.enligne;
         $('mbrInteret').value = filtres.interet;
@@ -60,7 +60,8 @@
         var dep = m.departement ? ((window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[m.departement]) || '') : '';
         return '<button type="button" class="mbr-carte" data-fiche="' + Number(m.id) + '" title="Voir le profil de ' + esc(m.username) + '">' +
             '<span class="mbr-visuel">' + (photo ? '<img src="' + esc(photo) + '" alt="" loading="lazy">' : (typeof evcMasque === 'function' ? evcMasque(m.genre, m.id) : '')) +
-            (m.online ? '<span class="mbr-enligne" title="En ligne"></span>' : '') + (m.correspond ? '<span class="mbr-match">Vous recherche</span>' : '') + (m.distance ? '<span class="mbr-km">' + (m.distance <= 5 ? '− de 5 km' : '≈ ' + m.distance + ' km') + '</span>' : '') + '</span>' +
+            (m.online ? '<span class="mbr-enligne" title="En ligne"></span>' : '') + (m.correspond ? '<span class="mbr-match">Vous recherche</span>' : '') + (m.dispo ? '<span class="mbr-dispo">' + (m.dispo.type === 'soir' ? '🌙 Libre ce soir' : '📅 Libre ce week-end') + '</span>' : '') +
+            (m.distance ? '<span class="mbr-km">' + (m.distance <= 5 ? '− de 5 km' : '≈ ' + m.distance + ' km') + '</span>' : '') + '</span>' +
             '<span class="mbr-corps"><b>' + esc(m.username) + '</b><span>' + esc(libelle(m)) + '</span>' +
             '<small>' + [(m.ages || []).length ? m.ages.join('/') + ' ans' : '', m.ville ? esc(m.ville) + (m.departement ? ' (' + esc(m.departement) + ')' : '') : (m.departement ? esc(m.departement) + (dep ? ' · ' + esc(dep) : '') : '')].filter(Boolean).join(' · ') + '</small>' +
             ((m.interets || []).length ? '<span class="mbr-tags">' + m.interets.slice(0, 3).map(function (k) { return '<i>' + esc(OPT.interets[k] || k) + '</i>'; }).join('') + '</span>' : '') +
@@ -74,6 +75,7 @@
         if (RAYONS.indexOf(filtres.ou) >= 0) p.set('rayon', filtres.ou);
         if (dep && filtres.ou === 'dep') p.set('dep', dep);
         if (dep && filtres.ou === 'region' && window.evcRegionDe) { var r = window.evcRegionDe(dep); if (r) p.set('region', r.slug); }
+        if (filtres.dispo) p.set('dispo', filtres.dispo);
         if (filtres.photo) p.set('photo', '1');
         if (filtres.enligne) p.set('enligne', '1');
         if (filtres.interet) p.set('interet', filtres.interet);
@@ -108,7 +110,7 @@
         changer();
     });
     $('mbrOu').addEventListener('change', function () { filtres.ou = this.value; changer(); });
-    [['mbrTri', 'tri']].forEach(function (z) {
+    [['mbrTri', 'tri'], ['mbrDispo', 'dispo']].forEach(function (z) {
         $(z[0]).addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filtres[z[1]] = b.getAttribute('data-v'); changer(); });
     });
     [['mbrCorrespond', 'correspond'], ['mbrPhoto', 'photo'], ['mbrEnLigne', 'enligne']].forEach(function (c) {
@@ -118,8 +120,45 @@
     $('mbrQ').addEventListener('input', function () { var v = this.value.trim(); clearTimeout(attente); attente = setTimeout(function () { filtres.q = v; charger(false); }, 300); });
     $('mbrPlus').addEventListener('click', function () { page++; charger(true); });
 
+    // ---------- Ma disponibilité : « Libre ce soir / ce week-end » ----------
+    var maDispo = null;
+    function heureFin(iso) {
+        var d = new Date(iso); if (isNaN(d)) return '';
+        var jours = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        var demain = new Date(); demain.setDate(demain.getDate() + 1);
+        var jour = d.toDateString() === new Date().toDateString() ? 'aujourd’hui' : d.toDateString() === demain.toDateString() ? 'demain' : jours[d.getDay()];
+        return jour + ' ' + d.getHours() + ' h';
+    }
+    function majDispo() {
+        var bloc = $('mbrLibre'), type = maDispo ? maDispo.type : '';
+        bloc.hidden = false;
+        bloc.classList.toggle('est-libre', !!maDispo);
+        $('mbrMaDispo').querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === type)); });
+        $('mbrEnvie').value = maDispo ? (maDispo.envie || '') : $('mbrEnvie').value;
+        $('mbrLibreEtat').textContent = maDispo
+            ? (type === 'soir' ? 'Vous êtes affiché libre ce soir' : 'Vous êtes affiché libre ce week-end') + ', jusqu’à ' + heureFin(maDispo.fin) + '. Le badge s’effacera tout seul.'
+            : 'Signalez-le : votre carte affichera un badge et vous apparaîtrez dans « Disponibles ».';
+    }
+    function envoyerDispo(type) {
+        fetch(API_URL + '/models/ma-dispo', { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: type, envie: $('mbrEnvie').value }) })
+            .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+            .then(function (d) {
+                maDispo = d.dispo; majDispo();
+                if (typeof showToast === 'function') showToast(maDispo ? 'C’est noté, vous êtes affiché disponible' : 'Vous n’êtes plus affiché disponible', 'success');
+            })
+            .catch(function () { if (typeof showToast === 'function') showToast('Impossible d’enregistrer pour le moment', 'error'); });
+    }
+    $('mbrMaDispo').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) envoyerDispo(b.getAttribute('data-v')); });
+    $('mbrEnvie').addEventListener('change', function () { if (maDispo) envoyerDispo(maDispo.type); });
+    fetch(API_URL + '/users/me', { credentials: 'include' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        if (!d || !d.user) return;
+        maDispo = d.user.dispo || null; majDispo();
+    }).catch(function () {});
+
     fetch(API_URL + '/models/profil-options').then(function (r) { return r.json(); }).then(function (d) {
         OPT = d;
+        $('mbrEnvie').insertAdjacentHTML('beforeend', Object.keys(d.envies || {}).map(function (k) { return '<option value="' + k + '">' + esc(d.envies[k]) + '</option>'; }).join(''));
+        if (maDispo) $('mbrEnvie').value = maDispo.envie || '';
         $('mbrInteret').insertAdjacentHTML('beforeend', Object.keys(d.interets).map(function (k) { return '<option value="' + k + '">' + esc(d.interets[k]) + '</option>'; }).join(''));
         majControles(); charger(false);
     }).catch(function () { majControles(); charger(false); });

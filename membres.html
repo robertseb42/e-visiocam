@@ -67,7 +67,7 @@
     @media (hover:none){.ev-membre-actions{opacity:1;background:linear-gradient(to bottom,transparent 30%,#0007);justify-content:flex-end;padding-bottom:42px}}
     @media (prefers-reduced-motion:reduce){.ev-point-live{animation:none}.ev-membre img,.ev-membre-actions,.ev-action{transition:none}}
 </style>
-<link href="membres.css?v=2" rel="stylesheet"/>
+<link href="membres.css?v=3" rel="stylesheet"/>
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
 <header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
@@ -162,6 +162,13 @@
 </select></label>
 <p class="mbr-note" id="mbrOuNote" hidden><a href="compte.html">Indiquez votre ville</a> dans Mon compte pour chercher près de chez vous.</p>
 </div>
+<div class="mbr-groupe"><h2>Disponibles</h2>
+<div class="mbr-segments" id="mbrDispo">
+<button type="button" data-v="" aria-pressed="true">Tous</button>
+<button type="button" data-v="soir" aria-pressed="false">Ce soir</button>
+<button type="button" data-v="weekend" aria-pressed="false">Week-end</button>
+</div>
+</div>
 <div class="mbr-groupe"><h2>Afficher seulement</h2>
 <div class="mbr-puces">
 <label><input type="checkbox" id="mbrPhoto"> Avec photo</label>
@@ -178,8 +185,19 @@
 </div>
 <label class="mbr-champ mbr-pseudo" for="mbrQ"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" id="mbrQ" placeholder="Pseudo…" autocomplete="off" maxlength="30"></label>
 </aside>
-<section class="mbr-resultats" aria-live="polite">
-<div class="mbr-liste" id="mbrListe"></div>
+<section class="mbr-resultats">
+<div class="mbr-libre" id="mbrLibre" hidden>
+<div class="mbr-libre-txt"><i class="fa-solid fa-moon" aria-hidden="true"></i><div><b>Vous êtes libre ?</b><span id="mbrLibreEtat">Signalez-le : votre carte affichera un badge et vous apparaîtrez dans « Disponibles ».</span></div></div>
+<div class="mbr-libre-choix">
+<div class="mbr-segments" id="mbrMaDispo" role="group" aria-label="Ma disponibilité">
+<button type="button" data-v="soir" aria-pressed="false">Ce soir</button>
+<button type="button" data-v="weekend" aria-pressed="false">Week-end</button>
+<button type="button" data-v="" aria-pressed="true">Pas dispo</button>
+</div>
+<label class="mbr-champ"><span class="mbr-cache">Envie de</span><select id="mbrEnvie"><option value="">Envie de… (facultatif)</option></select></label>
+</div>
+</div>
+<div class="mbr-liste" id="mbrListe" aria-live="polite"></div>
 <div class="mbr-plus"><button type="button" id="mbrPlus" hidden>Voir plus de membres</button></div>
 </section>
 </div>
@@ -187,7 +205,7 @@
 </main>
 <script src="departements-data.js?v=2"></script>
 <script src="avatars-masques.js?v=1"></script>
-<script src="pages/membres.js?v=3"></script>
+<script src="pages/membres.js?v=4"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=4"></script>
 <script defer="" src="footer.js?v=12"></script>

@@ -168,6 +168,8 @@
         if (depuis) lignes.push('Membre depuis ' + depuis);
         if (m.ville) lignes.push('📍 ' + m.ville + (m.departement ? ' (' + m.departement + ')' : ''));
         else if (m.departement) lignes.push('📍 ' + m.departement + (window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[m.departement] ? ' · ' + window.EVC_DEPARTEMENTS[m.departement] : ''));
+        // « Libre ce soir / ce week-end »
+        if (m.dispo) lignes.push((m.dispo.type === 'soir' ? '🌙 Libre ce soir' : '📅 Libre ce week-end') + (m.dispo.envie ? ' (' + ({ sortir: 'envie de sortir', recevoir: 'peut recevoir', rencontrer: 'envie de se rencontrer', cam: 'envie de cam' })[m.dispo.envie] + ')' : ''));
         // Distance approximative entre nos deux villes (par tranches de 5 km)
         if (m.distance) lignes.push('🚗 ' + (m.distance <= 5 ? 'À moins de 5 km' : 'À environ ' + m.distance + ' km'));
         // 🏡 Même département ou même région que moi (departements-data.js) : « près de chez vous »

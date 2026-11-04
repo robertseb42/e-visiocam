@@ -108,7 +108,7 @@
         }
         if (!document.querySelector('script[src*="membres-social.js"]')) {
             var ms = document.createElement('script');
-            ms.src = 'membres-social.js?v=9';
+            ms.src = 'membres-social.js?v=10';
             document.body.appendChild(ms);
         }
 

@@ -26,7 +26,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
 <link href="menu-haut.css?v=1" rel="stylesheet"/>
-    <link rel="stylesheet" href="guide.css?v=26">
+    <link rel="stylesheet" href="guide.css?v=27">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
     <link rel="stylesheet" href="espace.css?v=4">
@@ -141,11 +141,25 @@
                 <button type="button" class="gl-btn" data-lot="publier">Publier</button>
                 <button type="button" class="gl-btn" data-lot="verifier"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Marquer vérifiées</button>
                 <button type="button" class="gl-btn" data-lot="retirer">Retirer du guide</button>
-                <button type="button" class="gl-btn gl-btn-rouge" data-lot="supprimer" id="glEqSuppr">Supprimer définitivement</button>
+                <button type="button" class="gl-btn gl-btn-rouge" data-lot="exclure"><i class="fa-solid fa-ban" aria-hidden="true"></i> Exclure du guide</button>
+                <button type="button" class="gl-lien-btn gl-gris" data-lot="supprimer" id="glEqSuppr" title="Pour un doublon ou une erreur de saisie : la fiche pourra être reproposée">Supprimer (doublon, erreur)</button>
                 <button type="button" class="gl-lien-btn gl-gris" data-lot="aucun">Tout désélectionner</button>
+            </div>
+            <div id="glEqExclure" class="gl-eq-exclure" hidden>
+                <p class="gl-aide"><b>Exclure</b> supprime la fiche et tout ce qui s'y rattache (avis, soirées, photos), puis bloque l'établissement : il ne pourra plus être proposé par un membre ni importé (même nom, même téléphone ou même site).</p>
+                <label class="gl-champ"><span>Raison de l'exclusion *</span><input id="glEqRaison" maxlength="300" placeholder="Ex. : demande de l'établissement par e-mail du 4 novembre 2026"></label>
+                <div class="gl-mod-actions">
+                    <button type="button" class="gl-btn gl-btn-rouge" data-lot="exclure-ok">Confirmer l'exclusion</button>
+                    <button type="button" class="gl-lien-btn gl-gris" data-lot="exclure-annuler">Annuler</button>
+                </div>
             </div>
         </div>
         <div id="glEqListe" class="gl-liste"><p class="gl-vide">Chargement…</p></div>
+    </section>
+
+    <section class="gl-liste-bloc gl-eq-bloc" aria-labelledby="glExTitre">
+        <div class="gl-liste-tete"><h2 id="glExTitre">Établissements exclus</h2><small class="gl-gris">À leur demande : impossible de les proposer ou de les importer</small></div>
+        <div id="glExclus" class="gl-liste"><p class="gl-vide">Chargement…</p></div>
     </section>
 </main>
 
@@ -218,7 +232,7 @@
         <div class="gl-fenetre-pied"><button type="submit" class="gl-btn gl-btn-jaune">Envoyer</button></div>
     </form>
 </div>
-<script src="pages/guide.js?v=43"></script>
+<script src="pages/guide.js?v=44"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=4"></script>
 <script src="footer.js?v=12" defer></script>

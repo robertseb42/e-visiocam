@@ -1119,11 +1119,32 @@
             majLot();
         } catch (x) { z.innerHTML = '<p class="gl-vide">' + esc(x.message) + '</p>'; }
     }
+    // Établissements exclus (à leur demande) : raison, date, et possibilité de lever l'exclusion
+    async function chargerExclus() {
+        var z = $('glExclus'); if (!z) return;
+        try {
+            var d = await api('/equipe/exclus');
+            z.innerHTML = d.exclus.length ? d.exclus.map(function (e) {
+                return '<article class="gl-eq-lieu"><div class="gl-eq-txt"><b>' + esc(e.nom) + (e.ville ? ' <span class="gl-gris">· ' + esc(e.ville) + '</span>' : '') + '</b>' +
+                    '<small>Exclu le ' + esc(dateFr(e.date)) + (e.par ? ' par ' + esc(e.par) : '') + ' · Raison : ' + esc(e.raison) + (e.site ? ' · ' + esc(e.site) : '') + '</small></div>' +
+                    '<div class="gl-mod-actions"><button type="button" class="gl-btn" data-lever-exclu="' + Number(e.id) + '">Lever l’exclusion</button></div></article>';
+            }).join('') : '<p class="gl-vide">Aucun établissement exclu.</p>';
+        } catch (x) { z.innerHTML = '<p class="gl-vide">' + esc(x.message) + '</p>'; }
+    }
+    var leverConfirme = {};
+    document.addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-lever-exclu]'); if (!b) return;
+        var id = b.getAttribute('data-lever-exclu');
+        if (!leverConfirme[id]) { leverConfirme[id] = 1; b.textContent = 'Confirmer : il pourra de nouveau être proposé'; return; }
+        try { await api('/equipe/exclus/' + id, { method: 'DELETE' }); toast('Exclusion levée', 'success'); chargerExclus(); }
+        catch (x) { toast(x.message, 'error'); }
+    });
+    if ($('glExclus')) chargerExclus();
     var listeEq = [], confirmerSuppr = false;
     function majLot() {
         var n = Object.keys(choisis).length, b = $('glEqLot'); if (!b) return;
         b.hidden = !n; $('glEqLotNb').textContent = n + ' lieu(x) sélectionné(s)';
-        confirmerSuppr = false; $('glEqSuppr').textContent = 'Supprimer définitivement';
+        confirmerSuppr = false; $('glEqSuppr').textContent = 'Supprimer (doublon, erreur)'; if ($('glEqExclure') && !n) $('glEqExclure').hidden = true;
         var tout = $('glEqTout'); if (tout) tout.checked = listeEq.length > 0 && listeEq.every(function (id) { return choisis[id]; });
     }
     document.addEventListener('change', function (e) {
@@ -1140,11 +1161,20 @@
         var action = b.getAttribute('data-lot'), ids = Object.keys(choisis).map(Number);
         if (!ids.length) return;
         if (action === 'supprimer' && !confirmerSuppr) { confirmerSuppr = true; b.textContent = 'Confirmer : supprimer ' + ids.length + ' lieu(x) et leurs avis'; return; }
+        if (action === 'exclure') { $('glEqExclure').hidden = false; $('glEqRaison').focus(); return; }
+        if (action === 'exclure-annuler') { $('glEqExclure').hidden = true; return; }
+        var raison = '';
+        if (action === 'exclure-ok') {
+            raison = $('glEqRaison').value.trim();
+            if (raison.length < 5) { toast('Indiquez la raison de l’exclusion', 'error'); $('glEqRaison').focus(); return; }
+            action = 'exclure';
+        }
         if (action === 'aucun') { choisis = {}; document.querySelectorAll('[data-choix]').forEach(function (x) { x.checked = false; }); majLot(); return; }
         b.disabled = true;
         try {
-            var r = await api('/equipe/lieux/action', { method: 'POST', body: JSON.stringify({ ids: ids, action: action }) });
-            toast(r.n + ' lieu(x) ' + ({ publier: 'publié(s)', retirer: 'retiré(s) du guide', supprimer: 'supprimé(s)', verifier: 'marqué(s) comme vérifié(s)' })[action], 'success');
+            var r = await api('/equipe/lieux/action', { method: 'POST', body: JSON.stringify({ ids: ids, action: action, raison: raison }) });
+            toast(r.n + ' lieu(x) ' + ({ publier: 'publié(s)', retirer: 'retiré(s) du guide', supprimer: 'supprimé(s)', verifier: 'marqué(s) comme vérifié(s)', exclure: 'exclu(s) du guide' })[action], 'success');
+            if (action === 'exclure') { $('glEqExclure').hidden = true; $('glEqRaison').value = ''; chargerExclus(); }
             choisis = {}; chargerEquipe(); chargerModeration();
         } catch (x) { toast(x.message, 'error'); }
         b.disabled = false;
@@ -1233,16 +1263,16 @@
         document.addEventListener('click', async function (e) {
             var b = e.target.closest('#glImpGo'); if (!b) return;
             b.disabled = true; b.textContent = 'Import en cours…';
-            var total = { ajoutes: 0, completes: 0, doublons: 0, fermes: 0, erreurs: [] };
+            var total = { ajoutes: 0, completes: 0, doublons: 0, fermes: 0, exclus: 0, erreurs: [] };
             try {
                 for (var i = 0; i < importEnAttente.length; i += 100) {
                     var r = await api('/equipe/import', { method: 'POST', body: JSON.stringify({ lignes: importEnAttente.slice(i, i + 100) }) });
-                    ['ajoutes', 'completes', 'doublons', 'fermes'].forEach(function (k) { total[k] += r[k] || 0; });
+                    ['ajoutes', 'completes', 'doublons', 'fermes', 'exclus'].forEach(function (k) { total[k] += r[k] || 0; });
                     total.erreurs = total.erreurs.concat((r.erreurs || []).map(function (m) { return m.replace(/Ligne (\d+)/, function (x, n) { return 'Ligne ' + (+n + i); }); }));
                 }
                 $('glImpApercu').innerHTML = '<div class="gl-imp-bilan"><p><b>Import terminé.</b></p><ul>' +
                     '<li>' + total.ajoutes + ' établissement(s) ajouté(s)</li><li>' + total.completes + ' fiche(s) existante(s) complétée(s)</li>' +
-                    '<li>' + total.doublons + ' doublon(s) déjà à jour</li><li>' + total.fermes + ' établissement(s) fermé(s) ignoré(s)</li></ul>' +
+                    '<li>' + total.doublons + ' doublon(s) déjà à jour</li><li>' + total.fermes + ' établissement(s) fermé(s) ignoré(s)</li>' + (total.exclus ? '<li>' + total.exclus + ' établissement(s) exclu(s) à leur demande, ignoré(s)</li>' : '') + '</ul>' +
                     (total.erreurs.length ? '<p class="gl-erreur">' + total.erreurs.length + ' ligne(s) non importée(s) :<br>' + total.erreurs.slice(0, 20).map(esc).join('<br>') + '</p>' : '') +
                     '<p class="gl-aide">Les lieux « actifs confirmés » sont publiés et placés sur la carte dans les minutes qui suivent. Les autres attendent dans « Tous les lieux » (statut « En attente ») : vérifiez-les puis cliquez sur Publier.</p></div>';
                 importEnAttente = [];
