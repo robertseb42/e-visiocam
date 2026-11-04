@@ -213,6 +213,17 @@
         if (aujourdhui.length) return '<p class="gl-statut"><i class="fa-regular fa-clock" aria-hidden="true"></i> Aujourd\'hui : ' + aujourdhui.map(function (c) { return heureFr(c.debut) + (c.fin ? '–' + heureFr(c.fin) : '') + (c.espace ? ' ' + esc(c.espace.toLowerCase()) : ''); }).join(', ') + '</p>';
         return '<p class="gl-statut gl-statut-ferme"><i class="fa-regular fa-clock" aria-hidden="true"></i> Fermé aujourd\'hui</p>';
     }
+    // Love room : formules et tarifs, équipements en pastilles, bouton de réservation (pas d'horaires d'ouverture)
+    function loveRoomHTML(l) {
+        var eq = String(l.equipements || '').split(/\s*[,;\/·|]\s*|\s+et\s+/).map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 16);
+        var tel = l.telephone ? '<a class="gl-btn" href="tel:' + esc(l.telephone.replace(/[^0-9+]/g, '')) + '"><i class="fa-solid fa-phone" aria-hidden="true"></i> ' + esc(l.telephone) + '</a>' : '';
+        var resa = l.site ? '<a class="gl-btn gl-btn-jaune" href="' + esc(l.site) + '" target="_blank" rel="noopener nofollow"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i> Réserver sur le site officiel</a>' : '';
+        return '<section class="gl-lr" aria-labelledby="glLrTitre"><h2 id="glLrTitre"><i class="fa-solid fa-heart" aria-hidden="true"></i> Formules et réservation</h2>' +
+            (l.prixDes != null ? '<p class="gl-lr-prix">À partir de <b>' + l.prixDes + ' €</b></p>' : '') +
+            (l.tarifs ? texteRepliable(l.tarifs, 'gl-lr-tarifs', 500) : '<p class="gl-vide-plan">Formules et tarifs à compléter.</p>') +
+            (eq.length ? '<h3>Équipements</h3><ul class="gl-lr-equip">' + eq.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+            ((resa || tel) ? '<div class="gl-lr-actions">' + resa + tel + '</div>' : '') + '</section>';
+    }
     function planningHTML(l) {
         var pl = l.planning || [];
         if (!pl.length) return '';
@@ -239,6 +250,11 @@
     }
 
     // Boutons « Y aller » : ouvrent le GPS du téléphone (Google Maps, Waze, Plans d'Apple) sur l'adresse du lieu
+    // Lien vers la fiche Google Maps du lieu (note et avis Google à jour, sans copie ni clé d'API)
+    function avisGoogle(l) {
+        var q = [l.nom, l.adresse || l.ville].filter(Boolean).join(' ');
+        return '<a class="gl-avis-google" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q) + '" target="_blank" rel="noopener nofollow"><i class="fa-brands fa-google" aria-hidden="true"></i> Voir les avis Google <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>';
+    }
     function itineraire(l) {
         var pos = l.lat != null ? l.lat + ',' + l.lng : '';
         var adr = [l.adresse, l.ville].filter(Boolean).join(', ');
@@ -610,6 +626,23 @@
         if (surFiche) chargerFiche(); else if ($('glEquipe')) chargerEquipe(); else charger();
     }
 
+    // Le formulaire s'adapte au type : une love room n'a ni horaires d'ouverture, ni public, ni tenue,
+    // mais des formules (nuit, journée…) et des équipements (jacuzzi, sauna…)
+    function adapterFormType(f) {
+        if (!f || !f.type) return;
+        var lr = f.type.value === 'loveroom';
+        var cacher = function (el, oui) { if (el) el.hidden = oui; };
+        var bloc = function (nom) { var c = f.querySelector('[name="' + nom + '"]'); return c && (c.closest('fieldset') || c.closest('label')); };
+        cacher(f.querySelector('.gl-planning-bloc'), lr);
+        cacher(bloc('publics'), lr); cacher(bloc('precisionPublic'), lr); cacher(bloc('tenue'), lr); cacher(bloc('types'), lr);
+        var t = f.tarifs, e = f.equipements, s = f.site;
+        if (t) { t.placeholder = lr ? 'ex. Nuit (arrivée 19h, départ 11h) : 230 € · Journée 14h-18h : 150 € · Petit-déjeuner inclus' : 'ex. après-midi + soir : 10 € de réduction sur le soir ; consommation comprise…'; t.rows = lr ? 4 : 2; }
+        var lt = t && t.closest('label') && t.closest('label').querySelector('span'); if (lt) lt.textContent = lr ? 'Formules, horaires d\'arrivée et tarifs' : 'Précisions sur les tarifs';
+        if (e) e.placeholder = lr ? 'Jacuzzi privatif, sauna, hammam, lit rond, vidéoprojecteur…' : 'Bar, piste, jacuzzi…';
+        var ls = s && s.closest('label') && s.closest('label').querySelector('span'); if (ls) ls.textContent = lr ? 'Site officiel / lien de réservation' : 'Site officiel';
+    }
+    document.addEventListener('change', function (e) { if (e.target.name === 'type' && e.target.closest('#glFormLieu')) adapterFormType(e.target.form); });
+
     // ---- Formulaire lieu : proposer (POST) ou modifier (PUT, équipe) ----
     function ouvrirFormLieu(l) {
         var f = $('glFormLieu'); if (!f) return;
@@ -631,6 +664,7 @@
             if (!(l.planning || []).length && l.horaires && f.tarifs && f.tarifs.value.indexOf(l.horaires) < 0) f.tarifs.value = ('Horaires : ' + l.horaires + (f.tarifs.value ? '\n' + f.tarifs.value : '')).slice(0, 600);
         }
         remplirPlanning(f, l ? l.planning : []);
+        adapterFormType(f);
         var bv = f.querySelector('[data-equipe-seul]');
         if (bv) {
             bv.hidden = !equipe();
@@ -1076,7 +1110,7 @@
             z.innerHTML = d.lieux.length ? d.lieux.map(function (l) {
                 var nbCr = (l.planning || []).length;
                 return '<article class="gl-eq-lieu"><label class="gl-eq-case"><input type="checkbox" data-choix="' + l.id + '"' + (choisis[l.id] ? ' checked' : '') + '><span class="gl-sr">Sélectionner ' + esc(l.nom) + '</span></label><div class="gl-eq-txt"><b>' + esc(l.nom) + ' <span class="gl-pastille gl-st-' + l.statut + '">' + STATUTS[l.statut] + '</span></b>' +
-                    '<small>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + ' · ' + esc(l.regionNom) + ' · ' + (l.nbAvis ? l.nbAvis + ' avis' : 'aucun avis') + ' · ' + (nbCr ? nbCr + ' créneau(x) horaires' : '<span class="gl-manque">horaires à compléter</span>') + ' · ' + (l.verifie ? '<span class="gl-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> vérifiée le ' + esc(dateFr(l.verifieLe)) + '</span>' : '<span class="gl-manque">non vérifiée</span>') + (l.lat == null ? ' · <span class="gl-manque">pas encore sur la carte</span>' : '') + '</small></div>' +
+                    '<small>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + ' · ' + esc(l.regionNom) + ' · ' + (l.nbAvis ? l.nbAvis + ' avis' : 'aucun avis') + ' · ' + (l.type === 'loveroom' ? 'love room (sans horaires)' : nbCr ? nbCr + ' créneau(x) horaires' : '<span class="gl-manque">horaires à compléter</span>') + ' · ' + (l.verifie ? '<span class="gl-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> vérifiée le ' + esc(dateFr(l.verifieLe)) + '</span>' : '<span class="gl-manque">non vérifiée</span>') + (l.lat == null ? ' · <span class="gl-manque">pas encore sur la carte</span>' : '') + '</small></div>' +
                     '<div class="gl-mod-actions"><button type="button" class="gl-btn gl-btn-jaune" data-edit-lieu="' + l.id + '"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier</button>' +
                     (l.statut === 'publie' ? '<a class="gl-btn" href="lieu.html?l=' + encodeURIComponent(l.slug) + '">Voir</a><button type="button" class="gl-btn gl-btn-rouge" data-mod="lieu" data-id="' + l.id + '" data-d="refuser">Retirer</button>'
                         : '<button type="button" class="gl-btn" data-mod="lieu" data-id="' + l.id + '" data-d="publier">Publier</button>') + '</div></article>';
@@ -1251,8 +1285,10 @@
             if ($('glArianeRegion')) { $('glArianeRegion').textContent = l.regionNom; $('glArianeRegion').href = 'guide.html?region=' + encodeURIComponent(l.region); }
             if ($('glArianeLieu')) $('glArianeLieu').textContent = l.nom;
             var pub = (l.publics || []).map(function (p) { return '<span class="gl-tag">' + PUBLICS[p] + '</span>'; }).join('');
-            var aPlanning = (l.planning || []).length;
-            var infos = [['Adresse', l.adresse], ['Prix', l.prixDes != null ? 'À partir de ' + l.prixDes + ' €' : ''], ['Horaires', aPlanning ? '' : l.horaires], ['Tarifs', aPlanning ? '' : l.tarifs], ['Équipements', l.equipements], ['Tenue', l.tenue]]
+            var estLR = l.type === 'loveroom';
+            var aPlanning = !estLR && (l.planning || []).length;
+            var infos = (estLR ? [['Adresse', l.adresse], ['Prix', l.prixDes != null ? 'À partir de ' + l.prixDes + ' €' : '']]
+                : [['Adresse', l.adresse], ['Prix', l.prixDes != null ? 'À partir de ' + l.prixDes + ' €' : ''], ['Horaires', aPlanning ? '' : l.horaires], ['Tarifs', aPlanning ? '' : l.tarifs], ['Équipements', l.equipements], ['Tenue', l.tenue]])
                 .filter(function (x) { return x[1]; }).map(function (x) { return '<dt>' + x[0] + '</dt><dd>' + esc(x[1]) + '</dd>'; }).join('');
             if (l.telephone) infos += '<dt>Téléphone</dt><dd><a href="tel:' + esc(l.telephone.replace(/[^0-9+]/g, '')) + '">' + esc(l.telephone) + '</a></dd>';
             if ((l.reseaux || []).length) infos += '<dt>Réseaux</dt><dd class="gl-reseaux">' + l.reseaux.map(function (u) { var h = u.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]; var n = /facebook|fb\./.test(h) ? 'Facebook' : /instagram/.test(h) ? 'Instagram' : /tiktok/.test(h) ? 'TikTok' : /twitter|x\.com/.test(h) ? 'X' : h; return '<a href="' + esc(u) + '" target="_blank" rel="noopener nofollow">' + esc(n) + '</a>'; }).join(' · ') + '</dd>';
@@ -1276,14 +1312,14 @@
                 (equipe() ? '<button type="button" class="gl-btn gl-btn-equipe" id="glModifierLieu"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier la fiche</button>' : '') +
                 '<div class="gl-note-bloc">' + (l.nbAvis ? '<b>' + note(l.note) + '</b><small>sur 5 · ' + l.nbAvis + ' avis</small>' : '<small>Pas encore d\'avis</small>') + '</div></div>' +
                 (l.description ? texteRepliable(l.description, 'gl-description', 380) : '') +
-                planningHTML(l) +
-                '<section class="gl-agenda-fiche" aria-labelledby="glAgTitre"><div class="gl-avis-entete"><h2 id="glAgTitre"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Prochaines soirées</h2><button type="button" class="gl-btn" id="glProposerSoiree"><i class="fa-solid fa-plus" aria-hidden="true"></i> Proposer une soirée</button></div><div id="glAgendaLieu" class="gl-agenda"></div></section>' +
+                (estLR ? loveRoomHTML(l) : planningHTML(l) +
+                '<section class="gl-agenda-fiche" aria-labelledby="glAgTitre"><div class="gl-avis-entete"><h2 id="glAgTitre"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Prochaines soirées</h2><button type="button" class="gl-btn" id="glProposerSoiree"><i class="fa-solid fa-plus" aria-hidden="true"></i> Proposer une soirée</button></div><div id="glAgendaLieu" class="gl-agenda"></div></section>') +
                 (l.nbAvis ? '<div class="gl-notes-detail">' + notes.map(function (n) { return '<div><small>' + n[0] + '</small><b>' + note(n[1]) + '</b></div>'; }).join('') + '</div>' : '') +
                 '<section class="gl-avis-bloc"><div class="gl-avis-entete"><h2>Avis des membres</h2><button type="button" class="gl-btn gl-btn-jaune" id="glDonnerAvis">' + (mon ? 'Modifier mon avis' : 'Donner mon avis') + '</button></div>' +
                 (mon && mon.statut !== 'publie' ? '<p class="gl-attente">' + (mon.statut === 'attente' ? 'Votre avis est en cours de relecture par la modération.' : 'Votre avis n\'a pas été publié' + (mon.motif ? ' : ' + esc(mon.motif) : '.') + ' Vous pouvez le modifier.') + '</p>' : '') +
                 (avis || (mon ? '' : premierAvis(d.recompenseAvis))) + '</section></div>' +
                 '<aside class="gl-fiche-cote">' +
-                '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div>' + itineraire(l) + '<button type="button" class="gl-lien-btn gl-gris gl-signaler-lieu" id="glSignalerLieu"><i class="fa-regular fa-flag" aria-hidden="true"></i> Signaler une fermeture ou une erreur</button></section>' +
+                '<section class="gl-encart"><h2>Infos pratiques</h2><dl>' + (infos || '<dt></dt><dd>Infos à compléter.</dd>') + '</dl><div id="glMiniCarte" class="gl-mini-carte"' + (l.lat == null ? ' hidden' : '') + '></div>' + itineraire(l) + avisGoogle(l) + '<button type="button" class="gl-lien-btn gl-gris gl-signaler-lieu" id="glSignalerLieu"><i class="fa-regular fa-flag" aria-hidden="true"></i> Signaler une fermeture ou une erreur</button></section>' +
                 habituesHTML(d.habitues) +
                 '<section class="gl-encart"><h2>Bons plans</h2>' + (d.bonsPlans.length ? '<ul class="gl-plans-fiche">' + d.bonsPlans.map(function (b) { return '<li>' + esc(b.texte) + '<small>' + esc(dateFr(b.date)) + '</small></li>'; }).join('') + '</ul>' : '<p class="gl-vide-plan">Pas encore de bon plan.</p>') + '<button type="button" class="gl-lien-btn" id="glPlanLieu">Partager un bon plan →</button></section>' +
                 '<section class="gl-encart gl-pointille"><b>Vous gérez ce lieu ?</b><p>Contactez-nous pour mettre la fiche à jour, ajouter vos photos officielles et répondre aux avis.' + (l.url ? ' Affichez aussi le badge « Lieu vérifié » sur votre site.' : '') + '</p><a class="gl-lien" href="/etablissements.html">' + (l.url ? 'Badge et mise à jour de la fiche →' : 'Faire vérifier cette fiche →') + '</a></section>' +
@@ -1308,7 +1344,7 @@
             if ($('glModifierLieu')) $('glModifierLieu').addEventListener('click', function () { ouvrirFormLieu(l); });
             brancherHabitues(l, d.habitues);
             ajouterFenetresFiche();
-            chargerAgendaFiche();
+            if (!estLR) chargerAgendaFiche(); else donneesStructurees(l, []);
             $('glPlanLieu').addEventListener('click', function () { if (!connecte()) return versConnexion(); ouvrir('glFenetrePlan'); });
         } catch (e) {
             if (window.console) console.warn('Guide', e);

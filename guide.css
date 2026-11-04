@@ -491,3 +491,18 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-visionneuse img{max-width:94vw;max-height:90vh;object-fit:contain;border-radius:8px}
 .gl-visio-fermer{position:absolute;top:14px;right:18px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:28px;cursor:pointer}
 @media(max-width:640px){.gl-galerie{aspect-ratio:4/3}.gl-galerie-fl{width:34px;height:34px}}
+/* Fiche love room : formules, équipements, réservation */
+.gl-lr{margin:18px 0;padding:18px 20px;border-radius:16px;background:radial-gradient(120% 140% at 0% 0%,#e11d4826 0%,transparent 60%),var(--g-panel,#1c1c20);border:1px solid #e11d4855}
+.gl-lr h2{margin:0 0 8px;font-size:18px;font-weight:800}
+.gl-lr h2 i{color:#ff1680;margin-right:6px}
+.gl-lr h3{margin:14px 0 8px;font-size:14px;font-weight:800;opacity:.85}
+.gl-lr-prix{margin:0 0 8px;font-size:15px}
+.gl-lr-prix b{font-size:22px;color:#ffe500}
+.gl-lr-tarifs{white-space:pre-line;line-height:1.55}
+.gl-lr-equip{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.gl-lr-equip li{padding:5px 12px;border-radius:999px;background:#ff168018;border:1px solid #ff168044;font-size:13px;font-weight:700}
+.gl-lr-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+/* Lien « Voir les avis Google » */
+.gl-avis-google{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;padding:9px 12px;border-radius:12px;border:1px solid var(--g-line,#2f2f36);color:inherit;font-size:13.5px;font-weight:700;text-decoration:none;transition:border-color .15s}
+.gl-avis-google:hover{border-color:#ff1680}
+.gl-avis-google .fa-arrow-up-right-from-square{font-size:11px;opacity:.6}
