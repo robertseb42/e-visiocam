@@ -129,6 +129,12 @@
     // ============================================================
     function fermerFiche() { var v = haut().getElementById('evs-voile'); if (v) v.remove(); haut().removeEventListener('keydown', echap); }
     function echap(e) { if (e.key === 'Escape') fermerFiche(); }
+    // Libellés du profil libertin (une seule fois par page)
+    var promesseOptions = null;
+    function optionsProfil() {
+        if (!promesseOptions) promesseOptions = fetch(API_URL + '/models/profil-options').then(function (r) { return r.json(); }).catch(function () { promesseOptions = null; return {}; });
+        return promesseOptions;
+    }
     async function ouvrirFiche(id) {
         if (!connecte()) { aller('login.html'); return; }
         styles(); fermerFiche();
@@ -148,6 +154,7 @@
         var ph = el('div', 'evs-photo ' + etat, m.username.charAt(0).toUpperCase());
         var src = photoDe(m.avatar);
         if (src) { ph.textContent = ''; var img = new Image(); img.alt = 'Photo de ' + m.username; img.src = src; ph.appendChild(img); }
+        else if (typeof window.evcMasque === 'function') { ph.innerHTML = window.evcMasque(m.gender, m.id); ph.style.overflow = 'hidden'; }
         f.appendChild(ph);
         var h = el('h2', 'evs-nom'); h.id = 'evs-nom';
         if (etat) h.appendChild(el('span', 'evs-point ' + etat));
@@ -159,16 +166,34 @@
         var lignes = [m.isLive ? '🔴 En direct' : (m.online || m.moi ? '🟡 Connecté' : 'Hors ligne')];
         if (roles[m.role]) lignes.push(roles[m.role]);
         if (depuis) lignes.push('Membre depuis ' + depuis);
-        if (m.departement) lignes.push('📍 ' + m.departement + (window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[m.departement] ? ' · ' + window.EVC_DEPARTEMENTS[m.departement] : ''));
+        if (m.ville) lignes.push('📍 ' + m.ville + (m.departement ? ' (' + m.departement + ')' : ''));
+        else if (m.departement) lignes.push('📍 ' + m.departement + (window.EVC_DEPARTEMENTS && window.EVC_DEPARTEMENTS[m.departement] ? ' · ' + window.EVC_DEPARTEMENTS[m.departement] : ''));
+        // Distance approximative entre nos deux villes (par tranches de 5 km)
+        if (m.distance) lignes.push('🚗 ' + (m.distance <= 5 ? 'À moins de 5 km' : 'À environ ' + m.distance + ' km'));
         // 🏡 Même département ou même région que moi (departements-data.js) : « près de chez vous »
         var moiDep = !m.moi && typeof getCurrentUser === 'function' && (getCurrentUser() || {}).departement;
-        if (moiDep && m.departement && typeof window.evcProximite === 'function' && window.evcProximite(moiDep, m.departement)) lignes.push('🏡 Près de chez vous');
+        if (!m.distance && moiDep && m.departement && typeof window.evcProximite === 'function' && window.evcProximite(moiDep, m.departement)) lignes.push('🏡 Près de chez vous');
         f.appendChild(el('p', 'evs-sous', lignes.join(' · ')));
         var chips = [];
         if (m.insigne) chips.push(m.insigne.icone + ' ' + m.insigne.nom);
         (m.badges || []).forEach(function (b) { chips.push(b.icone + ' ' + b.nom); });
         if (chips.length) { var bd = el('div', 'evs-badges'); chips.forEach(function (c) { bd.appendChild(el('span', 'evs-badge', c)); }); f.appendChild(bd); }
         if (m.bio) f.appendChild(el('p', 'evs-bio', m.bio));
+        // 💞 Profil libertin : qui il est, qui il recherche, intérêts, annonce (libellés fournis par le serveur)
+        var pr = m.profil;
+        if (pr) {
+            var o = await optionsProfil();
+            var T = o.tendances || {}, nomsP = { hf: ['Monsieur', 'Madame'], ff: ['Elle', 'Elle'], hh: ['Lui', 'Lui'] }[pr.couple] || ['', ''];
+            var qui = [];
+            if (m.gender === 'couple') {
+                [pr.p1, pr.p2].forEach(function (x, i) { if (x && x.tendance) qui.push(nomsP[i] + ' ' + (T[x.tendance] || '').toLowerCase()); });
+            } else if (pr.p1 && pr.p1.tendance) qui.push(T[pr.p1.tendance]);
+            if ((pr.ages || []).length) qui.push(pr.ages.join('/') + ' ans');
+            if (qui.length) f.appendChild(el('p', 'evs-sous', qui.join(' · ')));
+            if ((pr.recherche || []).length) f.appendChild(el('p', 'evs-sous', 'Recherche : ' + pr.recherche.map(function (k) { return (o.recherche || {})[k] || k; }).join(', ')));
+            if ((pr.interets || []).length) { var it = el('div', 'evs-badges'); pr.interets.forEach(function (k) { it.appendChild(el('span', 'evs-badge', (o.interets || {})[k] || k)); }); f.appendChild(it); }
+            if (pr.annonce) f.appendChild(el('p', 'evs-bio', pr.annonce));
+        }
 
         var act = el('div', 'evs-actions');
         function lien(cls, texte, url) { var a = el('a', 'evs-btn ' + cls, texte); a.href = url; return a; }

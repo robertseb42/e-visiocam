@@ -1,0 +1,25 @@
+/* E-VISIOCAM — « Mon profil libertin » (Mon compte) et pastilles de profil : sombre par défaut, clair via data-theme */
+.plib{--pl-fond:#16161b;--pl-bord:#2f2f36;--pl-texte:#f5f5f7;--pl-doux:#a9a9b6;--pl-rose:#ff1680;--pl-or:#ffe500;
+  margin-top:8px;padding-top:16px;border-top:1px solid var(--pl-bord);color:var(--pl-texte)}
+html[data-theme="light"] .plib{--pl-fond:#f1f5f9;--pl-bord:#e2e8f0;--pl-texte:#0f172a;--pl-doux:#64748b;--pl-rose:#e91e63;--pl-or:#e91e63}
+.plib-titre{margin:0 0 12px;font-size:15px;font-weight:800}
+.plib-prog{margin-bottom:14px}
+.plib-barre{height:8px;border-radius:999px;background:var(--pl-fond);overflow:hidden}
+.plib-barre span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pl-rose),#ffb800);transition:width .4s}
+.plib-prog p{margin:6px 0 0;font-size:12px;color:var(--pl-doux)}
+.plib-prog b{color:var(--pl-texte)}
+.plib-ligne,.plib-champ{display:block;margin-bottom:14px}
+.plib-ligne,.plib-champ>span,.plib-part label{font-size:12px;font-weight:700}
+.plib-champ>span small,.plib-compte{font-weight:400;color:var(--pl-doux)}
+.plib-compte{display:block;margin-top:4px;font-size:10px}
+.plib select,.plib input[type=date],.plib textarea{display:block;width:100%;margin-top:5px;padding:8px 10px;border-radius:12px;border:1px solid transparent;background:var(--pl-fond);color:var(--pl-texte);font:inherit;font-size:13px}
+.plib select:focus,.plib input:focus,.plib textarea:focus{outline:2px solid var(--pl-rose);outline-offset:1px}
+.plib textarea{resize:vertical;min-height:90px}
+.plib-parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.plib-part{margin:0;padding:12px;border:1px solid var(--pl-bord);border-radius:14px;display:grid;gap:10px;min-width:0}
+.plib-part legend{padding:0 6px;font-size:12px;font-weight:800;color:var(--pl-rose)}
+.plib-puces{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.plib-puces button{padding:6px 12px;border-radius:999px;border:1px solid var(--pl-bord);background:transparent;color:var(--pl-texte);font-family:inherit;font-weight:600;font-size:12.5px;cursor:pointer;transition:background .15s,border-color .15s}
+.plib-puces button:hover{border-color:var(--pl-rose)}
+.plib-puces button[aria-pressed="true"]{background:var(--pl-rose);border-color:var(--pl-rose);color:#fff}
+.plib-puces button:focus-visible{outline:2px solid var(--pl-or);outline-offset:2px}

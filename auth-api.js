@@ -155,6 +155,7 @@ async function register(username, email, password, parrain, departement, birthda
     if (parrain) corps.parrain = String(parrain).slice(0, 30);
     if (departement) corps.departement = String(departement).slice(0, 3);
     if (birthdate) corps.birthdate = String(birthdate).slice(0, 10);
+    if (window.__evcVillePos) corps.ville = window.__evcVillePos;
     if (evcSource()) corps.source = evcSource();
     const data = await apiCall('/auth/register', {
         method: 'POST',

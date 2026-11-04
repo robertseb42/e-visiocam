@@ -60,15 +60,17 @@ async function loadProfile() {
         document.getElementById('bioField').value = u.bio || '';
         document.getElementById('genderField').value = u.gender || '';   // ⚠️ AJOUT
         if (!window.__evcVille) window.__evcVille = EvcVille.monter(document.getElementById('villeBloc'), {
-            label: 'Ma ville', classeChamp: 'w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary', valeur: u.departement || ''
+            label: 'Ma ville', classeChamp: 'w-full px-3 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary', valeur: u.departement || '', ville: u.ville || null
         });
-        else window.__evcVille.definir(u.departement || '');
+        else window.__evcVille.definir(u.departement || '', u.ville || null);
+        if (document.getElementById('villeVisible')) document.getElementById('villeVisible').checked = !!u.villeVisible;
         if (u.birthdate) document.getElementById('birthdateField').value = u.birthdate;
         updateBioCount();
 
         // Couleur de l'avatar selon le genre/rôle
         updateAvatarColor(u);
         dernierUtilisateur = u;
+        if (window.__evcProfil) window.__evcProfil.charger(u);
         const mv = document.getElementById('membresVisible');
         if (mv) mv.checked = u.membres_visible !== 0;
         afficherPhoto(u.avatar);
@@ -204,7 +206,7 @@ async function saveProfile(e) {
     try {
         const data = await apiCall('/users/me', {
             method: 'PUT',
-            body: JSON.stringify({ bio, email, birthdate, gender, departement: window.__evcVille ? window.__evcVille.valeur() : undefined, membresVisible: document.getElementById('membresVisible') ? document.getElementById('membresVisible').checked : undefined })
+            body: JSON.stringify({ bio, email, birthdate, gender, departement: window.__evcVille ? window.__evcVille.valeur() : undefined, ville: window.__evcVille ? window.__evcVille.ville() : undefined, villeVisible: document.getElementById('villeVisible') ? document.getElementById('villeVisible').checked : undefined, membresVisible: document.getElementById('membresVisible') ? document.getElementById('membresVisible').checked : undefined, profil: window.__evcProfil ? window.__evcProfil.valeur() : undefined })
         });
         saveUser(data.user);
         // Nouvelle adresse e-mail : elle ne s'applique qu'après le clic sur le lien envoyé

@@ -69,10 +69,10 @@
         document.body.appendChild(m);
         var f = m.querySelector('form'), pseudo = m.querySelector('[data-pseudo]'), err = m.querySelector('[data-err]');
         var erreur = function (t) { err.textContent = t; err.classList.toggle('hidden', !t); };
-        var departement = '';
+        var departement = '', villePos = null;
         if (window.EvcVille && m.querySelector('[data-ville]')) EvcVille.monter(m.querySelector('[data-ville]'), {
             label: 'Votre ville', classeChamp: 'w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-transparent',
-            onChange: function (c) { departement = c; }
+            onChange: function (c, v) { departement = c; villePos = v || null; }
         });
         pseudo.focus(); pseudo.select();
         m.querySelector('[data-annuler]').onclick = function () { m.remove(); };
@@ -91,7 +91,7 @@
             var btn = f.querySelector('[type=submit]'); btn.disabled = true; btn.style.opacity = '.6';
             try {
                 var r = await apiCall('/auth/google/complete', { method: 'POST', body: JSON.stringify({
-                    ticket: d.ticket, username: p, adult: true, cgu: true, birthdate: naissance, parrain: typeof opts.parrain === 'function' ? opts.parrain() : '', departement: departement, source: typeof evcSource === 'function' ? evcSource() : ''
+                    ticket: d.ticket, username: p, adult: true, cgu: true, birthdate: naissance, parrain: typeof opts.parrain === 'function' ? opts.parrain() : '', departement: departement, ville: villePos, source: typeof evcSource === 'function' ? evcSource() : ''
                 }) });
                 m.remove();
                 connecte(r.user, true);

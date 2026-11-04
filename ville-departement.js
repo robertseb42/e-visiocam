@@ -1,10 +1,11 @@
 // ============================================================
 // E-VISIOCAM — « Votre ville » → département (inscription, Mon compte)
 // ------------------------------------------------------------
-//   EvcVille.monter(conteneur, { valeur: '42', onChange(code) })
+//   EvcVille.monter(conteneur, { valeur: '42', ville: {nom, lat, lon}, onChange(code, ville) })
 // Le membre tape sa ville (ou son code postal) ; les suggestions viennent de l'annuaire
-// officiel des communes (geo.api.gouv.fr). Seul le DÉPARTEMENT choisi est gardé
-// et affiché sur le profil (« 42 · Loire ») : la ville n'est jamais enregistrée.
+// officiel des communes (geo.api.gouv.fr). On garde le département et la ville (nom + centre
+// de la commune, jamais d'adresse) pour chercher « autour de moi » avec une distance approximative.
+// Le nom de la ville n'est montré aux autres que si le membre le choisit (Mon compte).
 // ============================================================
 (function () {
     'use strict';
@@ -32,13 +33,13 @@
     function monter(conteneur, opts) {
         opts = opts || {};
         if (!conteneur) return null;
-        var code = opts.valeur || '';
+        var code = opts.valeur || '', ville = opts.ville === undefined ? undefined : (opts.ville || null);
         conteneur.classList.add('evc-ville');
         conteneur.innerHTML =
             '<input type="text" autocomplete="off" spellcheck="false" placeholder="Ex. : Saint-Étienne ou 42000" aria-autocomplete="list" role="combobox" aria-expanded="false">' +
             '<ul class="evc-ville-liste" role="listbox" hidden></ul>' +
             '<div class="evc-ville-sortie"></div>' +
-            '<p class="evc-ville-aide">🔒 Seul votre <strong>département</strong> apparaîtra sur votre profil (ex. « 42 · Loire »). Votre ville n’est pas enregistrée. Facultatif.</p>';
+            '<p class="evc-ville-aide">🔒 Votre ville sert à trouver les membres proches de chez vous (distance approximative, jamais votre adresse). Sur votre profil, seul votre <strong>département</strong> apparaît, sauf si vous choisissez d’afficher votre ville. Facultatif.</p>';
         var champ = conteneur.querySelector('input'), liste = conteneur.querySelector('ul'), sortie = conteneur.querySelector('.evc-ville-sortie');
         if (opts.classeChamp) champ.className = opts.classeChamp;
         var id = 'evcVille' + Math.random().toString(36).slice(2, 7);
@@ -50,9 +51,9 @@
             sortie.textContent = '';
             if (!code) return;
             var b = document.createElement('span'); b.className = 'evc-ville-choix';
-            b.appendChild(document.createTextNode('📍 ' + libelle(code)));
+            b.appendChild(document.createTextNode('📍 ' + (ville ? ville.nom + ' · ' : '') + libelle(code)));
             var x = document.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.title = 'Retirer'; x.setAttribute('aria-label', 'Retirer le département');
-            x.onclick = function () { choisir(''); champ.value = ''; champ.focus(); };
+            x.onclick = function () { ville = null; choisir(''); champ.value = ''; champ.focus(); };
             b.appendChild(x); sortie.appendChild(b);
         }
         function fermer() { liste.hidden = true; champ.setAttribute('aria-expanded', 'false'); actif = -1; }
@@ -68,20 +69,20 @@
             });
             liste.hidden = false; champ.setAttribute('aria-expanded', 'true');
         }
-        function choisir(c) { code = c || ''; afficherChoix(); if (opts.onChange) opts.onChange(code); }
+        function choisir(c) { code = c || ''; afficherChoix(); if (opts.onChange) opts.onChange(code, ville || null); }
         function prendre(i) {
             var r = resultats[i]; if (!r) return;
-            champ.value = r.nom; choisir(r.dep); resultats = []; fermer();
+            champ.value = r.nom; ville = r.lat != null ? { nom: r.nom, lat: r.lat, lon: r.lon } : null; choisir(r.dep); resultats = []; fermer();
         }
         async function chercher(q) {
             q = q.trim(); if (q === derniere) return; derniere = q;
             if (q.length < 2) { resultats = []; dessiner(); return; }
             var url = /^\d{5}$/.test(q) ? API + '?codePostal=' + q : API + '?nom=' + encodeURIComponent(q) + '&boost=population&limit=7';
             try {
-                var r = await fetch(url + '&fields=nom,codeDepartement', { credentials: 'omit' });
+                var r = await fetch(url + '&fields=nom,codeDepartement,centre', { credentials: 'omit' });
                 var d = r.ok ? await r.json() : [];
                 if (q !== derniere) return;
-                resultats = (d || []).filter(function (c) { return nomDep(c.codeDepartement); }).slice(0, 7).map(function (c) { return { nom: c.nom, dep: c.codeDepartement }; });
+                resultats = (d || []).filter(function (c) { return nomDep(c.codeDepartement); }).slice(0, 7).map(function (c) { var xy = c.centre && c.centre.coordinates; return { nom: c.nom, dep: c.codeDepartement, lon: xy ? xy[0] : null, lat: xy ? xy[1] : null }; });
                 actif = resultats.length ? 0 : -1; dessiner();
             } catch (e) { resultats = []; dessiner(); }
         }
@@ -95,7 +96,7 @@
         });
         champ.addEventListener('blur', function () { setTimeout(fermer, 120); });
         afficherChoix();
-        return { valeur: function () { return code; }, definir: function (c) { code = c || ''; afficherChoix(); } };
+        return { valeur: function () { return code; }, ville: function () { return ville; }, definir: function (c, v) { code = c || ''; if (v !== undefined) ville = v || null; afficherChoix(); } };
     }
     window.EvcVille = { monter: monter, libelle: libelle };
 })();
