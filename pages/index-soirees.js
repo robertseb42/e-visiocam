@@ -20,17 +20,16 @@
             (s.visuel ? '<img src="' + esc(BASE + s.visuel) + '" alt="" loading="lazy" width="52" height="52">' : '<span class="sb-soiree-ico" aria-hidden="true"><i class="fa-solid fa-champagne-glasses"></i></span>') +
             '<span class="sb-soiree-txt"><small>' + esc(quand(s)) + '</small><b>' + esc(s.titre) + '</b><span>' + esc(l.nom) + (l.ville ? ' · ' + esc(l.ville) : '') + '</span></span></a></li>';
     }
-    function diaporama(s) {
-        var fen = bloc.querySelector('.sb-soirees-fenetre');
+    // Diaporama plein cadre générique : items = [{ href, img, alt, haut, bas, badge }]
+    function diapo(fen, items) {
         fen.className = 'sb-diapo';
-        fen.innerHTML = s.map(function (x, i) {
-            var l = x.lieu || {};
-            return '<a class="sb-diapo-vue' + (i ? '' : ' actif') + '" href="/lieu.html?l=' + encodeURIComponent(l.slug || '') + '"' + (i ? ' tabindex="-1" aria-hidden="true"' : '') + '>' +
-                '<img src="' + esc(BASE + x.visuel) + '" alt="' + esc('Soirée ' + (l.nom || '') + ', ' + quand(x)) + '"' + (i > 1 ? ' loading="lazy"' : '') + '>' +
-                '<span class="sb-diapo-info"><small>' + esc(quand(x)) + '</small><span>' + esc(l.nom || '') + (l.ville ? ' · ' + esc(l.ville) : '') + '</span></span></a>';
-        }).join('') + (s.length > 1 ? '<div class="sb-diapo-points" aria-hidden="true">' + s.map(function (x, i) { return '<i' + (i ? '' : ' class="actif"') + '></i>'; }).join('') + '</div>' : '');
-        bloc.hidden = false;
-        if (s.length < 2) return;
+        fen.innerHTML = items.map(function (x, i) {
+            return '<a class="sb-diapo-vue' + (i ? '' : ' actif') + '" href="' + esc(x.href) + '"' + (i ? ' tabindex="-1" aria-hidden="true"' : '') + '>' +
+                '<img src="' + esc(x.img) + '" alt="' + esc(x.alt) + '"' + (i > 1 ? ' loading="lazy"' : '') + '>' +
+                (x.badge ? '<span class="sb-diapo-badge">' + esc(x.badge) + '</span>' : '') +
+                '<span class="sb-diapo-info"><small>' + esc(x.haut) + '</small><span>' + esc(x.bas) + '</span></span></a>';
+        }).join('') + (items.length > 1 ? '<div class="sb-diapo-points" aria-hidden="true">' + items.map(function (x, i) { return '<i' + (i ? '' : ' class="actif"') + '></i>'; }).join('') + '</div>' : '');
+        if (items.length < 2) return;
         var vues = fen.querySelectorAll('.sb-diapo-vue'), pts = fen.querySelectorAll('.sb-diapo-points i'), n = 0, pause = false;
         function aller(k) {
             vues[n].classList.remove('actif'); vues[n].setAttribute('aria-hidden', 'true'); vues[n].tabIndex = -1; pts[n].classList.remove('actif');
@@ -42,8 +41,26 @@
         var x0 = null;
         fen.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
         fen.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) aller(n + (dx < 0 ? 1 : -1)); x0 = null; });
-        if (!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) setInterval(function () { if (!pause && !document.hidden) aller(n + 1); }, 4500);
+        if (!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) setInterval(function () { if (!pause && !document.hidden) aller(n + 1); }, 4500 + Math.round(Math.random() * 800));
     }
+    function diaporama(s) {
+        diapo(bloc.querySelector('.sb-soirees-fenetre'), s.map(function (x) {
+            var l = x.lieu || {};
+            return { href: '/lieu.html?l=' + encodeURIComponent(l.slug || ''), img: BASE + x.visuel, alt: 'Soirée ' + (l.nom || '') + ', ' + quand(x), haut: quand(x), bas: (l.nom || '') + (l.ville ? ' · ' + l.ville : '') };
+        }));
+        bloc.hidden = false;
+    }
+    // Love rooms du guide (photo principale) : encart qui pourra accueillir des fiches mises en avant
+    var blocLR = document.getElementById('sbLoveRooms');
+    if (blocLR) fetch(API_URL + '/guide/lieux?type=loveroom').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+        var l = ((d && d.lieux) || []).filter(function (x) { return x.photo; });
+        if (!l.length) return;
+        for (var i = l.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = l[i]; l[i] = l[j]; l[j] = t; }   // ordre varié à chaque visite
+        diapo(blocLR.querySelector('.sb-lr-fenetre'), l.slice(0, 12).map(function (x) {
+            return { href: x.url || '/lieu.html?l=' + encodeURIComponent(x.slug), img: BASE + x.photo, alt: 'Love room ' + x.nom + ', ' + x.ville, haut: x.ville || '', bas: x.nom, badge: x.prixDes != null ? 'dès ' + x.prixDes + ' €' : '' };
+        }));
+        blocLR.hidden = false;
+    }).catch(function () {});
     fetch(API_URL + '/guide/soirees?jours=30').then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
         var tout = (d && d.soirees) || [];
         if (!tout.length) return;

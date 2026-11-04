@@ -39,7 +39,7 @@
 <script defer="" src="nav-auth.js?v=12"></script>
 <link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=6" rel="stylesheet"/>
-<link href="index-carte.css?v=4" rel="stylesheet"/>
+<link href="index-carte.css?v=5" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -123,30 +123,15 @@
 </header>
 <div class="cam-layout max-w-[1700px] w-full mx-auto flex-1 flex p-3 md:p-6 gap-6">
 <aside class="hidden lg:flex flex-col w-64 shrink-0 gap-6" id="sidebar">
-<nav class="cam-sidenav bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80 flex flex-col gap-1 text-sm font-medium">
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-pink-50 text-brand-primary font-semibold" href="index.html">
-<i class="fa-solid fa-border-all w-5 text-center"></i><span>Toutes les caméras</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="live.html">
-<i class="fa-solid fa-circle text-pink-500 text-xs w-5 text-center"></i><span>En direct</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="modeles.html">
-<i class="fa-solid fa-star w-5 text-center text-amber-500"></i><span>Modèles</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="salons.html">
-<i class="fa-solid fa-users w-5 text-center text-blue-500"></i><span>Salons</span>
-</a>
-<a class="flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="messages.html">
-<div class="flex items-center gap-3"><i class="fa-solid fa-envelope w-5 text-center"></i><span>Messages</span></div>
-</a>
-<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50" href="credits.html">
-<i class="fa-solid fa-gift w-5 text-center text-amber-500"></i><span>Mes récompenses</span>
-</a>
-</nav>
 <!-- Soirées des clubs (agenda du Guide libertin) qui défilent : pages/index-soirees.js -->
 <section aria-labelledby="sbSoireesTitre" class="sb-soirees bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80" hidden id="sbSoirees">
 <div class="sb-soirees-tete"><h2 id="sbSoireesTitre"><i aria-hidden="true" class="fa-regular fa-calendar"></i> Soirées des clubs</h2><a href="guide.html">Tout voir</a></div>
 <div class="sb-soirees-fenetre"><ul class="sb-soirees-liste" id="sbSoireesListe"></ul></div>
+</section>
+<!-- Love rooms du guide (photo principale) en diaporama : pages/index-soirees.js — futur emplacement des fiches mises en avant -->
+<section aria-labelledby="sbLoveRoomsTitre" class="sb-soirees bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80" hidden id="sbLoveRooms">
+<div class="sb-soirees-tete"><h2 id="sbLoveRoomsTitre"><i aria-hidden="true" class="fa-solid fa-heart"></i> Love rooms</h2><a href="guide.html?type=loveroom">Tout voir</a></div>
+<div class="sb-lr-fenetre"></div>
 </section>
 <!-- 📻 PLATINE RADIO E-VISIOCAM (styles : style.css → « PLATINE RADIO ») -->
 <div aria-label="Radio" class="evc-deck" id="radioWidget">
@@ -349,7 +334,7 @@
 <script src="pages/index-cameras.js?v=2"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
 <script defer="" src="pages/index-carte.js?v=6"></script>
-<script defer="" src="pages/index-soirees.js?v=2"></script>
+<script defer="" src="pages/index-soirees.js?v=3"></script>
 <script src="pages/index-membres.js"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
 <script defer="" src="footer.js?v=11"></script>
