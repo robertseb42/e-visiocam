@@ -1,0 +1,56 @@
+/* E-VISIOCAM — Messagerie au format téléphone (sombre par défaut, clair via data-theme) */
+.tel{--t-fond:#121215;--t-panneau:#1c1c21;--t-bord:#2e2e35;--t-texte:#f5f5f7;--t-doux:#a7a7b3;--t-rose:#ff1680;--t-or:#ffe500;--t-moi:#ff1680;--t-lui:#26262d;
+  position:relative;display:flex;flex-direction:column;width:100%;max-width:460px;height:calc(100vh - 110px);min-height:560px;max-height:900px;margin:0 auto;
+  background:var(--t-fond);color:var(--t-texte);border:1px solid var(--t-bord);border-radius:28px;overflow:hidden;box-shadow:0 20px 60px #0007}
+html[data-theme="light"] .tel{--t-fond:#f3f4f8;--t-panneau:#fff;--t-bord:#e2e8f0;--t-texte:#0f172a;--t-doux:#64748b;--t-rose:#e91e63;--t-or:#e91e63;--t-moi:#e91e63;--t-lui:#fff;box-shadow:0 20px 60px #0f172a22}
+.tel [hidden]{display:none!important}
+.tel-tete{position:relative;display:flex;align-items:center;gap:8px;padding:14px 14px 10px;border-bottom:1px solid var(--t-bord);background:var(--t-panneau)}
+.tel-titre{flex:1;min-width:0;display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tel-titre i{color:var(--t-rose)}
+.tel-titre img,.tel-titre .tel-av{width:36px;height:36px}
+.tel-titre small{display:block;font-size:11.5px;font-weight:600;color:var(--t-doux)}
+.tel-icone{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;border:0;background:transparent;color:var(--t-texte);font-size:17px;cursor:pointer}
+.tel-icone:hover{background:color-mix(in srgb,var(--t-rose) 14%,transparent)}
+.tel-menu{position:absolute;right:12px;top:58px;z-index:5;display:grid;min-width:230px;padding:6px;border-radius:14px;background:var(--t-panneau);border:1px solid var(--t-bord);box-shadow:0 12px 30px #0006}
+.tel-menu button{display:flex;align-items:center;gap:10px;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:var(--t-texte);font-family:inherit;font-size:14px;font-weight:600;text-align:left;cursor:pointer}
+.tel-menu button:hover{background:color-mix(in srgb,var(--t-rose) 12%,transparent)}
+.tel-recherche{position:relative;padding:10px 14px;background:var(--t-panneau)}
+.tel-recherche i{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--t-doux);font-size:13px}
+.tel-recherche input{width:100%;padding:10px 12px 10px 36px;border-radius:14px;border:1px solid var(--t-bord);background:var(--t-fond);color:var(--t-texte);font-family:inherit;font-size:14px}
+.tel-corps{flex:1;min-height:0;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.tel-vide{margin:auto;padding:30px 20px;text-align:center;color:var(--t-doux);font-size:14px;line-height:1.5}
+.tel-vide i{display:block;font-size:34px;margin-bottom:10px;color:var(--t-rose)}
+/* Liste des conversations / contacts */
+.tel-ligne{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:1px solid var(--t-bord);border-radius:18px;background:var(--t-panneau);color:inherit;font-family:inherit;text-align:left;cursor:pointer}
+.tel-ligne:hover{border-color:var(--t-rose)}
+.tel-ligne.non-lu{border-color:color-mix(in srgb,var(--t-rose) 60%,var(--t-bord))}
+.tel-av{position:relative;flex:none;width:48px;height:48px;border-radius:50%;overflow:visible;background:var(--t-fond)}
+.tel-av img,.tel-av svg{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;box-shadow:0 0 0 2px var(--t-rose)}
+.tel-av .tel-point{position:absolute;right:0;bottom:1px;width:12px;height:12px;border-radius:50%;background:#2ee59d;box-shadow:0 0 0 2px var(--t-panneau)}
+.tel-ligne-txt{flex:1;min-width:0}
+.tel-ligne-txt b{display:block;font-size:15px}
+.tel-ligne-txt span{display:block;font-size:13px;color:var(--t-doux);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tel-ligne.non-lu .tel-ligne-txt span{color:var(--t-texte);font-weight:700}
+.tel-ligne small{flex:none;font-size:11.5px;color:var(--t-doux);text-align:right}
+.tel-ligne em{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-top:4px;padding:0 6px;border-radius:999px;background:var(--t-rose);color:#fff;font-style:normal;font-size:11px;font-weight:800}
+.tel-section{margin:8px 4px 2px;font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--t-doux)}
+/* Discussion */
+.tel-bulle{max-width:80%;padding:9px 13px;border-radius:18px;font-size:14.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word}
+.tel-bulle.lui{align-self:flex-start;background:var(--t-lui);border:1px solid var(--t-bord);border-bottom-left-radius:6px}
+.tel-bulle.moi{align-self:flex-end;background:var(--t-moi);color:#fff;border-bottom-right-radius:6px}
+.tel-bulle small{display:block;margin-top:3px;font-size:10.5px;opacity:.7;text-align:right}
+.tel-bulle b{display:block;font-size:12px;margin-bottom:2px}
+.tel-jour{align-self:center;margin:6px 0;padding:3px 10px;border-radius:999px;background:var(--t-panneau);font-size:11px;color:var(--t-doux)}
+.tel-saisie{display:flex;align-items:flex-end;gap:8px;padding:10px 12px;border-top:1px solid var(--t-bord);background:var(--t-panneau)}
+.tel-saisie textarea{flex:1;max-height:120px;padding:10px 14px;border-radius:20px;border:1px solid var(--t-bord);background:var(--t-fond);color:var(--t-texte);font-family:inherit;font-size:14.5px;resize:none}
+.tel-envoyer{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:0;background:var(--t-rose);color:#fff;font-size:16px;cursor:pointer}
+.tel-avert{align-self:center;margin:4px 0;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--t-rose) 14%,transparent);font-size:12.5px;text-align:center}
+/* Onglets du bas */
+.tel-onglets{display:grid;grid-template-columns:repeat(3,1fr);padding:6px 8px 8px;border-top:1px solid var(--t-bord);background:var(--t-panneau)}
+.tel-onglets button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border:0;border-radius:14px;background:transparent;color:var(--t-doux);font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer}
+.tel-onglets button i{font-size:18px}
+.tel-onglets button[aria-current="page"]{color:var(--t-rose);background:color-mix(in srgb,var(--t-rose) 10%,transparent)}
+.tel-onglets b{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--t-rose);color:#fff;font-size:10px;line-height:18px}
+@media (max-width:640px){.tel{max-width:none;height:calc(100vh - 128px);min-height:0;border-radius:0;border-left:0;border-right:0}}
+/* Téléphone : la radio flottante est masquée sur la messagerie (elle cachait « Envoyer » et le menu) */
+@media (max-width:640px){#radioWidgetFloating{display:none!important}}

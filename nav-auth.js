@@ -459,8 +459,9 @@
                     }
                 });
 
-                unreadSocket.on('dm:message', function() {
+                unreadSocket.on('dm:message', function(d) {
                     setTimeout(refreshUnreadCount, 500);
+                    try { window.dispatchEvent(new CustomEvent('evc:dm', { detail: d || {} })); } catch (e) {}   // messagerie ouverte : mise à jour en direct
                 });
 
                 // ⚖️ Sanction de la modération (expulsion, bannissement, sourdine)

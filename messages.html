@@ -22,11 +22,11 @@
     <script src="auth-api.js?v=7"></script>
     <script src="legal-banner.js?v=4" defer></script>
     <script src="site-search.js" defer></script>
-<script src="nav-auth.js?v=14"></script>
+<script src="nav-auth.js?v=15"></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
 <link href="menu-haut.css?v=1" rel="stylesheet"/>
-    <link rel="stylesheet" href="messagerie.css?v=1">
+    <link rel="stylesheet" href="messagerie-tel.css?v=1">
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
 </head>
@@ -99,70 +99,38 @@
     </div>
 </header>
 
-<main class="evm max-w-[1700px] w-full mx-auto flex-1 p-3 md:p-6">
-    <div class="evm-tete">
-        <h1><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Ma messagerie</h1>
-        <button type="button" id="evmNouveau" class="evm-btn evm-btn-ecrire"><i class="fa-solid fa-pen" aria-hidden="true"></i> Nouveau message</button>
-    </div>
-
-    <div class="evm-boite">
-        <!-- Dossiers -->
-        <nav class="evm-dossiers" aria-label="Dossiers">
-            <button type="button" data-dossier="recus" class="actif"><i class="fa-solid fa-inbox" aria-hidden="true"></i><span>Reçus</span><b id="evmCompteRecus" hidden>0</b></button>
-            <button type="button" data-dossier="envoyes"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Envoyés</span></button>
-            <button type="button" data-dossier="corbeille"><i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Corbeille</span></button>
-            <p class="evm-astuce"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Vous pouvez écrire à un membre même s'il n'est pas connecté : il trouvera votre message dans ses Reçus.</p>
-        </nav>
-
-        <!-- Liste des messages -->
-        <section class="evm-liste" aria-label="Messages">
-            <div class="evm-recherche">
-                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <input type="search" id="evmRecherche" placeholder="Rechercher (pseudo, objet, texte)…" aria-label="Rechercher dans la messagerie" maxlength="60">
-            </div>
-            <ul id="evmListe" class="evm-lignes"></ul>
-            <button type="button" id="evmPlus" class="evm-plus" hidden>Messages plus anciens</button>
-        </section>
-
-        <!-- Lecture -->
-        <section class="evm-lecture" id="evmLecture" aria-live="polite">
-            <div class="evm-vide"><i class="fa-regular fa-envelope" aria-hidden="true"></i><p>Sélectionnez un message pour le lire</p></div>
-        </section>
-    </div>
+<main class="w-full flex-1 p-0 md:p-6">
+<!-- 📱 Messagerie au format téléphone : conversations, discussion en bulles, contacts, membres en ligne (pages/messagerie-tel.js) -->
+<div class="tel" id="tel">
+    <header class="tel-tete">
+        <button type="button" class="tel-icone" id="telRetour" hidden aria-label="Retour aux conversations"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i></button>
+        <div class="tel-titre" id="telTitre"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i> Messagerie</div>
+        <button type="button" class="tel-icone" id="telNouveau" aria-label="Nouveau message" title="Nouveau message"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
+        <button type="button" class="tel-icone" id="telMenu" hidden aria-label="Options de la conversation"><i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i></button>
+        <div class="tel-menu" id="telMenuListe" hidden>
+            <button type="button" data-tel-action="profil"><i class="fa-solid fa-user" aria-hidden="true"></i> Voir le profil</button>
+            <button type="button" data-tel-action="supprimer"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Supprimer la conversation</button>
+            <button type="button" data-tel-action="signaler"><i class="fa-solid fa-flag" aria-hidden="true"></i> Signaler ou bloquer</button>
+        </div>
+    </header>
+    <div class="tel-recherche" id="telRecherche"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><input type="search" id="telQ" placeholder="Rechercher un pseudo…" autocomplete="off" maxlength="40" aria-label="Rechercher"></div>
+    <div class="tel-corps" id="telCorps" aria-live="polite"></div>
+    <form class="tel-saisie" id="telSaisie" hidden>
+        <textarea id="telTexte" rows="1" maxlength="2000" placeholder="Votre message…" aria-label="Votre message"></textarea>
+        <button type="submit" class="tel-envoyer" aria-label="Envoyer"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
+    </form>
+    <nav class="tel-onglets" id="telOnglets" aria-label="Messagerie">
+        <button type="button" data-tel-onglet="messages" aria-current="page"><i class="fa-solid fa-comments" aria-hidden="true"></i><span>Messages</span><b id="telNonLus" hidden>0</b></button>
+        <button type="button" data-tel-onglet="contacts"><i class="fa-solid fa-address-book" aria-hidden="true"></i><span>Contacts</span></button>
+        <button type="button" data-tel-onglet="enligne"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i><span>En ligne</span></button>
+    </nav>
+</div>
 </main>
 
-<!-- Fenêtre : nouveau message / répondre -->
-<div id="evmFenetre" class="evm-fond" hidden>
-    <form id="evmForm" class="evm-fenetre" role="dialog" aria-modal="true" aria-labelledby="evmFenetreTitre" novalidate>
-        <div class="evm-fenetre-tete">
-            <h2 id="evmFenetreTitre">Nouveau message</h2>
-            <button type="button" class="evm-fermer" id="evmFermer" aria-label="Fermer"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-        </div>
-        <label class="evm-champ">
-            <span>À</span>
-            <div class="evm-a">
-                <span id="evmAChoisi" class="evm-puce" hidden></span>
-                <input type="text" id="evmA" placeholder="Pseudo du membre…" autocomplete="off" maxlength="40">
-                <ul id="evmSuggestions" class="evm-suggestions" hidden></ul>
-            </div>
-        </label>
-        <label class="evm-champ">
-            <span>Objet</span>
-            <input type="text" id="evmObjet" placeholder="(facultatif)" maxlength="120">
-        </label>
-        <label class="evm-champ evm-champ-texte">
-            <span class="evm-sr">Message</span>
-            <textarea id="evmTexte" rows="9" maxlength="2000" placeholder="Votre message…" required></textarea>
-        </label>
-        <p id="evmErreur" class="evm-erreur" role="alert" hidden></p>
-        <div class="evm-fenetre-pied">
-            <small id="evmCompteur">0 / 2000</small>
-            <button type="submit" class="evm-btn evm-btn-ecrire" id="evmEnvoyer"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Envoyer</button>
-        </div>
-    </form>
-</div>
+
 <script src="securite-membres.js?v=2"></script>
-<script src="pages/messagerie.js?v=1"></script>
+<script src="avatars-masques.js?v=1"></script>
+<script src="pages/messagerie-tel.js?v=1"></script>
  <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=4"></script>
 <script src="footer.js?v=12" defer></script>
