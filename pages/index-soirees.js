@@ -74,7 +74,7 @@
             var l = x.lieu || {};
             return '<li><a class="evx-carte evx-club" href="/lieu.html?l=' + encodeURIComponent(l.slug || '') + '">' +
                 '<span class="evx-visuel">' + (x.visuel ? '<img src="' + esc(BASE + x.visuel) + '" alt="" loading="lazy">' : '<i class="fa-solid fa-champagne-glasses" aria-hidden="true"></i>') +
-                '<span class="evx-etiquette">Club partenaire</span></span>' +
+                '</span>' +
                 '<span class="evx-corps"><small>' + esc(quand(x)) + '</small><b>' + esc(x.titre) + '</b><span>' + esc(l.nom || '') + (l.ville ? ' · ' + esc(l.ville) : '') + '</span>' +
                 '<em class="evx-cta"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Voir la soirée</em></span></a></li>';
         }).join('');

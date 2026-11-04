@@ -1116,7 +1116,8 @@
                     '<small>' + esc(l.typeLibelle) + ' · ' + esc(l.ville) + ' · ' + esc(l.regionNom) + ' · ' + (l.nbAvis ? l.nbAvis + ' avis' : 'aucun avis') + ' · ' + (l.type === 'loveroom' ? 'love room (sans horaires)' : nbCr ? nbCr + ' créneau(x) horaires' : '<span class="gl-manque">horaires à compléter</span>') + ' · ' + (l.verifie ? '<span class="gl-ok"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> vérifiée le ' + esc(dateFr(l.verifieLe)) + '</span>' : '<span class="gl-manque">non vérifiée</span>') + (l.lat == null ? ' · <span class="gl-manque">pas encore sur la carte</span>' : '') + '</small></div>' +
                     '<div class="gl-mod-actions"><button type="button" class="gl-btn gl-btn-jaune" data-edit-lieu="' + l.id + '"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier</button>' +
                     (l.statut === 'publie' ? '<a class="gl-btn" href="lieu.html?l=' + encodeURIComponent(l.slug) + '">Voir</a><button type="button" class="gl-btn gl-btn-rouge" data-mod="lieu" data-id="' + l.id + '" data-d="refuser">Retirer</button>'
-                        : '<button type="button" class="gl-btn" data-mod="lieu" data-id="' + l.id + '" data-d="publier">Publier</button>') + '</div></article>';
+                        : '<button type="button" class="gl-btn" data-mod="lieu" data-id="' + l.id + '" data-d="publier">Publier</button>') +
+                    (superAdmin() ? '<button type="button" class="gl-btn gl-btn-rouge" data-exclure-lieu="' + l.id + '" title="À la demande de l’établissement : supprime la fiche et bloque toute nouvelle proposition"><i class="fa-solid fa-ban" aria-hidden="true"></i> Exclure</button>' : '') + '</div></article>';
             }).join('') : '<p class="gl-vide">Aucun lieu pour ces critères. Cliquez sur « Ajouter un lieu » pour commencer.</p>';
             listeEq = d.lieux.map(function (l) { return l.id; });
             majLot();
@@ -1134,6 +1135,33 @@
             }).join('') : '<p class="gl-vide">Aucun établissement exclu.</p>';
         } catch (x) { z.innerHTML = '<p class="gl-vide">' + esc(x.message) + '</p>'; }
     }
+    function superAdmin() { var u = typeof getCurrentUser === 'function' && getCurrentUser(); return !!(u && u.role === 'super_admin'); }
+    // Bouton « Exclure » sur chaque fiche : la raison se saisit juste en dessous
+    document.addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-exclure-lieu]');
+        if (b) {
+            var art = b.closest('.gl-eq-lieu'), id = b.getAttribute('data-exclure-lieu');
+            if (art.nextElementSibling && art.nextElementSibling.classList.contains('gl-eq-exclure')) { art.nextElementSibling.remove(); return; }
+            var l = LIEUX_EQ[id] || {};
+            var bloc = document.createElement('div'); bloc.className = 'gl-eq-exclure';
+            bloc.innerHTML = '<p class="gl-aide"><b>Exclure « ' + esc(l.nom || '') + ' »</b> : la fiche et tout ce qui s\'y rattache (avis, soirées, photos) sont supprimés, et l\'établissement ne pourra plus être proposé ni importé.</p>' +
+                '<label class="gl-champ"><span>Raison de l\'exclusion *</span><input data-raison maxlength="300" placeholder="Ex. : demande de l\'établissement par e-mail du 4 novembre 2026"></label>' +
+                '<div class="gl-mod-actions"><button type="button" class="gl-btn gl-btn-rouge" data-exclure-ok="' + Number(id) + '">Confirmer l\'exclusion</button><button type="button" class="gl-lien-btn gl-gris" data-exclure-non>Annuler</button></div>';
+            art.after(bloc); bloc.querySelector('[data-raison]').focus();
+            return;
+        }
+        if (e.target.closest('[data-exclure-non]')) { e.target.closest('.gl-eq-exclure').remove(); return; }
+        var ok = e.target.closest('[data-exclure-ok]'); if (!ok) return;
+        var zone = ok.closest('.gl-eq-exclure'), raison = zone.querySelector('[data-raison]').value.trim();
+        if (raison.length < 5) { toast('Indiquez la raison de l’exclusion', 'error'); zone.querySelector('[data-raison]').focus(); return; }
+        ok.disabled = true;
+        try {
+            await api('/equipe/lieux/action', { method: 'POST', body: JSON.stringify({ ids: [Number(ok.getAttribute('data-exclure-ok'))], action: 'exclure', raison: raison }) });
+            toast('Établissement exclu du guide', 'success');
+            delete choisis[ok.getAttribute('data-exclure-ok')];
+            chargerEquipe(); chargerExclus(); chargerModeration();
+        } catch (x) { toast(x.message, 'error'); ok.disabled = false; }
+    });
     var leverConfirme = {};
     document.addEventListener('click', async function (e) {
         var b = e.target.closest('[data-lever-exclu]'); if (!b) return;
