@@ -62,3 +62,7 @@ html[data-theme="light"] .plib{--pl-fond:#f1f5f9;--pl-bord:#e2e8f0;--pl-texte:#0
 .niv-etapes li.fait{opacity:.6}
 .niv-etapes em{font-style:normal;font-weight:800;color:var(--pl-or);white-space:nowrap}
 .niv-conseil{margin:0;font-size:13px;padding:10px 12px;border-radius:10px;border:1px dashed var(--pl-rose)}
+.alb-accord{display:flex;gap:8px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border-radius:10px;border:1px dashed var(--pl-rose);font-size:12.5px;font-weight:600;cursor:pointer}
+.alb-accord input{margin-top:2px;accent-color:var(--pl-rose)}
+.alb-accord a{color:var(--pl-rose)}
+.alb-bloque{opacity:.45;cursor:not-allowed}

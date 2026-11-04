@@ -1,6 +1,6 @@
 // ============================================================
 // MODÉRATION — Albums privés (onglet « Photos de profil »)
-// Contrôle AVANT diffusion : une photo n'est visible des membres autorisés qu'après « Valider ».
+// Publication immédiate pour les membres autorisés ; l'équipe contrôle ici (photos signalées en tête, déjà masquées).
 // 🚨 Contenu illégal : quarantaine de tout l'album (preuve), bannissement, puis signalement PHAROS par l'équipe.
 // ============================================================
 (function () {
@@ -29,10 +29,10 @@
                 return '<div class="rounded-2xl border ' + (p.signalements.length ? 'border-rose-400' : 'border-slate-200') + ' p-3 bg-slate-50" data-alb="' + Number(p.id) + '">' +
                     '<img alt="Photo d’album de ' + esc(p.username) + '" class="w-full aspect-square rounded-xl object-cover bg-slate-200 mb-2">' +
                     '<p class="text-sm font-bold text-slate-900 truncate">' + esc(p.username) + '</p>' +
-                    (p.signalements.length ? '<p class="text-[11px] font-bold text-rose-500 mb-1">🚩 Signalée : ' + esc(p.signalements.join(', ')) + '</p>' : '<p class="text-[11px] text-slate-400 mb-1">Nouvelle photo</p>') +
+                    (p.signalements.length ? '<p class="text-[11px] font-bold text-rose-500 mb-1">🚩 Signalée : ' + esc(p.signalements.join(', ')) + '</p>' : '<p class="text-[11px] text-slate-400 mb-1">Nouvelle photo (déjà visible)</p>') +
                     '<div class="grid grid-cols-2 gap-2"><button type="button" data-aok class="py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600">✔ Valider</button>' +
                     '<button type="button" data-anon class="py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-600">✕ Retirer</button></div>' +
-                    '<button type="button" data-ailleg class="mt-2 w-full py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white hover:bg-black">🚨 Contenu illégal</button></div>';
+                    '<button type="button" data-ailleg class="mt-2 w-full py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white hover:bg-black">🚨 Illégal (mineur, escorting…)</button></div>';
             }).join('');
             boite.querySelectorAll('[data-alb]').forEach(function (c) { var p = liste.find(function (x) { return String(x.id) === c.getAttribute('data-alb'); }); image(p.url, c.querySelector('img')); });
         } catch (e) { badge(0); }

@@ -181,7 +181,7 @@
         var doc = haut(), z = el('div', 'evs-zoom');
         var img = el('img'); img.src = src; img.alt = p.legende || '';
         var barre = el('div', 'evs-zoom-barre');
-        var motif = el('select'); [['', '🚩 Signaler cette photo…'], ['mineur', 'Personne qui semble mineure'], ['sans_accord', 'Personne sans son accord'], ['violence', 'Violence ou contenu illégal'], ['coordonnees', 'Coordonnées ou publicité'], ['autre', 'Autre']]
+        var motif = el('select'); [['', '🚩 Signaler cette photo…'], ['mineur', 'Personne qui semble mineure'], ['escorting', 'Prostitution ou escorting'], ['sans_accord', 'Personne sans son accord'], ['violence', 'Violence ou contenu illégal'], ['coordonnees', 'Coordonnées ou publicité'], ['autre', 'Autre']]
             .forEach(function (o) { var op = el('option', '', o[1]); op.value = o[0]; motif.appendChild(op); });
         var fermerZ = el('button', '', 'Fermer'); fermerZ.type = 'button';
         motif.addEventListener('change', async function () {

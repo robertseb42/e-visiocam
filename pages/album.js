@@ -1,6 +1,7 @@
 // ============================================================
 // E-VISIOCAM — « Mon album privé » dans Mon compte
-//   12 photos au plus, visibles seulement par les membres que j'autorise, et seulement après vérification par l'équipe.
+//   12 photos au plus, visibles tout de suite par les membres que j'autorise. L'équipe peut les contrôler à tout moment
+//   (case à cocher avant le premier envoi, CGU 2.3) : suppression, fermeture du compte, signalement aux autorités.
 //   Demandes d'accès reçues (accepter / refuser) et accès donnés (retirer à tout moment).
 // ============================================================
 (function () {
@@ -8,7 +9,8 @@
     var zone = document.getElementById('albumZone');
     if (!zone || typeof API_URL === 'undefined') return;
     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-    var BASE = String(API_URL).replace(/\/api\/?$/, ''), blobs = [], d = null, envoi = false;
+    var BASE = String(API_URL).replace(/\/api\/?$/, ''), blobs = [], d = null, envoi = false, accord = false;
+    try { accord = localStorage.getItem('evcAlbumAccord') === '1'; } catch (e) {}
     function toast(m, t) { if (typeof showToast === 'function') showToast(m, t || 'info'); }
     async function appel(chemin, opts) {
         var r = await fetch(API_URL + '/albums' + chemin, Object.assign({ credentials: 'include', headers: { 'Content-Type': 'application/json' } }, opts || {}));
@@ -30,14 +32,17 @@
         blobs.forEach(function (u) { URL.revokeObjectURL(u); }); blobs = [];
         var plein = d.photos.length >= d.max;
         zone.innerHTML =
-            '<p class="alb-regles">Vos photos ne sont visibles que par les membres que <b>vous autorisez</b>, et seulement <b>après vérification par l’équipe</b>. ' +
-            'Interdit : <b>toute personne mineure</b>, toute personne photographiée sans son accord, coordonnées et publicité. Tout manquement entraîne le bannissement et un signalement aux autorités.</p>' +
+            '<p class="alb-regles">Vos photos sont visibles <b>seulement par les membres que vous autorisez</b>. ' +
+            'Pour protéger tout le monde, <b>l\u2019équipe de modération peut les contrôler à tout moment</b>, les supprimer et fermer le compte. ' +
+            'Interdit : <b>toute personne mineure</b>, la <b>prostitution ou l\u2019escorting</b> (tarifs, rendez-vous payants, même sous-entendus), toute personne photographiée sans son accord, coordonnées et publicité. ' +
+            'Les contenus illégaux sont signalés aux autorités (PHAROS).</p>' +
+            '<label class="alb-accord"><input type="checkbox" data-alb-accord' + (accord ? ' checked' : '') + '> J\u2019accepte ces règles et le contrôle de mes photos privées par l\u2019équipe (<a href="cgu.html#album" target="_blank" rel="noopener">CGU 2.3</a>).</label>' +
             '<div class="alb-grille">' + d.photos.map(function (p) {
                 return '<div class="alb-photo"><img data-src="' + esc(p.url) + '" alt="' + esc(p.legende || 'Photo de votre album') + '">' +
-                    (p.enAttente ? '<span class="alb-attente">En vérification</span>' : '') +
+                    (p.masquee ? '<span class="alb-attente">Masquée : signalée, en vérification</span>' : '') +
                     '<button type="button" data-alb-suppr="' + Number(p.id) + '" title="Supprimer cette photo" aria-label="Supprimer cette photo">✕</button></div>';
             }).join('') +
-            (plein ? '' : '<label class="alb-ajout">' + (envoi ? 'Envoi…' : '＋ Ajouter des photos<br><small>' + d.photos.length + '/' + d.max + '</small>') + '<input type="file" accept="image/*" multiple data-alb-fichier hidden></label>') + '</div>' +
+            (plein ? '' : '<label class="alb-ajout' + (accord ? '' : ' alb-bloque') + '">' + (envoi ? 'Envoi…' : '＋ Ajouter des photos<br><small>' + d.photos.length + '/' + d.max + '</small>') + '<input type="file" accept="image/*" multiple data-alb-fichier hidden' + (accord ? '' : ' disabled') + '></label>') + '</div>' +
             (d.demandes.length ? '<p class="alb-sous">Demandes d’accès (' + d.demandes.length + ')</p>' + personnes(d.demandes, function (m) {
                 return '<button type="button" class="cert-btn" data-alb-accepter="' + Number(m.id) + '">Accepter</button><button type="button" class="cert-btn cert-btn-2" data-alb-refuser="' + Number(m.id) + '">Refuser</button>';
             }) : '') +
@@ -65,17 +70,23 @@
     async function charger() { try { d = await appel('/moi'); rendre(); } catch (e) { zone.innerHTML = '<p class="text-xs text-slate-500">L’album privé est indisponible pour le moment.</p>'; } }
 
     zone.addEventListener('change', async function (e) {
+        if (e.target.hasAttribute('data-alb-accord')) {
+            accord = e.target.checked;
+            try { localStorage.setItem('evcAlbumAccord', accord ? '1' : '0'); } catch (x) {}
+            rendre(); return;
+        }
         if (!e.target.hasAttribute('data-alb-fichier')) return;
+        if (!accord) { toast('Cochez d\u2019abord la case pour accepter les règles de l\u2019album', 'error'); return; }
         var fichiers = [].slice.call(e.target.files || []).slice(0, d.max - d.photos.length);
         if (!fichiers.length) return;
         envoi = true; rendre();
         var n = 0;
         for (var i = 0; i < fichiers.length; i++) {
-            try { var image = await reduire(fichiers[i]); var r = await appel('/moi/photos', { method: 'POST', body: JSON.stringify({ image: image }) }); d.photos = r.photos; n++; }
+            try { var image = await reduire(fichiers[i]); var r = await appel('/moi/photos', { method: 'POST', body: JSON.stringify({ image: image, accord: true }) }); d.photos = r.photos; n++; }
             catch (x) { toast(x.message, 'error'); }
         }
         envoi = false; rendre();
-        if (n) toast(n + ' photo' + (n > 1 ? 's ajoutées' : ' ajoutée') + ' : visible' + (n > 1 ? 's' : '') + ' après vérification par l’équipe', 'success');
+        if (n) toast(n + ' photo' + (n > 1 ? 's ajoutées' : ' ajoutée') + ' à votre album privé', 'success');
     });
     zone.addEventListener('click', async function (e) {
         var b = e.target.closest('[data-alb-suppr],[data-alb-accepter],[data-alb-refuser],[data-alb-retirer]'); if (!b) return;
