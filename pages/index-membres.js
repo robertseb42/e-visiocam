@@ -1,5 +1,5 @@
 // E-VISIOCAM — Accueil : « Nos membres » (les derniers inscrits)
-//   Visiteur : les compteurs et une mosaïque de masques (aucun pseudo dévoilé), avec un bouton pour rejoindre.
+//   Visiteur : les compteurs et les derniers inscrits en version anonyme (masque, profil, département), avec un bouton pour rejoindre.
 //   Membre connecté : les derniers inscrits (photo validée, sinon masque vénitien), clic = mini-fiche.
 //   Ceux qui ont choisi de ne pas apparaître dans la galerie ne sont jamais affichés.
 (function () {
@@ -19,12 +19,17 @@
                 (d.semaine ? ' <span class="evm-sep">·</span> <b>+' + nombre(d.semaine) + '</b> cette semaine' : '');
             var lien = document.getElementById('quiLien');
             if (!d.connecte) {
-                // Visiteur : une mosaïque de masques (décor) et l'invitation à rejoindre — aucun membre dévoilé
-                var genres = ['couple', 'femme', 'homme', 'femme', 'couple', 'homme', '', 'femme', 'homme', 'couple'];
-                var mosaique = genres.map(function (g, i) { return '<span class="evm-avatar" aria-hidden="true">' + masque(g, 'visiteur' + i) + '</span>'; }).join('');
-                liste.innerHTML = '<div class="evm-invite"><div class="evm-mosaique">' + mosaique + '</div>' +
-                    '<div class="evm-invite-txt"><p>Couples, femmes et hommes : <b>' + nombre(d.total) + ' membres</b> ont déjà rejoint la communauté. Pseudo, masque ou photo : vous choisissez ce que vous montrez.</p>' +
-                    '<a class="ev-btn" href="register.html">Rejoindre gratuitement <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div></div>';
+                // Visiteur : les vrais derniers inscrits, en version anonyme (masque, profil, département), puis l'invitation
+                var PROFIL = { femme: 'Femme', homme: 'Homme', couple: 'Couple' };
+                var tuiles = (d.membres || []).map(function (m, i) {
+                    var p = PROFIL[String(m.genre || '').toLowerCase()] || 'Membre';
+                    return '<a href="register.html" class="ev-qui-m evm-m evm-anonyme" title="' + esc(p + (m.departement ? ' · ' + nomDep(m.departement) : '')) + '">' +
+                        '<span class="ev-qui-photo evm-avatar">' + masque(m.genre, 'anonyme' + i + (m.departement || '')) + '</span>' +
+                        '<span class="ev-qui-nom">' + esc(p) + '</span>' + (m.departement ? '<span class="evm-dep">' + esc(nomDep(m.departement)) + '</span>' : '') + '</a>';
+                }).join('');
+                liste.innerHTML = (tuiles ? '<div class="evm-tuiles">' + tuiles + '</div>' : '') +
+                    '<div class="evm-invite-txt evm-invite-bas"><p>Ils viennent de nous rejoindre. Pseudo, masque ou photo : <b>vous choisissez ce que vous montrez</b>. Inscrivez-vous pour découvrir leurs profils.</p>' +
+                    '<a class="ev-btn" href="register.html">Rejoindre gratuitement <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>';
                 if (lien) lien.hidden = true;
                 return;
             }
