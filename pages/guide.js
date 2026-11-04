@@ -513,6 +513,78 @@
         document.head.appendChild(sc);
     }
 
+    // Fiche : photo principale + galerie, en diaporama (fond flou, image entière), vignettes et plein écran
+    function photosDe(l) {
+        return (l.photo ? [{ url: l.photo, principale: true }] : []).concat((l.galerie || []).map(function (g) { return { url: g.url, id: g.id }; }));
+    }
+    function galerieFiche(l) {
+        var ph = photosDe(l), h = '';
+        if (ph.length) {
+            h += '<div class="gl-galerie" data-galerie>' +
+                '<div class="gl-galerie-vues">' + ph.map(function (p, i) {
+                    var u = esc(urlApi(p.url));
+                    return '<figure class="gl-galerie-vue' + (i ? '' : ' actif') + '" style="--fond:url(\'' + u + '\')"><img src="' + u + '" alt="' + esc(l.nom) + (ph.length > 1 ? ' – photo ' + (i + 1) : '') + '"' + (i ? ' loading="lazy"' : '') + ' data-agrandir="' + i + '"></figure>';
+                }).join('') + '</div>' +
+                (l.prixDes != null ? '<span class="gl-prix-des">à partir de ' + l.prixDes + ' €</span>' : '') +
+                (ph.length > 1 ? '<button type="button" class="gl-galerie-fl gl-prec" data-gal="-1" aria-label="Photo précédente"><i class="fa-solid fa-chevron-left"></i></button><button type="button" class="gl-galerie-fl gl-suiv" data-gal="1" aria-label="Photo suivante"><i class="fa-solid fa-chevron-right"></i></button><span class="gl-galerie-nb"><b>1</b> / ' + ph.length + '</span>' : '') +
+                '</div>';
+            if (ph.length > 1 || equipe()) h += '<div class="gl-galerie-vignettes">' + ph.map(function (p, i) {
+                return '<span class="gl-vignette"><button type="button" class="' + (i ? '' : 'actif') + '" data-gal-aller="' + i + '" aria-label="Voir la photo ' + (i + 1) + '"><img src="' + esc(urlApi(p.url)) + '" alt="" loading="lazy"></button>' +
+                    (equipe() && p.id ? '<button type="button" class="gl-vignette-suppr" data-galerie-suppr="' + l.id + ':' + p.id + '" aria-label="Retirer cette photo">×</button>' : '') + '</span>';
+            }).join('') + (equipe() && (l.galerie || []).length < 10 ? '<label class="gl-vignette-ajout" title="Ajouter des photos"><i class="fa-solid fa-plus"></i><input type="file" multiple accept="image/jpeg,image/png,image/webp" class="gl-sr" data-galerie-ajout="' + l.id + '"></label>' : '') + '</div>';
+            h += '<p class="gl-photo-credit">Photos : © ' + esc(l.nom) + (l.site ? ', <a href="' + esc(l.site) + '" target="_blank" rel="noopener nofollow">site officiel</a>' : '') +
+                ' · <a href="contact.html?sujet=autre&amp;message=' + encodeURIComponent('Demande de retrait ou de changement des photos de la fiche « ' + l.nom + ' » (' + location.origin + (l.url || '/lieu.html?l=' + l.id) + ')') + '">Vous êtes l\'établissement ? Demander le retrait ou le changement des photos</a></p>';
+        }
+        if (equipe()) h += '<p class="gl-photo-equipe"><label class="gl-lien-btn">' + (l.photo ? 'Changer la photo principale' : 'Ajouter la photo principale') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-photo-lieu="' + l.id + '"></label>' +
+            (l.photo ? ' <button type="button" class="gl-lien-btn gl-rouge" data-photo-retirer="' + l.id + '">Retirer la photo principale</button>' : '') +
+            ((l.galerie || []).length < 10 ? ' <label class="gl-lien-btn">+ Ajouter des photos à la galerie<input type="file" multiple accept="image/jpeg,image/png,image/webp" class="gl-sr" data-galerie-ajout="' + l.id + '"></label>' : '') +
+            ' <small>La photo principale s\'affiche sur la carte du guide ; la galerie (10 max) dans la fiche.</small></p>';
+        return h;
+    }
+    function galerieAller(g, k) {
+        var vues = g.querySelectorAll('.gl-galerie-vue'); if (vues.length < 2) return;
+        var n = +(g.dataset.n || 0); vues[n].classList.remove('actif');
+        n = (k + vues.length) % vues.length; g.dataset.n = n; vues[n].classList.add('actif');
+        var nb = g.querySelector('.gl-galerie-nb b'); if (nb) nb.textContent = n + 1;
+        var vg = g.nextElementSibling; if (vg && vg.classList.contains('gl-galerie-vignettes')) vg.querySelectorAll('[data-gal-aller]').forEach(function (b, i) { b.classList.toggle('actif', i === n); });
+    }
+    function agrandir(g, n) {
+        var urls = [].map.call(g.querySelectorAll('.gl-galerie-vue img'), function (i) { return i.src; });
+        var o = document.createElement('div'); o.className = 'gl-visionneuse'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Photos');
+        o.innerHTML = '<img alt=""><button type="button" class="gl-visio-fermer" aria-label="Fermer">×</button>' + (urls.length > 1 ? '<button type="button" class="gl-galerie-fl gl-prec" aria-label="Précédente"><i class="fa-solid fa-chevron-left"></i></button><button type="button" class="gl-galerie-fl gl-suiv" aria-label="Suivante"><i class="fa-solid fa-chevron-right"></i></button>' : '');
+        var img = o.querySelector('img'), voir = function (k) { n = (k + urls.length) % urls.length; img.src = urls[n]; };
+        var fermer = function () { o.remove(); document.removeEventListener('keydown', clavier); };
+        var clavier = function (e) { if (e.key === 'Escape') fermer(); else if (e.key === 'ArrowLeft') voir(n - 1); else if (e.key === 'ArrowRight') voir(n + 1); };
+        o.addEventListener('click', function (e) { if (e.target.closest('.gl-prec')) voir(n - 1); else if (e.target.closest('.gl-suiv')) voir(n + 1); else if (e.target !== img) fermer(); });
+        document.addEventListener('keydown', clavier); document.body.appendChild(o); voir(n); o.querySelector('.gl-visio-fermer').focus();
+    }
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-gal]'), a = e.target.closest('[data-gal-aller]'), z = e.target.closest('[data-agrandir]'), g;
+        if (b && (g = b.closest('[data-galerie]'))) galerieAller(g, +(g.dataset.n || 0) + (+b.getAttribute('data-gal')));
+        else if (a && (g = a.closest('.gl-galerie-vignettes').previousElementSibling)) galerieAller(g, +a.getAttribute('data-gal-aller'));
+        else if (z && (g = z.closest('[data-galerie]'))) agrandir(g, +z.getAttribute('data-agrandir'));
+    });
+    document.addEventListener('touchstart', function (e) { var g = e.target.closest('[data-galerie]'); if (g) g._x = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', function (e) { var g = e.target.closest('[data-galerie]'); if (!g || g._x == null) return; var dx = e.changedTouches[0].clientX - g._x; g._x = null; if (Math.abs(dx) > 40) galerieAller(g, +(g.dataset.n || 0) + (dx < 0 ? 1 : -1)); });
+    // Galerie (équipe) : ajout de plusieurs photos d'un coup, retrait d'une photo
+    document.addEventListener('change', async function (e) {
+        var i = e.target.closest('[data-galerie-ajout]'); if (!i || !i.files.length) return;
+        var id = i.getAttribute('data-galerie-ajout'), ok = 0, l = surFiche ? lieuCourant : (typeof LIEUX_EQ !== 'undefined' && LIEUX_EQ[id]);
+        for (var k = 0; k < i.files.length; k++) {
+            try { var d = await reduireImage(i.files[k]); var r = await api('/lieux/' + id + '/galerie', { method: 'POST', body: JSON.stringify({ photo: d }) }); ok++; if (l) (l.galerie = l.galerie || []).push(r.photo); }
+            catch (x) { toast(x.message, 'error'); if (/maximum/.test(x.message)) break; }
+        }
+        i.value = '';
+        if (ok) { toast(ok > 1 ? ok + ' photos ajoutées.' : 'Photo ajoutée.', 'success'); apresPhoto(id, l ? l.photo : null); }
+    });
+    document.addEventListener('click', async function (e) {
+        var b = e.target.closest('[data-galerie-suppr]'); if (!b) return;
+        if (!confirm('Retirer cette photo de la galerie ?')) return;
+        var p = b.getAttribute('data-galerie-suppr').split(':'), l = surFiche ? lieuCourant : (typeof LIEUX_EQ !== 'undefined' && LIEUX_EQ[p[0]]);
+        try { await api('/lieux/' + p[0] + '/galerie/' + p[1], { method: 'DELETE' }); if (l) l.galerie = (l.galerie || []).filter(function (g) { return String(g.id) !== p[1]; }); toast('Photo retirée.', 'success'); apresPhoto(p[0], l ? l.photo : null); }
+        catch (x) { toast(x.message, 'error'); }
+    });
+
     // Photo du lieu dans la fenêtre « Modifier » (équipe, fiche existante uniquement)
     function photoDansForm(f, l) {
         var z = f.querySelector('.gl-photo-form');
@@ -527,7 +599,10 @@
             (l.photo ? '<img src="' + esc(/^data:/.test(l.photo) ? l.photo : urlApi(l.photo)) + '" alt="">' : '<div class="gl-photo-form-vide"><i class="fa-regular fa-image" aria-hidden="true"></i></div>') +
             '<div><label class="gl-btn">' + (l.photo ? 'Changer la photo' : 'Ajouter une photo') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-photo-lieu="' + l.id + '"></label>' +
             (l.photo ? ' <button type="button" class="gl-btn gl-btn-rouge" data-photo-retirer="' + l.id + '">Retirer</button>' : '') +
-            '<small>Enregistrée tout de suite (pas besoin de cliquer sur « Enregistrer »). Créditée à l\'établissement, qui peut demander son retrait.</small></div></div>';
+            '<small>Photo principale : affichée sur la carte du guide. Enregistrée tout de suite (pas besoin de cliquer sur « Enregistrer »).</small></div></div>' +
+            '<span>Galerie de la fiche (' + (l.galerie || []).length + ' / 10)</span><div class="gl-galerie-vignettes">' + (l.galerie || []).map(function (g) {
+                return '<span class="gl-vignette"><img src="' + esc(urlApi(g.url)) + '" alt=""><button type="button" class="gl-vignette-suppr" data-galerie-suppr="' + l.id + ':' + g.id + '" aria-label="Retirer cette photo">×</button></span>';
+            }).join('') + ((l.galerie || []).length < 10 ? '<label class="gl-vignette-ajout" title="Ajouter des photos"><i class="fa-solid fa-plus"></i><input type="file" multiple accept="image/jpeg,image/png,image/webp" class="gl-sr" data-galerie-ajout="' + l.id + '"></label>' : '') + '</div>';
     }
     function apresPhoto(id, photo) {
         var l = (surFiche ? lieuCourant : (typeof LIEUX_EQ !== 'undefined' && LIEUX_EQ[id])) || null;
@@ -1195,10 +1270,7 @@
             var dn = d.notes || {}; var notes = [['Accueil', dn.accueil], ['Ambiance', dn.ambiance], ['Propreté', dn.proprete], ['Rapport qualité-prix', dn.prix]];
             zone.innerHTML =
                 '<div class="gl-fiche-grille"><div class="gl-fiche-principal">' +
-                (l.photo ? '<div class="gl-fiche-photo"><img src="' + esc(urlApi(l.photo)) + '" alt="' + esc(l.nom) + '">' + (l.prixDes != null ? '<span class="gl-prix-des">à partir de ' + l.prixDes + ' €</span>' : '') + '</div>' +
-                    '<p class="gl-photo-credit">Photo : © ' + esc(l.nom) + (l.site ? ', <a href="' + esc(l.site) + '" target="_blank" rel="noopener nofollow">site officiel</a>' : '') +
-                    ' · <a href="contact.html?sujet=autre&amp;message=' + encodeURIComponent('Demande de retrait ou de changement de la photo de la fiche « ' + l.nom + ' » (' + location.origin + (l.url || '/lieu.html?l=' + l.id) + ')') + '">Vous êtes l\'établissement ? Demander le retrait ou le changement de la photo</a></p>' : '') +
-                (equipe() ? '<p class="gl-photo-equipe"><label class="gl-lien-btn">' + (l.photo ? 'Changer la photo du lieu' : 'Ajouter une photo du lieu') + '<input type="file" accept="image/jpeg,image/png,image/webp" class="gl-sr" data-photo-lieu="' + l.id + '"></label>' + (l.photo ? ' <button type="button" class="gl-lien-btn gl-rouge" data-photo-retirer="' + l.id + '">Retirer la photo</button>' : '') + ' <small>La photo est créditée à l\'établissement, qui peut demander son retrait.</small></p>' : '') +
+                galerieFiche(l) +
                 (l.statut !== 'publie' ? '<p class="gl-attente">Fiche en attente de validation (visible par l\'équipe uniquement).</p>' : '') +
                 '<div class="gl-fiche-tete"><div><span class="gl-type"><i class="fa-solid ' + (ICONES[l.type] || ICONES.autre) + '" aria-hidden="true"></i> ' + esc(l.typeLibelle) + '</span><h1>' + esc(l.nom) + '</h1><p class="gl-ville">' + esc(l.ville) + ' · ' + esc(l.regionNom) + '</p><div class="gl-tags">' + pub + (l.precisionPublic ? '<span class="gl-tag">' + esc(l.precisionPublic) + '</span>' : '') + '</div></div>' +
                 (equipe() ? '<button type="button" class="gl-btn gl-btn-equipe" id="glModifierLieu"><i class="fa-solid fa-pen" aria-hidden="true"></i> Modifier la fiche</button>' : '') +

@@ -465,3 +465,29 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-photo-form-vide{display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);color:var(--g-muted);font-size:24px}
 .gl-photo-form-ligne small{display:block;margin-top:6px;color:var(--g-muted);font-size:12px}
 .gl-photo-form-ligne .gl-btn{cursor:pointer}
+
+/* Fiche : galerie photo (fond flou + image entière, jamais déformée ni trop zoomée) */
+.gl-galerie{position:relative;margin:0 0 10px;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:16/9;max-height:520px;width:100%}
+.gl-galerie-vues{position:absolute;inset:0}
+.gl-galerie-vue{position:absolute;inset:0;margin:0;opacity:0;transition:opacity .5s ease;pointer-events:none}
+.gl-galerie-vue.actif{opacity:1;pointer-events:auto}
+.gl-galerie-vue::before{content:"";position:absolute;inset:-30px;background:var(--fond) center/cover;filter:blur(28px) brightness(.55)}
+.gl-galerie-vue img{position:relative;width:100%;height:100%;object-fit:contain;display:block;cursor:zoom-in}
+.gl-galerie .gl-prix-des{z-index:2}
+.gl-galerie-fl{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:40px;height:40px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.gl-galerie-fl:hover{background:#ff1680}
+.gl-prec{left:12px}.gl-suiv{right:12px}
+.gl-galerie-nb{position:absolute;left:12px;bottom:12px;z-index:2;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:3px 9px;border-radius:999px}
+.gl-galerie-vignettes{display:flex;gap:8px;overflow-x:auto;margin:0 0 10px;padding-bottom:2px}
+.gl-vignette{position:relative;flex:none}
+.gl-vignette button[data-gal-aller],.gl-vignette>img{display:block;width:84px;height:60px;padding:0;border:2px solid transparent;border-radius:10px;overflow:hidden;background:none;cursor:pointer;opacity:.65}
+.gl-vignette>img{object-fit:cover;opacity:1;cursor:default}
+.gl-vignette button[data-gal-aller] img{width:100%;height:100%;object-fit:cover;display:block}
+.gl-vignette button.actif{border-color:#ff1680;opacity:1}
+.gl-vignette-suppr{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:0;background:#e11d48;color:#fff;font-weight:800;line-height:1;cursor:pointer}
+.gl-vignette-ajout{flex:none;width:84px;height:60px;border:2px dashed rgba(255,255,255,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--g-muted)}
+.gl-vignette-ajout:hover{border-color:#ff1680;color:#ff1680}
+.gl-visionneuse{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center}
+.gl-visionneuse img{max-width:94vw;max-height:90vh;object-fit:contain;border-radius:8px}
+.gl-visio-fermer{position:absolute;top:14px;right:18px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:28px;cursor:pointer}
+@media(max-width:640px){.gl-galerie{aspect-ratio:4/3}.gl-galerie-fl{width:34px;height:34px}}
