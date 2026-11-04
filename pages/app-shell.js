@@ -42,9 +42,38 @@
           return { centre: Math.round(droite + marge / 2), haut: Math.round(haut), largeur: Math.round(marge) };
         } catch (e) { return null; }
       }
+      // Accueil (grand écran) : la radio se range dans la colonne de gauche, juste sous « Besoin d'aide ? »,
+      // à la même largeur ; un emplacement vide de sa hauteur lui est réservé dans la page et elle suit le défilement
+      function emplacementGauche() {
+        try {
+          var doc = frame.contentDocument, win = frame.contentWindow;
+          if (!doc || !win || win.innerWidth < 1024) return null;
+          var col = doc.getElementById('sidebar');
+          if (!col || !col.getBoundingClientRect().width) return null;
+          var aide = col.querySelector('.evc-as');
+          var slot = doc.getElementById('evcRadioPlace');
+          if (!slot) { slot = doc.createElement('div'); slot.id = 'evcRadioPlace'; slot.setAttribute('aria-hidden', 'true'); slot.style.flex = 'none'; }
+          if (aide ? slot.previousElementSibling !== aide : slot.parentNode !== col) { if (aide) aide.insertAdjacentElement('afterend', slot); else col.appendChild(slot); }
+          return slot;
+        } catch (e) { return null; }
+      }
       function placerRadio() {
         var w = document.getElementById('radioWidgetFloating');
         if (!w) return;
+        var slot = emplacementGauche();
+        if (slot) {
+          w.classList.remove('evc-coin'); w.classList.add('evc-gauche');
+          var r = slot.getBoundingClientRect(), largeur = Math.round(r.width);
+          w.style.cssText = 'position:fixed;z-index:9999;right:auto;bottom:auto;transform:none;left:' + Math.round(r.left) + 'px;top:' + Math.round(r.top) + 'px;width:' + largeur + 'px';
+          var h = w.offsetHeight;
+          if (Math.abs(slot.offsetHeight - h) > 1) { slot.style.height = h + 'px'; r = slot.getBoundingClientRect(); w.style.top = Math.round(r.top) + 'px'; }
+          // Sous l'en-tête collant (page défilée) : on la masque plutôt que de la superposer au menu
+          var tete = 64; try { var t = frame.contentDocument.querySelector('header'); if (t) tete = t.getBoundingClientRect().bottom; } catch (e) {}
+          if (r.top < tete || fenetreModaleOuverte()) w.style.visibility = 'hidden';
+          annoncer({ colonne: false, gauche: true });
+          return;
+        }
+        w.classList.remove('evc-gauche'); w.style.width = '';
         // Colonne de droite UNIQUEMENT sur l'accueil (qui publie __evcColonne : la radio y est placée
         // bas, sous la boule à facettes). PARTOUT AILLEURS : coin bas-droit, pour ne jamais recouvrir
         // le menu du compte qui s'ouvre en haut à droite. (La bulle « Besoin d'aide ? » va alors en bas à gauche.)
@@ -141,6 +170,8 @@
         observeur = new MutationObserver(synchroniser);
         observeur.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
         try { win.addEventListener('evc:colonne', placerRadio); win.addEventListener('resize', placerRadio); } catch (e) {}
+        // La radio rangée dans la colonne de gauche suit le défilement de la page
+        try { var tic = false; win.addEventListener('scroll', function () { if (tic) return; tic = true; requestAnimationFrame(function () { tic = false; placerRadio(); }); }, { passive: true }); } catch (e) {}
         // Pages avec une zone de saisie (chat, messages) : radio réduite d'office, sans changer le choix mémorisé
         setTimeout(function () { if (zoneSaisie() && window.minimizeRadioWidget) window.minimizeRadioWidget(true); placerRadio(); }, 700);
         // Une fenêtre qui s'ouvre ou se ferme dans la page (18+, signalement…) : la radio se replace
