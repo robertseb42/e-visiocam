@@ -23,3 +23,17 @@ html[data-theme="light"] .plib{--pl-fond:#f1f5f9;--pl-bord:#e2e8f0;--pl-texte:#0
 .plib-puces button:hover{border-color:var(--pl-rose)}
 .plib-puces button[aria-pressed="true"]{background:var(--pl-rose);border-color:var(--pl-rose);color:#fff}
 .plib-puces button:focus-visible{outline:2px solid var(--pl-or);outline-offset:2px}
+.cert-carte{display:grid;gap:12px;padding:14px;border-radius:14px;border:1px solid var(--pl-bord);background:var(--pl-fond)}
+.cert-carte p{margin:0;font-size:13px;line-height:1.5}
+.cert-ok{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.cert-ok i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#10b981;color:#fff;font-style:normal}
+.cert-consigne{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.cert-code{font-size:30px;font-weight:900;letter-spacing:.12em;padding:8px 14px;border-radius:12px;background:var(--pl-rose);color:#fff}
+.cert-regles{margin:0;padding-left:18px;font-size:12.5px;color:var(--pl-doux);display:grid;gap:3px}
+.cert-apercu{max-width:220px;border-radius:12px;display:block}
+.cert-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cert-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:12px;border:0;background:var(--pl-or);color:#111;font-family:inherit;font-weight:800;font-size:13px;cursor:pointer}
+.cert-btn[disabled]{opacity:.5;cursor:not-allowed}
+.cert-btn-2{background:transparent;color:var(--pl-texte);border:1px solid var(--pl-bord)}
+.cert-refus{color:#f43f5e;font-weight:700}
+.cert-sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}

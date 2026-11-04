@@ -170,6 +170,7 @@
             <button data-click="showTab" data-click-args='["photos","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-image-portrait mr-1"></i> Photos de profil
                 <span id="photosBadge" class="hidden ml-1 bg-rose-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0</span>
+                <span id="certifBadge" title="Certifications à vérifier" class="hidden ml-1 bg-emerald-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">0 ✔</span>
             </button>
             <button data-click="showTab" data-click-args='["candidatures","$this"]' class="mod-tab px-5 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 whitespace-nowrap">
                 <i class="fa-solid fa-user-plus mr-1"></i> Candidatures
@@ -379,6 +380,12 @@
         </div>
 
         <div id="tab-photos" class="tab-content p-5 hidden">
+            <!-- ✔ Certifications : photo avec geste et code, à comparer avec le profil (moderation-certif.js) -->
+            <section id="certifSection" class="mb-6" hidden>
+                <h3 class="text-sm font-extrabold text-slate-900 mb-1">✔ Certifications à vérifier</h3>
+                <p class="text-xs text-slate-500 mb-3">Vérifiez que la personne fait le <b>geste demandé</b>, tient un papier avec le <b>code</b> et son <b>pseudo</b>, et ressemble à sa photo de profil. Couple : les deux partenaires. Valider ou refuser <b>supprime la photo</b>.</p>
+                <div id="certifListe" class="grid sm:grid-cols-2 gap-4"></div>
+            </section>
             <div class="flex flex-col md:flex-row justify-between md:items-center gap-3 mb-4">
                 <p class="text-xs text-slate-500">Les nouvelles photos et avatars sont <b>déjà en ligne</b> : vérifiez-les ici. Retirez toute nudité, tout mineur, toute autre personne sans accord, coordonnées ou publicité (CGU 3.1). Une photo retirée est supprimée du site.</p>
                 <button type="button" data-recharger="photos" class="text-xs text-brand-primary font-bold hover:underline whitespace-nowrap"><i class="fa-solid fa-refresh"></i> Rafraîchir</button>
@@ -461,6 +468,7 @@
 <script src="moderation.js?v=12"></script>
 <script src="moderation-alertes.js?v=3"></script>
 <script src="moderation-photos.js?v=csp2-c"></script>
+<script src="moderation-certif.js?v=1"></script>
 <script src="moderation-equipe.js?v=csp2"></script>
 
 

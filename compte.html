@@ -29,7 +29,7 @@
 <link href="menu-haut.css?v=1" rel="stylesheet"/>
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
-    <link rel="stylesheet" href="profil-libertin.css?v=1">
+    <link rel="stylesheet" href="profil-libertin.css?v=2">
   
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -204,6 +204,11 @@
                         <h4 class="plib-titre">Mon profil libertin</h4>
                         <div id="profilLibertin"><p class="text-xs text-slate-400">Chargement…</p></div>
                     </div>
+                    <!-- ✔ Profil certifié : photo avec geste et code, vérifiée par l'équipe puis supprimée (pages/certification.js) -->
+                    <div class="plib cert" id="certifBloc">
+                        <h4 class="plib-titre">Profil certifié</h4>
+                        <div id="certifZone"><p class="text-xs text-slate-400">Chargement…</p></div>
+                    </div>
                     <button type="submit" class="px-6 py-2.5 bg-brand-primary hover:bg-brand-hover text-white font-bold rounded-xl text-sm flex items-center gap-2">
                         <i class="fa-solid fa-save"></i>
                         <span id="saveBtnText">Enregistrer</span>
@@ -304,6 +309,7 @@
 
 <script src="avatars-masques.js?v=1"></script>
 <script src="pages/profil-libertin.js?v=1"></script>
+<script src="pages/certification.js?v=1"></script>
 <script src="pages/compte.js?v=6"></script>
 <script src="push-client.js?v=3"></script>
 <script src="install-app.js?v=2"></script>

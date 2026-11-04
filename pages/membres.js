@@ -14,7 +14,7 @@
     var OPT = { tendances: {}, interets: {} };
     var GENRES = { couple: 'Couple', femme: 'Femme', homme: 'Homme', trans: 'Trans', autre: 'Membre', '': 'Membre' };
     var COUPLES = { hf: 'Couple', ff: 'Couple de femmes', hh: 'Couple d\'hommes' };
-    var filtres = { cherche: ['couples', 'femmes', 'hommes', 'trans'], correspond: false, ou: '50', photo: false, enligne: false, interet: '', tri: 'recents', q: '', dispo: '' };
+    var filtres = { cherche: ['couples', 'femmes', 'hommes', 'trans'], correspond: false, ou: '50', photo: false, certifie: false, enligne: false, interet: '', tri: 'recents', q: '', dispo: '' };
     var page = 1, attente = null, demande = 0, maVille = null;
     var RAYONS = ['10', '25', '50', '100', '200'];
 
@@ -42,7 +42,7 @@
     function majControles() {
         presse('mbrCherche', 'cherche', true); presse('mbrTri', 'tri'); presse('mbrDispo', 'dispo');
         $('mbrOu').value = filtres.ou;
-        $('mbrCorrespond').checked = filtres.correspond; $('mbrPhoto').checked = filtres.photo; $('mbrEnLigne').checked = filtres.enligne;
+        $('mbrCorrespond').checked = filtres.correspond; $('mbrPhoto').checked = filtres.photo; $('mbrCertifie').checked = !!filtres.certifie; $('mbrEnLigne').checked = filtres.enligne;
         $('mbrInteret').value = filtres.interet;
         var dep = moi && moi.departement, rayon = RAYONS.indexOf(filtres.ou) >= 0;
         // Message « indiquez votre ville » : rayon sans ville connue, ou département/région sans département
@@ -62,7 +62,7 @@
             '<span class="mbr-visuel">' + (photo ? '<img src="' + esc(photo) + '" alt="" loading="lazy">' : (typeof evcMasque === 'function' ? evcMasque(m.genre, m.id) : '')) +
             (m.online ? '<span class="mbr-enligne" title="En ligne"></span>' : '') + (m.correspond ? '<span class="mbr-match">Vous recherche</span>' : '') + (m.dispo ? '<span class="mbr-dispo">' + (m.dispo.type === 'soir' ? '🌙 Libre ce soir' : '📅 Libre ce week-end') + '</span>' : '') +
             (m.distance ? '<span class="mbr-km">' + (m.distance <= 5 ? '− de 5 km' : '≈ ' + m.distance + ' km') + '</span>' : '') + '</span>' +
-            '<span class="mbr-corps"><b>' + esc(m.username) + '</b><span>' + esc(libelle(m)) + '</span>' +
+            '<span class="mbr-corps"><b>' + esc(m.username) + (m.certifie ? ' <i class="mbr-certif" title="Profil certifié par l’équipe" aria-label="Profil certifié">✔</i>' : '') + '</b><span>' + esc(libelle(m)) + '</span>' +
             '<small>' + [(m.ages || []).length ? m.ages.join('/') + ' ans' : '', m.ville ? esc(m.ville) + (m.departement ? ' (' + esc(m.departement) + ')' : '') : (m.departement ? esc(m.departement) + (dep ? ' · ' + esc(dep) : '') : '')].filter(Boolean).join(' · ') + '</small>' +
             ((m.interets || []).length ? '<span class="mbr-tags">' + m.interets.slice(0, 3).map(function (k) { return '<i>' + esc(OPT.interets[k] || k) + '</i>'; }).join('') + '</span>' : '') +
             '</span></button>';
@@ -77,6 +77,7 @@
         if (dep && filtres.ou === 'region' && window.evcRegionDe) { var r = window.evcRegionDe(dep); if (r) p.set('region', r.slug); }
         if (filtres.dispo) p.set('dispo', filtres.dispo);
         if (filtres.photo) p.set('photo', '1');
+        if (filtres.certifie) p.set('certifie', '1');
         if (filtres.enligne) p.set('enligne', '1');
         if (filtres.interet) p.set('interet', filtres.interet);
         if (filtres.q) p.set('q', filtres.q);
@@ -113,7 +114,7 @@
     [['mbrTri', 'tri'], ['mbrDispo', 'dispo']].forEach(function (z) {
         $(z[0]).addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; filtres[z[1]] = b.getAttribute('data-v'); changer(); });
     });
-    [['mbrCorrespond', 'correspond'], ['mbrPhoto', 'photo'], ['mbrEnLigne', 'enligne']].forEach(function (c) {
+    [['mbrCorrespond', 'correspond'], ['mbrPhoto', 'photo'], ['mbrCertifie', 'certifie'], ['mbrEnLigne', 'enligne']].forEach(function (c) {
         $(c[0]).addEventListener('change', function () { filtres[c[1]] = this.checked; changer(); });
     });
     $('mbrInteret').addEventListener('change', function () { filtres.interet = this.value; changer(); });
