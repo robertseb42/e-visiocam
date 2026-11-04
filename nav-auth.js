@@ -484,6 +484,13 @@
                     el.querySelector('button').addEventListener('click', function () { el.remove(); });
                     document.body.appendChild(el); setTimeout(function () { el.remove(); }, 20000);
                 });
+                // 🔒 Album privé : demande d'accès reçue, accès accordé
+                unreadSocket.on('album:demande', function(d) {
+                    if (d && d.de && typeof showToast === 'function') showToast('🔒 ' + d.de.username + ' demande l\u2019accès à votre album privé (Mon compte)', 'info');
+                });
+                unreadSocket.on('album:acces', function(d) {
+                    if (d && d.par && typeof showToast === 'function') showToast('🔑 ' + d.par.username + ' vous a ouvert son album privé', 'success');
+                });
                 unreadSocket.on('favori:live', function(d) {
                     if (d && d.username) alerteLive(d);
                 });

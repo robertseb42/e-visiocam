@@ -37,3 +37,16 @@ html[data-theme="light"] .plib{--pl-fond:#f1f5f9;--pl-bord:#e2e8f0;--pl-texte:#0
 .cert-btn-2{background:transparent;color:var(--pl-texte);border:1px solid var(--pl-bord)}
 .cert-refus{color:#f43f5e;font-weight:700}
 .cert-sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.alb-regles{margin:0 0 12px;font-size:12.5px;line-height:1.5;color:var(--pl-doux)}
+.alb-regles b{color:var(--pl-texte)}
+.alb-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:12px}
+.alb-photo{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--pl-fond);border:1px solid var(--pl-bord)}
+.alb-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.alb-photo button{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:0;background:#000b;color:#fff;cursor:pointer;font-size:13px}
+.alb-attente{position:absolute;left:6px;bottom:6px;right:6px;padding:3px 6px;border-radius:8px;background:#000c;color:#ffe500;font-size:10.5px;font-weight:700;text-align:center}
+.alb-ajout{display:grid;place-items:center;aspect-ratio:1;border-radius:12px;border:2px dashed var(--pl-bord);color:var(--pl-doux);font-weight:700;font-size:12.5px;cursor:pointer;text-align:center;padding:8px}
+.alb-ajout:hover{border-color:var(--pl-rose);color:var(--pl-texte)}
+.alb-liste{display:grid;gap:6px;margin:6px 0 12px}
+.alb-ligne{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;background:var(--pl-fond);font-size:13px}
+.alb-ligne div{display:flex;gap:6px}
+.alb-sous{margin:4px 0 0;font-size:12px;font-weight:800}

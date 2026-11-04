@@ -23,13 +23,13 @@
     <script src="departements-data.js?v=2"></script>
     <script src="ville-departement.js?v=2"></script>
     <script src="legal-banner.js?v=4" defer></script>
-    <script src="nav-auth.js?v=13" defer></script>
+    <script src="nav-auth.js?v=14" defer></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
 <link href="menu-haut.css?v=1" rel="stylesheet"/>
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
-    <link rel="stylesheet" href="profil-libertin.css?v=2">
+    <link rel="stylesheet" href="profil-libertin.css?v=3">
   
 </head>
 <body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
@@ -205,6 +205,11 @@
                         <h4 class="plib-titre">Mon profil libertin</h4>
                         <div id="profilLibertin"><p class="text-xs text-slate-400">Chargement…</p></div>
                     </div>
+                    <!-- 🔒 Album privé : photos visibles seulement par les membres autorisés, après vérification de l'équipe (pages/album.js) -->
+                    <div class="plib alb" id="albumBloc">
+                        <h4 class="plib-titre">Mon album privé</h4>
+                        <div id="albumZone"><p class="text-xs text-slate-400">Chargement…</p></div>
+                    </div>
                     <!-- ✔ Profil certifié : photo avec geste et code, vérifiée par l'équipe puis supprimée (pages/certification.js) -->
                     <div class="plib cert" id="certifBloc">
                         <h4 class="plib-titre">Profil certifié</h4>
@@ -311,6 +316,7 @@
 <script src="avatars-masques.js?v=1"></script>
 <script src="pages/profil-libertin.js?v=1"></script>
 <script src="pages/certification.js?v=1"></script>
+<script src="pages/album.js?v=1"></script>
 <script src="pages/compte.js?v=6"></script>
 <script src="push-client.js?v=3"></script>
 <script src="install-app.js?v=2"></script>

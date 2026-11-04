@@ -64,6 +64,15 @@
         '.evs-txt small{display:block;margin-top:2px;font-size:11.5px;opacity:.65}',
         '.evs-rang{display:flex;gap:8px;margin-top:10px}.evs-rang .evs-btn{padding:8px 10px;font-size:13px}',
         '.evs-fermer{border:0;background:transparent;color:inherit;opacity:.6;cursor:pointer;font-size:15px;padding:0 0 0 4px}',
+        '.evs-album{margin:14px 0 0;padding:12px;border-radius:14px;background:rgba(127,127,127,.1);text-align:left}',
+        '.evs-album b{display:block;font-size:13.5px;margin-bottom:8px}',
+        '.evs-album-grille{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}',
+        '.evs-album-grille button{padding:0;border:0;border-radius:9px;overflow:hidden;aspect-ratio:1;cursor:zoom-in;background:rgba(127,127,127,.2)}',
+        '.evs-album-grille img{width:100%;height:100%;object-fit:cover;display:block}',
+        '.evs-zoom{position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}',
+        '.evs-zoom img{max-width:100%;max-height:78vh;border-radius:12px}',
+        '.evs-zoom-barre{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}',
+        '.evs-zoom-barre button,.evs-zoom-barre select{padding:9px 14px;border-radius:10px;border:0;font-weight:700;font-size:13px;cursor:pointer}',
         '@keyframes evsIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}',
         '@media (prefers-reduced-motion:reduce){.evs-voile,.evs-carte{animation:none}}'
     ].join('\n');
@@ -135,6 +144,56 @@
         if (!promesseOptions) promesseOptions = fetch(API_URL + '/models/profil-options').then(function (r) { return r.json(); }).catch(function () { promesseOptions = null; return {}; });
         return promesseOptions;
     }
+    // ---------- Album privé dans la fiche ----------
+    var blobsAlbum = [];
+    function imagePrivee(chemin, img) {
+        fetch(base().replace(/\/api\/?$/, '') + chemin, { credentials: 'include' }).then(function (r) { return r.ok ? r.blob() : null; })
+            .then(function (b) { if (b) { var u = URL.createObjectURL(b); blobsAlbum.push(u); img.src = u; } }).catch(function () {});
+    }
+    async function album(m, zone) {
+        var d;
+        try { d = await api('/albums/membre/' + Number(m.id)); } catch (e) { return; }
+        if (!d || !d.nb) return;
+        zone.hidden = false;
+        zone.appendChild(el('b', '', '🔒 Album privé · ' + d.nb + ' photo' + (d.nb > 1 ? 's' : '')));
+        if (d.verrouille) {
+            var dem = el('button', 'evs-btn', d.demande ? '⏳ Demande envoyée' : '🔑 Demander l’accès'); dem.type = 'button'; dem.disabled = !!d.demande;
+            dem.addEventListener('click', async function () {
+                dem.disabled = true;
+                try { await api('/albums/membre/' + Number(m.id) + '/demande', { method: 'POST', body: '{}' }); dem.textContent = '⏳ Demande envoyée'; }
+                catch (x) { dem.disabled = false; if (typeof showToast === 'function') showToast(x.message, 'error'); }
+            });
+            zone.appendChild(dem);
+            return;
+        }
+        var g = el('div', 'evs-album-grille');
+        d.photos.forEach(function (p) {
+            var b = el('button'); b.type = 'button'; b.title = 'Agrandir';
+            var img = el('img'); img.alt = p.legende || 'Photo de l’album de ' + m.username; b.appendChild(img);
+            imagePrivee(p.url, img);
+            b.addEventListener('click', function () { zoom(p, img.src); });
+            g.appendChild(b);
+        });
+        zone.appendChild(g);
+    }
+    // Agrandir une photo, avec « Signaler » (masquée aussitôt, revue par l'équipe)
+    function zoom(p, src) {
+        var doc = haut(), z = el('div', 'evs-zoom');
+        var img = el('img'); img.src = src; img.alt = p.legende || '';
+        var barre = el('div', 'evs-zoom-barre');
+        var motif = el('select'); [['', '🚩 Signaler cette photo…'], ['mineur', 'Personne qui semble mineure'], ['sans_accord', 'Personne sans son accord'], ['violence', 'Violence ou contenu illégal'], ['coordonnees', 'Coordonnées ou publicité'], ['autre', 'Autre']]
+            .forEach(function (o) { var op = el('option', '', o[1]); op.value = o[0]; motif.appendChild(op); });
+        var fermerZ = el('button', '', 'Fermer'); fermerZ.type = 'button';
+        motif.addEventListener('change', async function () {
+            if (!motif.value) return;
+            try { var r = await api('/albums/photo/' + Number(p.id) + '/signaler', { method: 'POST', body: JSON.stringify({ motif: motif.value }) }); if (typeof showToast === 'function') showToast(r.message || 'Merci, la photo est signalée', 'success'); z.remove(); }
+            catch (x) { if (typeof showToast === 'function') showToast(x.message, 'error'); }
+        });
+        fermerZ.addEventListener('click', function () { z.remove(); });
+        z.addEventListener('click', function (e) { if (e.target === z) z.remove(); });
+        barre.appendChild(motif); barre.appendChild(fermerZ);
+        z.appendChild(img); z.appendChild(barre); doc.body.appendChild(z);
+    }
     async function ouvrirFiche(id) {
         if (!connecte()) { aller('login.html'); return; }
         styles(); fermerFiche();
@@ -196,6 +255,12 @@
             if ((pr.recherche || []).length) f.appendChild(el('p', 'evs-sous', 'Recherche : ' + pr.recherche.map(function (k) { return (o.recherche || {})[k] || k; }).join(', ')));
             if ((pr.interets || []).length) { var it = el('div', 'evs-badges'); pr.interets.forEach(function (k) { it.appendChild(el('span', 'evs-badge', (o.interets || {})[k] || k)); }); f.appendChild(it); }
             if (pr.annonce) f.appendChild(el('p', 'evs-bio', pr.annonce));
+        }
+
+        // 🔒 Album privé : vignettes si j'ai accès (photos vérifiées par l'équipe), sinon demande d'accès
+        if (!m.moi) {
+            var alb = el('div', 'evs-album'); alb.hidden = true; f.appendChild(alb);
+            album(m, alb);
         }
 
         var act = el('div', 'evs-actions');
