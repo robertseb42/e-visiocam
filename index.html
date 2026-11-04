@@ -43,11 +43,6 @@
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
-        /* Grand écran : la page se décale vers la gauche pour laisser une vraie colonne à droite
-           (boule à facettes, danseur, radio) ; contenu + colonne de décor centrés ensemble */
-        @media (min-width: 1700px) {
-            .cam-home .cam-layout, .cam-home .cam-header > div:first-of-type { margin-left: max(12px, calc((100vw - 1700px - 260px) / 2)); margin-right: auto; }
-        }
     /* 👥 Qui est là ? */
     /* 🛡️ Recrutement */
     .ev-recrute-in{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
@@ -115,7 +110,6 @@
 <!-- Thème clair / sombre : un seul réglage pour toutes les pages du site -->
 <button aria-label="Passer en thème clair" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle="" title="Passer en thème clair" type="button">☀️</button>
 <!-- Boule à facettes : allumer / éteindre (choix gardé dans le navigateur) -->
-<button aria-label="Éteindre la boule à facettes" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-disco-toggle="" title="Éteindre la boule à facettes" type="button"></button>
 <button aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors" data-nav-bell="">
 <i class="fa-regular fa-bell text-lg"></i>
 <span class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white" data-nav-bell-badge="">0</span>
@@ -349,17 +343,15 @@
 <script src="pages/index-recrutement.js"></script>
 <script src="app.js"></script>
 <script src="radio-widget.js?v=2"></script>
-<script src="radio-widget-floating.js?v=3"></script>
+<script src="radio-widget-floating.js?v=4"></script>
 <script defer="" src="hero-direct.js?v=2"></script>
 <script defer="" src="site-search.js"></script>
-<script defer="" src="boule-facette.js?v=3"></script>
-<script defer="" src="couple-danse.js?v=8"></script>
 <script src="pages/index-cameras.js?v=2"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
 <script defer="" src="pages/index-carte.js?v=6"></script>
 <script defer="" src="pages/index-soirees.js?v=2"></script>
 <script src="pages/index-membres.js"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
-<script defer="" src="footer.js?v=10"></script>
+<script defer="" src="footer.js?v=11"></script>
 </body>
 </html>
