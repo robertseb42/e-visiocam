@@ -24,6 +24,7 @@
     <script src="legal-banner.js?v=4" defer></script>
 
     <link rel="stylesheet" href="style.css?v=20261101-webp-i">
+<link href="menu-haut.css?v=1" rel="stylesheet"/>
     <script src="maintenance.js" defer></script>
     <link rel="stylesheet" href="tailwind.css?v=20261009">
     <link rel="stylesheet" href="membre.css?v=2">
@@ -42,15 +43,45 @@
                 <span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
             </a>
         </div>
-        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
-            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
-            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
-            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
-            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
-            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="guide.html">Guide libertin</a>
-            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="membres.html">Membres</a>
-            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
-        </nav>
+        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium" aria-label="Menu principal">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-brand-primary border-b-2 border-brand-primary font-semibold" href="membres.html" aria-haspopup="true">Rencontres<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="membres.html"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>Rechercher des membres<small>Par ville, profil et envies</small></span></a>
+<a href="membres.html?enligne=1"><i class="fa-solid fa-circle-dot" aria-hidden="true"></i><span>Membres en ligne<small>Connectés en ce moment</small></span></a>
+<a href="amis.html"><i class="fa-solid fa-user-group" aria-hidden="true"></i><span>Mes amis<small>Demandes et amis</small></span></a>
+<a href="favoris.html"><i class="fa-solid fa-heart" aria-hidden="true"></i><span>Mes favoris<small>Profils et salons suivis</small></span></a>
+<a href="roulette.html"><i class="fa-solid fa-shuffle" aria-hidden="true"></i><span>Rencontre surprise<small>Chat roulette modéré</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html" aria-haspopup="true">En direct<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="live.html"><i class="fa-solid fa-video" aria-hidden="true"></i><span>Lives en cours<small>Les caméras en direct</small></span></a>
+<a href="programme.html"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i><span>Programme des soirées<small>Les rendez-vous chat</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html" aria-haspopup="true">Salons<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="salons.html"><i class="fa-solid fa-comments" aria-hidden="true"></i><span>Tous les salons<small>Discuter en direct</small></span></a>
+<a href="tchat-regions.html"><i class="fa-solid fa-map-location-dot" aria-hidden="true"></i><span>Salons par région<small>Près de chez vous</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="guide.html" aria-haspopup="true">Sorties &amp; lieux<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="guide.html"><i class="fa-solid fa-martini-glass-citrus" aria-hidden="true"></i><span>Clubs, saunas et soirées<small>Le guide par région</small></span></a>
+<a href="etablissements.html"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>Établissements<small>Badge vérifié et fiche du guide</small></span></a>
+</div></div>
+<div class="evm-rub">
+<a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html" aria-haspopup="true">Communauté<i class="fa-solid fa-chevron-down evm-fleche" aria-hidden="true"></i></a>
+<div class="evm-sous">
+<a href="credits.html"><i class="fa-solid fa-trophy" aria-hidden="true"></i><span>Mes récompenses<small>Badges et points</small></span></a>
+<a href="equipe.html"><i class="fa-solid fa-users" aria-hidden="true"></i><span>L’équipe<small>Qui veille sur le site</small></span></a>
+<a href="guides.html"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Guides et sécurité<small>Bien débuter, rester discret</small></span></a>
+<a href="devenir-moderateur.html"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i><span>Devenir modérateur<small>Rejoindre l’équipe</small></span></a>
+<a href="aide.html"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>Centre d’aide<small>Questions fréquentes</small></span></a>
+</div></div>
+</nav>
         <div class="ml-auto flex items-center gap-3 sm:gap-5">
             <div class="cam-search relative hidden sm:block w-48 md:w-64">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
@@ -80,6 +111,6 @@
 <script src="pages/membre.js?v=3"></script>
 <script src="radio-widget.js?v=2"></script>
 <script src="radio-widget-floating.js?v=4"></script>
-<script src="footer.js?v=11" defer></script>
+<script src="footer.js?v=12" defer></script>
 </body>
 </html>

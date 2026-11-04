@@ -42,7 +42,7 @@
                     (m.departement ? '<span class="evm-dep">' + esc(m.departement) + '</span>' : '') + '</button>';
             }).join('');
             var autres = d.total - d.membres.length;
-            if (autres > 0) html += '<a href="modeles.html" class="ev-qui-m evm-m evm-plus"><span class="ev-qui-photo">+' + nombre(autres) + '</span><span class="ev-qui-nom">membres</span></a>';
+            if (autres > 0) html += '<a href="membres.html" class="ev-qui-m evm-m evm-plus"><span class="ev-qui-photo">+' + nombre(autres) + '</span><span class="ev-qui-nom">membres</span></a>';
             liste.innerHTML = html;
         }).catch(function () { /* la section reste cachée */ });
     }

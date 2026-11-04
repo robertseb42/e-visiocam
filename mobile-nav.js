@@ -20,6 +20,7 @@
 
     var LIENS = [
         { href: 'index.html', label: 'Accueil', svg: '<path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/>' },
+        { href: 'membres.html', label: 'Rencontres', svg: '<circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.8"/><path d="M2 20c0-3.6 3.1-6 7-6s7 2.4 7 6zM15.5 14.2c3.6-.4 6.5 1.6 6.5 5.8h-4.6"/>', aussi: ['membre.html', 'modeles.html', 'amis.html', 'roulette.html'] },
         { href: 'salons.html', label: 'Salons', svg: '<path d="M4 4h16v11H8l-4 4z"/>', aussi: ['room.html', 'chat.html'] },
         { href: 'live.html', label: 'En direct', svg: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3z"/>' },
         connecte ? ongletMessages : ongletFavoris,
@@ -29,6 +30,7 @@
 
     var nav = document.createElement('nav');
     nav.className = 'ev-mnav';
+    nav.style.gridTemplateColumns = 'repeat(' + LIENS.length + ', minmax(0, 1fr))';   // 6 onglets sur une seule ligne
     nav.setAttribute('aria-label', 'Navigation mobile');
     nav.innerHTML = LIENS.map(function (l) {
         var courant = l.href === page || (l.aussi && l.aussi.indexOf(page) !== -1);

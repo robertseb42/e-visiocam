@@ -22,7 +22,7 @@
             ['guide.html', 'Guide libertin des clubs'],
             ['etablissements.html', 'Établissements : badge vérifié'],
             ['programme.html', 'Programme des soirées'],
-            ['modeles.html', 'Modèles'],
+            ['membres.html', 'Rencontres : les membres'],
             ['credits.html', 'Récompenses'],
             ['guides.html', 'Guides du chat webcam'],
             ['equipe.html', 'L\'équipe'],
@@ -115,7 +115,7 @@
         // Barre de navigation mobile (même dossier que ce fichier)
         if (!document.querySelector('script[src*="mobile-nav.js"]')) {
             var sc = document.createElement('script');
-            sc.src = 'mobile-nav.js?v=2';
+            sc.src = 'mobile-nav.js?v=3';
             document.body.appendChild(sc);
         }
 

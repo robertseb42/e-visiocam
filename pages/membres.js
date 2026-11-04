@@ -20,6 +20,8 @@
 
     // Choix gardés pour la prochaine visite (pratique seulement)
     try { var g = JSON.parse(localStorage.getItem('evcMembresFiltres') || 'null'); if (g && Array.isArray(g.cherche)) filtres = Object.assign(filtres, g, { q: '' }); } catch (e) {}
+    // Lien « Membres en ligne » du menu : membres.html?enligne=1
+    if (new URLSearchParams(location.search).get('enligne') === '1') { filtres.enligne = true; filtres.tri = 'connectes'; }
     function memoriser() { try { localStorage.setItem('evcMembresFiltres', JSON.stringify(filtres)); } catch (e) {} }
 
     if (!moi) {
