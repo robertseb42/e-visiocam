@@ -39,7 +39,7 @@
 <script defer="" src="nav-auth.js?v=12"></script>
 <link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=6" rel="stylesheet"/>
-<link href="index-carte.css?v=7" rel="stylesheet"/>
+<link href="index-carte.css?v=8" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -171,11 +171,12 @@
 <div class="ev-soirees-actions"><a href="programme.html">Tout le programme E-VISIOCAM <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
 <p aria-live="polite" class="ev-sr" id="soireeAnnonce"></p>
 </section>
-<!-- 👥 Qui est là ? Les membres connectés en ce moment (photos pour les membres, nombre seul pour les visiteurs) -->
+<!-- 👥 Nos membres : les derniers inscrits (pseudos pour les membres connectés, compteurs seuls pour les visiteurs ; masque vénitien sans photo) -->
 <section aria-labelledby="quiTitre" class="ev-qui" hidden="" id="quiEstLa">
 <div class="ev-qui-tete">
-<h2 id="quiTitre"><span aria-hidden="true" class="ev-qui-pulse"></span>Qui est là ? <small id="quiNombre"></small></h2>
-<a href="modeles.html" id="quiLien">Voir tout le monde <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+<h2 id="quiTitre"><span aria-hidden="true" class="ev-qui-pulse"></span>Nos membres</h2>
+<p class="evm-stats" id="quiNombre"></p>
+<a href="modeles.html" id="quiLien">Voir la galerie <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
 </div>
 <div class="ev-qui-liste" id="quiListe"></div>
 </section>
@@ -312,7 +313,8 @@
 <script defer="" src="pages/index-carte.js?v=6"></script>
 <script defer="" src="departements-data.js?v=2"></script>
 <script defer="" src="pages/index-soirees.js?v=5"></script>
-<script src="pages/index-membres.js"></script>
+<script src="avatars-masques.js?v=1"></script>
+<script src="pages/index-membres.js?v=2"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
 <script defer="" src="footer.js?v=11"></script>
 </body>

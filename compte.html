@@ -91,6 +91,10 @@
                 <label id="photoGalerieZone" class="mt-2 inline-flex items-center gap-2 text-[11px] text-slate-600 cursor-pointer" hidden>
                     <input type="checkbox" id="photoGalerie" class="rounded"> Afficher ma photo dans la galerie des membres
                 </label>
+                <label class="mt-2 flex items-center justify-center gap-2 text-[11px] text-slate-600 cursor-pointer">
+                    <input type="checkbox" id="membresVisible" class="rounded"> Apparaître dans « Nos membres » sur l'accueil
+                </label>
+                <p class="text-[10px] text-slate-400 mt-1 leading-snug">Visible uniquement par les membres connectés. Sans photo, un masque vénitien s'affiche à votre place.</p>
                 <p class="text-[10px] text-slate-400 mt-2 leading-snug">Pas de nudité, pas d'autre personne sans son accord, pas de coordonnées. Vérifiée par la modération avant d'être visible (<a href="cgu.html#compte" class="underline">CGU 3.1</a>).</p>
             </div>
             <h2 class="text-xl font-bold text-slate-900" id="displayUsername">...</h2>
@@ -140,6 +144,7 @@
                             <option value="">Non précisé</option>
                             <option value="homme">👨 Homme</option>
                             <option value="femme">👩 Femme</option>
+                            <option value="couple">💑 Couple</option>
                             <option value="autre">⚧ Autre</option>
                         </select>
                     </div>
@@ -257,7 +262,8 @@
     </div>
 </main>
 
-<script src="pages/compte.js?v=2"></script>
+<script src="avatars-masques.js?v=1"></script>
+<script src="pages/compte.js?v=3"></script>
 <script src="push-client.js?v=3"></script>
 <script src="install-app.js?v=2"></script>
 

@@ -4,6 +4,7 @@
 // ============================================================
 
 let currentUser = null;
+let dernierUtilisateur = null;   // pour dessiner le masque quand il n'y a pas de photo
 
 document.addEventListener('DOMContentLoaded', async () => {
     currentUser = getCurrentUser();
@@ -67,6 +68,9 @@ async function loadProfile() {
 
         // Couleur de l'avatar selon le genre/rôle
         updateAvatarColor(u);
+        dernierUtilisateur = u;
+        const mv = document.getElementById('membresVisible');
+        if (mv) mv.checked = u.membres_visible !== 0;
         afficherPhoto(u.avatar);
     } catch (err) {
         showToast(err.message, 'error');
@@ -108,7 +112,11 @@ async function afficherPhoto(etat) {
             if (r.ok) { if (photoApercu) URL.revokeObjectURL(photoApercu); photoApercu = URL.createObjectURL(await r.blob()); src = photoApercu; }
         } catch (e) {}
     }
-    if (!src) return;
+    if (!src) {
+        // Pas de photo : le masque vénitien qui s'affiche à sa place pour les autres membres
+        if (typeof evcMasque === 'function' && dernierUtilisateur) { boite.innerHTML = evcMasque(dernierUtilisateur.gender, dernierUtilisateur.id); boite.style.overflow = 'hidden'; }
+        return;
+    }
     const img = document.createElement('img');
     img.src = src; img.alt = 'Ma photo de profil';
     img.className = 'w-full h-full rounded-full object-cover' + (st === 'pending' ? ' opacity-70' : '');
@@ -196,7 +204,7 @@ async function saveProfile(e) {
     try {
         const data = await apiCall('/users/me', {
             method: 'PUT',
-            body: JSON.stringify({ bio, email, birthdate, gender, departement: window.__evcVille ? window.__evcVille.valeur() : undefined })
+            body: JSON.stringify({ bio, email, birthdate, gender, departement: window.__evcVille ? window.__evcVille.valeur() : undefined, membresVisible: document.getElementById('membresVisible') ? document.getElementById('membresVisible').checked : undefined })
         });
         saveUser(data.user);
         // Nouvelle adresse e-mail : elle ne s'applique qu'après le clic sur le lien envoyé
