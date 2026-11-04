@@ -158,7 +158,7 @@ document.getElementById('photoFichier').addEventListener('change', async (e) => 
     try {
         const image = await preparerPhoto(f);
         const d = await apiCall('/avatars/me', { method: 'PUT', body: JSON.stringify({ image }) });
-        showToast(d.avatar && d.avatar.status === 'approved' ? 'Photo de profil mise à jour' : 'Photo envoyée : elle sera visible après validation', 'success');
+        showToast('Photo de profil mise à jour', 'success');
         await loadProfile();
         if (window.EvcRafraichirNav) window.EvcRafraichirNav();
     } catch (err) {

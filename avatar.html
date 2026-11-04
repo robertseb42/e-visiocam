@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <!-- Politique de sécurité : seules ces sources peuvent charger du code, des styles ou des données -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://api.e-visiocam.com https://cdn.socket.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://geo.api.gouv.fr https://api.e-visiocam.com wss://api.e-visiocam.com; frame-src https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <script src="persistent-radio-bootstrap.js?v=3"></script>
+    <script src="theme.js?v=2"></script>
+    <script src="mesure.js?v=1" defer></script>
+    <script src="actions.js?v=csp2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon avatar — E-VISIOCAM</title>
+    <meta name="description" content="Créez votre avatar E-VISIOCAM : masques, personnages ou votre photo masquée."/>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#111113">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="auth-api.js?v=7"></script>
+    <script src="departements-data.js?v=2"></script>
+    <script src="ville-departement.js"></script>
+    <script src="legal-banner.js?v=4" defer></script>
+    <script src="nav-auth.js?v=12" defer></script>
+
+    <link rel="stylesheet" href="style.css?v=20261101-webp-i">
+    <script src="maintenance.js" defer></script>
+    <link rel="stylesheet" href="tailwind.css?v=20261009">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,600&family=Manrope:wght@400;600;800&display=swap">
+    <link rel="stylesheet" href="avatar-studio.css?v=1">
+  
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans bg-slate-100">
+
+<!-- GUARD : utilisateur connecté obligatoire -->
+<script src="pages/compte-acces.js"></script>
+
+<!-- NAVBAR -->
+<header class="cam-header bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-[1700px] mx-auto px-3 md:px-6 h-16 flex items-center gap-6">
+        <div class="flex items-center lg:w-64 lg:shrink-0">
+            <a class="flex items-center gap-2" href="index.html">
+                <div class="cam-logo w-9 h-9 rounded-xl flex items-center justify-center text-white">
+                    <i class="fa-solid font-bold text-lg fa-video"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">E-<span class="text-brand-primary">VISIOCAM</span></span>
+            </a>
+        </div>
+        <nav class="cam-topnav hidden lg:flex items-center gap-0.5 xl:gap-1 whitespace-nowrap text-sm font-medium">
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="index.html">Accueil</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="live.html">En direct</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="modeles.html">Modèles</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="salons.html">Salons</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="guide.html">Guide libertin</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="messages.html">Messagerie</a>
+            <a class="px-2 xl:px-3 py-2 text-slate-600 hover:text-brand-primary transition-colors" href="credits.html">Récompenses</a>
+        </nav>
+        <div class="ml-auto flex items-center gap-3 sm:gap-5">
+            <div class="cam-search relative hidden sm:block w-48 md:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input aria-label="Rechercher un modèle" class="w-full pl-9 pr-4 py-2 bg-slate-100 focus:bg-white text-sm rounded-full border border-transparent focus:border-brand-primary focus:outline-none transition-all" placeholder="Rechercher un modèle..." type="text"/>
+            </div>
+            <button aria-label="Changer de thème" class="p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors text-lg leading-none" data-theme-toggle title="Changer de thème" type="button">☀️</button>
+            <button data-nav-bell aria-label="Notifications" class="relative p-2 text-slate-600 hover:text-brand-primary rounded-full hover:bg-slate-100 transition-colors">
+                <i class="fa-regular fa-bell text-lg"></i>
+                <span data-nav-bell-badge class="hidden absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-brand-primary text-slate-900 text-[10px] font-bold items-center justify-center ring-2 ring-white">0</span>
+            </button>
+            <div id="navAuth" class="flex items-center gap-2"></div>
+        </div>
+    </div>
+</header>
+
+<main class="w-full flex-1 p-3 md:p-6">
+<div class="studio">
+  <header>
+    <div>
+      <a class="retour" href="compte.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Mon compte</a>
+      <h1>Mon <span>avatar</span></h1>
+      <p class="sous">Mystérieux, élégants ou espiègles : composez un avatar pour votre profil, ou partez de votre photo et cachez vos yeux derrière un masque.</p>
+    </div>
+  </header>
+
+  <div class="grille">
+    <section class="panneau" aria-label="Réglages de l'avatar">
+      <div class="groupe"><h2>Votre photo</h2>
+        <div class="import"><label class="bouton"><input type="file" id="photo" accept="image/*" class="sr">Importer une photo</label><small id="photoInfo">Elle reste sur votre appareil.</small><button type="button" class="retirer" id="photoRetirer" hidden>Retirer la photo</button></div>
+        <div class="reglages" id="photoReglages" hidden>
+          <label for="pZoom">Zoom<input type="range" id="pZoom" min="1" max="3" step="0.02" value="1.2"></label>
+          <label for="pX">Gauche / droite<input type="range" id="pX" min="-220" max="220" step="1" value="0"></label>
+          <label for="pY">Haut / bas<input type="range" id="pY" min="-220" max="220" step="1" value="0"></label>
+          <div><h2 style="margin:6px 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--doux)">Masque sur les yeux</h2><div class="choix" id="cMasquePhoto"></div></div>
+          <label for="mTaille">Taille du masque<input type="range" id="mTaille" min="1.4" max="4.6" step="0.05" value="2.8"></label>
+          <label for="mY">Hauteur du masque<input type="range" id="mY" min="120" max="380" step="1" value="230"></label>
+        </div>
+      </div>
+      <div class="groupe"><h2>Personnage</h2><div class="choix" id="cPerso"></div></div>
+      <div class="groupe"><h2>Ambiance</h2><div class="choix" id="cTeinte"></div></div>
+      <div class="groupe"><h2>Fond</h2><div class="choix" id="cFond"></div></div>
+      <div class="groupe"><h2>Accessoire</h2><div class="choix" id="cAcc"></div></div>
+      <div class="groupe"><h2>Cadre</h2><div class="choix" id="cCadre"></div></div>
+      <div class="groupe"><h2>Pseudo (facultatif)</h2><label class="champ"><input type="text" id="pseudo" maxlength="16" placeholder="Votre pseudo" autocomplete="off"></label></div>
+    </section>
+
+    <section class="apercu" aria-label="Aperçu">
+      <div class="scene" id="scene" role="img" aria-label="Aperçu de l'avatar"></div>
+      <div class="actions">
+        <button type="button" class="principal utiliser" id="utiliser">Utiliser comme photo de profil</button>
+        <button type="button" class="secondaire" id="telecharger">Télécharger en PNG</button>
+        <button type="button" class="secondaire" id="hasard">Avatar surprise</button>
+        <button type="button" class="secondaire" id="copier">Copier l'image</button>
+      </div>
+      <p class="etat" id="etat" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <div class="galerie-tete"><h2>Inspirations</h2><p>Cliquez pour partir de l'une d'elles.</p></div>
+  <div class="galerie" id="galerie"></div>
+  <p class="note">Votre avatar s'affiche tout de suite sur votre profil. Une photo importée reste sur votre appareil tant que vous ne cliquez pas sur « Utiliser comme photo de profil ». Pas de nudité ni d'autre personne sans son accord : l'équipe retire les images qui ne respectent pas les règles.</p>
+</div>
+</main>
+
+<script src="pages/avatar-studio.js?v=1"></script>
+
+<script src="footer.js?v=11" defer></script>
+
+<script src="site-search.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+// E-VISIOCAM — Studio d'avatars (page avatar.html) : personnages dessinés en SVG, ou photo du membre avec masque
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$('scene')) return;
+
+  // ---------- Catalogue ----------
+  var PERSOS = [
+    ['colombine', 'Colombine'], ['plumes', 'Masque à plumes'], ['dentelle', 'Loup de dentelle'],
+    ['femme', 'Femme glamour'], ['homme', 'Homme élégant'], ['couple', 'Couple'],
+    ['chat', 'Chat espiègle'], ['renard', 'Renard'], ['panthere', 'Panthère'],
+    ['diable', 'Petit diable'], ['levres', 'Lèvres'], ['coeur', 'Cœur malicieux'], ['cocktail', 'Cocktail']
+  ];
+  // [principale, profonde, claire, lumière]
+  var TEINTES = {
+    rose: ['Rose néon', '#ff2d8a', '#4a0d34', '#ffc2de', '#ffe3f0'],
+    or: ['Or et noir', '#f3c74b', '#1b150c', '#ffe9a8', '#fff6d8'],
+    violet: ['Violet nuit', '#a66bff', '#1f1145', '#e2d0ff', '#f2eaff'],
+    rouge: ['Rouge passion', '#ff3b4f', '#4a0a14', '#ffc9cc', '#ffe5e6'],
+    bleu: ['Bleu électrique', '#38c8ff', '#0b2550', '#c4efff', '#e6f8ff'],
+    emeraude: ['Émeraude', '#2fd39a', '#08332a', '#bff3df', '#e4fbf2'],
+    champagne: ['Champagne', '#e9c9a0', '#3a2a1e', '#f8e7d1', '#fff5e8'],
+    bordeaux: ['Velours bordeaux', '#c2185b', '#2a0716', '#f3b5cf', '#fde4ee']
+  };
+  var FONDS = [['degrade', 'Dégradé'], ['paillettes', 'Paillettes'], ['rayons', 'Rayons'], ['bokeh', 'Bokeh'], ['velours', 'Velours']];
+  var ACCS = [['aucun', 'Aucun'], ['couronne', 'Couronne'], ['noeud', 'Nœud'], ['lunettes', 'Lunettes cœur'], ['etoiles', 'Étoiles'], ['plume', 'Plume'], ['perles', 'Perles'], ['rose', 'Rose']];
+  var CADRES = [['or', 'Anneau doré'], ['neon', 'Néon'], ['fin', 'Fin'], ['aucun', 'Sans cadre']];
+
+  var etat = { perso: 'colombine', teinte: 'rose', fond: 'paillettes', acc: 'aucun', cadre: 'or', pseudo: '',
+               photo: null, zoom: 1.2, px: 0, py: 0, masquePhoto: 'colombine', mTaille: 2.8, mY: 230 };
+  var MASQUES_PHOTO = [['aucun', 'Aucun'], ['colombine', 'Colombine'], ['dentelle', 'Dentelle'], ['plumes', 'Plumes']];
+  var uid = 0;
+
+  // ---------- Petits outils ----------
+  function hash(s) { var h = 2166136261; s = String(s); for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function alea(graine) { var x = hash(graine) || 1; return function () { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 10000) / 10000; }; }
+  function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  // ---------- Fonds ----------
+  function fond(t, id, type) {
+    var p = t[1], d = t[2], s = '';
+    s += '<radialGradient id="' + id + 'fd" cx=".3" cy=".22" r=".95"><stop offset="0" stop-color="' + p + '" stop-opacity=".95"/><stop offset=".55" stop-color="' + d + '"/><stop offset="1" stop-color="#0a090d"/></radialGradient>';
+    var corps = '<rect width="512" height="512" fill="url(#' + id + 'fd)"/>';
+    var r = alea(type + t[0]);
+    if (type === 'paillettes') {
+      for (var i = 0; i < 70; i++) { var x = r() * 512, y = r() * 512, z = .8 + r() * 2.6; corps += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + z.toFixed(1) + '" fill="' + (r() > .5 ? t[4] : p) + '" opacity="' + (.25 + r() * .6).toFixed(2) + '"/>'; }
+      for (var k = 0; k < 6; k++) { var a = r() * 512, b = r() * 512, l = 6 + r() * 8; corps += '<path d="M' + a + ' ' + (b - l) + 'L' + (a + l * .22) + ' ' + b + 'L' + a + ' ' + (b + l) + 'L' + (a - l * .22) + ' ' + b + 'Z M' + (a - l) + ' ' + b + 'L' + a + ' ' + (b + l * .22) + 'L' + (a + l) + ' ' + b + 'L' + a + ' ' + (b - l * .22) + 'Z" fill="' + t[4] + '" opacity=".85"/>'; }
+    } else if (type === 'rayons') {
+      for (var j = 0; j < 18; j++) { var an = j * 20; corps += '<path d="M256 256 L' + (256 + 400 * Math.cos((an - 4) * Math.PI / 180)).toFixed(1) + ' ' + (256 + 400 * Math.sin((an - 4) * Math.PI / 180)).toFixed(1) + ' L' + (256 + 400 * Math.cos((an + 4) * Math.PI / 180)).toFixed(1) + ' ' + (256 + 400 * Math.sin((an + 4) * Math.PI / 180)).toFixed(1) + 'Z" fill="' + t[4] + '" opacity=".07"/>'; }
+    } else if (type === 'bokeh') {
+      for (var m = 0; m < 16; m++) { var bx = r() * 512, by = r() * 512, br = 18 + r() * 46; corps += '<circle cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="' + br.toFixed(1) + '" fill="' + (r() > .5 ? p : t[3]) + '" opacity="' + (.08 + r() * .16).toFixed(2) + '"/>'; }
+    } else if (type === 'velours') {
+      s += '<pattern id="' + id + 'vl" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="28" height="28" fill="none"/><path d="M0 14h28" stroke="' + t[4] + '" stroke-opacity=".06" stroke-width="10"/></pattern>';
+      corps += '<rect width="512" height="512" fill="url(#' + id + 'vl)"/><ellipse cx="256" cy="120" rx="260" ry="120" fill="' + t[4] + '" opacity=".08"/>';
+    }
+    return { defs: s, corps: corps };
+  }
+
+  // ---------- Masque de base (repère 100 × 100, placé par transform) ----------
+  function masque(id, t, opts) {
+    opts = opts || {};
+    var forme = 'M13 44 C13 31 32 26 50 35 C68 26 87 31 87 44 C87 58 70 67 58 60 C54 57 52 55 50 55 C48 55 46 57 42 60 C30 67 13 58 13 44 Z';
+    var s = '<path d="' + forme + '" fill="url(#' + id + 'mq)" stroke="' + (opts.liseré || '#ffd66b') + '" stroke-width="1.8" stroke-linejoin="round"/>' +
+      '<path d="' + forme + '" fill="url(#' + id + 'br)" opacity=".5"/>';
+    if (opts.dentelle) s += '<path d="' + forme + '" fill="none" stroke="' + t[4] + '" stroke-width="2.6" stroke-dasharray="0 4.2" stroke-linecap="round" transform="translate(50 46) scale(1.07) translate(-50 -46)"/>' +
+      '<path d="M30 40 q8 -6 14 0 M56 40 q8 -6 14 0" stroke="' + t[4] + '" stroke-width="1" fill="none" stroke-dasharray="0 2.6" stroke-linecap="round"/>';
+    s += '<ellipse cx="34" cy="45" rx="9.5" ry="5.6" transform="rotate(-8 34 45)" fill="#0b0a0f" stroke="#ffd66b" stroke-width="1"/>' +
+      '<ellipse cx="66" cy="45" rx="9.5" ry="5.6" transform="rotate(8 66 45)" fill="#0b0a0f" stroke="#ffd66b" stroke-width="1"/>' +
+      '<circle cx="50" cy="40" r="2.6" fill="#ffd66b"/><circle cx="50" cy="40" r="1" fill="#fff"/>' +
+      '<path d="M21 52 q6 5 13 3 M66 55 q7 2 13 -3" stroke="#ffffff70" stroke-width="1.2" fill="none" stroke-linecap="round"/>';
+    return s;
+  }
+  function defsMasque(id, t) {
+    return '<linearGradient id="' + id + 'mq" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + t[3] + '"/><stop offset=".55" stop-color="' + t[1] + '"/><stop offset="1" stop-color="' + t[2] + '"/></linearGradient>' +
+      '<radialGradient id="' + id + 'br" cx=".32" cy=".2" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="' + id + 'pe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + t[4] + '"/><stop offset="1" stop-color="' + t[1] + '"/></linearGradient>' +
+      '<radialGradient id="' + id + 'sk" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="' + t[4] + '"/><stop offset="1" stop-color="' + t[3] + '"/></radialGradient>';
+  }
+  var placeMasque = function (x, y, e, inner) { return '<g transform="translate(' + x + ' ' + y + ') scale(' + e + ')">' + inner + '</g>'; };
+
+  // ---------- Personnages (repère 512) ----------
+  // Chacun renvoie aussi où poser les accessoires : tête (haut), yeux, cou
+  function perso(type, t, id) {
+    var p = t[1], d = t[2], c = t[3], l = t[4];
+    var sombre = '#16131c', ombre = '#0c0b10';
+    switch (type) {
+      case 'photo': {
+        if (!etat.photo) return { svg: '', tete: 120, yeux: [256, 256], cou: 410 };
+        var taille = 512 * etat.zoom, ix = 256 - taille / 2 + etat.px, iy = 256 - taille / 2 + etat.py;
+        var s2 = '<image href="' + etat.photo + '" x="' + ix.toFixed(1) + '" y="' + iy.toFixed(1) + '" width="' + taille.toFixed(1) + '" height="' + taille.toFixed(1) + '" preserveAspectRatio="xMidYMid slice"/>';
+        var e2 = etat.mTaille, mx = 256 - 50 * e2, my = etat.mY - 45 * e2;
+        if (etat.masquePhoto === 'plumes') {
+          [-40, -20, 0, 20, 40].forEach(function (a) { s2 += '<g transform="rotate(' + a + ' 256 ' + (etat.mY - 4) + ')"><path d="M256 ' + (etat.mY - 4) + ' c-' + (12 * e2).toFixed(1) + ' -' + (26 * e2).toFixed(1) + ' -' + (10 * e2).toFixed(1) + ' -' + (50 * e2).toFixed(1) + ' 0 -' + (64 * e2).toFixed(1) + ' c' + (10 * e2).toFixed(1) + ' ' + (14 * e2).toFixed(1) + ' ' + (12 * e2).toFixed(1) + ' ' + (38 * e2).toFixed(1) + ' 0 ' + (64 * e2).toFixed(1) + ' Z" fill="url(#' + id + 'pe)" stroke="#ffd66b" stroke-width="2"/></g>'; });
+        }
+        if (etat.masquePhoto !== 'aucun') s2 += placeMasque(mx.toFixed(1), my.toFixed(1), e2, masque(id, t, etat.masquePhoto === 'dentelle' ? { dentelle: true, liseré: l } : null));
+        return { svg: s2, tete: Math.max(80, etat.mY - 110), yeux: [256, etat.mY + 6], cou: Math.min(430, etat.mY + 170) };
+      }
+      case 'colombine':
+        return { svg: placeMasque(36, 58, 4.4, masque(id, t)), tete: 150, yeux: [256, 255], cou: 400 };
+      case 'plumes': {
+        var f = '';
+        [-52, -26, 0, 26, 52].forEach(function (a, i) {
+          f += '<g transform="rotate(' + a + ' 256 250)"><path d="M256 250 C228 190 232 110 256 70 C280 110 284 190 256 250 Z" fill="url(#' + id + 'pe)" stroke="' + (i % 2 ? '#ffd66b' : l) + '" stroke-width="2"/><path d="M256 245 L256 86" stroke="#ffd66b" stroke-width="2" opacity=".8"/>' +
+            '<path d="M256 120 l-14 -10 M256 150 l-18 -12 M256 180 l-18 -12 M256 120 l14 -10 M256 150 l18 -12 M256 180 l18 -12" stroke="' + l + '" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/></g>';
+        });
+        return { svg: f + placeMasque(36, 92, 4.4, masque(id, t)) + '<circle cx="256" cy="262" r="16" fill="#ffd66b"/><circle cx="256" cy="262" r="8" fill="' + p + '"/>', tete: 70, yeux: [256, 290], cou: 420 };
+      }
+      case 'dentelle':
+        return { svg: placeMasque(36, 58, 4.4, masque(id, t, { dentelle: true, liseré: l })) +
+          '<path d="M120 300 q-30 40 -10 90 M392 300 q30 40 10 90" stroke="' + p + '" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M110 390 l-12 22 l18 -6 l6 18 l6 -26 Z M402 390 l12 22 l-18 -6 l-6 18 l-6 -26 Z" fill="' + p + '"/>', tete: 150, yeux: [256, 255], cou: 420 };
+      case 'femme':
+        return { svg:
+          '<path d="M256 96 C176 96 138 160 140 240 C142 320 120 380 96 430 C150 452 200 420 210 380 L302 380 C312 420 362 452 416 430 C392 380 370 320 372 240 C374 160 336 96 256 96 Z" fill="' + sombre + '"/>' +
+          '<path d="M150 520 C160 440 200 412 256 412 C312 412 352 440 362 520 Z" fill="' + d + '"/><path d="M226 412 L256 470 L286 412" fill="none" stroke="' + p + '" stroke-width="4"/>' +
+          '<rect x="232" y="350" width="48" height="70" rx="20" fill="url(#' + id + 'sk)"/>' +
+          '<ellipse cx="256" cy="268" rx="84" ry="104" fill="url(#' + id + 'sk)"/>' +
+          '<path d="M172 250 C170 170 214 130 262 132 C312 134 346 176 340 236 C318 196 290 176 248 168 C214 186 190 214 172 250 Z" fill="' + sombre + '"/>' +
+          placeMasque(150, 175, 2.12, masque(id, t)) +
+          '<path d="M232 320 q24 18 48 0 q-24 6 -48 0 Z" fill="' + p + '"/><path d="M234 320 q22 -10 44 0" stroke="' + d + '" stroke-width="2" fill="none"/>' +
+          '<circle cx="174" cy="300" r="6" fill="#ffd66b"/><circle cx="338" cy="300" r="6" fill="#ffd66b"/>', tete: 90, yeux: [256, 270], cou: 405 };
+      case 'homme':
+        return { svg:
+          '<path d="M120 520 C130 430 186 400 256 400 C326 400 382 430 392 520 Z" fill="' + sombre + '"/>' +
+          '<path d="M226 400 L256 452 L286 400 Z" fill="#f4f1f7"/>' +
+          '<rect x="228" y="340" width="56" height="74" rx="20" fill="url(#' + id + 'sk)"/>' +
+          '<path d="M172 262 C172 196 208 150 256 150 C304 150 340 196 340 262 C340 332 302 372 256 372 C210 372 172 332 172 262 Z" fill="url(#' + id + 'sk)"/>' +
+          '<path d="M166 250 C160 170 204 120 262 122 C318 124 352 168 346 246 C332 214 318 196 300 186 C272 204 222 206 188 196 C176 212 170 230 166 250 Z" fill="' + sombre + '"/>' +
+          placeMasque(150, 176, 2.12, masque(id, t)) +
+          '<path d="M228 320 q28 12 56 0" stroke="' + ombre + '" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+          '<path d="M222 304 q34 -12 68 0 q-12 10 -34 6 q-22 4 -34 -6 Z" fill="' + sombre + '"/>', tete: 110, yeux: [256, 268], cou: 418, noeud: true };
+      case 'couple': {
+        var tete = function (x, y, e, femme) {
+          var s = '<g transform="translate(' + x + ' ' + y + ') scale(' + e + ')">' +
+            (femme ? '<path d="M0 -110 C-74 -110 -104 -50 -100 20 C-98 80 -110 120 -126 150 L126 150 C110 120 98 80 100 20 C104 -50 74 -110 0 -110 Z" fill="' + sombre + '"/>' : '') +
+            '<ellipse cx="0" cy="0" rx="78" ry="96" fill="url(#' + id + 'sk)"/>' +
+            (femme ? '<path d="M-82 -10 C-84 -80 -40 -110 6 -108 C52 -106 84 -70 78 -20 C56 -56 30 -72 -10 -76 C-40 -60 -66 -40 -82 -10 Z" fill="' + sombre + '"/>'
+                   : '<path d="M-84 -14 C-90 -84 -44 -116 6 -114 C56 -112 90 -78 82 -16 C70 -46 56 -60 38 -68 C10 -54 -30 -52 -60 -62 C-72 -48 -80 -32 -84 -14 Z" fill="' + sombre + '"/>') +
+            placeMasque(-102, -78, 2.04, masque(id + (femme ? 'f' : 'h'), t)) +
+            '<path d="M-26 50 q26 ' + (femme ? 18 : 10) + ' 52 0" stroke="' + (femme ? p : ombre) + '" stroke-width="' + (femme ? 8 : 5) + '" fill="none" stroke-linecap="round"/></g>';
+          return s;
+        };
+        return { svg:
+          '<path d="M60 520 C70 440 120 410 180 410 C230 410 262 430 270 470 C280 430 312 410 352 410 C412 410 452 440 462 520 Z" fill="' + sombre + '"/>' +
+          tete(344, 258, .8, false) + tete(186, 280, .8, true) +
+          '<path d="M256 150 c-10 -16 -36 -10 -32 10 c4 18 32 30 32 30 s28 -12 32 -30 c4 -20 -22 -26 -32 -10 Z" fill="' + p + '" stroke="#ffd66b" stroke-width="3"/>',
+          tete: 80, yeux: [256, 250], cou: 430, couple: true };
+      }
+      case 'chat':
+        return { svg:
+          '<path d="M140 230 L150 110 L226 178 Z M372 230 L362 110 L286 178 Z" fill="' + sombre + '"/><path d="M158 200 L164 138 L206 178 Z M354 200 L348 138 L306 178 Z" fill="' + p + '" opacity=".8"/>' +
+          '<ellipse cx="256" cy="280" rx="140" ry="124" fill="' + sombre + '"/>' +
+          '<ellipse cx="256" cy="330" rx="66" ry="46" fill="#2a2532"/>' +
+          '<path d="M196 260 q20 -26 44 0 q-22 14 -44 0 Z M272 260 q20 -26 44 0 q-22 14 -44 0 Z" fill="' + p + '"/><path d="M216 248 v20 M292 248 v20" stroke="' + ombre + '" stroke-width="6" stroke-linecap="round"/>' +
+          '<path d="M246 312 h20 l-10 12 Z" fill="' + c + '"/><path d="M256 324 q-12 18 -28 10 M256 324 q14 16 30 6" stroke="' + l + '" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+          '<path d="M150 318 l-60 -10 M150 332 l-58 8 M362 318 l60 -10 M362 332 l58 8" stroke="' + l + '" stroke-width="3" stroke-linecap="round" opacity=".7"/>', tete: 110, yeux: [256, 258], cou: 404 };
+      case 'renard':
+        return { svg:
+          '<path d="M120 210 L150 90 L230 170 Z M392 210 L362 90 L282 170 Z" fill="' + p + '"/><path d="M146 180 L160 120 L206 168 Z M366 180 L352 120 L306 168 Z" fill="' + sombre + '"/>' +
+          '<path d="M256 420 C200 420 112 330 112 240 C112 190 170 160 256 160 C342 160 400 190 400 240 C400 330 312 420 256 420 Z" fill="' + p + '"/>' +
+          '<path d="M256 420 C226 420 160 360 132 286 C180 300 220 320 256 360 C292 320 332 300 380 286 C352 360 286 420 256 420 Z" fill="' + l + '"/>' +
+          '<path d="M196 262 q22 -22 46 0 q-24 12 -46 0 Z M270 262 q22 -22 46 0 q-24 12 -46 0 Z" fill="' + ombre + '"/><circle cx="224" cy="258" r="4" fill="#fff"/><circle cx="298" cy="258" r="4" fill="#fff"/>' +
+          '<ellipse cx="256" cy="378" rx="16" ry="11" fill="' + ombre + '"/><path d="M236 398 q20 10 40 0" stroke="' + ombre + '" stroke-width="4" fill="none" stroke-linecap="round"/>', tete: 100, yeux: [256, 260], cou: 430 };
+      case 'panthere':
+        return { svg:
+          '<circle cx="160" cy="160" r="40" fill="' + ombre + '"/><circle cx="352" cy="160" r="40" fill="' + ombre + '"/><circle cx="160" cy="164" r="20" fill="' + d + '"/><circle cx="352" cy="164" r="20" fill="' + d + '"/>' +
+          '<ellipse cx="256" cy="276" rx="150" ry="136" fill="' + ombre + '"/>' +
+          '<ellipse cx="256" cy="276" rx="150" ry="136" fill="url(#' + id + 'br)" opacity=".18"/>' +
+          '<path d="M186 250 q28 -30 58 0 q-30 18 -58 0 Z M268 250 q28 -30 58 0 q-30 18 -58 0 Z" fill="#ffd66b"/><path d="M215 236 v28 M297 236 v28" stroke="' + ombre + '" stroke-width="7" stroke-linecap="round"/>' +
+          '<path d="M238 318 h36 l-18 18 Z" fill="' + p + '"/><path d="M256 336 v14 M256 350 q-16 14 -34 6 M256 350 q16 14 34 6" stroke="#3a3542" stroke-width="4" fill="none" stroke-linecap="round"/>' +
+          '<path d="M150 320 l-64 -6 M150 336 l-62 12 M362 320 l64 -6 M362 336 l62 12" stroke="#5d5768" stroke-width="3" stroke-linecap="round"/>', tete: 104, yeux: [256, 250], cou: 418 };
+      case 'diable':
+        return { svg:
+          '<path d="M170 170 C150 120 160 82 186 64 C184 104 196 138 222 160 Z M342 170 C362 120 352 82 326 64 C328 104 316 138 290 160 Z" fill="' + p + '" stroke="' + d + '" stroke-width="4"/>' +
+          '<circle cx="256" cy="282" r="134" fill="' + p + '"/><circle cx="256" cy="282" r="134" fill="url(#' + id + 'br)" opacity=".45"/>' +
+          '<path d="M186 238 l52 18 M326 238 l-52 18" stroke="' + ombre + '" stroke-width="10" stroke-linecap="round"/>' +
+          '<ellipse cx="212" cy="276" rx="16" ry="20" fill="' + ombre + '"/><ellipse cx="300" cy="276" rx="16" ry="20" fill="' + ombre + '"/><circle cx="218" cy="270" r="5" fill="#fff"/><circle cx="306" cy="270" r="5" fill="#fff"/>' +
+          '<path d="M196 330 Q256 392 316 330" stroke="' + ombre + '" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M226 346 l8 16 l8 -12 Z M270 346 l8 12 l8 -16 Z" fill="#fff"/>' +
+          '<path d="M380 380 C440 380 460 330 430 300" stroke="' + p + '" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M412 286 l40 -6 l-14 36 Z" fill="' + p + '"/>', tete: 72, yeux: [256, 272], cou: 430 };
+      case 'levres':
+        return { svg:
+          '<path d="M96 268 C140 196 206 186 256 222 C306 186 372 196 416 268 C370 270 330 268 256 276 C182 268 142 270 96 268 Z" fill="' + p + '"/>' +
+          '<path d="M96 268 C150 268 190 280 256 280 C322 280 362 268 416 268 C376 352 316 380 256 380 C196 380 136 352 96 268 Z" fill="' + d + '"/>' +
+          '<path d="M96 268 C150 268 190 280 256 280 C322 280 362 268 416 268 C376 352 316 380 256 380 C196 380 136 352 96 268 Z" fill="url(#' + id + 'mq)" opacity=".8"/>' +
+          '<path d="M180 320 q60 30 140 0" stroke="#ffffffaa" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M190 232 q30 -14 52 4" stroke="#ffffff99" stroke-width="7" fill="none" stroke-linecap="round"/>', tete: 150, yeux: [256, 230], cou: 420 };
+      case 'coeur':
+        return { svg:
+          '<path d="M256 420 C150 350 96 290 96 220 C96 160 140 124 190 124 C222 124 244 140 256 166 C268 140 290 124 322 124 C372 124 416 160 416 220 C416 290 362 350 256 420 Z" fill="' + p + '"/>' +
+          '<path d="M256 420 C150 350 96 290 96 220 C96 160 140 124 190 124 C222 124 244 140 256 166 C268 140 290 124 322 124 C372 124 416 160 416 220 C416 290 362 350 256 420 Z" fill="url(#' + id + 'br)" opacity=".55"/>' +
+          '<ellipse cx="200" cy="234" rx="14" ry="20" fill="' + ombre + '"/><circle cx="205" cy="228" r="5" fill="#fff"/><path d="M290 234 q22 -18 44 0" stroke="' + ombre + '" stroke-width="9" fill="none" stroke-linecap="round"/>' +
+          '<path d="M212 292 q44 34 88 0" stroke="' + ombre + '" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M276 300 q10 30 24 8" fill="' + c + '" stroke="' + ombre + '" stroke-width="4"/>' +
+          '<ellipse cx="160" cy="276" rx="20" ry="12" fill="#fff" opacity=".25"/><ellipse cx="352" cy="276" rx="20" ry="12" fill="#fff" opacity=".25"/>', tete: 96, yeux: [256, 232], cou: 430 };
+      case 'cocktail':
+        return { svg:
+          '<path d="M130 130 L382 130 L268 270 L244 270 Z" fill="' + c + '" opacity=".25" stroke="' + l + '" stroke-width="6" stroke-linejoin="round"/>' +
+          '<path d="M162 166 L350 166 L268 262 L244 262 Z" fill="' + p + '"/><path d="M162 166 L350 166 L340 178 L172 178 Z" fill="' + l + '" opacity=".6"/>' +
+          '<rect x="246" y="268" width="20" height="120" fill="' + l + '" opacity=".85"/><ellipse cx="256" cy="398" rx="76" ry="16" fill="' + l + '" opacity=".85"/>' +
+          '<path d="M300 100 L232 220" stroke="#ffd66b" stroke-width="5" stroke-linecap="round"/><circle cx="242" cy="202" r="20" fill="#e3263f"/><circle cx="236" cy="196" r="6" fill="#fff" opacity=".6"/>' +
+          '<circle cx="290" cy="210" r="5" fill="#fff" opacity=".7"/><circle cx="276" cy="232" r="3.5" fill="#fff" opacity=".7"/><circle cx="300" cy="186" r="3" fill="#fff" opacity=".6"/>', tete: 80, yeux: [256, 210], cou: 440 };
+    }
+    return { svg: '', tete: 120, yeux: [256, 256], cou: 410 };
+  }
+
+  // ---------- Accessoires ----------
+  function accessoire(type, t, pos) {
+    var p = t[1], l = t[4], o = '#ffd66b';
+    switch (type) {
+      case 'couronne': {
+        var y = Math.max(28, pos.tete - 66);
+        return '<g transform="translate(256 ' + y + ')"><path d="M-62 56 L-70 0 L-34 28 L0 -8 L34 28 L70 0 L62 56 Z" fill="' + o + '" stroke="#a8781c" stroke-width="4" stroke-linejoin="round"/><rect x="-64" y="50" width="128" height="16" rx="6" fill="' + o + '" stroke="#a8781c" stroke-width="4"/>' +
+          '<circle cx="0" cy="-10" r="9" fill="' + p + '"/><circle cx="-70" cy="0" r="7" fill="' + p + '"/><circle cx="70" cy="0" r="7" fill="' + p + '"/><circle cx="0" cy="58" r="6" fill="' + p + '"/></g>';
+      }
+      case 'noeud': {
+        var x = pos.noeud ? 256 : 372, yy = pos.noeud ? pos.cou + 14 : 140;
+        return '<g transform="translate(' + x + ' ' + yy + ')"><path d="M0 0 L-52 -30 Q-62 0 -52 30 Z M0 0 L52 -30 Q62 0 52 30 Z" fill="' + p + '" stroke="' + t[2] + '" stroke-width="4" stroke-linejoin="round"/><rect x="-12" y="-14" width="24" height="28" rx="8" fill="' + l + '" stroke="' + t[2] + '" stroke-width="4"/></g>';
+      }
+      case 'lunettes': {
+        var ey = pos.yeux[1], c = function (cx) { return '<path transform="translate(' + cx + ' ' + ey + ')" d="M0 26 C-38 2 -48 -16 -38 -30 C-28 -42 -10 -38 0 -24 C10 -38 28 -42 38 -30 C48 -16 38 2 0 26 Z" fill="' + p + '" fill-opacity=".55" stroke="' + l + '" stroke-width="7" stroke-linejoin="round"/>'; };
+        return c(206) + c(306) + '<path d="M240 ' + (ey - 16) + ' q16 -10 32 0" stroke="' + l + '" stroke-width="7" fill="none" stroke-linecap="round"/>';
+      }
+      case 'etoiles': {
+        var et = function (x, y, r) { return '<path transform="translate(' + x + ' ' + y + ') scale(' + r + ')" d="M0 -10 L2.6 -2.6 L10 0 L2.6 2.6 L0 10 L-2.6 2.6 L-10 0 L-2.6 -2.6 Z" fill="' + o + '"/>'; };
+        return et(110, 140, 3.2) + et(404, 120, 2.4) + et(420, 380, 3) + et(96, 360, 2) + et(380, 210, 1.5);
+      }
+      case 'plume':
+        return '<g transform="translate(372 ' + Math.max(90, pos.tete) + ') rotate(28)"><path d="M0 120 C-30 60 -26 -10 0 -60 C26 -10 30 60 0 120 Z" fill="' + p + '" stroke="' + o + '" stroke-width="3"/><path d="M0 130 L0 -50" stroke="' + o + '" stroke-width="3"/><path d="M0 0 l-16 -12 M0 30 l-18 -12 M0 60 l-18 -12 M0 0 l16 -12 M0 30 l18 -12 M0 60 l18 -12" stroke="' + l + '" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/></g>';
+      case 'perles': {
+        var s = '', yC = pos.cou + 6;
+        for (var i = 0; i <= 14; i++) { var a = Math.PI * (0.12 + 0.76 * i / 14), x2 = 256 - Math.cos(a) * 112, y2 = yC + Math.sin(a) * 46; s += '<circle cx="' + x2.toFixed(1) + '" cy="' + y2.toFixed(1) + '" r="10" fill="#fbf7ef" stroke="#d8cdb8" stroke-width="2"/><circle cx="' + (x2 - 3).toFixed(1) + '" cy="' + (y2 - 3).toFixed(1) + '" r="3" fill="#fff"/>'; }
+        return s + '<circle cx="256" cy="' + (yC + 58) + '" r="15" fill="' + p + '" stroke="' + o + '" stroke-width="4"/>';
+      }
+      case 'rose':
+        return '<g transform="translate(118 404)"><path d="M10 0 C40 40 70 70 120 90" stroke="#2f8a57" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M60 46 q24 -26 44 -6 q-24 18 -44 6 Z" fill="#3fae6c"/>' +
+          '<circle cx="0" cy="0" r="40" fill="#d81b45"/><path d="M-22 -6 C-10 -30 22 -30 26 -4 C28 16 6 24 -6 14 C-16 6 -10 -10 4 -8" stroke="#8c0d2a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M-36 8 C-30 30 -6 40 18 32" stroke="#8c0d2a" stroke-width="5" fill="none" stroke-linecap="round"/></g>';
+    }
+    return '';
+  }
+
+  // ---------- Cadre et pseudo ----------
+  function cadre(type, t, id) {
+    if (type === 'or') return '<circle cx="256" cy="256" r="236" fill="none" stroke="url(#' + id + 'or)" stroke-width="16"/><circle cx="256" cy="256" r="226" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="3"/>';
+    if (type === 'neon') return '<circle cx="256" cy="256" r="234" fill="none" stroke="' + t[1] + '" stroke-width="14" filter="url(#' + id + 'gl)"/><circle cx="256" cy="256" r="234" fill="none" stroke="' + t[4] + '" stroke-width="4"/>';
+    if (type === 'fin') return '<circle cx="256" cy="256" r="238" fill="none" stroke="' + t[4] + '" stroke-opacity=".7" stroke-width="5"/>';
+    return '';
+  }
+  function badge(nom, t) {
+    if (!nom) return '';
+    var n = esc(nom.trim().slice(0, 16)), w = Math.min(380, 70 + n.length * 19);
+    return '<g><rect x="' + (256 - w / 2) + '" y="404" width="' + w + '" height="56" rx="28" fill="#0d0b12" fill-opacity=".82" stroke="' + t[1] + '" stroke-width="3"/>' +
+      '<text x="256" y="442" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" font-style="italic" font-weight="700" font-size="30" fill="' + t[4] + '">' + n + '</text></g>';
+  }
+
+  // ---------- Assemblage ----------
+  function avatarSVG(e) {
+    var t = TEINTES[e.teinte], id = 'a' + (++uid) + '_';
+    var f = fond(t, id, e.fond), pr = perso(e.perso, t, id);
+    var defs = '<defs>' + f.defs + defsMasque(id, t) + defsMasque(id + 'f', t) + defsMasque(id + 'h', t) +
+      '<clipPath id="' + id + 'cl"><circle cx="256" cy="256" r="240"/></clipPath>' +
+      '<linearGradient id="' + id + 'or" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8"/><stop offset=".35" stop-color="#e6b13c"/><stop offset=".65" stop-color="#9c6b16"/><stop offset="1" stop-color="#ffe08a"/></linearGradient>' +
+      '<filter id="' + id + 'gl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="8"/></filter>' +
+      '<radialGradient id="' + id + 'vg" cx=".5" cy=".5" r=".5"><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs>';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">' + defs +
+      '<g clip-path="url(#' + id + 'cl)">' + f.corps + pr.svg + accessoire(e.acc, t, pr) + '<rect width="512" height="512" fill="url(#' + id + 'vg)"/>' + badge(e.pseudo, t) + '</g>' +
+      cadre(e.cadre, t, id) + '</svg>';
+  }
+
+  // ---------- Interface ----------
+  function boutons(zoneId, liste, cle, vignette) {
+    var z = $(zoneId);
+    z.innerHTML = liste.map(function (x) {
+      var v = x[0], txt = x[1], deco = '';
+      if (cle === 'teinte') deco = '<span class="pastille" style="background:linear-gradient(135deg,' + TEINTES[v][1] + ',' + TEINTES[v][2] + ')"></span>';
+      if (vignette) deco = '<span class="vignette">' + avatarSVG(Object.assign({}, etat, { perso: v, acc: 'aucun', pseudo: '', cadre: 'aucun' })) + '</span>';
+      return '<button type="button" data-v="' + v + '" aria-pressed="' + (etat[cle] === v) + '">' + deco + txt + '</button>';
+    }).join('');
+    z.onclick = function (ev) {
+      var b = ev.target.closest('button'); if (!b) return;
+      etat[cle] = b.getAttribute('data-v');
+      if (cle === 'teinte') boutons('cPerso', listePersos(), 'perso', true);
+      majPresses(); dessiner();
+    };
+  }
+  function listePersos() { return (etat.photo ? [['photo', 'Ma photo']] : []).concat(PERSOS); }
+  function majPresses() {
+    [['cMasquePhoto', 'masquePhoto'], ['cPerso', 'perso'], ['cTeinte', 'teinte'], ['cFond', 'fond'], ['cAcc', 'acc'], ['cCadre', 'cadre']].forEach(function (g) {
+      $(g[0]).querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === etat[g[1]])); });
+    });
+  }
+  function dessiner() {
+    $('scene').innerHTML = avatarSVG(etat);
+    var nom = (listePersos().filter(function (x) { return x[0] === etat.perso; })[0] || [])[1];
+    $('photoReglages').hidden = etat.perso !== 'photo';
+    $('scene').setAttribute('aria-label', 'Aperçu : ' + nom + ', ambiance ' + TEINTES[etat.teinte][0]);
+  }
+  function png(cb) {
+    var svg = avatarSVG(etat), img = new Image();
+    img.onload = function () { var c = document.createElement('canvas'); c.width = c.height = 512; c.getContext('2d').drawImage(img, 0, 0, 512, 512); cb(c); };
+    img.onerror = function () { message('Impossible de créer l\'image dans ce navigateur.'); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+  function message(t) { $('etat').textContent = t; if (t) setTimeout(function () { if ($('etat').textContent === t) $('etat').textContent = ''; }, 2600); }
+
+
+  // Enregistrer comme photo de profil (publiée tout de suite ; l'équipe la vérifie ensuite)
+  function exporter(cb) {
+    var svg = avatarSVG(etat), img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas'); c.width = c.height = 400; c.getContext('2d').drawImage(img, 0, 0, 400, 400);
+      var d = c.toDataURL('image/png');
+      if (d.length > 390000) {   // trop lourd (photo) : JPEG sur fond sombre, sous la limite de 300 Ko
+        var j = document.createElement('canvas'); j.width = j.height = 400; var x = j.getContext('2d');
+        x.fillStyle = '#131218'; x.fillRect(0, 0, 400, 400); x.drawImage(c, 0, 0); d = j.toDataURL('image/jpeg', .88);
+      }
+      cb(d);
+    };
+    img.onerror = function () { message('Impossible de préparer l\'image.'); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+  $('utiliser').onclick = function () {
+    var b = this;
+    if (typeof apiCall !== 'function') return message('Connectez-vous pour enregistrer votre avatar.');
+    b.disabled = true; message('Enregistrement…');
+    exporter(function (d) {
+      apiCall('/avatars/me', { method: 'PUT', body: JSON.stringify({ image: d }) }).then(function () {
+        message('C\'est fait : votre avatar est votre nouvelle photo de profil.');
+        if (typeof showToast === 'function') showToast('Avatar enregistré', 'success');
+      }).catch(function (e) { message(e.message || 'Enregistrement impossible.'); }).then(function () { b.disabled = false; });
+    });
+  };
+  $('pseudo').addEventListener('input', function () { etat.pseudo = this.value; dessiner(); });
+  // Photo : réduite à 900 px dans le navigateur (rien n'est envoyé), puis placée dans le cercle
+  $('photo').addEventListener('change', function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    if (!/^image\//.test(f.type)) { message('Choisissez une image (JPG, PNG, WebP…).'); return; }
+    var url = URL.createObjectURL(f), img = new Image();
+    img.onload = function () {
+      var k = Math.min(1, 900 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      etat.photo = c.toDataURL('image/jpeg', .9); etat.perso = 'photo'; etat.zoom = 1.2; etat.px = 0; etat.py = 0;
+      $('pZoom').value = 1.2; $('pX').value = 0; $('pY').value = 0;
+      $('photoInfo').textContent = f.name.length > 28 ? f.name.slice(0, 26) + '…' : f.name; $('photoRetirer').hidden = false;
+      boutons('cPerso', listePersos(), 'perso', true); majPresses(); dessiner();
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); message('Cette image ne peut pas être lue.'); };
+    img.src = url; this.value = '';
+  });
+  $('photoRetirer').onclick = function () {
+    etat.photo = null; if (etat.perso === 'photo') etat.perso = 'colombine';
+    $('photoInfo').textContent = 'Elle reste sur votre appareil.'; this.hidden = true;
+    boutons('cPerso', listePersos(), 'perso', true); majPresses(); dessiner();
+  };
+  [['pZoom', 'zoom'], ['pX', 'px'], ['pY', 'py'], ['mTaille', 'mTaille'], ['mY', 'mY']].forEach(function (r) {
+    $(r[0]).addEventListener('input', function () { etat[r[1]] = parseFloat(this.value); dessiner(); });
+  });
+  $('telecharger').onclick = function () {
+    png(function (c) {
+      var a = document.createElement('a');
+      a.download = 'avatar-evisiocam-' + etat.perso + '.png'; a.href = c.toDataURL('image/png');
+      document.body.appendChild(a); a.click(); a.remove(); message('Image téléchargée.');
+    });
+  };
+  $('copier').onclick = function () {
+    png(function (c) {
+      c.toBlob(function (blob) {
+        if (!navigator.clipboard || !window.ClipboardItem) return message('Copie non disponible ici : utilisez « Télécharger en PNG ».');
+        navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(function () { message('Image copiée.'); }, function () { message('Copie refusée par le navigateur : utilisez « Télécharger en PNG ».'); });
+      });
+    });
+  };
+  $('hasard').onclick = function () {
+    var pick = function (l) { return l[Math.floor(Math.random() * l.length)][0]; };
+    etat.perso = pick(PERSOS); etat.teinte = pick(Object.keys(TEINTES).map(function (k) { return [k]; })); etat.fond = pick(FONDS);
+    etat.acc = Math.random() < .35 ? 'aucun' : pick(ACCS.slice(1)); etat.cadre = pick(CADRES.slice(0, 3));
+    boutons('cPerso', listePersos(), 'perso', true); majPresses(); dessiner();
+  };
+
+  // Inspirations
+  var INSPI = [
+    ['colombine', 'or', 'paillettes', 'aucun', 'or'], ['plumes', 'rose', 'bokeh', 'aucun', 'or'], ['dentelle', 'bordeaux', 'velours', 'perles', 'or'],
+    ['femme', 'rose', 'paillettes', 'perles', 'neon'], ['homme', 'bleu', 'rayons', 'noeud', 'fin'], ['couple', 'violet', 'bokeh', 'etoiles', 'or'],
+    ['chat', 'violet', 'paillettes', 'noeud', 'neon'], ['renard', 'champagne', 'velours', 'aucun', 'or'], ['panthere', 'emeraude', 'bokeh', 'couronne', 'or'],
+    ['diable', 'rouge', 'rayons', 'aucun', 'neon'], ['levres', 'rouge', 'paillettes', 'etoiles', 'fin'], ['coeur', 'rose', 'bokeh', 'lunettes', 'neon'],
+    ['cocktail', 'or', 'paillettes', 'etoiles', 'or'], ['femme', 'champagne', 'velours', 'rose', 'or'], ['homme', 'or', 'paillettes', 'couronne', 'or'], ['chat', 'bleu', 'bokeh', 'lunettes', 'fin']
+  ];
+  $('galerie').innerHTML = INSPI.map(function (x, i) {
+    var e = { perso: x[0], teinte: x[1], fond: x[2], acc: x[3], cadre: x[4], pseudo: '' };
+    return '<button type="button" data-i="' + i + '" aria-label="' + esc((PERSOS.filter(function (p) { return p[0] === x[0]; })[0] || [])[1] + ', ' + TEINTES[x[1]][0]) + '">' + avatarSVG(e) + '</button>';
+  }).join('');
+  $('galerie').onclick = function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    var x = INSPI[+b.getAttribute('data-i')];
+    etat.perso = x[0]; etat.teinte = x[1]; etat.fond = x[2]; etat.acc = x[3]; etat.cadre = x[4];
+    boutons('cPerso', listePersos(), 'perso', true); majPresses(); dessiner();
+    $('scene').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  boutons('cPerso', listePersos(), 'perso', true);
+  boutons('cMasquePhoto', MASQUES_PHOTO, 'masquePhoto');
+  boutons('cTeinte', Object.keys(TEINTES).map(function (k) { return [k, TEINTES[k][0]]; }), 'teinte');
+  boutons('cFond', FONDS, 'fond');
+  boutons('cAcc', ACCS, 'acc');
+  boutons('cCadre', CADRES, 'cadre');
+  dessiner();
+})();

@@ -1,6 +1,6 @@
 // ============================================================
-// MODÉRATION — Photos de profil à valider
-// Chaque photo envoyée par un membre reste privée jusqu'à sa validation ici.
+// MODÉRATION — Photos de profil à vérifier
+// Les photos et avatars sont publiés tout de suite ; l'équipe les vérifie ici et retire ceux qui enfreignent les règles.
 // ============================================================
 (function () {
     var apercus = [];
@@ -37,15 +37,15 @@
             var d = await apiCall('/avatars/pending');
             var liste = d.avatars || [];
             badge(liste.length);
-            if (!liste.length) { boite.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm col-span-full">Aucune photo à valider 🎉</p>'; return; }
+            if (!liste.length) { boite.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm col-span-full">Aucune nouvelle photo à vérifier 🎉</p>'; return; }
             boite.innerHTML = liste.map(function (a) {
                 return '<div class="rounded-2xl border border-slate-200 p-3 text-center bg-slate-50" data-photo="' + Number(a.userId) + '">' +
                     '<img alt="Photo de ' + esc(a.username) + '" class="w-full aspect-square rounded-xl object-cover bg-slate-200 mb-2">' +
                     '<p class="text-sm font-bold text-slate-900 truncate">' + esc(a.username) + '</p>' +
                     '<p class="text-[10px] text-slate-400 mb-2">' + esc(quand(a.updatedAt)) + '</p>' +
                     '<div class="flex gap-2">' +
-                        '<button type="button" data-ok class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600"><i class="fa-solid fa-check"></i> Valider</button>' +
-                        '<button type="button" data-non class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-600"><i class="fa-solid fa-xmark"></i> Refuser</button>' +
+                        '<button type="button" data-ok class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white hover:bg-emerald-600"><i class="fa-solid fa-check"></i> OK</button>' +
+                        '<button type="button" data-non class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-rose-500 text-white hover:bg-rose-600"><i class="fa-solid fa-xmark"></i> Retirer</button>' +
                     '</div></div>';
             }).join('');
             boite.querySelectorAll('[data-photo]').forEach(function (carte) { image(carte.getAttribute('data-photo'), carte.querySelector('img')); });
@@ -61,7 +61,7 @@
         var refuser = bouton.hasAttribute('data-non');
         var raison = '';
         if (refuser) {
-            raison = prompt('Motif du refus (visible dans l’historique) :', 'Photo non conforme aux règles du site');
+            raison = prompt('Motif du retrait (visible dans l’historique) :', 'Photo non conforme aux règles du site');
             if (raison === null) return;
         }
         bouton.disabled = true;
