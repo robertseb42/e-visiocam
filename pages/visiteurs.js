@@ -44,7 +44,10 @@
             var n = d.visiteurs.length;
             $('visResume').textContent = n ? n + ' visiteur' + (n > 1 ? 's' : '') + ' ces 30 derniers jours' + (d.nouveaux ? ', dont ' + d.nouveaux + ' nouveau' + (d.nouveaux > 1 ? 'x' : '') : '') + '.' : 'Personne pour le moment.';
             liste.innerHTML = n ? d.visiteurs.map(carte).join('')
-                : '<p class="mbr-vide">Aucune visite ces 30 derniers jours. Complétez votre profil (photo, annonce, « Libre ce soir ») et passez dans les <a href="salons.html">salons</a> : vous serez plus vu.</p>';
+                : '<div class="mbr-vide"><p style="margin:0 0 16px">Aucune visite ces 30 derniers jours. Complétez votre profil (photo, annonce, ce que vous recherchez), indiquez-vous « Libre ce soir » et passez dans les <a href="salons.html">salons</a> : vous serez plus vu.</p>' +
+                  '<p style="margin:0;display:flex;flex-wrap:wrap;gap:10px;justify-content:center">' +
+                  '<a class="mbr-btn" href="compte.html#profilLibertin">✏️ Gérer mon profil</a>' +
+                  '<a class="mbr-btn mbr-btn-2" href="membres.html#mbrLibre">🌙 Libre ce soir</a></p></div>';
             if (d.nouveaux) fetch(API_URL + '/models/visiteurs/vus', { method: 'POST', credentials: 'include' }).then(function () {
                 document.querySelectorAll('[data-nav-visites-badge]').forEach(function (b) { b.classList.add('hidden'); });
             }).catch(function () {});
