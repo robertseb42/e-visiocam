@@ -649,6 +649,7 @@
         f.reset();
         if (!l) photoDansForm(f, null);
         f.dataset.id = l ? l.id : '';
+        var accord = f.querySelector('[data-nouveau-seul]'); if (accord) { accord.hidden = !!l; accord.querySelector('input').checked = false; }
         $('glTitreLieu').textContent = l ? 'Modifier « ' + l.nom + ' »' : 'Proposer un lieu';
         f.querySelector('[type=submit]').textContent = l ? 'Enregistrer' : (equipe() ? 'Publier' : 'Envoyer à la modération');
         var aide = f.querySelector('.gl-aide'); if (aide) aide.textContent = l ? 'Les modifications sont visibles tout de suite sur la fiche.' : (equipe() ? 'Indiquez les informations publiques du lieu. Il sera publié tout de suite et placé sur la carte d\'après son adresse.' : 'Club, sauna ou soirée privée : indiquez les informations publiques du lieu. La fiche sera publiée après vérification par la modération.');
@@ -938,6 +939,8 @@
             d.verifie = !!(fl.verifie && fl.verifie.checked && equipe());
             d.types = [].slice.call(fl.querySelectorAll('input[name=types]:checked')).map(function (x) { return x.value; });
             var id = fl.dataset.id;
+            if (!id && !(fl.accordReferencement && fl.accordReferencement.checked)) { erreur(fl, 'Vérifiez d’abord que l’établissement n’interdit pas d’être référencé (bas de page et mentions légales de son site), puis cochez la case.'); return; }
+            d.accordReferencement = !id;
             try {
                 var r = await api(id ? '/lieux/' + id : '/lieux', { method: id ? 'PUT' : 'POST', body: JSON.stringify(d) });
                 fermer($('glFenetreLieu')); fl.reset(); toast(id ? 'Fiche enregistrée.' : r.message, 'success');
