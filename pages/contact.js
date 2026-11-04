@@ -64,3 +64,11 @@ document.getElementById('contactForm').addEventListener('submit', async (e) => {
         spinner.classList.add('hidden');
     }
 });
+
+// Pré-remplissage depuis un lien (?sujet=autre&message=…), ex. demande de retrait d'une photo du guide
+(function () {
+    var q = new URLSearchParams(location.search), sj = q.get('sujet'), m = q.get('message');
+    var sel = document.getElementById('subject'), ta = document.getElementById('message');
+    if (sj && sel && sel.querySelector('option[value="' + sj.replace(/[^a-z]/g, '') + '"]')) sel.value = sj;
+    if (m && ta) { ta.value = m.slice(0, 2000); var c = document.getElementById('charCount'); if (c) c.textContent = ta.value.length; }
+})();

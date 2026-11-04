@@ -456,5 +456,7 @@ fieldset.gl-planning-bloc{flex-direction:column;flex-wrap:nowrap;gap:10px}
 .gl-carte-photo-txt em{font-style:normal;color:var(--g-pink);font-weight:800;text-transform:none;letter-spacing:0;white-space:nowrap}
 .gl-fiche-photo{position:relative;margin:0 0 14px;border-radius:16px;overflow:hidden;max-height:420px}
 .gl-fiche-photo img{width:100%;max-height:420px;object-fit:cover;display:block}
+.gl-photo-credit{margin:-8px 0 14px;font-size:12px;color:var(--g-muted)}
+.gl-photo-credit a{color:inherit;text-decoration:underline}
 .gl-photo-equipe{margin:0 0 12px;font-size:13px}
 .gl-photo-equipe small{color:var(--g-muted)}
