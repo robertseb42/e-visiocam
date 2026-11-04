@@ -39,7 +39,7 @@
 <script defer="" src="nav-auth.js?v=12"></script>
 <link href="style.css?v=20261102-hero" rel="stylesheet"/>
 <link href="evenements.css?v=6" rel="stylesheet"/>
-<link href="index-carte.css?v=5" rel="stylesheet"/>
+<link href="index-carte.css?v=6" rel="stylesheet"/>
 <style>
         /* Aligne le menu du haut (Accueil) sur le bord gauche du rectangle "Chat Cam En direct" */
         .cam-home .cam-topnav > a:first-child { padding-left: 0; }
@@ -125,12 +125,12 @@
 <aside class="hidden lg:flex flex-col w-64 shrink-0 gap-6" id="sidebar">
 <!-- Soirées des clubs (agenda du Guide libertin) qui défilent : pages/index-soirees.js -->
 <section aria-labelledby="sbSoireesTitre" class="sb-soirees bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80" hidden id="sbSoirees">
-<div class="sb-soirees-tete"><h2 id="sbSoireesTitre"><i aria-hidden="true" class="fa-regular fa-calendar"></i> Soirées des clubs</h2><a href="guide.html">Tout voir</a></div>
+<div class="sb-soirees-tete"><span aria-hidden="true" class="sb-ico sb-ico-soirees"><i class="fa-solid fa-champagne-glasses"></i></span><div class="sb-titres"><h2 id="sbSoireesTitre">Soirées des clubs</h2><small>L'agenda libertin</small></div><a aria-label="Voir toutes les soirées" class="sb-voir" href="guide.html" title="Tout voir"><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
 <div class="sb-soirees-fenetre"><ul class="sb-soirees-liste" id="sbSoireesListe"></ul></div>
 </section>
 <!-- Love rooms du guide (photo principale) en diaporama : pages/index-soirees.js — futur emplacement des fiches mises en avant -->
 <section aria-labelledby="sbLoveRoomsTitre" class="sb-soirees bg-white rounded-2xl p-3 shadow-sm border border-slate-200/80" hidden id="sbLoveRooms">
-<div class="sb-soirees-tete"><h2 id="sbLoveRoomsTitre"><i aria-hidden="true" class="fa-solid fa-heart"></i> Love rooms</h2><a href="guide.html?type=loveroom">Tout voir</a></div>
+<div class="sb-soirees-tete"><span aria-hidden="true" class="sb-ico sb-ico-love"><i class="fa-solid fa-heart"></i></span><div class="sb-titres"><h2 id="sbLoveRoomsTitre">Love rooms</h2><small>Jacuzzis privatifs</small></div><a aria-label="Voir toutes les love rooms" class="sb-voir" href="guide.html?type=loveroom" title="Tout voir"><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a></div>
 <div class="sb-lr-fenetre"></div>
 </section>
 <!-- 📻 PLATINE RADIO E-VISIOCAM (styles : style.css → « PLATINE RADIO ») -->
@@ -334,7 +334,8 @@
 <script src="pages/index-cameras.js?v=2"></script>
 <script src="pages/index-ambiances.js?v=2"></script>
 <script defer="" src="pages/index-carte.js?v=6"></script>
-<script defer="" src="pages/index-soirees.js?v=3"></script>
+<script defer="" src="departements-data.js?v=2"></script>
+<script defer="" src="pages/index-soirees.js?v=4"></script>
 <script src="pages/index-membres.js"></script>
 <script defer="" src="pages/evenements.js?v=6"></script>
 <script defer="" src="footer.js?v=11"></script>
