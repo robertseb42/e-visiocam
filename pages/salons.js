@@ -40,11 +40,7 @@ function renderSalons(items, containerId, isPrivate = false) {
                 ${s.online > 0
                     ? `<span class="text-xs font-bold px-2 py-1 rounded-full" style="background:rgba(16,185,129,.14);color:#059669" title="Membres dans ce salon en ce moment">● ${Number(s.online)} en ligne</span>`
                     : ''}
-                ${typeof s.members === 'number'
-                    ? `<span class="text-xs bg-pink-50 text-brand-primary font-bold px-2 py-1 rounded-full" title="Membres">
-                           <i class="fa-solid fa-users text-[10px] mr-1"></i>${s.members}
-                       </span>`
-                    : ''}
+                ${''/* Compteur de membres masqué tant que le site démarre */}
                     <button type="button" class="ev-fav" data-fav="salon:${esc(s.slug)}" aria-pressed="${FAV_SALONS.has(s.slug) ? 'true' : 'false'}" title="Ajouter aux favoris"><i class="${FAV_SALONS.has(s.slug) ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
                 </div>
             </div>
