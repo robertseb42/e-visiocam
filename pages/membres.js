@@ -14,7 +14,7 @@
     var OPT = { tendances: {}, interets: {} };
     var GENRES = { couple: 'Couple', femme: 'Femme', homme: 'Homme', trans: 'Trans', autre: 'Membre', '': 'Membre' };
     var COUPLES = { hf: 'Couple', ff: 'Couple de femmes', hh: 'Couple d\'hommes' };
-    var filtres = { cherche: ['couples', 'femmes', 'hommes', 'trans'], correspond: false, ou: '50', photo: false, certifie: false, enligne: false, interet: '', tri: 'recents', q: '', dispo: '' };
+    var filtres = { cherche: ['couples', 'femmes', 'hommes', 'trans'], correspond: false, ou: '50', photo: false, certifie: false, enligne: false, interet: '', objectif: '', tri: 'recents', q: '', dispo: '' };
     var page = 1, attente = null, demande = 0, maVille = null;
     var RAYONS = ['10', '25', '50', '100', '200'];
 
@@ -47,6 +47,7 @@
         $('mbrOu').value = filtres.ou;
         $('mbrCorrespond').checked = filtres.correspond; $('mbrPhoto').checked = filtres.photo; $('mbrCertifie').checked = !!filtres.certifie; $('mbrEnLigne').checked = filtres.enligne;
         $('mbrInteret').value = filtres.interet;
+        if ($('mbrObjectif')) $('mbrObjectif').value = filtres.objectif || '';
         if ($('mbrQ') && filtres.q && !$('mbrQ').value) $('mbrQ').value = filtres.q;
         var dep = moi && moi.departement, rayon = RAYONS.indexOf(filtres.ou) >= 0;
         // Message « indiquez votre ville » : rayon sans ville connue, ou département/région sans département
@@ -85,6 +86,7 @@
         if (filtres.certifie) p.set('certifie', '1');
         if (filtres.enligne) p.set('enligne', '1');
         if (filtres.interet) p.set('interet', filtres.interet);
+        if (filtres.objectif) p.set('objectif', filtres.objectif);
         if (filtres.q) p.set('q', filtres.q);
         p.set('tri', filtres.tri); p.set('page', page);
         return API_URL + '/models/annuaire?' + p.toString();
@@ -123,6 +125,7 @@
         $(c[0]).addEventListener('change', function () { filtres[c[1]] = this.checked; changer(); });
     });
     $('mbrInteret').addEventListener('change', function () { filtres.interet = this.value; changer(); });
+    if ($('mbrObjectif')) $('mbrObjectif').addEventListener('change', function () { filtres.objectif = this.value; changer(); });
     $('mbrQ').addEventListener('input', function () { var v = this.value.trim(); clearTimeout(attente); attente = setTimeout(function () { filtres.q = v; charger(false); }, 300); });
     $('mbrPlus').addEventListener('click', function () { page++; charger(true); });
 
@@ -165,6 +168,7 @@
         OPT = d;
         $('mbrEnvie').insertAdjacentHTML('beforeend', Object.keys(d.envies || {}).map(function (k) { return '<option value="' + k + '">' + esc(d.envies[k]) + '</option>'; }).join(''));
         if (maDispo) $('mbrEnvie').value = maDispo.envie || '';
+        if ($('mbrObjectif')) $('mbrObjectif').insertAdjacentHTML('beforeend', Object.keys(d.objectifs || {}).map(function (k) { return '<option value="' + k + '">' + esc(d.objectifs[k]) + '</option>'; }).join(''));
         $('mbrInteret').insertAdjacentHTML('beforeend', Object.keys(d.interets).map(function (k) { return '<option value="' + k + '">' + esc(d.interets[k]) + '</option>'; }).join(''));
         majControles(); charger(false);
     }).catch(function () { majControles(); charger(false); });

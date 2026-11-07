@@ -9,7 +9,7 @@
     var zone = document.getElementById('profilLibertin');
     if (!zone || typeof API_URL === 'undefined') return;
     var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-    var OPT = null, etat = { couple: 'hf', p1: {}, p2: {}, interets: [], recherche: [], annonce: '' }, genre = '', membre = null;
+    var OPT = null, etat = { couple: 'hf', p1: {}, p2: {}, interets: [], recherche: [], annonce: '', situation: '', partenaire: '', objectifs: [] }, genre = '', membre = null;
     var LIBELLES = { hf: ['Monsieur', 'Madame'], ff: ['Elle', 'Elle'], hh: ['Lui', 'Lui'] };
 
     function genreActuel() { var g = document.getElementById('genderField'); return g ? g.value : genre; }
@@ -45,7 +45,12 @@
         var g = genreActuel(), couple = g === 'couple', lib = LIBELLES[etat.couple] || LIBELLES.hf;
         var lb = document.getElementById('birthdateField') && document.getElementById('birthdateField').closest('div').querySelector('label');
         if (lb) lb.textContent = couple ? 'Date de naissance (' + lib[0] + ')' : 'Date de naissance';
+        var enCouple = !couple && etat.situation === 'couple';
         zone.innerHTML = progression() +
+            '<div class="plib-champ"><span>Je suis ici pour <small>(plusieurs choix possibles)</small></span>' + puces('objectifs', OPT.objectifs || {}, etat.objectifs) + '</div>' +
+            (!couple ? '<label class="plib-ligne">Ma situation<select data-k="situation">' + options(OPT.situations || {}, etat.situation, 'Non précisé') + '</select></label>' +
+                (enCouple ? '<label class="plib-ligne">Mon/ma partenaire sur E-VISIOCAM <small>(pseudo, facultatif)</small><input type="text" data-k="partenaire" maxlength="40" placeholder="Son pseudo" value="' + esc(etat.partenaire) + '" autocomplete="off"></label>' +
+                    '<p class="text-xs text-slate-500" style="margin:-4px 0 8px">Le lien « En couple avec » s’affiche sur vos deux profils quand votre partenaire indique aussi votre pseudo.</p>' : '') : '') +
             (couple ? '<label class="plib-ligne">Nous sommes<select data-k="couple">' + options(OPT.couples, etat.couple, 'Choisir') + '</select></label>' : '') +
             '<div class="plib-parts">' + bloc('p1', couple ? lib[0] : 'Moi', etat.p1, false) + (couple ? bloc('p2', lib[1], etat.p2, true) : '') + '</div>' +
             '<div class="plib-champ"><span>Je souhaite rencontrer</span>' + puces('recherche', OPT.recherche, etat.recherche) + '</div>' +
@@ -57,15 +62,17 @@
         if (!k) return;
         if (p) etat[p][k] = k === 'taille' ? (parseInt(t.value, 10) || null) : t.value;
         else if (k === 'couple') { etat.couple = t.value || 'hf'; rendre(); }
+        else if (k === 'situation') { etat.situation = t.value; rendre(); }
     });
     zone.addEventListener('input', function (e) {
+        if (e.target.getAttribute('data-k') === 'partenaire') { etat.partenaire = e.target.value; return; }
         if (e.target.getAttribute('data-k') !== 'annonce') return;
         etat.annonce = e.target.value; var c = zone.querySelector('.plib-compte span'); if (c) c.textContent = etat.annonce.length;
     });
     zone.addEventListener('click', function (e) {
         var b = e.target.closest('.plib-puces button'); if (!b) return;
         var box = b.parentNode, cle = box.getAttribute('data-liste'), max = +box.getAttribute('data-max') || 99, v = b.getAttribute('data-v'), l = etat[cle], i = l.indexOf(v);
-        if (i >= 0) l.splice(i, 1); else { if (l.length >= max) { if (typeof showToast === 'function') showToast(max + ' intérêts au maximum', 'info'); return; } l.push(v); }
+        if (i >= 0) l.splice(i, 1); else { if (l.length >= max) { if (typeof showToast === 'function') showToast(max + ' choix au maximum', 'info'); return; } l.push(v); }
         b.setAttribute('aria-pressed', String(i < 0));
         var prog = zone.querySelector('.plib-prog'); if (prog) prog.outerHTML = progression();
     });
@@ -76,10 +83,10 @@
         charger: function (u) {
             membre = u; genre = u.gender || '';
             var p = {}; try { p = typeof u.profil === 'string' ? JSON.parse(u.profil || '{}') : (u.profil || {}); } catch (x) {}
-            etat = { couple: p.couple || 'hf', p1: p.p1 || {}, p2: p.p2 || {}, interets: (p.interets || []).slice(), recherche: (p.recherche || []).slice(), annonce: p.annonce || '' };
+            etat = { couple: p.couple || 'hf', p1: p.p1 || {}, p2: p.p2 || {}, interets: (p.interets || []).slice(), recherche: (p.recherche || []).slice(), annonce: p.annonce || '', situation: p.situation || '', partenaire: p.partenaireNom || '', objectifs: (p.objectifs || []).slice() };
             rendre();
         },
-        valeur: function () { return { couple: etat.couple, p1: etat.p1, p2: etat.p2, interets: etat.interets, recherche: etat.recherche, annonce: etat.annonce }; }
+        valeur: function () { return { couple: etat.couple, p1: etat.p1, p2: etat.p2, interets: etat.interets, recherche: etat.recherche, annonce: etat.annonce, situation: etat.situation, partenaire: etat.situation === 'couple' ? etat.partenaire : '', objectifs: etat.objectifs }; }
     };
     fetch(API_URL + '/models/profil-options').then(function (r) { return r.json(); }).then(function (d) { OPT = d; rendre(); }).catch(function () {
         zone.innerHTML = '<p class="text-xs text-slate-500">Le profil détaillé est indisponible pour le moment.</p>';

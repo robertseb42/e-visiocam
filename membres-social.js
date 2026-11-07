@@ -252,7 +252,16 @@
                 [pr.p1, pr.p2].forEach(function (x, i) { if (x && x.tendance) qui.push(nomsP[i] + ' ' + (T[x.tendance] || '').toLowerCase()); });
             } else if (pr.p1 && pr.p1.tendance) qui.push(T[pr.p1.tendance]);
             if ((pr.ages || []).length) qui.push(pr.ages.join('/') + ' ans');
+            if (pr.situation) qui.push(pr.situation === 'couple' ? '💑 En couple' : ((o.situations || {})[pr.situation] || ''));
             if (qui.length) f.appendChild(el('p', 'evs-sous', qui.join(' · ')));
+            if (pr.partenaire) {
+                var pl = el('p', 'evs-sous', '💞 En couple avec ');
+                var pb = el('button', '', '@' + pr.partenaire.username); pb.type = 'button';
+                pb.style.cssText = 'background:none;border:0;padding:0;color:inherit;font-weight:700;text-decoration:underline;cursor:pointer';
+                pb.addEventListener('click', function () { ouvrirFiche(pr.partenaire.id); });
+                pl.appendChild(pb); f.appendChild(pl);
+            }
+            if ((pr.objectifs || []).length) f.appendChild(el('p', 'evs-sous', 'Ici pour : ' + pr.objectifs.map(function (k) { return (o.objectifs || {})[k] || k; }).join(', ')));
             if ((pr.recherche || []).length) f.appendChild(el('p', 'evs-sous', 'Recherche : ' + pr.recherche.map(function (k) { return (o.recherche || {})[k] || k; }).join(', ')));
             if ((pr.interets || []).length) { var it = el('div', 'evs-badges'); pr.interets.forEach(function (k) { it.appendChild(el('span', 'evs-badge', (o.interets || {})[k] || k)); }); f.appendChild(it); }
             if (pr.annonce) f.appendChild(el('p', 'evs-bio', pr.annonce));
